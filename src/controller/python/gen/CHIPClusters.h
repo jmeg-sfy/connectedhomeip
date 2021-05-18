@@ -1213,13 +1213,15 @@ public:
     CHIP_ERROR ReportAttributeConfigStatus(Callback::Cancelable * onReportCallback);
 
 private:
-    static constexpr CommandId kWindowCoveringDownCloseCommandId          = 0x01;
-    static constexpr CommandId kWindowCoveringGoToLiftPercentageCommandId = 0x05;
-    static constexpr CommandId kWindowCoveringGoToLiftValueCommandId      = 0x04;
-    static constexpr CommandId kWindowCoveringGoToTiltPercentageCommandId = 0x08;
-    static constexpr CommandId kWindowCoveringGoToTiltValueCommandId      = 0x07;
-    static constexpr CommandId kWindowCoveringStopCommandId               = 0x02;
-    static constexpr CommandId kWindowCoveringUpOpenCommandId             = 0x00;
+    static constexpr CommandId kWcDownOrCloseCommandId                = 0x01;
+    static constexpr CommandId kWcGoToLiftAccuratePercentageCommandId = 0x09;
+    static constexpr CommandId kWcGoToLiftPercentageCommandId         = 0x05;
+    static constexpr CommandId kWcGoToLiftValueCommandId              = 0x04;
+    static constexpr CommandId kWcGoToTiltAccuratePercentageCommandId = 0x0A;
+    static constexpr CommandId kWcGoToTiltPercentageCommandId         = 0x08;
+    static constexpr CommandId kWcGoToTiltValueCommandId              = 0x07;
+    static constexpr CommandId kWcStopCommandId                       = 0x02;
+    static constexpr CommandId kWcUpOrOpenCommandId                   = 0x00;
 };
 
 } // namespace Controller

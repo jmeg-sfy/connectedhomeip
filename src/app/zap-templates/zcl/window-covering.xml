@@ -31,11 +31,11 @@ limitations under the License.
     <attribute side="server" writable="false" code="0x0005" define="WC_NUMBER_OF_ACTUATIONS_LIFT"                 type="INT16U"   min="0x0000" max="0xFFFF" default="0x0000" optional="true">NumberOfActuationsLift</attribute>
     <attribute side="server" writable="false" code="0x0006" define="WC_NUMBER_OF_ACTUATIONS_TILT"                 type="INT16U"   min="0x0000" max="0xFFFF" default="0x0000" optional="true">NumberOfActuationsTilt</attribute>
     <attribute side="server" writable="false" code="0x0007" define="WC_CONFIG_STATUS"                             type="BITMAP8"  min="0x00"   max="0x7F"   default="0x03"   optional="false">ConfigStatus</attribute>
-    <attribute side="server" writable="false" code="0x0008" define="WC_CURRENT_POSITION_LIFT_PERCENTAGE"          type="INT8U"    min="0x00"   max="0x64"   default="0xFF"   optional="true"  reportable="true">CurrentPositionLiftPercentage</attribute>
-    <attribute side="server" writable="false" code="0x0009" define="WC_CURRENT_POSITION_TILT_PERCENTAGE"          type="INT8U"    min="0x00"   max="0x64"   default="0xFF"   optional="true"  reportable="true">CurrentPositionTiltPercentage</attribute>
+    <attribute side="server" writable="false" code="0x0008" define="WC_CURRENT_POSITION_LIFT_PERCENTAGE"          type="INT8U"    min="0x00"   max="0x64"   default="0xFF"   optional="false" reportable="true">CurrentPositionLiftPercentage</attribute>
+    <attribute side="server" writable="false" code="0x0009" define="WC_CURRENT_POSITION_TILT_PERCENTAGE"          type="INT8U"    min="0x00"   max="0x64"   default="0xFF"   optional="false" reportable="true">CurrentPositionTiltPercentage</attribute>
     <attribute side="server" writable="false" code="0x000A" define="WC_OPERATIONAL_STATUS"                        type="BITMAP8"  min="0x00"   max="0x7F"   default="0x00"   optional="false" reportable="true">OperationalStatus</attribute>
     <attribute side="server" writable="false" code="0x000B" define="WC_TARGET_POSITION_LIFT_ACCURATE_PERCENTAGE"  type="INT16U"   min="0x00"   max="0x2710" default="0xFF"   optional="false" reportable="true">TargetPositionLiftAccuratePercentage</attribute>
-    <attribute side="server" writable="false" code="0x000C" define="WC_TARGET_POSITION_TILT_ACCURATE_PERCENTAGE"  type="INT16U"   min="0x00"   max="0x2710" default="0xFF"   optional="false" reportable="true">TargetPositionLiftAccuratePercentage</attribute>
+    <attribute side="server" writable="false" code="0x000C" define="WC_TARGET_POSITION_TILT_ACCURATE_PERCENTAGE"  type="INT16U"   min="0x00"   max="0x2710" default="0xFF"   optional="false" reportable="true">TargetPositionTiltAccuratePercentage</attribute>
     <attribute side="server" writable="false" code="0x000D" define="WC_END_PRODUCT_TYPE"                          type="ENUM8"    min="0x00"   max="0xFF"   default="0x00"   optional="false">EndProductType</attribute>
     <attribute side="server" writable="false" code="0x000E" define="WC_CURRENT_POSITION_LIFT_ACCURATE_PERCENTAGE" type="INT16U"   min="0x00"   max="0x2710" default="0xFF"   optional="false" reportable="true" >CurrentPositionLiftAccuratePercentage</attribute>
     <attribute side="server" writable="false" code="0x000F" define="WC_CURRENT_POSITION_TILT_ACCURATE_PERCENTAGE" type="INT16U"   min="0x00"   max="0x2710" default="0xFF"   optional="false" reportable="true" >CurrentPositionTiltAccuratePercentage</attribute> 
@@ -95,13 +95,13 @@ limitations under the License.
       <description>
         Go to lift accurate percentage specified
       </description>
-      <arg name="percentageTiltValue" type="INT16U"/>
+      <arg name="accuratePercentageTiltValue" type="INT16U"/>
     </command>
     <command source="client" code="0x0A" name="WcGoToTiltAccuratePercentage" optional="true" cli="zcl WindowCovering GoToLiftAccuratePercentage">
       <description>
         Go to tilt accurate percentage specified
       </description>
-      <arg name="percentageTiltValue" type="INT16U"/>
+      <arg name="accuratePercentageTiltValue" type="INT16U"/>
     </command>
   </cluster>
 
