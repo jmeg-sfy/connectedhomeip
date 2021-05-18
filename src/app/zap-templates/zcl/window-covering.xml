@@ -95,9 +95,9 @@ limitations under the License.
       <description>
         Go to lift accurate percentage specified
       </description>
-      <arg name="accuratePercentageTiltValue" type="INT16U"/>
+      <arg name="accuratePercentageLiftValue" type="INT16U"/>
     </command>
-    <command source="client" code="0x0A" name="WcGoToTiltAccuratePercentage" optional="true" cli="zcl WindowCovering GoToLiftAccuratePercentage">
+    <command source="client" code="0x0A" name="WcGoToTiltAccuratePercentage" optional="true" cli="zcl WindowCovering GoToTiltAccuratePercentage">
       <description>
         Go to tilt accurate percentage specified
       </description>
