@@ -3433,79 +3433,102 @@ chip::System::PacketBufferHandle encodeWakeOnLanClusterReadClusterRevisionAttrib
 | Cluster WindowCovering                                              | 0x0102 |
 |------------------------------------------------------------------------------|
 | Commands:                                                           |        |
-| * WindowCoveringDownClose                                           |   0x01 |
-| * WindowCoveringGoToLiftPercentage                                  |   0x05 |
-| * WindowCoveringGoToLiftValue                                       |   0x04 |
-| * WindowCoveringGoToTiltPercentage                                  |   0x08 |
-| * WindowCoveringGoToTiltValue                                       |   0x07 |
-| * WindowCoveringStop                                                |   0x02 |
-| * WindowCoveringUpOpen                                              |   0x00 |
+| * DownOrClose                                                       |   0x01 |
+| * GoToLiftAccuratePercentage                                        |   0x09 |
+| * GoToLiftPercentage                                                |   0x05 |
+| * GoToLiftValue                                                     |   0x04 |
+| * GoToTiltAccuratePercentage                                        |   0x0A |
+| * GoToTiltPercentage                                                |   0x08 |
+| * GoToTiltValue                                                     |   0x07 |
+| * Stop                                                              |   0x02 |
+| * UpOrOpen                                                          |   0x00 |
 |------------------------------------------------------------------------------|
 | Attributes:                                                         |        |
-| * WindowCoveringType                                                | 0x0000 |
+| * Type                                                              | 0x0000 |
 | * CurrentPositionLift                                               | 0x0003 |
 | * CurrentPositionTilt                                               | 0x0004 |
 | * ConfigStatus                                                      | 0x0007 |
-| * InstalledOpenLimitLift                                            | 0x0010 |
-| * InstalledClosedLimitLift                                          | 0x0011 |
-| * InstalledOpenLimitTilt                                            | 0x0012 |
-| * InstalledClosedLimitTilt                                          | 0x0013 |
-| * Mode                                                              | 0x0017 |
+| * CurrentPositionLiftPercentage                                     | 0x0008 |
+| * CurrentPositionTiltPercentage                                     | 0x0009 |
+| * OperationalStatus                                                 | 0x000A |
+| * TargetPositionLiftAccuratePercentage                              | 0x000B |
+| * TargetPositionTiltAccuratePercentage                              | 0x000C |
+| * EndProductType                                                    | 0x000D |
+| * CurrentPositionLiftAccuratePercentage                             | 0x000E |
+| * CurrentPositionTiltAccuratePercentage                             | 0x000F |
+| * SafetyStatus                                                      | 0x0010 |
+| * InstalledOpenLimitLift                                            | 0x0100 |
+| * InstalledClosedLimitLift                                          | 0x0101 |
+| * InstalledOpenLimitTilt                                            | 0x0102 |
+| * InstalledClosedLimitTilt                                          | 0x0103 |
+| * Mode                                                              | 0x0107 |
 | * ClusterRevision                                                   | 0xFFFD |
 \*----------------------------------------------------------------------------*/
 
 /**
  * @brief
- *    Encode an WindowCoveringDownClose command for Window Covering server into buffer including the APS frame
+ *    Encode an DownOrClose command for Window Covering server into buffer including the APS frame
  */
-chip::System::PacketBufferHandle encodeWindowCoveringClusterWindowCoveringDownCloseCommand(uint8_t seqNum,
-                                                                                           chip::EndpointId destinationEndpoint);
+chip::System::PacketBufferHandle encodeWindowCoveringClusterDownOrCloseCommand(uint8_t seqNum,
+                                                                                 chip::EndpointId destinationEndpoint);
 
 /**
  * @brief
- *    Encode an WindowCoveringGoToLiftPercentage command for Window Covering server into buffer including the APS frame
+ *    Encode an GoToLiftAccuratePercentage command for Window Covering server into buffer including the APS frame
  */
 chip::System::PacketBufferHandle
-encodeWindowCoveringClusterWindowCoveringGoToLiftPercentageCommand(uint8_t seqNum, chip::EndpointId destinationEndpoint,
-                                                                   uint8_t percentageLiftValue);
+encodeWindowCoveringClusterGoToLiftAccuratePercentageCommand(uint8_t seqNum, chip::EndpointId destinationEndpoint,
+                                                               uint16_t accuratePercentageLiftValue);
 
 /**
  * @brief
- *    Encode an WindowCoveringGoToLiftValue command for Window Covering server into buffer including the APS frame
+ *    Encode an GoToLiftPercentage command for Window Covering server into buffer including the APS frame
  */
-chip::System::PacketBufferHandle encodeWindowCoveringClusterWindowCoveringGoToLiftValueCommand(uint8_t seqNum,
-                                                                                               chip::EndpointId destinationEndpoint,
-                                                                                               uint16_t liftValue);
+chip::System::PacketBufferHandle encodeWindowCoveringClusterGoToLiftPercentageCommand(uint8_t seqNum,
+                                                                                        chip::EndpointId destinationEndpoint,
+                                                                                        uint8_t percentageLiftValue);
 
 /**
  * @brief
- *    Encode an WindowCoveringGoToTiltPercentage command for Window Covering server into buffer including the APS frame
+ *    Encode an GoToLiftValue command for Window Covering server into buffer including the APS frame
  */
 chip::System::PacketBufferHandle
-encodeWindowCoveringClusterWindowCoveringGoToTiltPercentageCommand(uint8_t seqNum, chip::EndpointId destinationEndpoint,
-                                                                   uint8_t percentageTiltValue);
+encodeWindowCoveringClusterGoToLiftValueCommand(uint8_t seqNum, chip::EndpointId destinationEndpoint, uint16_t liftValue);
 
 /**
  * @brief
- *    Encode an WindowCoveringGoToTiltValue command for Window Covering server into buffer including the APS frame
+ *    Encode an GoToTiltAccuratePercentage command for Window Covering server into buffer including the APS frame
  */
-chip::System::PacketBufferHandle encodeWindowCoveringClusterWindowCoveringGoToTiltValueCommand(uint8_t seqNum,
-                                                                                               chip::EndpointId destinationEndpoint,
-                                                                                               uint16_t tiltValue);
+chip::System::PacketBufferHandle
+encodeWindowCoveringClusterGoToTiltAccuratePercentageCommand(uint8_t seqNum, chip::EndpointId destinationEndpoint,
+                                                               uint16_t accuratePercentageTiltValue);
 
 /**
  * @brief
- *    Encode an WindowCoveringStop command for Window Covering server into buffer including the APS frame
+ *    Encode an GoToTiltPercentage command for Window Covering server into buffer including the APS frame
  */
-chip::System::PacketBufferHandle encodeWindowCoveringClusterWindowCoveringStopCommand(uint8_t seqNum,
-                                                                                      chip::EndpointId destinationEndpoint);
+chip::System::PacketBufferHandle encodeWindowCoveringClusterGoToTiltPercentageCommand(uint8_t seqNum,
+                                                                                        chip::EndpointId destinationEndpoint,
+                                                                                        uint8_t percentageTiltValue);
 
 /**
  * @brief
- *    Encode an WindowCoveringUpOpen command for Window Covering server into buffer including the APS frame
+ *    Encode an GoToTiltValue command for Window Covering server into buffer including the APS frame
  */
-chip::System::PacketBufferHandle encodeWindowCoveringClusterWindowCoveringUpOpenCommand(uint8_t seqNum,
-                                                                                        chip::EndpointId destinationEndpoint);
+chip::System::PacketBufferHandle
+encodeWindowCoveringClusterGoToTiltValueCommand(uint8_t seqNum, chip::EndpointId destinationEndpoint, uint16_t tiltValue);
+
+/**
+ * @brief
+ *    Encode an Stop command for Window Covering server into buffer including the APS frame
+ */
+chip::System::PacketBufferHandle encodeWindowCoveringClusterStopCommand(uint8_t seqNum, chip::EndpointId destinationEndpoint);
+
+/**
+ * @brief
+ *    Encode an UpOrOpen command for Window Covering server into buffer including the APS frame
+ */
+chip::System::PacketBufferHandle encodeWindowCoveringClusterUpOrOpenCommand(uint8_t seqNum, chip::EndpointId destinationEndpoint);
 
 /**
  * @brief
@@ -3516,107 +3539,203 @@ chip::System::PacketBufferHandle encodeWindowCoveringClusterDiscoverAttributes(u
 
 /**
  * @brief
- *    Encode a Window Covering server read command for the window covering type attribute into buffer including the APS frame
+ *    Encode a Window Covering server read command for the Type attribute into buffer including the APS frame
  */
-chip::System::PacketBufferHandle encodeWindowCoveringClusterReadWindowCoveringTypeAttribute(uint8_t seqNum,
-                                                                                            chip::EndpointId destinationEndpoint);
+chip::System::PacketBufferHandle encodeWindowCoveringClusterReadTypeAttribute(uint8_t seqNum, chip::EndpointId destinationEndpoint);
 
 /**
  * @brief
- *    Encode a Window Covering server configure report command for the window covering type attribute into buffer including the APS
- * frame
- */
-chip::System::PacketBufferHandle
-encodeWindowCoveringClusterConfigureWindowCoveringTypeAttribute(uint8_t seqNum, chip::EndpointId destinationEndpoint,
-                                                                uint16_t minInterval, uint16_t maxInterval);
-
-/**
- * @brief
- *    Encode a Window Covering server read command for the current position - lift attribute into buffer including the APS frame
+ *    Encode a Window Covering server read command for the CurrentPositionLift attribute into buffer including the APS frame
  */
 chip::System::PacketBufferHandle encodeWindowCoveringClusterReadCurrentPositionLiftAttribute(uint8_t seqNum,
                                                                                              chip::EndpointId destinationEndpoint);
 
 /**
  * @brief
- *    Encode a Window Covering server configure report command for the current position - lift attribute into buffer including the
- * APS frame
- */
-chip::System::PacketBufferHandle
-encodeWindowCoveringClusterConfigureCurrentPositionLiftAttribute(uint8_t seqNum, chip::EndpointId destinationEndpoint,
-                                                                 uint16_t minInterval, uint16_t maxInterval, uint16_t change);
-
-/**
- * @brief
- *    Encode a Window Covering server read command for the current position - tilt attribute into buffer including the APS frame
+ *    Encode a Window Covering server read command for the CurrentPositionTilt attribute into buffer including the APS frame
  */
 chip::System::PacketBufferHandle encodeWindowCoveringClusterReadCurrentPositionTiltAttribute(uint8_t seqNum,
                                                                                              chip::EndpointId destinationEndpoint);
 
 /**
  * @brief
- *    Encode a Window Covering server configure report command for the current position - tilt attribute into buffer including the
- * APS frame
- */
-chip::System::PacketBufferHandle
-encodeWindowCoveringClusterConfigureCurrentPositionTiltAttribute(uint8_t seqNum, chip::EndpointId destinationEndpoint,
-                                                                 uint16_t minInterval, uint16_t maxInterval, uint16_t change);
-
-/**
- * @brief
- *    Encode a Window Covering server read command for the config status attribute into buffer including the APS frame
+ *    Encode a Window Covering server read command for the ConfigStatus attribute into buffer including the APS frame
  */
 chip::System::PacketBufferHandle encodeWindowCoveringClusterReadConfigStatusAttribute(uint8_t seqNum,
                                                                                       chip::EndpointId destinationEndpoint);
 
 /**
  * @brief
- *    Encode a Window Covering server configure report command for the config status attribute into buffer including the APS frame
+ *    Encode a Window Covering server read command for the CurrentPositionLiftPercentage attribute into buffer including the APS
+ * frame
  */
-chip::System::PacketBufferHandle encodeWindowCoveringClusterConfigureConfigStatusAttribute(uint8_t seqNum,
+chip::System::PacketBufferHandle
+encodeWindowCoveringClusterReadCurrentPositionLiftPercentageAttribute(uint8_t seqNum, chip::EndpointId destinationEndpoint);
+
+/**
+ * @brief
+ *    Encode a Window Covering server configure report command for the CurrentPositionLiftPercentage attribute into buffer including
+ * the APS frame
+ */
+chip::System::PacketBufferHandle encodeWindowCoveringClusterConfigureCurrentPositionLiftPercentageAttribute(
+    uint8_t seqNum, chip::EndpointId destinationEndpoint, uint16_t minInterval, uint16_t maxInterval, uint8_t change);
+
+/**
+ * @brief
+ *    Encode a Window Covering server read command for the CurrentPositionTiltPercentage attribute into buffer including the APS
+ * frame
+ */
+chip::System::PacketBufferHandle
+encodeWindowCoveringClusterReadCurrentPositionTiltPercentageAttribute(uint8_t seqNum, chip::EndpointId destinationEndpoint);
+
+/**
+ * @brief
+ *    Encode a Window Covering server configure report command for the CurrentPositionTiltPercentage attribute into buffer including
+ * the APS frame
+ */
+chip::System::PacketBufferHandle encodeWindowCoveringClusterConfigureCurrentPositionTiltPercentageAttribute(
+    uint8_t seqNum, chip::EndpointId destinationEndpoint, uint16_t minInterval, uint16_t maxInterval, uint8_t change);
+
+/**
+ * @brief
+ *    Encode a Window Covering server read command for the OperationalStatus attribute into buffer including the APS frame
+ */
+chip::System::PacketBufferHandle encodeWindowCoveringClusterReadOperationalStatusAttribute(uint8_t seqNum,
+                                                                                           chip::EndpointId destinationEndpoint);
+
+/**
+ * @brief
+ *    Encode a Window Covering server configure report command for the OperationalStatus attribute into buffer including the APS
+ * frame
+ */
+chip::System::PacketBufferHandle
+encodeWindowCoveringClusterConfigureOperationalStatusAttribute(uint8_t seqNum, chip::EndpointId destinationEndpoint,
+                                                               uint16_t minInterval, uint16_t maxInterval);
+
+/**
+ * @brief
+ *    Encode a Window Covering server read command for the TargetPositionLiftAccuratePercentage attribute into buffer including the
+ * APS frame
+ */
+chip::System::PacketBufferHandle
+encodeWindowCoveringClusterReadTargetPositionLiftAccuratePercentageAttribute(uint8_t seqNum, chip::EndpointId destinationEndpoint);
+
+/**
+ * @brief
+ *    Encode a Window Covering server configure report command for the TargetPositionLiftAccuratePercentage attribute into buffer
+ * including the APS frame
+ */
+chip::System::PacketBufferHandle encodeWindowCoveringClusterConfigureTargetPositionLiftAccuratePercentageAttribute(
+    uint8_t seqNum, chip::EndpointId destinationEndpoint, uint16_t minInterval, uint16_t maxInterval, uint16_t change);
+
+/**
+ * @brief
+ *    Encode a Window Covering server read command for the TargetPositionTiltAccuratePercentage attribute into buffer including the
+ * APS frame
+ */
+chip::System::PacketBufferHandle
+encodeWindowCoveringClusterReadTargetPositionTiltAccuratePercentageAttribute(uint8_t seqNum, chip::EndpointId destinationEndpoint);
+
+/**
+ * @brief
+ *    Encode a Window Covering server configure report command for the TargetPositionTiltAccuratePercentage attribute into buffer
+ * including the APS frame
+ */
+chip::System::PacketBufferHandle encodeWindowCoveringClusterConfigureTargetPositionTiltAccuratePercentageAttribute(
+    uint8_t seqNum, chip::EndpointId destinationEndpoint, uint16_t minInterval, uint16_t maxInterval, uint16_t change);
+
+/**
+ * @brief
+ *    Encode a Window Covering server read command for the EndProductType attribute into buffer including the APS frame
+ */
+chip::System::PacketBufferHandle encodeWindowCoveringClusterReadEndProductTypeAttribute(uint8_t seqNum,
+                                                                                        chip::EndpointId destinationEndpoint);
+
+/**
+ * @brief
+ *    Encode a Window Covering server read command for the CurrentPositionLiftAccuratePercentage attribute into buffer including the
+ * APS frame
+ */
+chip::System::PacketBufferHandle
+encodeWindowCoveringClusterReadCurrentPositionLiftAccuratePercentageAttribute(uint8_t seqNum, chip::EndpointId destinationEndpoint);
+
+/**
+ * @brief
+ *    Encode a Window Covering server configure report command for the CurrentPositionLiftAccuratePercentage attribute into buffer
+ * including the APS frame
+ */
+chip::System::PacketBufferHandle encodeWindowCoveringClusterConfigureCurrentPositionLiftAccuratePercentageAttribute(
+    uint8_t seqNum, chip::EndpointId destinationEndpoint, uint16_t minInterval, uint16_t maxInterval, uint16_t change);
+
+/**
+ * @brief
+ *    Encode a Window Covering server read command for the CurrentPositionTiltAccuratePercentage attribute into buffer including the
+ * APS frame
+ */
+chip::System::PacketBufferHandle
+encodeWindowCoveringClusterReadCurrentPositionTiltAccuratePercentageAttribute(uint8_t seqNum, chip::EndpointId destinationEndpoint);
+
+/**
+ * @brief
+ *    Encode a Window Covering server configure report command for the CurrentPositionTiltAccuratePercentage attribute into buffer
+ * including the APS frame
+ */
+chip::System::PacketBufferHandle encodeWindowCoveringClusterConfigureCurrentPositionTiltAccuratePercentageAttribute(
+    uint8_t seqNum, chip::EndpointId destinationEndpoint, uint16_t minInterval, uint16_t maxInterval, uint16_t change);
+
+/**
+ * @brief
+ *    Encode a Window Covering server read command for the SafetyStatus attribute into buffer including the APS frame
+ */
+chip::System::PacketBufferHandle encodeWindowCoveringClusterReadSafetyStatusAttribute(uint8_t seqNum,
+                                                                                      chip::EndpointId destinationEndpoint);
+
+/**
+ * @brief
+ *    Encode a Window Covering server configure report command for the SafetyStatus attribute into buffer including the APS frame
+ */
+chip::System::PacketBufferHandle encodeWindowCoveringClusterConfigureSafetyStatusAttribute(uint8_t seqNum,
                                                                                            chip::EndpointId destinationEndpoint,
                                                                                            uint16_t minInterval,
                                                                                            uint16_t maxInterval);
 
 /**
  * @brief
- *    Encode a Window Covering server read command for the installed open limit - lift attribute into buffer including the APS frame
+ *    Encode a Window Covering server read command for the InstalledOpenLimitLift attribute into buffer including the APS frame
  */
 chip::System::PacketBufferHandle
 encodeWindowCoveringClusterReadInstalledOpenLimitLiftAttribute(uint8_t seqNum, chip::EndpointId destinationEndpoint);
 
 /**
  * @brief
- *    Encode a Window Covering server read command for the installed closed limit - lift attribute into buffer including the APS
- * frame
+ *    Encode a Window Covering server read command for the InstalledClosedLimitLift attribute into buffer including the APS frame
  */
 chip::System::PacketBufferHandle
 encodeWindowCoveringClusterReadInstalledClosedLimitLiftAttribute(uint8_t seqNum, chip::EndpointId destinationEndpoint);
 
 /**
  * @brief
- *    Encode a Window Covering server read command for the installed open limit - tilt attribute into buffer including the APS frame
+ *    Encode a Window Covering server read command for the InstalledOpenLimitTilt attribute into buffer including the APS frame
  */
 chip::System::PacketBufferHandle
 encodeWindowCoveringClusterReadInstalledOpenLimitTiltAttribute(uint8_t seqNum, chip::EndpointId destinationEndpoint);
 
 /**
  * @brief
- *    Encode a Window Covering server read command for the installed closed limit - tilt attribute into buffer including the APS
- * frame
+ *    Encode a Window Covering server read command for the InstalledClosedLimitTilt attribute into buffer including the APS frame
  */
 chip::System::PacketBufferHandle
 encodeWindowCoveringClusterReadInstalledClosedLimitTiltAttribute(uint8_t seqNum, chip::EndpointId destinationEndpoint);
 
 /**
  * @brief
- *    Encode a Window Covering server read command for the mode attribute into buffer including the APS frame
+ *    Encode a Window Covering server read command for the Mode attribute into buffer including the APS frame
  */
 chip::System::PacketBufferHandle encodeWindowCoveringClusterReadModeAttribute(uint8_t seqNum, chip::EndpointId destinationEndpoint);
 
 /**
  * @brief
- *    Encode a Window Covering server write command for the mode attribute into buffer including the APS frame
+ *    Encode a Window Covering server write command for the Mode attribute into buffer including the APS frame
  */
 chip::System::PacketBufferHandle encodeWindowCoveringClusterWriteModeAttribute(uint8_t seqNum, chip::EndpointId destinationEndpoint,
                                                                                uint8_t mode);
