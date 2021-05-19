@@ -397,11 +397,24 @@ EmberAfStatus emberAfWindowCoveringClusterServerCommandParse(EmberAfClusterComma
     {
         switch (cmd->commandId)
         {
-        case ZCL_WINDOW_COVERING_DOWN_CLOSE_COMMAND_ID: {
-            wasHandled = emberAfWindowCoveringClusterWindowCoveringDownCloseCallback(nullptr);
+        case ZCL_WC_DOWN_OR_CLOSE_COMMAND_ID: {
+            wasHandled = emberAfWindowCoveringClusterDownOrCloseCallback(nullptr);
             break;
         }
-        case ZCL_WINDOW_COVERING_GO_TO_LIFT_PERCENTAGE_COMMAND_ID: {
+        case ZCL_WC_GO_TO_LIFT_ACCURATE_PERCENTAGE_COMMAND_ID: {
+            uint16_t payloadOffset = cmd->payloadStartIndex;
+            uint16_t accuratePercentageLiftValue;
+
+            if (cmd->bufLen < payloadOffset + 2)
+            {
+                return EMBER_ZCL_STATUS_MALFORMED_COMMAND;
+            }
+            accuratePercentageLiftValue = emberAfGetInt16u(cmd->buffer, payloadOffset, cmd->bufLen);
+
+            wasHandled = emberAfWindowCoveringClusterGoToLiftAccuratePercentageCallback(nullptr, accuratePercentageLiftValue);
+            break;
+        }
+        case ZCL_WC_GO_TO_LIFT_PERCENTAGE_COMMAND_ID: {
             uint16_t payloadOffset = cmd->payloadStartIndex;
             uint8_t percentageLiftValue;
 
@@ -411,10 +424,10 @@ EmberAfStatus emberAfWindowCoveringClusterServerCommandParse(EmberAfClusterComma
             }
             percentageLiftValue = emberAfGetInt8u(cmd->buffer, payloadOffset, cmd->bufLen);
 
-            wasHandled = emberAfWindowCoveringClusterWindowCoveringGoToLiftPercentageCallback(nullptr, percentageLiftValue);
+            wasHandled = emberAfWindowCoveringClusterGoToLiftPercentageCallback(nullptr, percentageLiftValue);
             break;
         }
-        case ZCL_WINDOW_COVERING_GO_TO_LIFT_VALUE_COMMAND_ID: {
+        case ZCL_WC_GO_TO_LIFT_VALUE_COMMAND_ID: {
             uint16_t payloadOffset = cmd->payloadStartIndex;
             uint16_t liftValue;
 
@@ -424,10 +437,23 @@ EmberAfStatus emberAfWindowCoveringClusterServerCommandParse(EmberAfClusterComma
             }
             liftValue = emberAfGetInt16u(cmd->buffer, payloadOffset, cmd->bufLen);
 
-            wasHandled = emberAfWindowCoveringClusterWindowCoveringGoToLiftValueCallback(nullptr, liftValue);
+            wasHandled = emberAfWindowCoveringClusterGoToLiftValueCallback(nullptr, liftValue);
             break;
         }
-        case ZCL_WINDOW_COVERING_GO_TO_TILT_PERCENTAGE_COMMAND_ID: {
+        case ZCL_WC_GO_TO_TILT_ACCURATE_PERCENTAGE_COMMAND_ID: {
+            uint16_t payloadOffset = cmd->payloadStartIndex;
+            uint16_t accuratePercentageTiltValue;
+
+            if (cmd->bufLen < payloadOffset + 2)
+            {
+                return EMBER_ZCL_STATUS_MALFORMED_COMMAND;
+            }
+            accuratePercentageTiltValue = emberAfGetInt16u(cmd->buffer, payloadOffset, cmd->bufLen);
+
+            wasHandled = emberAfWindowCoveringClusterGoToTiltAccuratePercentageCallback(nullptr, accuratePercentageTiltValue);
+            break;
+        }
+        case ZCL_WC_GO_TO_TILT_PERCENTAGE_COMMAND_ID: {
             uint16_t payloadOffset = cmd->payloadStartIndex;
             uint8_t percentageTiltValue;
 
@@ -437,10 +463,10 @@ EmberAfStatus emberAfWindowCoveringClusterServerCommandParse(EmberAfClusterComma
             }
             percentageTiltValue = emberAfGetInt8u(cmd->buffer, payloadOffset, cmd->bufLen);
 
-            wasHandled = emberAfWindowCoveringClusterWindowCoveringGoToTiltPercentageCallback(nullptr, percentageTiltValue);
+            wasHandled = emberAfWindowCoveringClusterGoToTiltPercentageCallback(nullptr, percentageTiltValue);
             break;
         }
-        case ZCL_WINDOW_COVERING_GO_TO_TILT_VALUE_COMMAND_ID: {
+        case ZCL_WC_GO_TO_TILT_VALUE_COMMAND_ID: {
             uint16_t payloadOffset = cmd->payloadStartIndex;
             uint16_t tiltValue;
 
@@ -450,15 +476,15 @@ EmberAfStatus emberAfWindowCoveringClusterServerCommandParse(EmberAfClusterComma
             }
             tiltValue = emberAfGetInt16u(cmd->buffer, payloadOffset, cmd->bufLen);
 
-            wasHandled = emberAfWindowCoveringClusterWindowCoveringGoToTiltValueCallback(nullptr, tiltValue);
+            wasHandled = emberAfWindowCoveringClusterGoToTiltValueCallback(nullptr, tiltValue);
             break;
         }
-        case ZCL_WINDOW_COVERING_STOP_COMMAND_ID: {
-            wasHandled = emberAfWindowCoveringClusterWindowCoveringStopCallback(nullptr);
+        case ZCL_WC_STOP_COMMAND_ID: {
+            wasHandled = emberAfWindowCoveringClusterStopCallback(nullptr);
             break;
         }
-        case ZCL_WINDOW_COVERING_UP_OPEN_COMMAND_ID: {
-            wasHandled = emberAfWindowCoveringClusterWindowCoveringUpOpenCallback(nullptr);
+        case ZCL_WC_UP_OR_OPEN_COMMAND_ID: {
+            wasHandled = emberAfWindowCoveringClusterUpOrOpenCallback(nullptr);
             break;
         }
         default: {

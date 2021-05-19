@@ -27,6 +27,7 @@
 #include <gen/attribute-id.h>
 #include <gen/attribute-type.h>
 #include <gen/cluster-id.h>
+#include <gen/enums.h>
 #include <lcd.h>
 #include <qrcodegen.h>
 

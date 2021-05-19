@@ -193,7 +193,7 @@ void WindowCover::LiftDown()
     }
 }
 
-void WindowCover::LiftGotoValue(uint16_t lift)
+void WindowCover::LiftGoToValue(uint16_t lift)
 {
     if (lift > mLiftClosedLimit)
     {
@@ -209,9 +209,9 @@ void WindowCover::LiftGotoValue(uint16_t lift)
     PostEvent(AppEvent::EventType::CoverStart);
 }
 
-void WindowCover::LiftGotoPercent(uint8_t percentage)
+void WindowCover::LiftGoToAccuratePercentage(uint16_t percentage)
 {
-    LiftGotoValue(PercentToLift(percentage));
+    LiftGoToValue(PercentToLift(percentage));
 }
 
 uint8_t WindowCover::LiftToPercent(uint16_t lift)
@@ -284,7 +284,7 @@ void WindowCover::TiltDown()
     }
 }
 
-void WindowCover::TiltGotoValue(uint16_t tilt)
+void WindowCover::TiltGoToValue(uint16_t tilt)
 {
     if (tilt > mTiltClosedLimit)
     {
@@ -300,9 +300,9 @@ void WindowCover::TiltGotoValue(uint16_t tilt)
     PostEvent(AppEvent::EventType::CoverStart);
 }
 
-void WindowCover::TiltGotoPercent(uint8_t percentage)
+void WindowCover::TiltGoToAccuratePercentage(uint16_t percentage)
 {
-    TiltGotoValue(PercentToTilt(percentage));
+    TiltGoToValue(PercentToTilt(percentage));
 }
 
 uint8_t WindowCover::TiltToPercent(uint16_t tilt)
@@ -317,14 +317,14 @@ uint16_t WindowCover::PercentToTilt(uint8_t tiltPercent)
 
 void WindowCover::Open()
 {
-    LiftGotoValue(mLiftOpenLimit);
-    TiltGotoValue(mTiltOpenLimit);
+    LiftGoToValue(mLiftOpenLimit);
+    TiltGoToValue(mTiltOpenLimit);
 }
 
 void WindowCover::Close()
 {
-    LiftGotoValue(mLiftClosedLimit);
-    TiltGotoValue(mTiltClosedLimit);
+    LiftGoToValue(mLiftClosedLimit);
+    TiltGoToValue(mTiltClosedLimit);
 }
 
 void WindowCover::Stop()

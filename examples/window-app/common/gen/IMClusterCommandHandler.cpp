@@ -744,13 +744,73 @@ void DispatchServerCommand(app::Command * apCommandObj, CommandId aCommandId, En
     {
         switch (aCommandId)
         {
-        case ZCL_WINDOW_COVERING_DOWN_CLOSE_COMMAND_ID: {
+        case ZCL_WC_DOWN_OR_CLOSE_COMMAND_ID: {
 
             // TODO(#5098) We should pass the Command Object and EndpointId to the cluster callbacks.
-            wasHandled = emberAfWindowCoveringClusterWindowCoveringDownCloseCallback(apCommandObj);
+            wasHandled = emberAfWindowCoveringClusterDownOrCloseCallback(apCommandObj);
             break;
         }
-        case ZCL_WINDOW_COVERING_GO_TO_LIFT_PERCENTAGE_COMMAND_ID: {
+        case ZCL_WC_GO_TO_LIFT_ACCURATE_PERCENTAGE_COMMAND_ID: {
+            expectArgumentCount = 1;
+            uint16_t accuratePercentageLiftValue;
+            bool argExists[1];
+
+            memset(argExists, 0, sizeof argExists);
+
+            while ((TLVError = aDataTlv.Next()) == CHIP_NO_ERROR)
+            {
+                // Since call to aDataTlv.Next() is CHIP_NO_ERROR, the read head always points to an element.
+                // Skip this element if it is not a ContextTag, not consider it as an error if other values are valid.
+                if (!TLV::IsContextTag(aDataTlv.GetTag()))
+                {
+                    continue;
+                }
+                currentDecodeTagId = TLV::TagNumFromTag(aDataTlv.GetTag());
+                if (currentDecodeTagId < 1)
+                {
+                    if (argExists[currentDecodeTagId])
+                    {
+                        ChipLogProgress(Zcl, "Duplicate TLV tag %" PRIx32, TLV::TagNumFromTag(aDataTlv.GetTag()));
+                        TLVUnpackError = CHIP_ERROR_IM_MALFORMED_COMMAND_DATA_ELEMENT;
+                        break;
+                    }
+                    else
+                    {
+                        argExists[currentDecodeTagId] = true;
+                        validArgumentCount++;
+                    }
+                }
+                switch (currentDecodeTagId)
+                {
+                case 0:
+                    TLVUnpackError = aDataTlv.Get(accuratePercentageLiftValue);
+                    break;
+                default:
+                    // Unsupported tag, ignore it.
+                    ChipLogProgress(Zcl, "Unknown TLV tag during processing.");
+                    break;
+                }
+                if (CHIP_NO_ERROR != TLVUnpackError)
+                {
+                    break;
+                }
+            }
+
+            if (CHIP_END_OF_TLV == TLVError)
+            {
+                // CHIP_END_OF_TLV means we have iterated all items in the structure, which is not a real error.
+                TLVError = CHIP_NO_ERROR;
+            }
+
+            if (CHIP_NO_ERROR == TLVError && CHIP_NO_ERROR == TLVUnpackError && 1 == validArgumentCount)
+            {
+                // TODO(#5098) We should pass the Command Object and EndpointId to the cluster callbacks.
+                wasHandled =
+                    emberAfWindowCoveringClusterGoToLiftAccuratePercentageCallback(apCommandObj, accuratePercentageLiftValue);
+            }
+            break;
+        }
+        case ZCL_WC_GO_TO_LIFT_PERCENTAGE_COMMAND_ID: {
             expectArgumentCount = 1;
             uint8_t percentageLiftValue;
             bool argExists[1];
@@ -805,12 +865,11 @@ void DispatchServerCommand(app::Command * apCommandObj, CommandId aCommandId, En
             if (CHIP_NO_ERROR == TLVError && CHIP_NO_ERROR == TLVUnpackError && 1 == validArgumentCount)
             {
                 // TODO(#5098) We should pass the Command Object and EndpointId to the cluster callbacks.
-                wasHandled =
-                    emberAfWindowCoveringClusterWindowCoveringGoToLiftPercentageCallback(apCommandObj, percentageLiftValue);
+                wasHandled = emberAfWindowCoveringClusterGoToLiftPercentageCallback(apCommandObj, percentageLiftValue);
             }
             break;
         }
-        case ZCL_WINDOW_COVERING_GO_TO_LIFT_VALUE_COMMAND_ID: {
+        case ZCL_WC_GO_TO_LIFT_VALUE_COMMAND_ID: {
             expectArgumentCount = 1;
             uint16_t liftValue;
             bool argExists[1];
@@ -865,11 +924,71 @@ void DispatchServerCommand(app::Command * apCommandObj, CommandId aCommandId, En
             if (CHIP_NO_ERROR == TLVError && CHIP_NO_ERROR == TLVUnpackError && 1 == validArgumentCount)
             {
                 // TODO(#5098) We should pass the Command Object and EndpointId to the cluster callbacks.
-                wasHandled = emberAfWindowCoveringClusterWindowCoveringGoToLiftValueCallback(apCommandObj, liftValue);
+                wasHandled = emberAfWindowCoveringClusterGoToLiftValueCallback(apCommandObj, liftValue);
             }
             break;
         }
-        case ZCL_WINDOW_COVERING_GO_TO_TILT_PERCENTAGE_COMMAND_ID: {
+        case ZCL_WC_GO_TO_TILT_ACCURATE_PERCENTAGE_COMMAND_ID: {
+            expectArgumentCount = 1;
+            uint16_t accuratePercentageTiltValue;
+            bool argExists[1];
+
+            memset(argExists, 0, sizeof argExists);
+
+            while ((TLVError = aDataTlv.Next()) == CHIP_NO_ERROR)
+            {
+                // Since call to aDataTlv.Next() is CHIP_NO_ERROR, the read head always points to an element.
+                // Skip this element if it is not a ContextTag, not consider it as an error if other values are valid.
+                if (!TLV::IsContextTag(aDataTlv.GetTag()))
+                {
+                    continue;
+                }
+                currentDecodeTagId = TLV::TagNumFromTag(aDataTlv.GetTag());
+                if (currentDecodeTagId < 1)
+                {
+                    if (argExists[currentDecodeTagId])
+                    {
+                        ChipLogProgress(Zcl, "Duplicate TLV tag %" PRIx32, TLV::TagNumFromTag(aDataTlv.GetTag()));
+                        TLVUnpackError = CHIP_ERROR_IM_MALFORMED_COMMAND_DATA_ELEMENT;
+                        break;
+                    }
+                    else
+                    {
+                        argExists[currentDecodeTagId] = true;
+                        validArgumentCount++;
+                    }
+                }
+                switch (currentDecodeTagId)
+                {
+                case 0:
+                    TLVUnpackError = aDataTlv.Get(accuratePercentageTiltValue);
+                    break;
+                default:
+                    // Unsupported tag, ignore it.
+                    ChipLogProgress(Zcl, "Unknown TLV tag during processing.");
+                    break;
+                }
+                if (CHIP_NO_ERROR != TLVUnpackError)
+                {
+                    break;
+                }
+            }
+
+            if (CHIP_END_OF_TLV == TLVError)
+            {
+                // CHIP_END_OF_TLV means we have iterated all items in the structure, which is not a real error.
+                TLVError = CHIP_NO_ERROR;
+            }
+
+            if (CHIP_NO_ERROR == TLVError && CHIP_NO_ERROR == TLVUnpackError && 1 == validArgumentCount)
+            {
+                // TODO(#5098) We should pass the Command Object and EndpointId to the cluster callbacks.
+                wasHandled =
+                    emberAfWindowCoveringClusterGoToTiltAccuratePercentageCallback(apCommandObj, accuratePercentageTiltValue);
+            }
+            break;
+        }
+        case ZCL_WC_GO_TO_TILT_PERCENTAGE_COMMAND_ID: {
             expectArgumentCount = 1;
             uint8_t percentageTiltValue;
             bool argExists[1];
@@ -924,12 +1043,11 @@ void DispatchServerCommand(app::Command * apCommandObj, CommandId aCommandId, En
             if (CHIP_NO_ERROR == TLVError && CHIP_NO_ERROR == TLVUnpackError && 1 == validArgumentCount)
             {
                 // TODO(#5098) We should pass the Command Object and EndpointId to the cluster callbacks.
-                wasHandled =
-                    emberAfWindowCoveringClusterWindowCoveringGoToTiltPercentageCallback(apCommandObj, percentageTiltValue);
+                wasHandled = emberAfWindowCoveringClusterGoToTiltPercentageCallback(apCommandObj, percentageTiltValue);
             }
             break;
         }
-        case ZCL_WINDOW_COVERING_GO_TO_TILT_VALUE_COMMAND_ID: {
+        case ZCL_WC_GO_TO_TILT_VALUE_COMMAND_ID: {
             expectArgumentCount = 1;
             uint16_t tiltValue;
             bool argExists[1];
@@ -984,20 +1102,20 @@ void DispatchServerCommand(app::Command * apCommandObj, CommandId aCommandId, En
             if (CHIP_NO_ERROR == TLVError && CHIP_NO_ERROR == TLVUnpackError && 1 == validArgumentCount)
             {
                 // TODO(#5098) We should pass the Command Object and EndpointId to the cluster callbacks.
-                wasHandled = emberAfWindowCoveringClusterWindowCoveringGoToTiltValueCallback(apCommandObj, tiltValue);
+                wasHandled = emberAfWindowCoveringClusterGoToTiltValueCallback(apCommandObj, tiltValue);
             }
             break;
         }
-        case ZCL_WINDOW_COVERING_STOP_COMMAND_ID: {
+        case ZCL_WC_STOP_COMMAND_ID: {
 
             // TODO(#5098) We should pass the Command Object and EndpointId to the cluster callbacks.
-            wasHandled = emberAfWindowCoveringClusterWindowCoveringStopCallback(apCommandObj);
+            wasHandled = emberAfWindowCoveringClusterStopCallback(apCommandObj);
             break;
         }
-        case ZCL_WINDOW_COVERING_UP_OPEN_COMMAND_ID: {
+        case ZCL_WC_UP_OR_OPEN_COMMAND_ID: {
 
             // TODO(#5098) We should pass the Command Object and EndpointId to the cluster callbacks.
-            wasHandled = emberAfWindowCoveringClusterWindowCoveringUpOpenCallback(apCommandObj);
+            wasHandled = emberAfWindowCoveringClusterUpOrOpenCallback(apCommandObj);
             break;
         }
         default: {
