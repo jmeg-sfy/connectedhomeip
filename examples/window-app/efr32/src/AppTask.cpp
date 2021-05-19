@@ -484,7 +484,7 @@ void AppTask::IconTimerCallback(AppTimer & timer, void * context)
 void AppTask::CoverTypeTimerCallback(AppTimer & timer, void * context)
 {
     AppTask::Instance().Cover().TypeCycle();
-    if (ButtonHandler::Instance().mButtonDown.mIsPressed)
+    if (ButtonHandler::Instance().mButtonDownOrClose.mIsPressed)
     {
         // The button is still pressed, keep cycling;
         timer.Start();
