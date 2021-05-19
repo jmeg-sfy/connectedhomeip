@@ -25,6 +25,9 @@
 #include <stdint.h>
 #include <vector>
 
+#define LIFT_DELTA (LCD_COVER_SIZE / 10)
+#define TILT_DELTA 1
+
 class WindowCover
 {
 public:
@@ -48,10 +51,8 @@ public:
     enum class CoverAction
     {
         None = 0,
-        LiftDown,
-        LiftUp,
-        TiltDown,
-        TiltUp,
+        MovingDownOrClose,
+        MovingUpOrOpen,
     };
 
     typedef struct CoverActuator
@@ -62,6 +63,9 @@ public:
         uint16_t closedLimit; 
         uint16_t currentPosition;
         uint16_t targetPosition;
+        uint16_t stepDelta;
+        AppEvent::EventType eventOpening;
+        AppEvent::EventType eventClosing;
         AppTimer timer;
     } CoverActuator_t;
 
@@ -93,8 +97,8 @@ public:
     uint16_t LiftGet(void);
     // void LiftPercentSet(uint8_t percentage);
     // uint8_t LiftPercentGet(void);
-    void LiftUp();
-    void LiftDown();
+    void LiftUpOrOpen();
+    void LiftDownOrClose();
     void LiftGoToValue(uint16_t lift);
     void LiftGoToAccuratePercentage(uint16_t accuratePercentage);
 
@@ -105,15 +109,20 @@ public:
     uint16_t TiltGet(void);
     // void TiltPercentSet(uint8_t percentage);
     // uint8_t TiltPercentGet(void);
-    void TiltUp();
-    void TiltDown();
+    void TiltUpOrOpen();
+    void TiltDownOrClose();
     void TiltGoToValue(uint16_t tilt);
     void TiltGoToAccuratePercentage(uint16_t accuratePercentage);
 
     uint16_t PositionToAccuratePercentage(CoverActuator_t * pActuator, uint16_t position);
     uint16_t AccuratePercentageToPosition(CoverActuator_t * pActuator, uint16_t accuratePercentage);
 
+    void ActuatorStepTowardOpen(CoverActuator_t * pActuator);
+    void ActuatorStepTowardClose(CoverActuator_t * pActuator);
+    void ActuatorSetPosition(CoverActuator_t * pActuator, uint16_t value);
+
     void PrintActuators(void);
+    void PrintStatus(void);
 
     // Commands
     void Open();
@@ -122,6 +131,10 @@ public:
     // Other
     void ActuatorSet(bool mode);
     bool ActuatorGet(void);
+    CoverActuator_t * ActuatorGetLift(void);
+    CoverActuator_t * ActuatorGetTilt(void);
+    void ActuatorGoToValue(CoverActuator_t * pAct, uint16_t value);
+    void ActuatorGoToAccuratePercentage(CoverActuator_t * pAct, uint16_t accuratePercentage);
     void ToggleActuator();
     void StepUpOrOpen();
     void StepDownOrClose();
@@ -134,6 +147,8 @@ public:
 private:
     static void LiftTimerCallback(AppTimer & timer, void * context);
     static void TiltTimerCallback(AppTimer & timer, void * context);
+    static void ActuatorTimerCallback(AppTimer & timer, WindowCover * pCover, CoverActuator_t * pAct);
+
     void PrintActuator(const char * pName, CoverActuator_t * pAct);
 
     uint8_t  mConfigStatus      = 0x03; // bit0: Operational, bit1: Online;
@@ -142,6 +157,6 @@ private:
     CoverType mType            = CoverType::Tilt_Lift_blind;
     bool mActuator;
 
-    CoverActuator_t mLift = { CoverAction::None, LIFT_OPEN_LIMIT, LIFT_CLOSED_LIMIT, UINT16_MAX, UINT16_MAX, 0 };
-    CoverActuator_t mTilt = { CoverAction::None, TILT_OPEN_LIMIT, TILT_CLOSED_LIMIT, UINT16_MAX, UINT16_MAX, 0 };
+    CoverActuator_t mLift = { CoverAction::None, LIFT_OPEN_LIMIT, LIFT_CLOSED_LIMIT, UINT16_MAX, UINT16_MAX, LIFT_DELTA, AppEvent::EventType::CoverLiftUpOrOpen, AppEvent::EventType::CoverLiftDownOrClose };
+    CoverActuator_t mTilt = { CoverAction::None, TILT_OPEN_LIMIT, TILT_CLOSED_LIMIT, UINT16_MAX, UINT16_MAX, TILT_DELTA, AppEvent::EventType::CoverTiltUpOrOpen, AppEvent::EventType::CoverTiltDownOrClose };
 };
