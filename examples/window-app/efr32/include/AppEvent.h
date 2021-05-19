@@ -28,7 +28,9 @@ struct AppEvent
         ButtonPressed,
         ButtonReleased,
         // Window cover events
-        CoverStatusChange,
+        CoverConfigStatusChange,
+        CoverOperationalStatusChange,
+        CoverSafetyStatusChange,
         CoverTypeChange,
         CoverActuatorChange,
         CoverLiftUpOrOpen, CoverLiftDownOrClose,

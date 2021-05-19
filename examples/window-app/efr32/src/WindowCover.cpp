@@ -37,18 +37,46 @@ WindowCover::WindowCover(CoverType type, uint16_t liftOpenLimit, uint16_t liftCl
     mTiltClosedLimit(tiltClosedLimit), mTiltPosition(tiltClosedLimit)
 {}
 
-void WindowCover::StatusSet(uint8_t status)
+void WindowCover::ConfigStatusSet(uint8_t status)
 {
-    if (status != mStatus)
+    if (status != mConfigStatus)
     {
-        mStatus = status;
-        PostEvent(AppEvent::EventType::CoverStatusChange);
+        mConfigStatus = status;
+        PostEvent(AppEvent::EventType::CoverConfigStatusChange);
     }
 }
 
-uint8_t WindowCover::StatusGet(void)
+uint8_t WindowCover::ConfigStatusGet(void)
 {
-    return mStatus;
+    return mConfigStatus;
+}
+
+void WindowCover::OperationalStatusSet(uint8_t status)
+{
+    if (status != mOperationalStatus)
+    {
+        mOperationalStatus = status;
+        PostEvent(AppEvent::EventType::CoverOperationalStatusChange);
+    }
+}
+
+uint8_t WindowCover::OperationalStatusGet(void)
+{
+    return mOperationalStatus;
+}
+
+void WindowCover::SafetyStatusSet(uint16_t status)
+{
+    if (status != mSafetyStatus)
+    {
+        mSafetyStatus = status;
+        PostEvent(AppEvent::EventType::CoverSafetyStatusChange);
+    }
+}
+
+uint16_t WindowCover::SafetyStatusGet(void)
+{
+    return mSafetyStatus;
 }
 
 void WindowCover::TypeSet(CoverType type)

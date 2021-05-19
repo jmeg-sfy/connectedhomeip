@@ -328,6 +328,7 @@ void AppTask::DispatchWindowCoverEvent(AppEvent::EventType event, void * context
     UpdateLed(event);
     UpdateLcd(event);
     UpdateClusterState(event);
+    UpdateOperationalStatus(event);
 }
 
 void AppTask::UpdateLog(AppEvent::EventType event)
@@ -383,19 +384,23 @@ void AppTask::UpdateClusterState(AppEvent::EventType event)
     EmberAfStatus status = EMBER_ZCL_STATUS_SUCCESS;
     switch (event)
     {
-    // WindowCoveringType
-    case AppEvent::EventType::CoverStatusChange: {
-        uint8_t config = mCover.StatusGet();
-        status = emberAfWriteAttribute(1, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_CONFIG_STATUS_ATTRIBUTE_ID, CLUSTER_MASK_SERVER,
-                                       (uint8_t *) &config, ZCL_BITMAP8_ATTRIBUTE_TYPE);
+    // ConfigStatus
+    case AppEvent::EventType::CoverConfigStatusChange: {
+        uint8_t configStatus = mCover.ConfigStatusGet();
+        status = emberAfWriteAttribute(1, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_WC_CONFIG_STATUS_ATTRIBUTE_ID, CLUSTER_MASK_SERVER, (uint8_t *) &configStatus, ZCL_BITMAP8_ATTRIBUTE_TYPE);
+        break;
+    }
+    // OperationalStatus
+    case AppEvent::EventType::CoverOperationalStatusChange: {
+        uint8_t operationalStatus = mCover.OperationalStatusGet();
+        status = emberAfWriteAttribute(1, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_WC_OPERATIONAL_STATUS_ATTRIBUTE_ID, CLUSTER_MASK_SERVER, (uint8_t *) &operationalStatus, ZCL_BITMAP8_ATTRIBUTE_TYPE);
         break;
     }
 
     // Type
     case AppEvent::EventType::CoverTypeChange: {
         uint8_t type = static_cast<uint8_t>(mCover.TypeGet());
-        status       = emberAfWriteAttribute(1, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_COVERING_TYPE_ATTRIBUTE_ID, CLUSTER_MASK_SERVER,
-                                       (uint8_t *) &type, ZCL_INT8U_ATTRIBUTE_TYPE);
+        status       = emberAfWriteAttribute(1, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_WC_TYPE_ATTRIBUTE_ID, CLUSTER_MASK_SERVER, (uint8_t *) &type, ZCL_INT8U_ATTRIBUTE_TYPE);
         break;
     }
 
@@ -403,8 +408,7 @@ void AppTask::UpdateClusterState(AppEvent::EventType event)
     case AppEvent::EventType::CoverLiftUpOrOpen:
     case AppEvent::EventType::CoverLiftDownOrClose: {
         uint16_t lift = mCover.LiftGet();
-        status        = emberAfWriteAttribute(1, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_CURRENT_LIFT_ATTRIBUTE_ID, CLUSTER_MASK_SERVER,
-                                       (uint8_t *) &lift, ZCL_INT16U_ATTRIBUTE_TYPE);
+        status        = emberAfWriteAttribute(1, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_WC_CURRENT_POSITION_LIFT_ATTRIBUTE_ID, CLUSTER_MASK_SERVER, (uint8_t *) &lift, ZCL_INT16U_ATTRIBUTE_TYPE);
         break;
     }
 
@@ -412,8 +416,7 @@ void AppTask::UpdateClusterState(AppEvent::EventType event)
     case AppEvent::EventType::CoverTiltUpOrOpen:
     case AppEvent::EventType::CoverTiltDownOrClose: {
         uint16_t tilt = mCover.TiltGet();
-        status        = emberAfWriteAttribute(1, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_CURRENT_TILT_ATTRIBUTE_ID, CLUSTER_MASK_SERVER,
-                                       (uint8_t *) &tilt, ZCL_INT16U_ATTRIBUTE_TYPE);
+        status        = emberAfWriteAttribute(1, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_WC_CURRENT_POSITION_TILT_ATTRIBUTE_ID, CLUSTER_MASK_SERVER, (uint8_t *) &tilt, ZCL_INT16U_ATTRIBUTE_TYPE);
         break;
     }
 
@@ -424,6 +427,51 @@ void AppTask::UpdateClusterState(AppEvent::EventType event)
     if (status != EMBER_ZCL_STATUS_SUCCESS)
     {
         EFR32_LOG("ERR: updating ZCL %x", status);
+
+#define OP_STATUS_OPEN  0x01
+#define OP_STATUS_CLOSE 0x02
+
+void AppTask::UpdateOperationalStatus(AppEvent::EventType event)
+{
+    EmberAfStatus status = EMBER_ZCL_STATUS_SUCCESS;
+    uint8_t opState = mCover.OperationalStatusGet();
+    switch (event) {
+    case AppEvent::EventType::CoverLiftUpOrOpen:
+        opState |=  (OP_STATUS_OPEN  << EMBER_AF_WC_OPERATIONAL_STATUS_GLOBAL_OFFSET);
+        opState &= ~(OP_STATUS_CLOSE << EMBER_AF_WC_OPERATIONAL_STATUS_GLOBAL_OFFSET);
+        opState |=  (OP_STATUS_OPEN  << EMBER_AF_WC_OPERATIONAL_STATUS_LIFT_OFFSET);
+        opState &= ~(OP_STATUS_CLOSE << EMBER_AF_WC_OPERATIONAL_STATUS_LIFT_OFFSET);
+        break;
+    case AppEvent::EventType::CoverLiftDownOrClose:
+        opState |=  (OP_STATUS_CLOSE << EMBER_AF_WC_OPERATIONAL_STATUS_GLOBAL_OFFSET);
+        opState &= ~(OP_STATUS_OPEN  << EMBER_AF_WC_OPERATIONAL_STATUS_GLOBAL_OFFSET);
+        opState |=  (OP_STATUS_CLOSE << EMBER_AF_WC_OPERATIONAL_STATUS_LIFT_OFFSET);
+        opState &= ~(OP_STATUS_OPEN  << EMBER_AF_WC_OPERATIONAL_STATUS_LIFT_OFFSET);
+        break;
+    case AppEvent::EventType::CoverTiltUpOrOpen:
+        opState |=  (OP_STATUS_OPEN  << EMBER_AF_WC_OPERATIONAL_STATUS_GLOBAL_OFFSET);
+        opState &= ~(OP_STATUS_CLOSE << EMBER_AF_WC_OPERATIONAL_STATUS_GLOBAL_OFFSET);
+        opState |=  (OP_STATUS_OPEN  << EMBER_AF_WC_OPERATIONAL_STATUS_TILT_OFFSET);
+        opState &= ~(OP_STATUS_CLOSE << EMBER_AF_WC_OPERATIONAL_STATUS_TILT_OFFSET);
+        break;
+    case AppEvent::EventType::CoverTiltDownOrClose:
+        opState |=  (OP_STATUS_CLOSE << EMBER_AF_WC_OPERATIONAL_STATUS_GLOBAL_OFFSET);
+        opState &= ~(OP_STATUS_OPEN  << EMBER_AF_WC_OPERATIONAL_STATUS_GLOBAL_OFFSET);
+        opState |=  (OP_STATUS_CLOSE << EMBER_AF_WC_OPERATIONAL_STATUS_TILT_OFFSET);
+        opState &= ~(OP_STATUS_OPEN  << EMBER_AF_WC_OPERATIONAL_STATUS_TILT_OFFSET);
+        break;
+    case AppEvent::EventType::CoverStop:
+        opState = 0;
+        break;
+    default:
+        break;
+    }
+
+    mCover.OperationalStatusSet(opState);
+
+    if (status != EMBER_ZCL_STATUS_SUCCESS)
+    {
+        EFR32_LOG("ERR: UpOrOpendating ZCL %x", status);
     }
 }
 

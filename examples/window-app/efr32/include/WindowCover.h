@@ -56,9 +56,18 @@ public:
     WindowCover();
     WindowCover(CoverType type, uint16_t liftOpenLimit, uint16_t liftClosedLimit, uint16_t tiltOpenLimit, uint16_t tiltClosedLimit);
 
-    // Status
-    void StatusSet(uint8_t status);
-    uint8_t StatusGet(void);
+    // Config Status
+    void ConfigStatusSet(uint8_t status);
+    uint8_t ConfigStatusGet(void);
+
+    // Operational Status
+    void OperationalStatusSet(uint8_t status);
+    uint8_t OperationalStatusGet(void);
+
+    // Config Status
+    void SafetyStatusSet(uint16_t status);
+    uint16_t SafetyStatusGet(void);
+
     // Type
     void TypeSet(CoverType type);
     void TypeCycle();
@@ -110,8 +119,10 @@ private:
     static void LiftTimerCallback(AppTimer & timer, void * context);
     static void TiltTimerCallback(AppTimer & timer, void * context);
 
-    uint8_t mStatus           = 0x03; // bit0: Operational, bit1: Online;
-    CoverType mType           = CoverType::Tilt_Lift_blind;
+    uint8_t  mConfigStatus      = 0x03; // bit0: Operational, bit1: Online;
+    uint8_t  mOperationalStatus = 0x00; // 0 is no movement;
+    uint16_t mSafetyStatus      = 0x00; // 0 is no issues;
+    CoverType mType            = CoverType::Tilt_Lift_blind;
     uint16_t mLiftOpenLimit    = LIFT_OPEN_LIMIT;
     uint16_t mLiftClosedLimit  = LIFT_CLOSED_LIMIT;
     uint16_t mLiftPosition     = LIFT_CLOSED_LIMIT;
