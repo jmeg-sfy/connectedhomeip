@@ -28,6 +28,9 @@
 class WindowCover
 {
 public:
+
+
+
     enum class CoverType
     {
         Rollershade                  = 0, // Lift
@@ -50,6 +53,17 @@ public:
         TiltDown,
         TiltUp,
     };
+
+    typedef struct CoverActuator
+    {
+        /* data */
+        CoverAction action;
+        uint16_t openLimit; 
+        uint16_t closedLimit; 
+        uint16_t currentPosition;
+        uint16_t targetPosition;
+        AppTimer timer;
+    } CoverActuator_t;
 
     static const char * TypeString(const CoverType type);
 
@@ -77,27 +91,29 @@ public:
     uint16_t LiftClosedLimitGet(void);
     void LiftSet(uint16_t lift);
     uint16_t LiftGet(void);
-    void LiftPercentSet(uint8_t percentage);
-    uint8_t LiftPercentGet(void);
+    // void LiftPercentSet(uint8_t percentage);
+    // uint8_t LiftPercentGet(void);
     void LiftUp();
     void LiftDown();
     void LiftGoToValue(uint16_t lift);
     void LiftGoToAccuratePercentage(uint16_t accuratePercentage);
-    uint8_t LiftToPercent(uint16_t lift);
-    uint16_t PercentToLift(uint8_t liftPercent);
+
     // Tilt
     uint16_t TiltOpenLimitGet(void);
     uint16_t TiltClosedLimitGet(void);
     void TiltSet(uint16_t tilt);
     uint16_t TiltGet(void);
-    void TiltPercentSet(uint8_t percentage);
-    uint8_t TiltPercentGet(void);
+    // void TiltPercentSet(uint8_t percentage);
+    // uint8_t TiltPercentGet(void);
     void TiltUp();
     void TiltDown();
     void TiltGoToValue(uint16_t tilt);
     void TiltGoToAccuratePercentage(uint16_t accuratePercentage);
-    uint8_t TiltToPercent(uint16_t tilt);
-    uint16_t PercentToTilt(uint8_t tiltPercent);
+
+    uint16_t PositionToAccuratePercentage(CoverActuator_t * pActuator, uint16_t position);
+    uint16_t AccuratePercentageToPosition(CoverActuator_t * pActuator, uint16_t accuratePercentage);
+
+    void PrintActuators(void);
 
     // Commands
     void Open();
@@ -118,24 +134,14 @@ public:
 private:
     static void LiftTimerCallback(AppTimer & timer, void * context);
     static void TiltTimerCallback(AppTimer & timer, void * context);
+    void PrintActuator(const char * pName, CoverActuator_t * pAct);
 
     uint8_t  mConfigStatus      = 0x03; // bit0: Operational, bit1: Online;
     uint8_t  mOperationalStatus = 0x00; // 0 is no movement;
     uint16_t mSafetyStatus      = 0x00; // 0 is no issues;
     CoverType mType            = CoverType::Tilt_Lift_blind;
-
-    uint16_t mLiftOpenLimit    = LIFT_OPEN_LIMIT;
-    uint16_t mLiftClosedLimit  = LIFT_CLOSED_LIMIT;
-    uint16_t mLiftPosition     = LIFT_CLOSED_LIMIT;
-    uint16_t mLiftTarget;
-    AppTimer mLiftTimer;
-    CoverAction mLiftAction;
-
     bool mActuator;
-    uint16_t mTiltOpenLimit   = TILT_OPEN_LIMIT;
-    uint16_t mTiltClosedLimit = TILT_CLOSED_LIMIT;
-    uint16_t mTiltPosition    = TILT_CLOSED_LIMIT;
-    uint16_t mTiltTarget;
-    AppTimer mTiltTimer;
-    CoverAction mTiltAction;
+
+    CoverActuator_t mLift = { CoverAction::None, LIFT_OPEN_LIMIT, LIFT_CLOSED_LIMIT, UINT16_MAX, UINT16_MAX, 0 };
+    CoverActuator_t mTilt = { CoverAction::None, TILT_OPEN_LIMIT, TILT_CLOSED_LIMIT, UINT16_MAX, UINT16_MAX, 0 };
 };

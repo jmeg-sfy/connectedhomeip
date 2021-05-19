@@ -334,9 +334,8 @@ void AppTask::DispatchWindowCoverEvent(AppEvent::EventType event, void * context
 
 void AppTask::UpdateLog(AppEvent::EventType event)
 {
-    EFR32_LOG("Window Covering: %s, lift[%u..%u]:%u(%u%%), tilt[%u..%u]:%d(%d%%)", AppEvent::TypeString(event),
-              mCover.LiftOpenLimitGet(), mCover.LiftClosedLimitGet(), mCover.LiftGet(), mCover.LiftPercentGet(),
-              mCover.TiltOpenLimitGet(), mCover.TiltClosedLimitGet(), mCover.TiltGet(), mCover.TiltPercentGet());
+    EFR32_LOG("Window Covering Event: %s", AppEvent::TypeString(event));
+    mCover.PrintActuators();
 }
 
 void AppTask::UpdateLed(AppEvent::EventType event)
