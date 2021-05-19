@@ -98,8 +98,8 @@ public:
     void TiltModeSet(bool mode);
     bool TiltModeGet(void);
     void ToggleTiltMode();
-    void StepUp();
-    void StepDown();
+    void StepUpOrOpen();
+    void StepDownOrClose();
     bool IsOpen(void);
     bool IsClosed(void);
     bool IsMoving(void);

@@ -139,7 +139,7 @@ void AppTask::Main(void * pvParameter)
             app.UpdateLcd(AppEvent::EventType::None);
         }
 
-        // Update the status LED if factory reset has not been initiated.
+        // UpOrOpendate the status LED if factory reset has not been initiated.
         //
         // If system has "full connectivity", keep the LED On constantly.
         //
@@ -249,11 +249,14 @@ void AppTask::DispatchEvents()
             DispatchButtonEvent(event.mType, event.mContext);
             break;
         case AppEvent::EventType::CoverTypeChange:
-        case AppEvent::EventType::CoverTiltModeChange:
-        case AppEvent::EventType::CoverLiftUp:
-        case AppEvent::EventType::CoverLiftDown:
-        case AppEvent::EventType::CoverTiltUp:
-        case AppEvent::EventType::CoverTiltDown:
+        case AppEvent::EventType::CoverConfigStatusChange:
+        case AppEvent::EventType::CoverOperationalStatusChange:
+        case AppEvent::EventType::CoverSafetyStatusChange:
+        case AppEvent::EventType::CoverActuatorChange:
+        case AppEvent::EventType::CoverLiftUpOrOpen:
+        case AppEvent::EventType::CoverLiftDownOrClose:
+        case AppEvent::EventType::CoverTiltUpOrOpen:
+        case AppEvent::EventType::CoverTiltDownOrClose:
         case AppEvent::EventType::CoverOpen:
         case AppEvent::EventType::CoverClosed:
         case AppEvent::EventType::CoverStart:
@@ -275,10 +278,10 @@ void AppTask::DispatchButtonEvent(AppEvent::EventType type, void * context)
         {
             ButtonHandler::Button * pressedButton = (ButtonHandler::Button *) context;
             ButtonHandler::Button * otherButton   = nullptr;
-            if (pressedButton->mId == ButtonHandler::ButtonId::kButton_Up)
+            if (pressedButton->mId == ButtonHandler::ButtonId::kButton_UpOrOpen)
             {
-                // Step UP
-                otherButton = &ButtonHandler::Instance().mButtonDown;
+                // Step UpOrOpen
+                otherButton = &ButtonHandler::Instance().mButtonDownOrClose;
                 if (otherButton->mIsPressed)
                 {
                     // Both buttons pressed at the same time
@@ -286,14 +289,14 @@ void AppTask::DispatchButtonEvent(AppEvent::EventType type, void * context)
                 }
                 else
                 {
-                    mCover.StepUp();
+                    mCover.StepUpOrOpen();
                     mResetTimer.Start(FACTORY_RESET_TRIGGER_TIMEOUT);
                 }
             }
             else
             {
-                // Step DOWN
-                otherButton = &ButtonHandler::Instance().mButtonUp;
+                // Step DownOrClose
+                otherButton = &ButtonHandler::Instance().mButtonUpOrOpen;
                 if (otherButton->mIsPressed)
                 {
                     // Both buttons pressed at the same time
@@ -301,7 +304,7 @@ void AppTask::DispatchButtonEvent(AppEvent::EventType type, void * context)
                 }
                 else
                 {
-                    mCover.StepDown();
+                    mCover.StepDownOrClose();
                     mCoverTypeTimer.Start();
                 }
             }
@@ -388,7 +391,7 @@ void AppTask::UpdateClusterState(AppEvent::EventType event)
         break;
     }
 
-    // WindowCoveringType
+    // Type
     case AppEvent::EventType::CoverTypeChange: {
         uint8_t type = static_cast<uint8_t>(mCover.TypeGet());
         status       = emberAfWriteAttribute(1, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_COVERING_TYPE_ATTRIBUTE_ID, CLUSTER_MASK_SERVER,
@@ -397,17 +400,17 @@ void AppTask::UpdateClusterState(AppEvent::EventType event)
     }
 
     // CurrentPosition – Lift
-    case AppEvent::EventType::CoverLiftUp:
-    case AppEvent::EventType::CoverLiftDown: {
+    case AppEvent::EventType::CoverLiftUpOrOpen:
+    case AppEvent::EventType::CoverLiftDownOrClose: {
         uint16_t lift = mCover.LiftGet();
         status        = emberAfWriteAttribute(1, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_CURRENT_LIFT_ATTRIBUTE_ID, CLUSTER_MASK_SERVER,
                                        (uint8_t *) &lift, ZCL_INT16U_ATTRIBUTE_TYPE);
         break;
     }
 
-    // Current Position – Tilt
-    case AppEvent::EventType::CoverTiltUp:
-    case AppEvent::EventType::CoverTiltDown: {
+    // CurrentPosition – Tilt
+    case AppEvent::EventType::CoverTiltUpOrOpen:
+    case AppEvent::EventType::CoverTiltDownOrClose: {
         uint16_t tilt = mCover.TiltGet();
         status        = emberAfWriteAttribute(1, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_CURRENT_TILT_ATTRIBUTE_ID, CLUSTER_MASK_SERVER,
                                        (uint8_t *) &tilt, ZCL_INT16U_ATTRIBUTE_TYPE);

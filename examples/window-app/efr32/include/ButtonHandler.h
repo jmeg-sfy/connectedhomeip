@@ -34,8 +34,8 @@ public:
 
     typedef enum ButtonId
     {
-        kButton_Up   = 0,
-        kButton_Down = 1,
+        kButton_UpOrOpen   = 0,
+        kButton_DownOrClose = 1,
     } ButtonId_t;
 
     typedef enum ButtonEvent
@@ -65,8 +65,8 @@ public:
     void Init();
     bool IsPressed(ButtonId_t button);
 
-    Button mButtonUp;
-    Button mButtonDown;
+    Button mButtonUpOrOpen;
+    Button mButtonDownOrClose;
 
 private:
     ButtonHandler();
