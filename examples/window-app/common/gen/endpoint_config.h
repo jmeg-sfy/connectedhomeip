@@ -435,7 +435,7 @@
 
 #define ZAP_ATTRIBUTE_MASK(mask) ATTRIBUTE_MASK_##mask
 // This is an array of EmberAfAttributeMetadata structures.
-#define GENERATED_ATTRIBUTE_COUNT 84
+#define GENERATED_ATTRIBUTE_COUNT 93
 #define GENERATED_ATTRIBUTES                                                                                                       \
     {                                                                                                                              \
                                                                                                                                    \
@@ -524,15 +524,24 @@
             { 0xFFFD, ZAP_TYPE(INT16U), 2, 0, ZAP_SIMPLE_DEFAULT(0x0001) },          /* cluster revision */                        \
                                                                                                                                    \
             /* Endpoint: 1, Cluster: Window Covering (server) */                                                                   \
-            { 0x0000, ZAP_TYPE(ENUM8), 1, 0, ZAP_SIMPLE_DEFAULT(0x00) },    /* window covering type */                             \
-            { 0x0003, ZAP_TYPE(INT16U), 2, 0, ZAP_SIMPLE_DEFAULT(0x0000) }, /* current position - lift */                          \
-            { 0x0004, ZAP_TYPE(INT16U), 2, 0, ZAP_SIMPLE_DEFAULT(0x0000) }, /* current position - tilt */                          \
-            { 0x0007, ZAP_TYPE(BITMAP8), 1, 0, ZAP_SIMPLE_DEFAULT(0x03) },  /* config status */                                    \
-            { 0x0010, ZAP_TYPE(INT16U), 2, 0, ZAP_SIMPLE_DEFAULT(0x0000) }, /* installed open limit - lift */                      \
-            { 0x0011, ZAP_TYPE(INT16U), 2, 0, ZAP_SIMPLE_DEFAULT(0xFFFF) }, /* installed closed limit - lift */                    \
-            { 0x0012, ZAP_TYPE(INT16U), 2, 0, ZAP_SIMPLE_DEFAULT(0x0000) }, /* installed open limit - tilt */                      \
-            { 0x0013, ZAP_TYPE(INT16U), 2, 0, ZAP_SIMPLE_DEFAULT(0xFFFF) }, /* installed closed limit - tilt */                    \
-            { 0x0017, ZAP_TYPE(BITMAP8), 1, ZAP_ATTRIBUTE_MASK(WRITABLE), ZAP_SIMPLE_DEFAULT(0x14) }, /* mode */                   \
+            { 0x0000, ZAP_TYPE(ENUM8), 1, 0, ZAP_SIMPLE_DEFAULT(0x00) },    /* Type */                                             \
+            { 0x0003, ZAP_TYPE(INT16U), 2, 0, ZAP_SIMPLE_DEFAULT(0x0000) }, /* CurrentPositionLift */                              \
+            { 0x0004, ZAP_TYPE(INT16U), 2, 0, ZAP_SIMPLE_DEFAULT(0x0000) }, /* CurrentPositionTilt */                              \
+            { 0x0007, ZAP_TYPE(BITMAP8), 1, 0, ZAP_SIMPLE_DEFAULT(0x03) },  /* ConfigStatus */                                     \
+            { 0x0008, ZAP_TYPE(INT8U), 1, 0, ZAP_SIMPLE_DEFAULT(0xFF) },    /* CurrentPositionLiftPercentage */                    \
+            { 0x0009, ZAP_TYPE(INT8U), 1, 0, ZAP_SIMPLE_DEFAULT(0xFF) },    /* CurrentPositionTiltPercentage */                    \
+            { 0x000A, ZAP_TYPE(BITMAP8), 1, 0, ZAP_SIMPLE_DEFAULT(0x00) },  /* OperationalStatus */                                \
+            { 0x000B, ZAP_TYPE(INT16U), 2, 0, ZAP_SIMPLE_DEFAULT(0xFF) },   /* TargetPositionLiftAccuratePercentage */             \
+            { 0x000C, ZAP_TYPE(INT16U), 2, 0, ZAP_SIMPLE_DEFAULT(0xFF) },   /* TargetPositionTiltAccuratePercentage */             \
+            { 0x000D, ZAP_TYPE(ENUM8), 1, 0, ZAP_SIMPLE_DEFAULT(0x00) },    /* EndProductType */                                   \
+            { 0x000E, ZAP_TYPE(INT16U), 2, 0, ZAP_SIMPLE_DEFAULT(0xFF) },   /* CurrentPositionLiftAccuratePercentage */            \
+            { 0x000F, ZAP_TYPE(INT16U), 2, 0, ZAP_SIMPLE_DEFAULT(0xFF) },   /* CurrentPositionTiltAccuratePercentage */            \
+            { 0x0010, ZAP_TYPE(BITMAP16), 2, 0, ZAP_SIMPLE_DEFAULT(0x00) }, /* SafetyStatus */                                     \
+            { 0x0100, ZAP_TYPE(INT16U), 2, 0, ZAP_SIMPLE_DEFAULT(0x0000) }, /* InstalledOpenLimitLift */                           \
+            { 0x0101, ZAP_TYPE(INT16U), 2, 0, ZAP_SIMPLE_DEFAULT(0xFFFF) }, /* InstalledClosedLimitLift */                         \
+            { 0x0102, ZAP_TYPE(INT16U), 2, 0, ZAP_SIMPLE_DEFAULT(0x0000) }, /* InstalledOpenLimitTilt */                           \
+            { 0x0103, ZAP_TYPE(INT16U), 2, 0, ZAP_SIMPLE_DEFAULT(0xFFFF) }, /* InstalledClosedLimitTilt */                         \
+            { 0x0107, ZAP_TYPE(BITMAP8), 1, ZAP_ATTRIBUTE_MASK(WRITABLE), ZAP_SIMPLE_DEFAULT(0x14) }, /* Mode */                   \
             { 0xFFFD, ZAP_TYPE(INT16U), 2, 0, ZAP_SIMPLE_DEFAULT(3) },                                /* cluster revision */       \
     }
 
@@ -562,7 +571,7 @@
                 0x0035, ZAP_ATTRIBUTE_INDEX(13), 61, 730, ZAP_CLUSTER_MASK(SERVER), NULL                                           \
             }, /* Endpoint: 1, Cluster: Thread Network Diagnostics (server) */                                                     \
             {                                                                                                                      \
-                0x0102, ZAP_ATTRIBUTE_INDEX(74), 10, 17, ZAP_CLUSTER_MASK(SERVER), NULL                                            \
+                0x0102, ZAP_ATTRIBUTE_INDEX(74), 19, 31, ZAP_CLUSTER_MASK(SERVER), NULL                                            \
             }, /* Endpoint: 1, Cluster: Window Covering (server) */                                                                \
     }
 
@@ -571,7 +580,7 @@
 // This is an array of EmberAfEndpointType structures.
 #define GENERATED_ENDPOINT_TYPES                                                                                                   \
     {                                                                                                                              \
-        { ZAP_CLUSTER_INDEX(0), 4, 1003 },                                                                                         \
+        { ZAP_CLUSTER_INDEX(0), 4, 1017 },                                                                                         \
     }
 
 // Largest attribute size is needed for various buffers
@@ -581,7 +590,7 @@
 #define ATTRIBUTE_SINGLETONS_SIZE (254)
 
 // Total size of attribute storage
-#define ATTRIBUTE_MAX_SIZE (1003)
+#define ATTRIBUTE_MAX_SIZE (1017)
 
 // Number of fixed endpoints
 #define FIXED_ENDPOINT_COUNT (1)
@@ -625,7 +634,7 @@
 
 // Array of EmberAfCommandMetadata structs.
 #define ZAP_COMMAND_MASK(mask) COMMAND_MASK_##mask
-#define EMBER_AF_GENERATED_COMMAND_COUNT (27)
+#define EMBER_AF_GENERATED_COMMAND_COUNT (29)
 #define GENERATED_COMMANDS                                                                                                         \
     {                                                                                                                              \
                                                                                                                                    \
@@ -654,13 +663,15 @@
             { 0x0031, 0x10, ZAP_COMMAND_MASK(INCOMING_SERVER) }, /* GetLastNetworkCommissioningResult */                           \
                                                                                                                                    \
             /* Endpoint: 1, Cluster: Window Covering (server) */                                                                   \
-            { 0x0102, 0x00, ZAP_COMMAND_MASK(INCOMING_SERVER) }, /* WindowCoveringUpOpen */                                        \
-            { 0x0102, 0x01, ZAP_COMMAND_MASK(INCOMING_SERVER) }, /* WindowCoveringDownClose */                                     \
-            { 0x0102, 0x02, ZAP_COMMAND_MASK(INCOMING_SERVER) }, /* WindowCoveringStop */                                          \
-            { 0x0102, 0x04, ZAP_COMMAND_MASK(INCOMING_SERVER) }, /* WindowCoveringGoToLiftValue */                                 \
-            { 0x0102, 0x05, ZAP_COMMAND_MASK(INCOMING_SERVER) }, /* WindowCoveringGoToLiftPercentage */                            \
-            { 0x0102, 0x07, ZAP_COMMAND_MASK(INCOMING_SERVER) }, /* WindowCoveringGoToTiltValue */                                 \
-            { 0x0102, 0x08, ZAP_COMMAND_MASK(INCOMING_SERVER) }, /* WindowCoveringGoToTiltPercentage */                            \
+            { 0x0102, 0x00, ZAP_COMMAND_MASK(INCOMING_SERVER) }, /* UpOrOpen */                                                    \
+            { 0x0102, 0x01, ZAP_COMMAND_MASK(INCOMING_SERVER) }, /* DownOrClose */                                                 \
+            { 0x0102, 0x02, ZAP_COMMAND_MASK(INCOMING_SERVER) }, /* Stop */                                                        \
+            { 0x0102, 0x04, ZAP_COMMAND_MASK(INCOMING_SERVER) }, /* GoToLiftValue */                                               \
+            { 0x0102, 0x05, ZAP_COMMAND_MASK(INCOMING_SERVER) }, /* GoToLiftPercentage */                                          \
+            { 0x0102, 0x07, ZAP_COMMAND_MASK(INCOMING_SERVER) }, /* GoToTiltValue */                                               \
+            { 0x0102, 0x08, ZAP_COMMAND_MASK(INCOMING_SERVER) }, /* GoToTiltPercentage */                                          \
+            { 0x0102, 0x09, ZAP_COMMAND_MASK(INCOMING_SERVER) }, /* GoToLiftAccuratePercentage */                                  \
+            { 0x0102, 0x0A, ZAP_COMMAND_MASK(INCOMING_SERVER) }, /* GoToTiltAccuratePercentage */                                  \
     }
 
 // Array of EmberAfManufacturerCodeEntry structures for commands.
@@ -704,27 +715,27 @@
                                                                                                                                    \
         /* Endpoint: 1, Cluster: Window Covering (server) */                                                                       \
         {                                                                                                                          \
-            ZAP_REPORT_DIRECTION(REPORTED), 0x0001, 0x0102, 0x0000, ZAP_CLUSTER_MASK(SERVER), 0x0000, { { 0, 65344, 0 } }          \
-        }, /* window covering type */                                                                                              \
+            ZAP_REPORT_DIRECTION(REPORTED), 0x0001, 0x0102, 0x0008, ZAP_CLUSTER_MASK(SERVER), 0x0000, { { 0, 65344, 0 } }          \
+        }, /* CurrentPositionLiftPercentage */                                                                                     \
             {                                                                                                                      \
-                ZAP_REPORT_DIRECTION(REPORTED), 0x0001, 0x0102, 0x0003, ZAP_CLUSTER_MASK(SERVER), 0x0000, { { 0, 65344, 0 } }      \
-            }, /* current position - lift */                                                                                       \
+                ZAP_REPORT_DIRECTION(REPORTED), 0x0001, 0x0102, 0x0009, ZAP_CLUSTER_MASK(SERVER), 0x0000, { { 0, 65344, 0 } }      \
+            }, /* CurrentPositionTiltPercentage */                                                                                 \
             {                                                                                                                      \
-                ZAP_REPORT_DIRECTION(REPORTED), 0x0001, 0x0102, 0x0004, ZAP_CLUSTER_MASK(SERVER), 0x0000, { { 0, 65344, 0 } }      \
-            }, /* current position - tilt */                                                                                       \
+                ZAP_REPORT_DIRECTION(REPORTED), 0x0001, 0x0102, 0x000A, ZAP_CLUSTER_MASK(SERVER), 0x0000, { { 0, 65344, 0 } }      \
+            }, /* OperationalStatus */                                                                                             \
             {                                                                                                                      \
-                ZAP_REPORT_DIRECTION(REPORTED), 0x0001, 0x0102, 0x0007, ZAP_CLUSTER_MASK(SERVER), 0x0000, { { 0, 65344, 0 } }      \
-            }, /* config status */                                                                                                 \
+                ZAP_REPORT_DIRECTION(REPORTED), 0x0001, 0x0102, 0x000B, ZAP_CLUSTER_MASK(SERVER), 0x0000, { { 0, 65344, 0 } }      \
+            }, /* TargetPositionLiftAccuratePercentage */                                                                          \
+            {                                                                                                                      \
+                ZAP_REPORT_DIRECTION(REPORTED), 0x0001, 0x0102, 0x000C, ZAP_CLUSTER_MASK(SERVER), 0x0000, { { 0, 65344, 0 } }      \
+            }, /* TargetPositionTiltAccuratePercentage */                                                                          \
+            {                                                                                                                      \
+                ZAP_REPORT_DIRECTION(REPORTED), 0x0001, 0x0102, 0x000E, ZAP_CLUSTER_MASK(SERVER), 0x0000, { { 0, 65344, 0 } }      \
+            }, /* CurrentPositionLiftAccuratePercentage */                                                                         \
+            {                                                                                                                      \
+                ZAP_REPORT_DIRECTION(REPORTED), 0x0001, 0x0102, 0x000F, ZAP_CLUSTER_MASK(SERVER), 0x0000, { { 0, 65344, 0 } }      \
+            }, /* CurrentPositionTiltAccuratePercentage */                                                                         \
             {                                                                                                                      \
                 ZAP_REPORT_DIRECTION(REPORTED), 0x0001, 0x0102, 0x0010, ZAP_CLUSTER_MASK(SERVER), 0x0000, { { 0, 65344, 0 } }      \
-            }, /* installed open limit - lift */                                                                                   \
-            {                                                                                                                      \
-                ZAP_REPORT_DIRECTION(REPORTED), 0x0001, 0x0102, 0x0011, ZAP_CLUSTER_MASK(SERVER), 0x0000, { { 0, 65344, 0 } }      \
-            }, /* installed closed limit - lift */                                                                                 \
-            {                                                                                                                      \
-                ZAP_REPORT_DIRECTION(REPORTED), 0x0001, 0x0102, 0x0012, ZAP_CLUSTER_MASK(SERVER), 0x0000, { { 0, 65344, 0 } }      \
-            }, /* installed open limit - tilt */                                                                                   \
-            {                                                                                                                      \
-                ZAP_REPORT_DIRECTION(REPORTED), 0x0001, 0x0102, 0x0013, ZAP_CLUSTER_MASK(SERVER), 0x0000, { { 0, 65344, 0 } }      \
-            }, /* installed closed limit - tilt */                                                                                 \
+            }, /* SafetyStatus */                                                                                                  \
     }
