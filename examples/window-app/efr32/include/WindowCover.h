@@ -112,9 +112,9 @@ private:
 
     uint8_t mStatus           = 0x03; // bit0: Operational, bit1: Online;
     CoverType mType           = CoverType::Tilt_Lift_blind;
-    uint16_t mLiftOpenLimit   = LIFT_OPEN_LIMIT;
-    uint16_t mLiftClosedLimit = LIFT_CLOSED_LIMIT;
-    uint16_t mLift            = LIFT_CLOSED_LIMIT;
+    uint16_t mLiftOpenLimit    = LIFT_OPEN_LIMIT;
+    uint16_t mLiftClosedLimit  = LIFT_CLOSED_LIMIT;
+    uint16_t mLiftPosition     = LIFT_CLOSED_LIMIT;
     uint16_t mLiftTarget;
     AppTimer mLiftTimer;
     CoverAction mLiftAction;
@@ -122,7 +122,7 @@ private:
     bool mActuator;
     uint16_t mTiltOpenLimit   = TILT_OPEN_LIMIT;
     uint16_t mTiltClosedLimit = TILT_CLOSED_LIMIT;
-    uint16_t mTilt            = TILT_CLOSED_LIMIT;
+    uint16_t mTiltPosition    = TILT_CLOSED_LIMIT;
     uint16_t mTiltTarget;
     AppTimer mTiltTimer;
     CoverAction mTiltAction;
