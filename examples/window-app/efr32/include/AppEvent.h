@@ -30,7 +30,7 @@ struct AppEvent
         // Window cover events
         CoverStatusChange,
         CoverTypeChange,
-        CoverTiltModeChange,
+        CoverActuatorChange,
         CoverLiftUpOrOpen, CoverLiftDownOrClose,
         CoverTiltUpOrOpen, CoverTiltDownOrClose,
         CoverOpen,

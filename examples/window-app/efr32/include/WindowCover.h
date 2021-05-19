@@ -95,9 +95,9 @@ public:
     void Close();
     void Stop();
     // Other
-    void TiltModeSet(bool mode);
-    bool TiltModeGet(void);
-    void ToggleTiltMode();
+    void ActuatorSet(bool mode);
+    bool ActuatorGet(void);
+    void ToggleActuator();
     void StepUpOrOpen();
     void StepDownOrClose();
     bool IsOpen(void);
@@ -118,7 +118,8 @@ private:
     uint16_t mLiftTarget;
     AppTimer mLiftTimer;
     CoverAction mLiftAction;
-    bool mTiltMode;
+
+    bool mActuator;
     uint16_t mTiltOpenLimit   = TILT_OPEN_LIMIT;
     uint16_t mTiltClosedLimit = TILT_CLOSED_LIMIT;
     uint16_t mTilt            = TILT_CLOSED_LIMIT;

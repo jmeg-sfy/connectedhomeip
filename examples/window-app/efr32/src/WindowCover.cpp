@@ -64,13 +64,13 @@ void WindowCover::TypeSet(CoverType type)
         case CoverType::Rollershade_exterior_2_motor:
         case CoverType::Drapery:
         case CoverType::Awning:
-            TiltModeSet(false);
+            ActuatorSet(false);
             break;
         // Tilt only
         case CoverType::Shutter:
         case CoverType::Tilt_blind:
         case CoverType::Projector_screen:
-            TiltModeSet(true);
+            ActuatorSet(true);
             break;
         // Lift & Tilt
         case CoverType::Tilt_Lift_blind:
@@ -306,29 +306,29 @@ void WindowCover::Stop()
     PostEvent(AppEvent::EventType::CoverStop);
 }
 
-void WindowCover::TiltModeSet(bool mode)
+void WindowCover::ActuatorSet(bool mode)
 {
-    if (mode != mTiltMode)
+    if (mode != mActuator)
     {
-        mTiltMode = mode;
-        PostEvent(AppEvent::EventType::CoverTiltModeChange);
+        mActuator = mode;
+        PostEvent(AppEvent::EventType::CoverActuatorChange);
     }
 }
 
-bool WindowCover::TiltModeGet()
+bool WindowCover::ActuatorGet()
 {
-    return mTiltMode;
+    return mActuator;
 }
 
-void WindowCover::ToggleTiltMode()
+void WindowCover::ToggleActuator()
 {
-    mTiltMode = !mTiltMode;
-    PostEvent(AppEvent::EventType::CoverTiltModeChange);
+    mActuator = !mActuator;
+    PostEvent(AppEvent::EventType::CoverActuatorChange);
 }
 
-void WindowCover::StepUp()
+void WindowCover::StepUpOrOpen()
 {
-    if (mTiltMode)
+    if (mActuator)
     {
         TiltUp();
     }
@@ -340,7 +340,7 @@ void WindowCover::StepUp()
 
 void WindowCover::StepDown()
 {
-    if (mTiltMode)
+    if (mActuator)
     {
         TiltDown();
     }

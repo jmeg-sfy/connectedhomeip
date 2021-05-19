@@ -285,7 +285,7 @@ void AppTask::DispatchButtonEvent(AppEvent::EventType type, void * context)
                 if (otherButton->mIsPressed)
                 {
                     // Both buttons pressed at the same time
-                    mCover.ToggleTiltMode();
+                    mCover.ToggleActuator();
                 }
                 else
                 {
@@ -300,7 +300,7 @@ void AppTask::DispatchButtonEvent(AppEvent::EventType type, void * context)
                 if (otherButton->mIsPressed)
                 {
                     // Both buttons pressed at the same time
-                    mCover.ToggleTiltMode();
+                    mCover.ToggleActuator();
                 }
                 else
                 {
@@ -364,9 +364,9 @@ void AppTask::UpdateLcd(AppEvent::EventType event)
     if (mIsThreadProvisioned)
     {
         LcdIcon icon = LcdIcon::None;
-        if (event == AppEvent::EventType::CoverTiltModeChange)
+        if (event == AppEvent::EventType::CoverActuatorChange)
         {
-            icon = mCover.TiltModeGet() ? LcdIcon::Tilt : LcdIcon::Lift;
+            icon = mCover.ActuatorGet() ? LcdIcon::Tilt : LcdIcon::Lift;
             mIconTimer.Start();
         }
         LcdPainter::Paint(mCover.TypeGet(), mCover.LiftGet(), mCover.TiltGet(), icon);
