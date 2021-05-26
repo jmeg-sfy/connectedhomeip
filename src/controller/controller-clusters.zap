@@ -2753,7 +2753,7 @@
               "defaultValue": "0xFF",
               "reportable": 1,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 100,
               "reportableChange": 0
             },
             {
@@ -2768,7 +2768,7 @@
               "defaultValue": "0xFF",
               "reportable": 1,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 100,
               "reportableChange": 0
             },
             {
@@ -2783,7 +2783,7 @@
               "defaultValue": "0x00",
               "reportable": 1,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 127,
               "reportableChange": 0
             },
             {
@@ -2798,7 +2798,7 @@
               "defaultValue": "0xFF",
               "reportable": 1,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 10000,
               "reportableChange": 0
             },
             {
@@ -2810,10 +2810,10 @@
               "storageOption": "RAM",
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "0xFF",
+              "defaultValue": "0xFFFF",
               "reportable": 1,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 10000,
               "reportableChange": 0
             },
             {
@@ -2843,7 +2843,7 @@
               "defaultValue": "0xFF",
               "reportable": 1,
               "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 10000,
               "reportableChange": 0
             },
             {
@@ -2858,27 +2858,12 @@
               "defaultValue": "0xFF",
               "reportable": 1,
               "minInterval": 0,
-              "maxInterval": 65344,
-              "reportableChange": 0
-            },
-            {
-              "name": "SafetyStatus",
-              "code": 16,
-              "mfgCode": null,
-              "side": "server",
-              "included": 1,
-              "storageOption": "RAM",
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": "0x00",
-              "reportable": 1,
-              "minInterval": 0,
-              "maxInterval": 65344,
+              "maxInterval": 10000,
               "reportableChange": 0
             },
             {
               "name": "InstalledOpenLimitLift",
-              "code": 256,
+              "code": 16,
               "mfgCode": null,
               "side": "server",
               "included": 1,
@@ -2893,7 +2878,7 @@
             },
             {
               "name": "InstalledClosedLimitLift",
-              "code": 257,
+              "code": 17,
               "mfgCode": null,
               "side": "server",
               "included": 1,
@@ -2908,7 +2893,7 @@
             },
             {
               "name": "InstalledOpenLimitTilt",
-              "code": 258,
+              "code": 18,
               "mfgCode": null,
               "side": "server",
               "included": 1,
@@ -2923,7 +2908,7 @@
             },
             {
               "name": "InstalledClosedLimitTilt",
-              "code": 259,
+              "code": 19,
               "mfgCode": null,
               "side": "server",
               "included": 1,
@@ -2938,15 +2923,30 @@
             },
             {
               "name": "Mode",
-              "code": 263,
+              "code": 23,
               "mfgCode": null,
               "side": "server",
               "included": 1,
               "storageOption": "RAM",
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "0x14",
+              "defaultValue": "0x00",
               "reportable": 0,
+              "minInterval": 0,
+              "maxInterval": 15,
+              "reportableChange": 0
+            },
+            {
+              "name": "SafetyStatus",
+              "code": 26,
+              "mfgCode": null,
+              "side": "server",
+              "included": 1,
+              "storageOption": "RAM",
+              "singleton": 0,
+              "bounded": 0,
+              "defaultValue": "0x00",
+              "reportable": 1,
               "minInterval": 0,
               "maxInterval": 65344,
               "reportableChange": 0

@@ -3456,12 +3456,12 @@ chip::System::PacketBufferHandle encodeWakeOnLanClusterReadClusterRevisionAttrib
 | * EndProductType                                                    | 0x000D |
 | * CurrentPositionLiftAccuratePercentage                             | 0x000E |
 | * CurrentPositionTiltAccuratePercentage                             | 0x000F |
-| * SafetyStatus                                                      | 0x0010 |
-| * InstalledOpenLimitLift                                            | 0x0100 |
-| * InstalledClosedLimitLift                                          | 0x0101 |
-| * InstalledOpenLimitTilt                                            | 0x0102 |
-| * InstalledClosedLimitTilt                                          | 0x0103 |
-| * Mode                                                              | 0x0107 |
+| * InstalledOpenLimitLift                                            | 0x0010 |
+| * InstalledClosedLimitLift                                          | 0x0011 |
+| * InstalledOpenLimitTilt                                            | 0x0012 |
+| * InstalledClosedLimitTilt                                          | 0x0013 |
+| * Mode                                                              | 0x0017 |
+| * SafetyStatus                                                      | 0x001A |
 | * ClusterRevision                                                   | 0xFFFD |
 \*----------------------------------------------------------------------------*/
 
@@ -3470,23 +3470,23 @@ chip::System::PacketBufferHandle encodeWakeOnLanClusterReadClusterRevisionAttrib
  *    Encode an DownOrClose command for Window Covering server into buffer including the APS frame
  */
 chip::System::PacketBufferHandle encodeWindowCoveringClusterDownOrCloseCommand(uint8_t seqNum,
-                                                                                 chip::EndpointId destinationEndpoint);
+                                                                               chip::EndpointId destinationEndpoint);
 
 /**
  * @brief
  *    Encode an GoToLiftAccuratePercentage command for Window Covering server into buffer including the APS frame
  */
-chip::System::PacketBufferHandle
-encodeWindowCoveringClusterGoToLiftAccuratePercentageCommand(uint8_t seqNum, chip::EndpointId destinationEndpoint,
-                                                               uint16_t accuratePercentageLiftValue);
+chip::System::PacketBufferHandle encodeWindowCoveringClusterGoToLiftAccuratePercentageCommand(uint8_t seqNum,
+                                                                                              chip::EndpointId destinationEndpoint,
+                                                                                              uint16_t accuratePercentageLiftValue);
 
 /**
  * @brief
  *    Encode an GoToLiftPercentage command for Window Covering server into buffer including the APS frame
  */
 chip::System::PacketBufferHandle encodeWindowCoveringClusterGoToLiftPercentageCommand(uint8_t seqNum,
-                                                                                        chip::EndpointId destinationEndpoint,
-                                                                                        uint8_t percentageLiftValue);
+                                                                                      chip::EndpointId destinationEndpoint,
+                                                                                      uint8_t percentageLiftValue);
 
 /**
  * @brief
@@ -3499,17 +3499,17 @@ encodeWindowCoveringClusterGoToLiftValueCommand(uint8_t seqNum, chip::EndpointId
  * @brief
  *    Encode an GoToTiltAccuratePercentage command for Window Covering server into buffer including the APS frame
  */
-chip::System::PacketBufferHandle
-encodeWindowCoveringClusterGoToTiltAccuratePercentageCommand(uint8_t seqNum, chip::EndpointId destinationEndpoint,
-                                                               uint16_t accuratePercentageTiltValue);
+chip::System::PacketBufferHandle encodeWindowCoveringClusterGoToTiltAccuratePercentageCommand(uint8_t seqNum,
+                                                                                              chip::EndpointId destinationEndpoint,
+                                                                                              uint16_t accuratePercentageTiltValue);
 
 /**
  * @brief
  *    Encode an GoToTiltPercentage command for Window Covering server into buffer including the APS frame
  */
 chip::System::PacketBufferHandle encodeWindowCoveringClusterGoToTiltPercentageCommand(uint8_t seqNum,
-                                                                                        chip::EndpointId destinationEndpoint,
-                                                                                        uint8_t percentageTiltValue);
+                                                                                      chip::EndpointId destinationEndpoint,
+                                                                                      uint8_t percentageTiltValue);
 
 /**
  * @brief
@@ -3685,22 +3685,6 @@ chip::System::PacketBufferHandle encodeWindowCoveringClusterConfigureCurrentPosi
 
 /**
  * @brief
- *    Encode a Window Covering server read command for the SafetyStatus attribute into buffer including the APS frame
- */
-chip::System::PacketBufferHandle encodeWindowCoveringClusterReadSafetyStatusAttribute(uint8_t seqNum,
-                                                                                      chip::EndpointId destinationEndpoint);
-
-/**
- * @brief
- *    Encode a Window Covering server configure report command for the SafetyStatus attribute into buffer including the APS frame
- */
-chip::System::PacketBufferHandle encodeWindowCoveringClusterConfigureSafetyStatusAttribute(uint8_t seqNum,
-                                                                                           chip::EndpointId destinationEndpoint,
-                                                                                           uint16_t minInterval,
-                                                                                           uint16_t maxInterval);
-
-/**
- * @brief
  *    Encode a Window Covering server read command for the InstalledOpenLimitLift attribute into buffer including the APS frame
  */
 chip::System::PacketBufferHandle
@@ -3739,6 +3723,22 @@ chip::System::PacketBufferHandle encodeWindowCoveringClusterReadModeAttribute(ui
  */
 chip::System::PacketBufferHandle encodeWindowCoveringClusterWriteModeAttribute(uint8_t seqNum, chip::EndpointId destinationEndpoint,
                                                                                uint8_t mode);
+
+/**
+ * @brief
+ *    Encode a Window Covering server read command for the SafetyStatus attribute into buffer including the APS frame
+ */
+chip::System::PacketBufferHandle encodeWindowCoveringClusterReadSafetyStatusAttribute(uint8_t seqNum,
+                                                                                      chip::EndpointId destinationEndpoint);
+
+/**
+ * @brief
+ *    Encode a Window Covering server configure report command for the SafetyStatus attribute into buffer including the APS frame
+ */
+chip::System::PacketBufferHandle encodeWindowCoveringClusterConfigureSafetyStatusAttribute(uint8_t seqNum,
+                                                                                           chip::EndpointId destinationEndpoint,
+                                                                                           uint16_t minInterval,
+                                                                                           uint16_t maxInterval);
 
 /**
  * @brief
