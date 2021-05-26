@@ -434,7 +434,7 @@ bool emberAfWindowCoveringClusterDownOrCloseCallback(chip::app::Command * comman
  */
 
 bool emberAfWindowCoveringClusterGoToLiftAccuratePercentageCallback(chip::app::Command * commandObj,
-                                                                      uint16_t accuratePercentageLiftValue);
+                                                                    uint16_t accuratePercentageLiftValue);
 
 /**
  * @brief Window Covering Cluster GoToLiftPercentage Command callback
@@ -453,7 +453,7 @@ bool emberAfWindowCoveringClusterGoToLiftValueCallback(chip::app::Command * comm
  */
 
 bool emberAfWindowCoveringClusterGoToTiltAccuratePercentageCallback(chip::app::Command * commandObj,
-                                                                      uint16_t accuratePercentageTiltValue);
+                                                                    uint16_t accuratePercentageTiltValue);
 
 /**
  * @brief Window Covering Cluster GoToTiltPercentage Command callback
