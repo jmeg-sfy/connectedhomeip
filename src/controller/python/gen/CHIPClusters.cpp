@@ -5506,8 +5506,8 @@ CHIP_ERROR WindowCoveringCluster::DownOrClose(Callback::Cancelable * onSuccessCa
 }
 
 CHIP_ERROR WindowCoveringCluster::GoToLiftAccuratePercentage(Callback::Cancelable * onSuccessCallback,
-                                                               Callback::Cancelable * onFailureCallback,
-                                                               uint16_t accuratePercentageLiftValue)
+                                                             Callback::Cancelable * onFailureCallback,
+                                                             uint16_t accuratePercentageLiftValue)
 {
     VerifyOrReturnError(mDevice != nullptr, CHIP_ERROR_INCORRECT_STATE);
 
@@ -5531,7 +5531,7 @@ CHIP_ERROR WindowCoveringCluster::GoToLiftAccuratePercentage(Callback::Cancelabl
 }
 
 CHIP_ERROR WindowCoveringCluster::GoToLiftPercentage(Callback::Cancelable * onSuccessCallback,
-                                                       Callback::Cancelable * onFailureCallback, uint8_t percentageLiftValue)
+                                                     Callback::Cancelable * onFailureCallback, uint8_t percentageLiftValue)
 {
     VerifyOrReturnError(mDevice != nullptr, CHIP_ERROR_INCORRECT_STATE);
 
@@ -5554,8 +5554,8 @@ CHIP_ERROR WindowCoveringCluster::GoToLiftPercentage(Callback::Cancelable * onSu
     return mDevice->SendCommands();
 }
 
-CHIP_ERROR WindowCoveringCluster::GoToLiftValue(Callback::Cancelable * onSuccessCallback,
-                                                  Callback::Cancelable * onFailureCallback, uint16_t liftValue)
+CHIP_ERROR WindowCoveringCluster::GoToLiftValue(Callback::Cancelable * onSuccessCallback, Callback::Cancelable * onFailureCallback,
+                                                uint16_t liftValue)
 {
     VerifyOrReturnError(mDevice != nullptr, CHIP_ERROR_INCORRECT_STATE);
 
@@ -5579,8 +5579,8 @@ CHIP_ERROR WindowCoveringCluster::GoToLiftValue(Callback::Cancelable * onSuccess
 }
 
 CHIP_ERROR WindowCoveringCluster::GoToTiltAccuratePercentage(Callback::Cancelable * onSuccessCallback,
-                                                               Callback::Cancelable * onFailureCallback,
-                                                               uint16_t accuratePercentageTiltValue)
+                                                             Callback::Cancelable * onFailureCallback,
+                                                             uint16_t accuratePercentageTiltValue)
 {
     VerifyOrReturnError(mDevice != nullptr, CHIP_ERROR_INCORRECT_STATE);
 
@@ -5604,7 +5604,7 @@ CHIP_ERROR WindowCoveringCluster::GoToTiltAccuratePercentage(Callback::Cancelabl
 }
 
 CHIP_ERROR WindowCoveringCluster::GoToTiltPercentage(Callback::Cancelable * onSuccessCallback,
-                                                       Callback::Cancelable * onFailureCallback, uint8_t percentageTiltValue)
+                                                     Callback::Cancelable * onFailureCallback, uint8_t percentageTiltValue)
 {
     VerifyOrReturnError(mDevice != nullptr, CHIP_ERROR_INCORRECT_STATE);
 
@@ -5627,8 +5627,8 @@ CHIP_ERROR WindowCoveringCluster::GoToTiltPercentage(Callback::Cancelable * onSu
     return mDevice->SendCommands();
 }
 
-CHIP_ERROR WindowCoveringCluster::GoToTiltValue(Callback::Cancelable * onSuccessCallback,
-                                                  Callback::Cancelable * onFailureCallback, uint16_t tiltValue)
+CHIP_ERROR WindowCoveringCluster::GoToTiltValue(Callback::Cancelable * onSuccessCallback, Callback::Cancelable * onFailureCallback,
+                                                uint16_t tiltValue)
 {
     VerifyOrReturnError(mDevice != nullptr, CHIP_ERROR_INCORRECT_STATE);
 
@@ -5912,29 +5912,6 @@ CHIP_ERROR WindowCoveringCluster::ReportAttributeCurrentPositionTiltAccuratePerc
     return RequestAttributeReporting(0x000F, onReportCallback);
 }
 
-CHIP_ERROR WindowCoveringCluster::ReadAttributeSafetyStatus(Callback::Cancelable * onSuccessCallback,
-                                                            Callback::Cancelable * onFailureCallback)
-{
-    uint8_t seqNum                            = mDevice->GetNextSequenceNumber();
-    System::PacketBufferHandle encodedCommand = encodeWindowCoveringClusterReadSafetyStatusAttribute(seqNum, mEndpoint);
-    return SendCommand(seqNum, std::move(encodedCommand), onSuccessCallback, onFailureCallback);
-}
-
-CHIP_ERROR WindowCoveringCluster::ConfigureAttributeSafetyStatus(Callback::Cancelable * onSuccessCallback,
-                                                                 Callback::Cancelable * onFailureCallback, uint16_t minInterval,
-                                                                 uint16_t maxInterval)
-{
-    uint8_t seqNum = mDevice->GetNextSequenceNumber();
-    System::PacketBufferHandle encodedCommand =
-        encodeWindowCoveringClusterConfigureSafetyStatusAttribute(seqNum, mEndpoint, minInterval, maxInterval);
-    return SendCommand(seqNum, std::move(encodedCommand), onSuccessCallback, onFailureCallback);
-}
-
-CHIP_ERROR WindowCoveringCluster::ReportAttributeSafetyStatus(Callback::Cancelable * onReportCallback)
-{
-    return RequestAttributeReporting(0x0010, onReportCallback);
-}
-
 CHIP_ERROR WindowCoveringCluster::ReadAttributeInstalledOpenLimitLift(Callback::Cancelable * onSuccessCallback,
                                                                       Callback::Cancelable * onFailureCallback)
 {
@@ -5981,6 +5958,29 @@ CHIP_ERROR WindowCoveringCluster::WriteAttributeMode(Callback::Cancelable * onSu
     uint8_t seqNum                            = mDevice->GetNextSequenceNumber();
     System::PacketBufferHandle encodedCommand = encodeWindowCoveringClusterWriteModeAttribute(seqNum, mEndpoint, value);
     return SendCommand(seqNum, std::move(encodedCommand), onSuccessCallback, onFailureCallback);
+}
+
+CHIP_ERROR WindowCoveringCluster::ReadAttributeSafetyStatus(Callback::Cancelable * onSuccessCallback,
+                                                            Callback::Cancelable * onFailureCallback)
+{
+    uint8_t seqNum                            = mDevice->GetNextSequenceNumber();
+    System::PacketBufferHandle encodedCommand = encodeWindowCoveringClusterReadSafetyStatusAttribute(seqNum, mEndpoint);
+    return SendCommand(seqNum, std::move(encodedCommand), onSuccessCallback, onFailureCallback);
+}
+
+CHIP_ERROR WindowCoveringCluster::ConfigureAttributeSafetyStatus(Callback::Cancelable * onSuccessCallback,
+                                                                 Callback::Cancelable * onFailureCallback, uint16_t minInterval,
+                                                                 uint16_t maxInterval)
+{
+    uint8_t seqNum = mDevice->GetNextSequenceNumber();
+    System::PacketBufferHandle encodedCommand =
+        encodeWindowCoveringClusterConfigureSafetyStatusAttribute(seqNum, mEndpoint, minInterval, maxInterval);
+    return SendCommand(seqNum, std::move(encodedCommand), onSuccessCallback, onFailureCallback);
+}
+
+CHIP_ERROR WindowCoveringCluster::ReportAttributeSafetyStatus(Callback::Cancelable * onReportCallback)
+{
+    return RequestAttributeReporting(0x001A, onReportCallback);
 }
 
 CHIP_ERROR WindowCoveringCluster::ReadAttributeClusterRevision(Callback::Cancelable * onSuccessCallback,

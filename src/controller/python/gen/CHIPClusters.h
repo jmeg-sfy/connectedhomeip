@@ -1168,17 +1168,17 @@ public:
     // Cluster Commands
     CHIP_ERROR DownOrClose(Callback::Cancelable * onSuccessCallback, Callback::Cancelable * onFailureCallback);
     CHIP_ERROR GoToLiftAccuratePercentage(Callback::Cancelable * onSuccessCallback, Callback::Cancelable * onFailureCallback,
-                                            uint16_t accuratePercentageLiftValue);
+                                          uint16_t accuratePercentageLiftValue);
     CHIP_ERROR GoToLiftPercentage(Callback::Cancelable * onSuccessCallback, Callback::Cancelable * onFailureCallback,
-                                    uint8_t percentageLiftValue);
+                                  uint8_t percentageLiftValue);
     CHIP_ERROR GoToLiftValue(Callback::Cancelable * onSuccessCallback, Callback::Cancelable * onFailureCallback,
-                               uint16_t liftValue);
+                             uint16_t liftValue);
     CHIP_ERROR GoToTiltAccuratePercentage(Callback::Cancelable * onSuccessCallback, Callback::Cancelable * onFailureCallback,
-                                            uint16_t accuratePercentageTiltValue);
+                                          uint16_t accuratePercentageTiltValue);
     CHIP_ERROR GoToTiltPercentage(Callback::Cancelable * onSuccessCallback, Callback::Cancelable * onFailureCallback,
-                                    uint8_t percentageTiltValue);
+                                  uint8_t percentageTiltValue);
     CHIP_ERROR GoToTiltValue(Callback::Cancelable * onSuccessCallback, Callback::Cancelable * onFailureCallback,
-                               uint16_t tiltValue);
+                             uint16_t tiltValue);
     CHIP_ERROR Stop(Callback::Cancelable * onSuccessCallback, Callback::Cancelable * onFailureCallback);
     CHIP_ERROR UpOrOpen(Callback::Cancelable * onSuccessCallback, Callback::Cancelable * onFailureCallback);
 
@@ -1202,7 +1202,6 @@ public:
                                                                   Callback::Cancelable * onFailureCallback);
     CHIP_ERROR ReadAttributeCurrentPositionTiltAccuratePercentage(Callback::Cancelable * onSuccessCallback,
                                                                   Callback::Cancelable * onFailureCallback);
-    CHIP_ERROR ReadAttributeSafetyStatus(Callback::Cancelable * onSuccessCallback, Callback::Cancelable * onFailureCallback);
     CHIP_ERROR ReadAttributeInstalledOpenLimitLift(Callback::Cancelable * onSuccessCallback,
                                                    Callback::Cancelable * onFailureCallback);
     CHIP_ERROR ReadAttributeInstalledClosedLimitLift(Callback::Cancelable * onSuccessCallback,
@@ -1212,6 +1211,7 @@ public:
     CHIP_ERROR ReadAttributeInstalledClosedLimitTilt(Callback::Cancelable * onSuccessCallback,
                                                      Callback::Cancelable * onFailureCallback);
     CHIP_ERROR ReadAttributeMode(Callback::Cancelable * onSuccessCallback, Callback::Cancelable * onFailureCallback);
+    CHIP_ERROR ReadAttributeSafetyStatus(Callback::Cancelable * onSuccessCallback, Callback::Cancelable * onFailureCallback);
     CHIP_ERROR ReadAttributeClusterRevision(Callback::Cancelable * onSuccessCallback, Callback::Cancelable * onFailureCallback);
     CHIP_ERROR WriteAttributeMode(Callback::Cancelable * onSuccessCallback, Callback::Cancelable * onFailureCallback,
                                   uint8_t value);
