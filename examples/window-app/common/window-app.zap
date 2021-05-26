@@ -2245,7 +2245,7 @@
             },
             {
               "name": "Mode",
-              "code": 20,
+              "code": 23,
               "mfgCode": null,
               "side": "server",
               "included": 1,
@@ -2260,7 +2260,7 @@
             },
             {
               "name": "SafetyStatus",
-              "code": 21,
+              "code": 26,
               "mfgCode": null,
               "side": "server",
               "included": 1,
