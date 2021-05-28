@@ -1724,7 +1724,7 @@
 
 // Array of EmberAfCommandMetadata structs.
 #define ZAP_COMMAND_MASK(mask) COMMAND_MASK_##mask
-#define EMBER_AF_GENERATED_COMMAND_COUNT (143)
+#define EMBER_AF_GENERATED_COMMAND_COUNT (152)
 #define GENERATED_COMMANDS                                                                                                         \
     {                                                                                                                              \
                                                                                                                                    \
@@ -1915,6 +1915,17 @@
             { 0x0006, 0x00, ZAP_COMMAND_MASK(INCOMING_SERVER) }, /* Off */                                                         \
             { 0x0006, 0x01, ZAP_COMMAND_MASK(INCOMING_SERVER) }, /* On */                                                          \
             { 0x0006, 0x02, ZAP_COMMAND_MASK(INCOMING_SERVER) }, /* Toggle */                                                      \
+                                                                                                                                   \
+            /* Endpoint: 2, Cluster: Window Covering (server) */                                                                   \
+            { 0x0102, 0x00, ZAP_COMMAND_MASK(INCOMING_SERVER) }, /* UpOrOpen */                                                    \
+            { 0x0102, 0x01, ZAP_COMMAND_MASK(INCOMING_SERVER) }, /* DownOrClose */                                                 \
+            { 0x0102, 0x02, ZAP_COMMAND_MASK(INCOMING_SERVER) }, /* Stop */                                                        \
+            { 0x0102, 0x04, ZAP_COMMAND_MASK(INCOMING_SERVER) }, /* GoToLiftValue */                                               \
+            { 0x0102, 0x05, ZAP_COMMAND_MASK(INCOMING_SERVER) }, /* GoToLiftPercentage */                                          \
+            { 0x0102, 0x07, ZAP_COMMAND_MASK(INCOMING_SERVER) }, /* GoToTiltValue */                                               \
+            { 0x0102, 0x08, ZAP_COMMAND_MASK(INCOMING_SERVER) }, /* GoToTiltPercentage */                                          \
+            { 0x0102, 0x09, ZAP_COMMAND_MASK(INCOMING_SERVER) }, /* GoToLiftAccuratePercentage */                                  \
+            { 0x0102, 0x0A, ZAP_COMMAND_MASK(INCOMING_SERVER) }, /* GoToTiltAccuratePercentage */                                  \
     }
 
 // Array of EmberAfManufacturerCodeEntry structures for commands.

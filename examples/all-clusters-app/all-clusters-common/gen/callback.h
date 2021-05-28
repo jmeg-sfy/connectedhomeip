@@ -3038,6 +3038,62 @@ bool emberAfTrustedRootCertificatesClusterAddTrustedRootCertificateCallback(chip
 bool emberAfTrustedRootCertificatesClusterRemoveTrustedRootCertificateCallback(chip::app::Command * commandObj,
                                                                                chip::ByteSpan TrustedRootIdentifier);
 
+/**
+ * @brief Window Covering Cluster DownOrClose Command callback
+ */
+
+bool emberAfWindowCoveringClusterDownOrCloseCallback(chip::app::Command * commandObj);
+
+/**
+ * @brief Window Covering Cluster GoToLiftAccuratePercentage Command callback
+ */
+
+bool emberAfWindowCoveringClusterGoToLiftAccuratePercentageCallback(chip::app::Command * commandObj,
+                                                                    uint16_t accuratePercentageLiftValue);
+
+/**
+ * @brief Window Covering Cluster GoToLiftPercentage Command callback
+ */
+
+bool emberAfWindowCoveringClusterGoToLiftPercentageCallback(chip::app::Command * commandObj, uint8_t percentageLiftValue);
+
+/**
+ * @brief Window Covering Cluster GoToLiftValue Command callback
+ */
+
+bool emberAfWindowCoveringClusterGoToLiftValueCallback(chip::app::Command * commandObj, uint16_t liftValue);
+
+/**
+ * @brief Window Covering Cluster GoToTiltAccuratePercentage Command callback
+ */
+
+bool emberAfWindowCoveringClusterGoToTiltAccuratePercentageCallback(chip::app::Command * commandObj,
+                                                                    uint16_t accuratePercentageTiltValue);
+
+/**
+ * @brief Window Covering Cluster GoToTiltPercentage Command callback
+ */
+
+bool emberAfWindowCoveringClusterGoToTiltPercentageCallback(chip::app::Command * commandObj, uint8_t percentageTiltValue);
+
+/**
+ * @brief Window Covering Cluster GoToTiltValue Command callback
+ */
+
+bool emberAfWindowCoveringClusterGoToTiltValueCallback(chip::app::Command * commandObj, uint16_t tiltValue);
+
+/**
+ * @brief Window Covering Cluster StopYY Command callback
+ */
+
+bool emberAfWindowCoveringClusterStopYYCallback(chip::app::Command * commandObj);
+
+/**
+ * @brief Window Covering Cluster UpOrOpen Command callback
+ */
+
+bool emberAfWindowCoveringClusterUpOrOpenCallback(chip::app::Command * commandObj);
+
 //
 // Non-Cluster Related Callbacks
 //

@@ -6435,7 +6435,7 @@ void DispatchServerCommand(app::Command * apCommandObj, CommandId aCommandId, En
         case ZCL_WC_DOWN_OR_CLOSE_COMMAND_ID: {
 
             // TODO(#5098) We should pass the Command Object and EndpointId to the cluster callbacks.
-            wasHandled = emberAfWindowCoveringClusterWcDownOrCloseCallback(apCommandObj);
+            wasHandled = emberAfWindowCoveringClusterDownOrCloseCallback(apCommandObj);
             break;
         }
         case ZCL_WC_GO_TO_LIFT_ACCURATE_PERCENTAGE_COMMAND_ID: {
@@ -6494,7 +6494,7 @@ void DispatchServerCommand(app::Command * apCommandObj, CommandId aCommandId, En
             {
                 // TODO(#5098) We should pass the Command Object and EndpointId to the cluster callbacks.
                 wasHandled =
-                    emberAfWindowCoveringClusterWcGoToLiftAccuratePercentageCallback(apCommandObj, accuratePercentageLiftValue);
+                    emberAfWindowCoveringClusterGoToLiftAccuratePercentageCallback(apCommandObj, accuratePercentageLiftValue);
             }
             break;
         }
@@ -6553,7 +6553,7 @@ void DispatchServerCommand(app::Command * apCommandObj, CommandId aCommandId, En
             if (CHIP_NO_ERROR == TLVError && CHIP_NO_ERROR == TLVUnpackError && 1 == validArgumentCount)
             {
                 // TODO(#5098) We should pass the Command Object and EndpointId to the cluster callbacks.
-                wasHandled = emberAfWindowCoveringClusterWcGoToLiftPercentageCallback(apCommandObj, percentageLiftValue);
+                wasHandled = emberAfWindowCoveringClusterGoToLiftPercentageCallback(apCommandObj, percentageLiftValue);
             }
             break;
         }
@@ -6612,7 +6612,7 @@ void DispatchServerCommand(app::Command * apCommandObj, CommandId aCommandId, En
             if (CHIP_NO_ERROR == TLVError && CHIP_NO_ERROR == TLVUnpackError && 1 == validArgumentCount)
             {
                 // TODO(#5098) We should pass the Command Object and EndpointId to the cluster callbacks.
-                wasHandled = emberAfWindowCoveringClusterWcGoToLiftValueCallback(apCommandObj, liftValue);
+                wasHandled = emberAfWindowCoveringClusterGoToLiftValueCallback(apCommandObj, liftValue);
             }
             break;
         }
@@ -6672,7 +6672,7 @@ void DispatchServerCommand(app::Command * apCommandObj, CommandId aCommandId, En
             {
                 // TODO(#5098) We should pass the Command Object and EndpointId to the cluster callbacks.
                 wasHandled =
-                    emberAfWindowCoveringClusterWcGoToTiltAccuratePercentageCallback(apCommandObj, accuratePercentageTiltValue);
+                    emberAfWindowCoveringClusterGoToTiltAccuratePercentageCallback(apCommandObj, accuratePercentageTiltValue);
             }
             break;
         }
@@ -6731,7 +6731,7 @@ void DispatchServerCommand(app::Command * apCommandObj, CommandId aCommandId, En
             if (CHIP_NO_ERROR == TLVError && CHIP_NO_ERROR == TLVUnpackError && 1 == validArgumentCount)
             {
                 // TODO(#5098) We should pass the Command Object and EndpointId to the cluster callbacks.
-                wasHandled = emberAfWindowCoveringClusterWcGoToTiltPercentageCallback(apCommandObj, percentageTiltValue);
+                wasHandled = emberAfWindowCoveringClusterGoToTiltPercentageCallback(apCommandObj, percentageTiltValue);
             }
             break;
         }
@@ -6790,20 +6790,20 @@ void DispatchServerCommand(app::Command * apCommandObj, CommandId aCommandId, En
             if (CHIP_NO_ERROR == TLVError && CHIP_NO_ERROR == TLVUnpackError && 1 == validArgumentCount)
             {
                 // TODO(#5098) We should pass the Command Object and EndpointId to the cluster callbacks.
-                wasHandled = emberAfWindowCoveringClusterWcGoToTiltValueCallback(apCommandObj, tiltValue);
+                wasHandled = emberAfWindowCoveringClusterGoToTiltValueCallback(apCommandObj, tiltValue);
             }
             break;
         }
-        case ZCL_WC_STOP_COMMAND_ID: {
+        case ZCL_WC_STOP_YY_COMMAND_ID: {
 
             // TODO(#5098) We should pass the Command Object and EndpointId to the cluster callbacks.
-            wasHandled = emberAfWindowCoveringClusterWcStopCallback(apCommandObj);
+            wasHandled = emberAfWindowCoveringClusterStopCallback(apCommandObj);
             break;
         }
-        case ZCL_WC_UP_OR_OPEN_COMMAND_ID: {
+        case ZCL_UP_OR_OPEN_COMMAND_ID: {
 
             // TODO(#5098) We should pass the Command Object and EndpointId to the cluster callbacks.
-            wasHandled = emberAfWindowCoveringClusterWcUpOrOpenCallback(apCommandObj);
+            wasHandled = emberAfWindowCoveringClusterUpOrOpenCallback(apCommandObj);
             break;
         }
         default: {

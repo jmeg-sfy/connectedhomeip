@@ -2717,7 +2717,7 @@ EmberAfStatus emberAfWindowCoveringClusterServerCommandParse(EmberAfClusterComma
         switch (cmd->commandId)
         {
         case ZCL_WC_DOWN_OR_CLOSE_COMMAND_ID: {
-            wasHandled = emberAfWindowCoveringClusterWcDownOrCloseCallback(nullptr);
+            wasHandled = emberAfWindowCoveringClusterDownOrCloseCallback(nullptr);
             break;
         }
         case ZCL_WC_GO_TO_LIFT_ACCURATE_PERCENTAGE_COMMAND_ID: {
@@ -2730,7 +2730,7 @@ EmberAfStatus emberAfWindowCoveringClusterServerCommandParse(EmberAfClusterComma
             }
             accuratePercentageLiftValue = emberAfGetInt16u(cmd->buffer, payloadOffset, cmd->bufLen);
 
-            wasHandled = emberAfWindowCoveringClusterWcGoToLiftAccuratePercentageCallback(nullptr, accuratePercentageLiftValue);
+            wasHandled = emberAfWindowCoveringClusterGoToLiftAccuratePercentageCallback(nullptr, accuratePercentageLiftValue);
             break;
         }
         case ZCL_WC_GO_TO_LIFT_PERCENTAGE_COMMAND_ID: {
@@ -2743,7 +2743,7 @@ EmberAfStatus emberAfWindowCoveringClusterServerCommandParse(EmberAfClusterComma
             }
             percentageLiftValue = emberAfGetInt8u(cmd->buffer, payloadOffset, cmd->bufLen);
 
-            wasHandled = emberAfWindowCoveringClusterWcGoToLiftPercentageCallback(nullptr, percentageLiftValue);
+            wasHandled = emberAfWindowCoveringClusterGoToLiftPercentageCallback(nullptr, percentageLiftValue);
             break;
         }
         case ZCL_WC_GO_TO_LIFT_VALUE_COMMAND_ID: {
@@ -2756,7 +2756,7 @@ EmberAfStatus emberAfWindowCoveringClusterServerCommandParse(EmberAfClusterComma
             }
             liftValue = emberAfGetInt16u(cmd->buffer, payloadOffset, cmd->bufLen);
 
-            wasHandled = emberAfWindowCoveringClusterWcGoToLiftValueCallback(nullptr, liftValue);
+            wasHandled = emberAfWindowCoveringClusterGoToLiftValueCallback(nullptr, liftValue);
             break;
         }
         case ZCL_WC_GO_TO_TILT_ACCURATE_PERCENTAGE_COMMAND_ID: {
@@ -2769,7 +2769,7 @@ EmberAfStatus emberAfWindowCoveringClusterServerCommandParse(EmberAfClusterComma
             }
             accuratePercentageTiltValue = emberAfGetInt16u(cmd->buffer, payloadOffset, cmd->bufLen);
 
-            wasHandled = emberAfWindowCoveringClusterWcGoToTiltAccuratePercentageCallback(nullptr, accuratePercentageTiltValue);
+            wasHandled = emberAfWindowCoveringClusterGoToTiltAccuratePercentageCallback(nullptr, accuratePercentageTiltValue);
             break;
         }
         case ZCL_WC_GO_TO_TILT_PERCENTAGE_COMMAND_ID: {
@@ -2782,7 +2782,7 @@ EmberAfStatus emberAfWindowCoveringClusterServerCommandParse(EmberAfClusterComma
             }
             percentageTiltValue = emberAfGetInt8u(cmd->buffer, payloadOffset, cmd->bufLen);
 
-            wasHandled = emberAfWindowCoveringClusterWcGoToTiltPercentageCallback(nullptr, percentageTiltValue);
+            wasHandled = emberAfWindowCoveringClusterGoToTiltPercentageCallback(nullptr, percentageTiltValue);
             break;
         }
         case ZCL_WC_GO_TO_TILT_VALUE_COMMAND_ID: {
@@ -2795,15 +2795,15 @@ EmberAfStatus emberAfWindowCoveringClusterServerCommandParse(EmberAfClusterComma
             }
             tiltValue = emberAfGetInt16u(cmd->buffer, payloadOffset, cmd->bufLen);
 
-            wasHandled = emberAfWindowCoveringClusterWcGoToTiltValueCallback(nullptr, tiltValue);
+            wasHandled = emberAfWindowCoveringClusterGoToTiltValueCallback(nullptr, tiltValue);
             break;
         }
-        case ZCL_WC_STOP_COMMAND_ID: {
-            wasHandled = emberAfWindowCoveringClusterWcStopCallback(nullptr);
+        case ZCL_WC_STOP_YY_COMMAND_ID: {
+            wasHandled = emberAfWindowCoveringClusterStopCallback(nullptr);
             break;
         }
         case ZCL_WC_UP_OR_OPEN_COMMAND_ID: {
-            wasHandled = emberAfWindowCoveringClusterWcUpOrOpenCallback(nullptr);
+            wasHandled = emberAfWindowCoveringClusterUpOrOpenCallback(nullptr);
             break;
         }
         default: {
