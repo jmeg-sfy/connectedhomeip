@@ -57,6 +57,7 @@ EmberAfStatus emberAfThermostatClusterServerCommandParse(EmberAfClusterCommand *
 EmberAfStatus emberAfThreadNetworkDiagnosticsClusterServerCommandParse(EmberAfClusterCommand * cmd);
 EmberAfStatus emberAfTrustedRootCertificatesClusterServerCommandParse(EmberAfClusterCommand * cmd);
 EmberAfStatus emberAfWiFiNetworkDiagnosticsClusterServerCommandParse(EmberAfClusterCommand * cmd);
+EmberAfStatus emberAfWindowCoveringClusterServerCommandParse(EmberAfClusterCommand * cmd);
 
 static EmberAfStatus status(bool wasHandled, bool clusterExists, bool mfgSpecific)
 {
@@ -194,6 +195,9 @@ EmberAfStatus emberAfClusterSpecificCommandParse(EmberAfClusterCommand * cmd)
         case ZCL_WIFI_NETWORK_DIAGNOSTICS_CLUSTER_ID:
             // No commands are enabled for cluster WiFi Network Diagnostics
             result = status(false, true, cmd->mfgSpecific);
+            break;
+        case ZCL_WINDOW_COVERING_CLUSTER_ID:
+            result = emberAfWindowCoveringClusterServerCommandParse(cmd);
             break;
         default:
             // Unrecognized cluster ID, error status will apply.
@@ -2694,6 +2698,112 @@ EmberAfStatus emberAfTrustedRootCertificatesClusterServerCommandParse(EmberAfClu
             }
 
             wasHandled = emberAfTrustedRootCertificatesClusterRemoveTrustedRootCertificateCallback(nullptr, TrustedRootIdentifier);
+            break;
+        }
+        default: {
+            // Unrecognized command ID, error status will apply.
+            break;
+        }
+        }
+    }
+    return status(wasHandled, true, cmd->mfgSpecific);
+}
+EmberAfStatus emberAfWindowCoveringClusterServerCommandParse(EmberAfClusterCommand * cmd)
+{
+    bool wasHandled = false;
+
+    if (!cmd->mfgSpecific)
+    {
+        switch (cmd->commandId)
+        {
+        case ZCL_WC_DOWN_OR_CLOSE_COMMAND_ID: {
+            wasHandled = emberAfWindowCoveringClusterWcDownOrCloseCallback(nullptr);
+            break;
+        }
+        case ZCL_WC_GO_TO_LIFT_ACCURATE_PERCENTAGE_COMMAND_ID: {
+            uint16_t payloadOffset = cmd->payloadStartIndex;
+            uint16_t accuratePercentageLiftValue;
+
+            if (cmd->bufLen < payloadOffset + 2)
+            {
+                return EMBER_ZCL_STATUS_MALFORMED_COMMAND;
+            }
+            accuratePercentageLiftValue = emberAfGetInt16u(cmd->buffer, payloadOffset, cmd->bufLen);
+
+            wasHandled = emberAfWindowCoveringClusterWcGoToLiftAccuratePercentageCallback(nullptr, accuratePercentageLiftValue);
+            break;
+        }
+        case ZCL_WC_GO_TO_LIFT_PERCENTAGE_COMMAND_ID: {
+            uint16_t payloadOffset = cmd->payloadStartIndex;
+            uint8_t percentageLiftValue;
+
+            if (cmd->bufLen < payloadOffset + 1)
+            {
+                return EMBER_ZCL_STATUS_MALFORMED_COMMAND;
+            }
+            percentageLiftValue = emberAfGetInt8u(cmd->buffer, payloadOffset, cmd->bufLen);
+
+            wasHandled = emberAfWindowCoveringClusterWcGoToLiftPercentageCallback(nullptr, percentageLiftValue);
+            break;
+        }
+        case ZCL_WC_GO_TO_LIFT_VALUE_COMMAND_ID: {
+            uint16_t payloadOffset = cmd->payloadStartIndex;
+            uint16_t liftValue;
+
+            if (cmd->bufLen < payloadOffset + 2)
+            {
+                return EMBER_ZCL_STATUS_MALFORMED_COMMAND;
+            }
+            liftValue = emberAfGetInt16u(cmd->buffer, payloadOffset, cmd->bufLen);
+
+            wasHandled = emberAfWindowCoveringClusterWcGoToLiftValueCallback(nullptr, liftValue);
+            break;
+        }
+        case ZCL_WC_GO_TO_TILT_ACCURATE_PERCENTAGE_COMMAND_ID: {
+            uint16_t payloadOffset = cmd->payloadStartIndex;
+            uint16_t accuratePercentageTiltValue;
+
+            if (cmd->bufLen < payloadOffset + 2)
+            {
+                return EMBER_ZCL_STATUS_MALFORMED_COMMAND;
+            }
+            accuratePercentageTiltValue = emberAfGetInt16u(cmd->buffer, payloadOffset, cmd->bufLen);
+
+            wasHandled = emberAfWindowCoveringClusterWcGoToTiltAccuratePercentageCallback(nullptr, accuratePercentageTiltValue);
+            break;
+        }
+        case ZCL_WC_GO_TO_TILT_PERCENTAGE_COMMAND_ID: {
+            uint16_t payloadOffset = cmd->payloadStartIndex;
+            uint8_t percentageTiltValue;
+
+            if (cmd->bufLen < payloadOffset + 1)
+            {
+                return EMBER_ZCL_STATUS_MALFORMED_COMMAND;
+            }
+            percentageTiltValue = emberAfGetInt8u(cmd->buffer, payloadOffset, cmd->bufLen);
+
+            wasHandled = emberAfWindowCoveringClusterWcGoToTiltPercentageCallback(nullptr, percentageTiltValue);
+            break;
+        }
+        case ZCL_WC_GO_TO_TILT_VALUE_COMMAND_ID: {
+            uint16_t payloadOffset = cmd->payloadStartIndex;
+            uint16_t tiltValue;
+
+            if (cmd->bufLen < payloadOffset + 2)
+            {
+                return EMBER_ZCL_STATUS_MALFORMED_COMMAND;
+            }
+            tiltValue = emberAfGetInt16u(cmd->buffer, payloadOffset, cmd->bufLen);
+
+            wasHandled = emberAfWindowCoveringClusterWcGoToTiltValueCallback(nullptr, tiltValue);
+            break;
+        }
+        case ZCL_WC_STOP_COMMAND_ID: {
+            wasHandled = emberAfWindowCoveringClusterWcStopCallback(nullptr);
+            break;
+        }
+        case ZCL_WC_UP_OR_OPEN_COMMAND_ID: {
+            wasHandled = emberAfWindowCoveringClusterWcUpOrOpenCallback(nullptr);
             break;
         }
         default: {

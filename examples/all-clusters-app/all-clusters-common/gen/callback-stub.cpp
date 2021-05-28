@@ -116,6 +116,9 @@ void emberAfClusterInitCallback(EndpointId endpoint, ClusterId clusterId)
     case ZCL_WIFI_NETWORK_DIAGNOSTICS_CLUSTER_ID:
         emberAfWiFiNetworkDiagnosticsClusterInitCallback(endpoint);
         break;
+    case ZCL_WINDOW_COVERING_CLUSTER_ID:
+        emberAfWindowCoveringClusterInitCallback(endpoint);
+        break;
     default:
         // Unrecognized cluster ID
         break;
@@ -263,6 +266,11 @@ void __attribute__((weak)) emberAfTrustedRootCertificatesClusterInitCallback(End
     (void) endpoint;
 }
 void __attribute__((weak)) emberAfWiFiNetworkDiagnosticsClusterInitCallback(EndpointId endpoint)
+{
+    // To prevent warning
+    (void) endpoint;
+}
+void __attribute__((weak)) emberAfWindowCoveringClusterInitCallback(EndpointId endpoint)
 {
     // To prevent warning
     (void) endpoint;
