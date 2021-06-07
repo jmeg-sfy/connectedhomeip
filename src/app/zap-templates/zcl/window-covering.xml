@@ -55,43 +55,29 @@ limitations under the License.
 
     <!-- Window Covering Command Set -->
     <command source="client" code="0x00" name="UpOrOpen" optional="false" cli="zcl WindowCovering UpOrOpen">
-      <description>
-        Moves window covering to InstalledOpenLimit - Lift and InstalledOpenLimit - Tilt
-      </description>
+      <description>Moves window covering to InstalledOpenLimitLift and InstalledOpenLimitTilt</description>
     </command>
     <command source="client" code="0x01" name="DownOrClose" optional="false" cli="zcl WindowCovering DownOrClose">
-      <description>
-        Moves window covering to InstalledClosedLimit - Lift and InstalledCloseLimit - Tilt
-      </description>
+      <description>Moves window covering to InstalledClosedLimitLift and InstalledCloseLimitTilt</description>
     </command>
-    <command source="client" code="0x02" name="Stop" optional="false" cli="zcl WindowCovering Stop">
-      <description>
-        Stop any adjusting of window covering
-      </description>
+    <command source="client" code="0x02" name="StopMotion" optional="false" cli="zcl WindowCovering StopMotion">
+      <description>Stop any adjusting of window covering</description>
     </command>
     <command source="client" code="0x04" name="GoToLiftValue" optional="true" cli="zcl WindowCovering GoToLiftValue">
-      <description>
-        Go to lift value specified
-      </description>
+      <description>Go to lift value specified</description>
       <arg name="liftValue" type="INT16U"/>
     </command>
     <command source="client" code="0x05" name="GoToLiftPercentage" optional="true" cli="zcl WindowCovering GoToLiftPercentage">
-      <description>
-        Go to lift percentage specified
-      </description>
+      <description>Go to lift percentage specified</description>
       <arg name="liftPercentageValue" type="INT8U"/>
       <arg name="liftPercent100thsValue" type="INT16U" optional="1"/>
     </command>
     <command source="client" code="0x07" name="GoToTiltValue" optional="true" cli="zcl WindowCovering GoToTiltValue">
-      <description>
-        Go to tilt value specified
-      </description>
+      <description>Go to tilt value specified</description>
       <arg name="tiltValue" type="INT16U"/>
     </command>
     <command source="client" code="0x08" name="GoToTiltPercentage" optional="true" cli="zcl WindowCovering GoToTiltPercentage">
-      <description>
-        Go to tilt percentage specified
-      </description>
+      <description>Go to tilt percentage specified</description>
       <arg name="tiltPercentageValue" type="INT8U"/>
       <arg name="tiltPercent100thsValue" type="INT16U" optional="1"/>
     </command>
