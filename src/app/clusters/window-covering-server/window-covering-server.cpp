@@ -198,7 +198,7 @@ bool emberAfWindowCoveringClusterStopMotionCallback(chip::app::Command *)
  * @param percentageLiftValue
  */
 
-bool emberAfWindowCoveringClusterGoToLiftPercentageCallback(chip::app::Command *, uint8_t liftPercentageValue)
+bool __attribute__((weak)) emberAfWindowCoveringClusterGoToLiftPercentageCallback(chip::app::Command *, uint8_t liftPercentageValue)
 {
     EmberAfStatus status = EMBER_ZCL_STATUS_SUCCESS;
     emberAfWindowCoveringClusterPrint("GoToLiftPercentage Percentage command received");
@@ -207,7 +207,7 @@ bool emberAfWindowCoveringClusterGoToLiftPercentageCallback(chip::app::Command *
     return true;
 }
 
-bool emberAfWindowCoveringClusterGoToLiftPercentageCallback(chip::app::Command *, uint8_t liftPercentageValue, uint16_t liftPercent100thsValue)
+bool __attribute__((weak)) emberAfWindowCoveringClusterGoToLiftPercentageCallback(chip::app::Command *, uint8_t liftPercentageValue, uint16_t liftPercent100thsValue)
 {
     EmberAfStatus status = EMBER_ZCL_STATUS_SUCCESS;
     emberAfWindowCoveringClusterPrint("GoToLiftPercentage Percentage command received");
@@ -222,7 +222,7 @@ bool emberAfWindowCoveringClusterGoToLiftPercentageCallback(chip::app::Command *
  * @param liftValue
  */
 
-bool emberAfWindowCoveringClusterGoToLiftValueCallback(chip::app::Command *, uint16_t liftValue)
+bool __attribute__((weak)) emberAfWindowCoveringClusterGoToLiftValueCallback(chip::app::Command *, uint16_t liftValue)
 {
     EmberAfStatus status = EMBER_ZCL_STATUS_SUCCESS;
     emberAfWindowCoveringClusterPrint("GoToLiftValue Value command received");
@@ -250,7 +250,7 @@ bool emberAfWindowCoveringClusterGoToLiftValueCallback(chip::app::Command *, uin
  * @param percentageTiltValue
  */
 
-bool emberAfWindowCoveringClusterGoToTiltPercentageCallback(chip::app::Command *, uint8_t tiltPercentageValue)
+bool __attribute__((weak)) emberAfWindowCoveringClusterGoToTiltPercentageCallback(chip::app::Command *, uint8_t tiltPercentageValue)
 {
     EmberAfStatus status = EMBER_ZCL_STATUS_SUCCESS;
     emberAfWindowCoveringClusterPrint("GoToTiltPercentage command received");
@@ -259,7 +259,7 @@ bool emberAfWindowCoveringClusterGoToTiltPercentageCallback(chip::app::Command *
     return true;
 }
 
-bool emberAfWindowCoveringClusterGoToTiltPercentageCallback(chip::app::Command *, uint8_t tiltPercentageValue, uint16_t tiltPercent100thsValue)
+bool __attribute__((weak)) emberAfWindowCoveringClusterGoToTiltPercentageCallback(chip::app::Command *, uint8_t tiltPercentageValue, uint16_t tiltPercent100thsValue)
 {
     EmberAfStatus status = EMBER_ZCL_STATUS_SUCCESS;
     emberAfWindowCoveringClusterPrint("GoToTiltPercentage command received");
@@ -273,7 +273,7 @@ bool emberAfWindowCoveringClusterGoToTiltPercentageCallback(chip::app::Command *
  * @param tiltValue
  */
 
-bool emberAfWindowCoveringClusterGoToTiltValueCallback(chip::app::Command *, uint16_t tiltValue)
+bool __attribute__((weak)) emberAfWindowCoveringClusterGoToTiltValueCallback(chip::app::Command *, uint16_t tiltValue)
 {
     EmberAfStatus status = EMBER_ZCL_STATUS_SUCCESS;
     emberAfWindowCoveringClusterPrint("GoToTiltValue command received");
@@ -293,16 +293,6 @@ bool emberAfWindowCoveringClusterGoToTiltValueCallback(chip::app::Command *, uin
 //     }
 // }
 
-/** @brief Window Covering Cluster Init
- *
- * Cluster Init
- *
- * @param endpoint    Endpoint that is being initialized
- */
-void emberAfWindowCoveringClusterInitCallback(chip::EndpointId endpoint)
-{
-    emberAfWindowCoveringClusterPrint("Window Covering Cluster init");
-}
 
 
 
@@ -488,8 +478,28 @@ static EmberAfStatus emberAfWindowCoveringClusterSetValueCallback(EndpointId end
         return;
     }
 } */
-void emberAfWindowCoveringClusterServerInitCallback(EndpointId endpoint)
+
+/** @brief Window Covering Cluster Init
+ *
+ * Cluster Init
+ *
+ * @param endpoint Endpoint that is being initialized
+ */
+void __attribute__((weak)) emberAfWindowCoveringClusterInitCallback(chip::EndpointId endpoint)
 {
+    emberAfWindowCoveringClusterPrint("Window Covering Cluster init");
+}
+
+/** @brief Window Covering Cluster Server Init
+ *
+ * Cluster Server Init
+ *
+ * @param endpoint Endpoint that is being initialized
+ */
+void __attribute__((weak)) emberAfWindowCoveringClusterServerInitCallback(chip::EndpointId endpoint)
+{
+    emberAfWindowCoveringClusterPrint("Window Covering Cluster Server init");
+
 #ifdef ZCL_USING_ON_OFF_CLUSTER_START_UP_ON_OFF_ATTRIBUTE
     // StartUp behavior relies on WindowCovering and StartUpWindowCovering attributes being tokenized.
     if (areStartUpWindowCoveringServerAttributesTokenized(endpoint))
