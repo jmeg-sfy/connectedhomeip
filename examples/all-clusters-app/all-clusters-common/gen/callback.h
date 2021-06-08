@@ -4190,6 +4190,12 @@ bool emberAfTestClusterClusterTestNotHandledCallback(chip::app::Command * comman
 bool emberAfTestClusterClusterTestSpecificCallback(chip::app::Command * commandObj);
 
 /**
+ * @brief Window Covering Cluster DownOrClose Command callback
+ */
+
+bool emberAfWindowCoveringClusterDownOrCloseCallback(chip::app::Command * commandObj);
+
+/**
  * @brief Window Covering Cluster GoToLiftPercentage Command callback
  */
 
@@ -4220,6 +4226,12 @@ bool emberAfWindowCoveringClusterGoToTiltValueCallback(chip::app::Command * comm
  */
 
 bool emberAfWindowCoveringClusterStopMotionCallback(chip::app::Command * commandObj);
+
+/**
+ * @brief Window Covering Cluster UpOrOpen Command callback
+ */
+
+bool emberAfWindowCoveringClusterUpOrOpenCallback(chip::app::Command * commandObj);
 
 //
 // Non-Cluster Related Callbacks

@@ -6442,6 +6442,12 @@ void DispatchServerCommand(app::Command * apCommandObj, CommandId aCommandId, En
     {
         switch (aCommandId)
         {
+        case ZCL_DOWN_OR_CLOSE_COMMAND_ID: {
+
+            // TODO(#5098) We should pass the Command Object and EndpointId to the cluster callbacks.
+            wasHandled = emberAfWindowCoveringClusterDownOrCloseCallback(apCommandObj);
+            break;
+        }
         case ZCL_GO_TO_LIFT_PERCENTAGE_COMMAND_ID: {
             expectArgumentCount = 2;
             uint8_t liftPercentageValue;
@@ -6692,6 +6698,12 @@ void DispatchServerCommand(app::Command * apCommandObj, CommandId aCommandId, En
 
             // TODO(#5098) We should pass the Command Object and EndpointId to the cluster callbacks.
             wasHandled = emberAfWindowCoveringClusterStopMotionCallback(apCommandObj);
+            break;
+        }
+        case ZCL_UP_OR_OPEN_COMMAND_ID: {
+
+            // TODO(#5098) We should pass the Command Object and EndpointId to the cluster callbacks.
+            wasHandled = emberAfWindowCoveringClusterUpOrOpenCallback(apCommandObj);
             break;
         }
         default: {

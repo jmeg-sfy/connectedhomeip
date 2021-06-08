@@ -8692,16 +8692,16 @@
               "code": 0,
               "mfgCode": null,
               "source": "client",
-              "incoming": 0,
-              "outgoing": 1
+              "incoming": 1,
+              "outgoing": 0
             },
             {
               "name": "DownOrClose",
               "code": 1,
               "mfgCode": null,
               "source": "client",
-              "incoming": 0,
-              "outgoing": 1
+              "incoming": 1,
+              "outgoing": 0
             },
             {
               "name": "Stop",
