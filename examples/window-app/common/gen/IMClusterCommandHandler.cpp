@@ -1307,7 +1307,7 @@ void DispatchServerCommand(app::CommandHandler * apCommandObj, CommandId aComman
                     continue;
                 }
                 currentDecodeTagId = TLV::TagNumFromTag(aDataTlv.GetTag());
-                if (currentDecodeTagId < 1)
+                if (currentDecodeTagId < 2)
                 {
                     if (argExists[currentDecodeTagId])
                     {
@@ -1366,7 +1366,7 @@ void DispatchServerCommand(app::CommandHandler * apCommandObj, CommandId aComman
                     continue;
                 }
                 currentDecodeTagId = TLV::TagNumFromTag(aDataTlv.GetTag());
-                if (currentDecodeTagId < 1)
+                if (currentDecodeTagId < 2)
                 {
                     if (argExists[currentDecodeTagId])
                     {
