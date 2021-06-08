@@ -364,7 +364,7 @@ void AppTask::UpdateClusterState(AppEvent::EventType event)
     // WindowCoveringType
     case AppEvent::EventType::CoverStatusChange: {
         uint8_t config = mCover.StatusGet();
-        status = emberAfWriteAttribute(1, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_WC_CONFIG_STATUS_ATTRIBUTE_ID, CLUSTER_MASK_SERVER,
+        status = emberAfWriteAttribute(1, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_CONFIG_STATUS_ATTRIBUTE_ID, CLUSTER_MASK_SERVER,
                                        (uint8_t *) &config, ZCL_BITMAP8_ATTRIBUTE_TYPE);
         break;
     }
