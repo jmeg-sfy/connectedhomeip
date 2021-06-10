@@ -28,13 +28,13 @@ struct AppEvent
         ButtonPressed,
         ButtonReleased,
         // Window cover events
-        CoverStatusChange,
+        CoverConfigStatusChange,
+        CoverOperationalStatusChange,
+        CoverSafetyStatusChange,
         CoverTypeChange,
-        CoverTiltModeChange,
-        CoverLiftUp,
-        CoverLiftDown,
-        CoverTiltUp,
-        CoverTiltDown,
+        CoverActuatorChange,
+        CoverLiftUpOrOpen, CoverLiftDownOrClose,
+        CoverTiltUpOrOpen, CoverTiltDownOrClose,
         CoverOpen,
         CoverClosed,
         CoverStart,
@@ -49,3 +49,4 @@ struct AppEvent
     EventType mType = EventType::None;
     void * mContext = nullptr;
 };
+

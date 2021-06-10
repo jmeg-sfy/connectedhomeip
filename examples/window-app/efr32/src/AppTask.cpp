@@ -26,6 +26,7 @@
 #include <app/server/OnboardingCodesUtil.h>
 #include <app/server/Server.h>
 #include <app/util/attribute-storage.h>
+#include <app/common/gen/enums.h>
 #include <lcd.h>
 #include <qrcodegen.h>
 
@@ -230,11 +231,14 @@ void AppTask::DispatchEvents()
             DispatchButtonEvent(event.mType, event.mContext);
             break;
         case AppEvent::EventType::CoverTypeChange:
-        case AppEvent::EventType::CoverTiltModeChange:
-        case AppEvent::EventType::CoverLiftUp:
-        case AppEvent::EventType::CoverLiftDown:
-        case AppEvent::EventType::CoverTiltUp:
-        case AppEvent::EventType::CoverTiltDown:
+        case AppEvent::EventType::CoverConfigStatusChange:
+        case AppEvent::EventType::CoverOperationalStatusChange:
+        case AppEvent::EventType::CoverSafetyStatusChange:
+        case AppEvent::EventType::CoverActuatorChange:
+        case AppEvent::EventType::CoverLiftUpOrOpen:
+        case AppEvent::EventType::CoverLiftDownOrClose:
+        case AppEvent::EventType::CoverTiltUpOrOpen:
+        case AppEvent::EventType::CoverTiltDownOrClose:
         case AppEvent::EventType::CoverOpen:
         case AppEvent::EventType::CoverClosed:
         case AppEvent::EventType::CoverStart:
@@ -256,33 +260,33 @@ void AppTask::DispatchButtonEvent(AppEvent::EventType type, void * context)
         {
             ButtonHandler::Button * pressedButton = (ButtonHandler::Button *) context;
             ButtonHandler::Button * otherButton   = nullptr;
-            if (pressedButton->mId == ButtonHandler::ButtonId::kButton_Up)
+            if (pressedButton->mId == ButtonHandler::ButtonId::kButton_UpOrOpen)
             {
-                // Step UP
-                otherButton = &ButtonHandler::Instance().mButtonDown;
+                // Step UpOrOpen
+                otherButton = &ButtonHandler::Instance().mButtonDownOrClose;
                 if (otherButton->mIsPressed)
                 {
                     // Both buttons pressed at the same time
-                    mCover.ToggleTiltMode();
+                    mCover.ToggleActuator();
                 }
                 else
                 {
-                    mCover.StepUp();
+                    mCover.StepUpOrOpen();
                     mResetTimer.Start(FACTORY_RESET_TRIGGER_TIMEOUT);
                 }
             }
             else
             {
-                // Step DOWN
-                otherButton = &ButtonHandler::Instance().mButtonUp;
+                // Step DownOrClose
+                otherButton = &ButtonHandler::Instance().mButtonUpOrOpen;
                 if (otherButton->mIsPressed)
                 {
                     // Both buttons pressed at the same time
-                    mCover.ToggleTiltMode();
+                    mCover.ToggleActuator();
                 }
                 else
                 {
-                    mCover.StepDown();
+                    mCover.StepDownOrClose();
                     mCoverTypeTimer.Start();
                 }
             }
@@ -306,13 +310,13 @@ void AppTask::DispatchWindowCoverEvent(AppEvent::EventType event, void * context
     UpdateLed(event);
     UpdateLcd(event);
     UpdateClusterState(event);
+    UpdateOperationalStatus(event);
 }
 
 void AppTask::UpdateLog(AppEvent::EventType event)
 {
-    EFR32_LOG("Window Covering: %s, lift[%u..%u]:%u(%u%%), tilt[%u..%u]:%d(%d%%)", AppEvent::TypeString(event),
-              mCover.LiftOpenLimitGet(), mCover.LiftClosedLimitGet(), mCover.LiftGet(), mCover.LiftPercentGet(),
-              mCover.TiltOpenLimitGet(), mCover.TiltClosedLimitGet(), mCover.TiltGet(), mCover.TiltPercentGet());
+    EFR32_LOG("Window Covering Event: %s", AppEvent::TypeString(event));
+    mCover.PrintActuators();
 }
 
 void AppTask::UpdateLed(AppEvent::EventType event)
@@ -342,9 +346,9 @@ void AppTask::UpdateLcd(AppEvent::EventType event)
     if (mIsThreadProvisioned)
     {
         LcdIcon icon = LcdIcon::None;
-        if (event == AppEvent::EventType::CoverTiltModeChange)
+        if (event == AppEvent::EventType::CoverActuatorChange)
         {
-            icon = mCover.TiltModeGet() ? LcdIcon::Tilt : LcdIcon::Lift;
+            icon = mCover.ActuatorGet() ? LcdIcon::Tilt : LcdIcon::Lift;
             mIconTimer.Start();
         }
         LcdPainter::Paint(mCover.TypeGet(), mCover.LiftGet(), mCover.TiltGet(), icon);
@@ -361,37 +365,39 @@ void AppTask::UpdateClusterState(AppEvent::EventType event)
     EmberAfStatus status = EMBER_ZCL_STATUS_SUCCESS;
     switch (event)
     {
-    // WindowCoveringType
-    case AppEvent::EventType::CoverStatusChange: {
-        uint8_t config = mCover.StatusGet();
-        status = emberAfWriteAttribute(1, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_CONFIG_STATUS_ATTRIBUTE_ID, CLUSTER_MASK_SERVER,
-                                       (uint8_t *) &config, ZCL_BITMAP8_ATTRIBUTE_TYPE);
+    // ConfigStatus
+    case AppEvent::EventType::CoverConfigStatusChange: {
+        uint8_t configStatus = mCover.ConfigStatusGet();
+        status = emberAfWriteAttribute(1, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_WC_CONFIG_STATUS_ATTRIBUTE_ID, CLUSTER_MASK_SERVER, (uint8_t *) &configStatus, ZCL_BITMAP8_ATTRIBUTE_TYPE);
+        break;
+    }
+    // OperationalStatus
+    case AppEvent::EventType::CoverOperationalStatusChange: {
+        uint8_t operationalStatus = mCover.OperationalStatusGet();
+        status = emberAfWriteAttribute(1, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_WC_OPERATIONAL_STATUS_ATTRIBUTE_ID, CLUSTER_MASK_SERVER, (uint8_t *) &operationalStatus, ZCL_BITMAP8_ATTRIBUTE_TYPE);
         break;
     }
 
-    // WindowCoveringType
+    // Type
     case AppEvent::EventType::CoverTypeChange: {
         uint8_t type = static_cast<uint8_t>(mCover.TypeGet());
-        status       = emberAfWriteAttribute(1, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_WC_TYPE_ATTRIBUTE_ID, CLUSTER_MASK_SERVER,
-                                       (uint8_t *) &type, ZCL_INT8U_ATTRIBUTE_TYPE);
+        status       = emberAfWriteAttribute(1, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_WC_TYPE_ATTRIBUTE_ID, CLUSTER_MASK_SERVER, (uint8_t *) &type, ZCL_INT8U_ATTRIBUTE_TYPE);
         break;
     }
 
     // CurrentPosition – Lift
-    case AppEvent::EventType::CoverLiftUp:
-    case AppEvent::EventType::CoverLiftDown: {
+    case AppEvent::EventType::CoverLiftUpOrOpen:
+    case AppEvent::EventType::CoverLiftDownOrClose: {
         uint16_t lift = mCover.LiftGet();
-        status        = emberAfWriteAttribute(1, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_WC_CURRENT_POSITION_LIFT_ATTRIBUTE_ID,
-                                       CLUSTER_MASK_SERVER, (uint8_t *) &lift, ZCL_INT16U_ATTRIBUTE_TYPE);
+        status        = emberAfWriteAttribute(1, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_WC_CURRENT_POSITION_LIFT_ATTRIBUTE_ID, CLUSTER_MASK_SERVER, (uint8_t *) &lift, ZCL_INT16U_ATTRIBUTE_TYPE);
         break;
     }
 
-    // Current Position – Tilt
-    case AppEvent::EventType::CoverTiltUp:
-    case AppEvent::EventType::CoverTiltDown: {
+    // CurrentPosition – Tilt
+    case AppEvent::EventType::CoverTiltUpOrOpen:
+    case AppEvent::EventType::CoverTiltDownOrClose: {
         uint16_t tilt = mCover.TiltGet();
-        status        = emberAfWriteAttribute(1, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_WC_CURRENT_POSITION_TILT_ATTRIBUTE_ID,
-                                       CLUSTER_MASK_SERVER, (uint8_t *) &tilt, ZCL_INT16U_ATTRIBUTE_TYPE);
+        status        = emberAfWriteAttribute(1, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_WC_CURRENT_POSITION_TILT_ATTRIBUTE_ID, CLUSTER_MASK_SERVER, (uint8_t *) &tilt, ZCL_INT16U_ATTRIBUTE_TYPE);
         break;
     }
 
@@ -405,6 +411,53 @@ void AppTask::UpdateClusterState(AppEvent::EventType event)
     }
 }
 
+#define OP_STATUS_OPEN  0x01
+#define OP_STATUS_CLOSE 0x02
+
+void AppTask::UpdateOperationalStatus(AppEvent::EventType event)
+{
+    EmberAfStatus status = EMBER_ZCL_STATUS_SUCCESS;
+    uint8_t opState = mCover.OperationalStatusGet();
+    switch (event) {
+    case AppEvent::EventType::CoverLiftUpOrOpen:
+        opState |=  (OP_STATUS_OPEN  << EMBER_AF_WC_OPERATIONAL_STATUS_GLOBAL_OFFSET);
+        opState &= ~(OP_STATUS_CLOSE << EMBER_AF_WC_OPERATIONAL_STATUS_GLOBAL_OFFSET);
+        opState |=  (OP_STATUS_OPEN  << EMBER_AF_WC_OPERATIONAL_STATUS_LIFT_OFFSET);
+        opState &= ~(OP_STATUS_CLOSE << EMBER_AF_WC_OPERATIONAL_STATUS_LIFT_OFFSET);
+        break;
+    case AppEvent::EventType::CoverLiftDownOrClose:
+        opState |=  (OP_STATUS_CLOSE << EMBER_AF_WC_OPERATIONAL_STATUS_GLOBAL_OFFSET);
+        opState &= ~(OP_STATUS_OPEN  << EMBER_AF_WC_OPERATIONAL_STATUS_GLOBAL_OFFSET);
+        opState |=  (OP_STATUS_CLOSE << EMBER_AF_WC_OPERATIONAL_STATUS_LIFT_OFFSET);
+        opState &= ~(OP_STATUS_OPEN  << EMBER_AF_WC_OPERATIONAL_STATUS_LIFT_OFFSET);
+        break;
+    case AppEvent::EventType::CoverTiltUpOrOpen:
+        opState |=  (OP_STATUS_OPEN  << EMBER_AF_WC_OPERATIONAL_STATUS_GLOBAL_OFFSET);
+        opState &= ~(OP_STATUS_CLOSE << EMBER_AF_WC_OPERATIONAL_STATUS_GLOBAL_OFFSET);
+        opState |=  (OP_STATUS_OPEN  << EMBER_AF_WC_OPERATIONAL_STATUS_TILT_OFFSET);
+        opState &= ~(OP_STATUS_CLOSE << EMBER_AF_WC_OPERATIONAL_STATUS_TILT_OFFSET);
+        break;
+    case AppEvent::EventType::CoverTiltDownOrClose:
+        opState |=  (OP_STATUS_CLOSE << EMBER_AF_WC_OPERATIONAL_STATUS_GLOBAL_OFFSET);
+        opState &= ~(OP_STATUS_OPEN  << EMBER_AF_WC_OPERATIONAL_STATUS_GLOBAL_OFFSET);
+        opState |=  (OP_STATUS_CLOSE << EMBER_AF_WC_OPERATIONAL_STATUS_TILT_OFFSET);
+        opState &= ~(OP_STATUS_OPEN  << EMBER_AF_WC_OPERATIONAL_STATUS_TILT_OFFSET);
+        break;
+    case AppEvent::EventType::CoverStop:
+        opState = 0;
+        break;
+    default:
+        break;
+    }
+
+    mCover.OperationalStatusSet(opState);
+
+    if (status != EMBER_ZCL_STATUS_SUCCESS)
+    {
+        EFR32_LOG("ERR: UpOrOpendating ZCL %x", status);
+    }
+}
+
 void AppTask::IconTimerCallback(AppTimer & timer, void * context)
 {
     AppTask::Instance().UpdateLcd(AppEvent::EventType::None);
@@ -413,7 +466,7 @@ void AppTask::IconTimerCallback(AppTimer & timer, void * context)
 void AppTask::CoverTypeTimerCallback(AppTimer & timer, void * context)
 {
     AppTask::Instance().Cover().TypeCycle();
-    if (ButtonHandler::Instance().mButtonDown.mIsPressed)
+    if (ButtonHandler::Instance().mButtonDownOrClose.mIsPressed)
     {
         // The button is still pressed, keep cycling;
         timer.Start();
@@ -446,3 +499,4 @@ void AppTask::ResetTimerCallback(AppTimer & timer, void * context)
         app.mResetWarning = true;
     }
 }
+
