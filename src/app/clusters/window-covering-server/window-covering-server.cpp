@@ -66,7 +66,21 @@ using namespace chip;
 
 #define WC_PERCENTAGE_COEF 100
 
+#define CHECK_BOUNDS_INVALID(MIN, VAL, MAX) ((VAL < MIN) || (VAL > MAX))
+#define CHECK_BOUNDS_VALID(MIN, VAL, MAX)   (!CHECK_BOUNDS_INVALID(MIN, VAL, MAX))
 
+typedef struct wcFeature
+{
+    /* data */
+    bool LF;
+    bool TL;
+    bool PA;
+} wcFeature_t;
+
+typedef uint16_t posPercent100ths_t;
+
+
+static wcFeature_t m_wcFeature = { true, true, true };
 static EmberAfStatus emberAfWindowCoveringClusterSetValueCallback(EndpointId endpoint, uint8_t command);
 
 // ZCL_WC_TYPE_ATTRIBUTE_ID (0x0000)
@@ -100,45 +114,109 @@ static EmberAfStatus emberAfWindowCoveringClusterSetValueCallback(EndpointId end
 
 EmberAfStatus emberAfWcWriteAttribute(chip::EndpointId ep, chip::AttributeId attributeID, uint8_t * dataPtr, EmberAfAttributeType dataType)
 {
+    if (!dataPtr) return EMBER_ZCL_STATUS_INVALID_FIELD;
+
     EmberAfStatus status = emberAfWriteAttribute(ep, ZCL_WINDOW_COVERING_CLUSTER_ID, attributeID, CLUSTER_MASK_SERVER, dataPtr, dataType);
 
     if (status != EMBER_ZCL_STATUS_SUCCESS) {
         emberAfWindowCoveringClusterPrint("Err: WC Writing Attribute failed: %x", status);
     }
+
     return status;
 }
 
 
 EmberAfStatus emberAfWcReadAttribute(chip::EndpointId ep, chip::AttributeId attributeID, uint8_t * dataPtr, uint16_t readLength)
 {
+    if (!dataPtr) return EMBER_ZCL_STATUS_INVALID_FIELD;
+
     EmberAfStatus status = emberAfReadAttribute(ep, ZCL_WINDOW_COVERING_CLUSTER_ID, attributeID, CLUSTER_MASK_SERVER, dataPtr, readLength, NULL);
 
     if (status != EMBER_ZCL_STATUS_SUCCESS) {
         emberAfWindowCoveringClusterPrint("Err: WC Reading Attribute failed: %x", status);
     }
+
     return status;
 }
 
 
-EmberAfStatus emberAfWcSetTargetPositionLift(EndpointId ep, uint16_t value)
+EmberAfStatus emberAfWcSetTargetPositionLift(EndpointId ep, posPercent100ths_t liftPercent100ths)
 {
-    return emberAfWcWriteAttribute(ep, ZCL_WC_TARGET_POSITION_LIFT_PERCENT100_THS_ATTRIBUTE_ID, (uint8_t *) &value, ZCL_INT16U_ATTRIBUTE_TYPE);
+    if (CHECK_BOUNDS_INVALID(0, liftPercent100ths, 10000)) return EMBER_ZCL_STATUS_INVALID_VALUE;
+
+    return emberAfWcWriteAttribute(ep, ZCL_WC_TARGET_POSITION_LIFT_PERCENT100_THS_ATTRIBUTE_ID, (uint8_t *) &liftPercent100ths, ZCL_INT16U_ATTRIBUTE_TYPE);
 }
 
-EmberAfStatus emberAfWcSetTargetPositionTilt(EndpointId ep, uint16_t value)
+EmberAfStatus emberAfWcSetTargetPositionTilt(EndpointId ep, posPercent100ths_t tiltPercent100ths)
 {
-    return emberAfWcWriteAttribute(ep, ZCL_WC_TARGET_POSITION_TILT_PERCENT100_THS_ATTRIBUTE_ID, (uint8_t *) &value, ZCL_INT16U_ATTRIBUTE_TYPE);
+    if (CHECK_BOUNDS_INVALID(0, tiltPercent100ths, 10000)) return EMBER_ZCL_STATUS_INVALID_VALUE;
+
+    return emberAfWcWriteAttribute(ep, ZCL_WC_TARGET_POSITION_TILT_PERCENT100_THS_ATTRIBUTE_ID, (uint8_t *) &tiltPercent100ths, ZCL_INT16U_ATTRIBUTE_TYPE);
 }
 
-EmberAfStatus emberAfWcGetTargetPositionLift(EndpointId ep, uint8_t * dataPtr, uint16_t readLength)
+EmberAfStatus emberAfWcGetTargetPositionLift(EndpointId ep, posPercent100ths_t * p_liftPercent100ths)
 {
-    return emberAfWcReadAttribute(ep, ZCL_WC_TARGET_POSITION_LIFT_PERCENT100_THS_ATTRIBUTE_ID, dataPtr, readLength);
+    return emberAfWcReadAttribute(ep, ZCL_WC_TARGET_POSITION_LIFT_PERCENT100_THS_ATTRIBUTE_ID, (uint8_t *) p_liftPercent100ths, sizeof(posPercent100ths_t));
 }
 
-EmberAfStatus emberAfWcGetTargetPositionTilt(EndpointId ep, uint8_t * dataPtr, uint16_t readLength)
+EmberAfStatus emberAfWcGetTargetPositionTilt(EndpointId ep, posPercent100ths_t * p_tiltPercent100ths)
 {
-    return emberAfWcReadAttribute(ep, ZCL_WC_TARGET_POSITION_TILT_PERCENT100_THS_ATTRIBUTE_ID, dataPtr, readLength);
+    return emberAfWcReadAttribute(ep, ZCL_WC_TARGET_POSITION_TILT_PERCENT100_THS_ATTRIBUTE_ID, (uint8_t *) p_tiltPercent100ths, sizeof(posPercent100ths_t));
 }
+
+EmberAfStatus emberAfWcGetCurrentPositionLift(EndpointId ep, posPercent100ths_t * p_liftPercent100ths)
+{
+    return emberAfWcReadAttribute(ep, ZCL_WC_CURRENT_POSITION_LIFT_PERCENT100_THS_ATTRIBUTE_ID, (uint8_t *) p_liftPercent100ths, sizeof(posPercent100ths_t));
+}
+
+EmberAfStatus emberAfWcGetCurrentPositionTilt(EndpointId ep, posPercent100ths_t * p_tiltPercent100ths)
+{
+    return emberAfWcReadAttribute(ep, ZCL_WC_CURRENT_POSITION_TILT_PERCENT100_THS_ATTRIBUTE_ID, (uint8_t *) p_tiltPercent100ths, sizeof(posPercent100ths_t));
+}
+
+EmberAfStatus emberAfWcSetCurrentPositionLift(EndpointId ep, posPercent100ths_t liftPercent100ths)
+{
+    EmberAfStatus status = EMBER_ZCL_STATUS_ACTION_DENIED;
+
+    if (CHECK_BOUNDS_INVALID(0, liftPercent100ths, 10000)) return EMBER_ZCL_STATUS_INVALID_VALUE;
+
+    uint16_t liftValue = liftPercent100ths;
+    uint8_t  liftPercentage= liftPercent100ths / 100;
+
+    /* Since we have multiple attribute for positionning lets use always this helper function to update the current position */
+    if (m_wcFeature.PA && m_wcFeature.LF) {
+        if (EMBER_ZCL_STATUS_SUCCESS != (status = emberAfWcWriteAttribute(ep, ZCL_WC_CURRENT_POSITION_LIFT_PERCENT100_THS_ATTRIBUTE_ID, (uint8_t *) &liftPercent100ths, ZCL_INT16U_ATTRIBUTE_TYPE))) return status;
+        if (EMBER_ZCL_STATUS_SUCCESS != (status = emberAfWcWriteAttribute(ep, ZCL_WC_CURRENT_POSITION_LIFT_PERCENTAGE_ATTRIBUTE_ID    , (uint8_t *) &liftPercentage   , ZCL_INT8U_ATTRIBUTE_TYPE ))) return status;  
+        if (EMBER_ZCL_STATUS_SUCCESS != (status = emberAfWcWriteAttribute(ep, ZCL_WC_CURRENT_POSITION_LIFT_ATTRIBUTE_ID               , (uint8_t *) &liftValue        , ZCL_INT16U_ATTRIBUTE_TYPE))) return status;
+    } else {
+        emberAfWindowCoveringClusterPrint("Err Device is not PA=%u or LF=%u", m_wcFeature.PA, m_wcFeature.LF);
+    }
+
+    return status;
+}
+
+EmberAfStatus emberAfWcSetCurrentPositionTilt(EndpointId ep, posPercent100ths_t tiltPercent100ths)
+{
+    EmberAfStatus status = EMBER_ZCL_STATUS_ACTION_DENIED;
+
+    if (CHECK_BOUNDS_INVALID(0, tiltPercent100ths, 10000)) return EMBER_ZCL_STATUS_INVALID_VALUE;
+
+    uint16_t tiltValue = tiltPercent100ths;
+    uint8_t  tiltPercentage = tiltPercent100ths / 100;
+
+    /* Since we have multiple attribute for positionning lets use always this helper function to update the current position */
+    if (m_wcFeature.PA && m_wcFeature.TL) {
+        if (EMBER_ZCL_STATUS_SUCCESS != (status = emberAfWcWriteAttribute(ep, ZCL_WC_CURRENT_POSITION_TILT_PERCENT100_THS_ATTRIBUTE_ID, (uint8_t *) &tiltPercent100ths, ZCL_INT16U_ATTRIBUTE_TYPE))) return status;
+        if (EMBER_ZCL_STATUS_SUCCESS != (status = emberAfWcWriteAttribute(ep, ZCL_WC_CURRENT_POSITION_TILT_PERCENTAGE_ATTRIBUTE_ID    , (uint8_t *) &tiltPercentage   , ZCL_INT8U_ATTRIBUTE_TYPE ))) return status;
+        if (EMBER_ZCL_STATUS_SUCCESS != (status = emberAfWcWriteAttribute(ep, ZCL_WC_CURRENT_POSITION_TILT_ATTRIBUTE_ID               , (uint8_t *) &tiltValue        , ZCL_INT16U_ATTRIBUTE_TYPE))) return status;
+    } else {
+        emberAfWindowCoveringClusterPrint("Err Device is not PA=%u or TL=%u", m_wcFeature.PA, m_wcFeature.TL);
+    }
+
+    return status;
+}
+
+
 
 //_______________________________________________________________________________________________________________________
 
@@ -147,10 +225,16 @@ EmberAfStatus emberAfWcGetTargetPositionTilt(EndpointId ep, uint8_t * dataPtr, u
  */
 bool emberAfWindowCoveringClusterUpOrOpenCallback(chip::app::Command * commandObj)
 {
+    EndpointId ep = emberAfCurrentEndpoint();
+
     emberAfWindowCoveringClusterPrint("UpOrOpen command received");
 
-    EmberAfStatus status = emberAfWindowCoveringClusterSetValueCallback(emberAfCurrentEndpoint(), ZCL_UP_OR_OPEN_COMMAND_ID);
+    emberAfWcSetTargetPositionLift(ep, 10000);
+    emberAfWcSetTargetPositionTilt(ep, 10000);
+
+    EmberAfStatus status = emberAfWindowCoveringClusterSetValueCallback(ep, ZCL_UP_OR_OPEN_COMMAND_ID);
     emberAfSendImmediateDefaultResponse(status);
+
     return true;
 }
 
@@ -159,7 +243,12 @@ bool emberAfWindowCoveringClusterUpOrOpenCallback(chip::app::Command * commandOb
  */
 bool emberAfWindowCoveringClusterDownOrCloseCallback(chip::app::Command *commandObj)
 {
+    EndpointId ep = emberAfCurrentEndpoint();
+
     emberAfWindowCoveringClusterPrint("DownOrClose command received");
+
+    emberAfWcSetTargetPositionLift(ep, 0);
+    emberAfWcSetTargetPositionTilt(ep, 0);
 
     EmberAfStatus status = emberAfWindowCoveringClusterSetValueCallback(emberAfCurrentEndpoint(), ZCL_DOWN_OR_CLOSE_COMMAND_ID);
     emberAfSendImmediateDefaultResponse(status);
@@ -171,9 +260,20 @@ bool emberAfWindowCoveringClusterDownOrCloseCallback(chip::app::Command *command
  */
 bool emberAfWindowCoveringClusterStopMotionCallback(chip::app::Command *)
 {
+    posPercent100ths_t liftPercent100ths, tiltPercent100ths;
+    EndpointId ep = emberAfCurrentEndpoint();
+
     emberAfWindowCoveringClusterPrint("StopMotion command received");
 
+
+    emberAfWcGetCurrentPositionLift(ep, &liftPercent100ths);
+    emberAfWcGetCurrentPositionTilt(ep, &tiltPercent100ths);
+
+    emberAfWcSetTargetPositionLift(ep, liftPercent100ths);
+    emberAfWcSetTargetPositionTilt(ep, tiltPercent100ths);
+
     EmberAfStatus status = emberAfWindowCoveringClusterSetValueCallback(emberAfCurrentEndpoint(), ZCL_STOP_COMMAND_ID);
+
     emberAfSendImmediateDefaultResponse(status);
 
     return true;
