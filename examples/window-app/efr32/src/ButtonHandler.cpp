@@ -33,13 +33,13 @@ ButtonHandler & ButtonHandler::Instance()
     return sInstance;
 }
 
-ButtonHandler::ButtonHandler() : mButtonUp(kButton_Up, "BTN:UP"), mButtonDown(kButton_Down, "BTN:DOWN") {}
+ButtonHandler::ButtonHandler() : mButtonUpOrOpen(kButton_UpOrOpen, "BTN:UP"), mButtonDownOrClose(kButton_DownOrClose, "BTN:DOWN") {}
 
 void ButtonHandler::Init()
 {
     GPIOINT_Init();
-    mButtonUp.Init(sButtonsConfig[0]);
-    mButtonDown.Init(sButtonsConfig[1]);
+    mButtonUpOrOpen.Init(sButtonsConfig[0]);
+    mButtonDownOrClose.Init(sButtonsConfig[1]);
 
     // Change GPIO interrupt priority (FreeRTOS asserts unless this is done here!)
     NVIC_SetPriority(GPIO_EVEN_IRQn, 5);
@@ -48,13 +48,13 @@ void ButtonHandler::Init()
 
 bool ButtonHandler::IsPressed(ButtonId_t button)
 {
-    if (kButton_Up == button)
+    if (kButton_UpOrOpen == button)
     {
-        return mButtonUp.mIsPressed;
+        return mButtonUpOrOpen.mIsPressed;
     }
-    else if (kButton_Down == button)
+    else if (kButton_DownOrClose == button)
     {
-        return mButtonDown.mIsPressed;
+        return mButtonDownOrClose.mIsPressed;
     }
     return false;
 }
@@ -75,7 +75,7 @@ void ButtonHandler::Button::Init(const ButtonConfig_t & config)
 
 void ButtonHandler::ButtonISR(uint8_t pin)
 {
-    Button & btn   = (sInstance.mButtonUp.mPin == pin) ? sInstance.mButtonUp : sInstance.mButtonDown;
+    Button & btn   = (sInstance.mButtonUpOrOpen.mPin == pin) ? sInstance.mButtonUpOrOpen : sInstance.mButtonDownOrClose;
     btn.mIsPressed = !GPIO_PinInGet(btn.mPort, btn.mPin);
     btn.mTimer.IsrStart();
 }

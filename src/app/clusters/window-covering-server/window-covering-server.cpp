@@ -223,7 +223,7 @@ EmberAfStatus emberAfWcSetCurrentPositionTilt(EndpointId ep, posPercent100ths_t 
 /**
  * @brief Window Covering Cluster UpOrOpen Command callback
  */
-bool emberAfWindowCoveringClusterUpOrOpenCallback(chip::app::Command * commandObj)
+bool __attribute__((weak)) emberAfWindowCoveringClusterUpOrOpenCallback(chip::app::Command * commandObj)
 {
     EndpointId ep = emberAfCurrentEndpoint();
 
@@ -241,7 +241,7 @@ bool emberAfWindowCoveringClusterUpOrOpenCallback(chip::app::Command * commandOb
 /**
  * @brief Window Covering Cluster DownOrClose Command callback
  */
-bool emberAfWindowCoveringClusterDownOrCloseCallback(chip::app::Command *commandObj)
+bool __attribute__((weak)) emberAfWindowCoveringClusterDownOrCloseCallback(chip::app::Command *commandObj)
 {
     EndpointId ep = emberAfCurrentEndpoint();
 
@@ -258,7 +258,7 @@ bool emberAfWindowCoveringClusterDownOrCloseCallback(chip::app::Command *command
 /**
  * @brief Window Covering Cluster WindowCoveringStop Command callback
  */
-bool emberAfWindowCoveringClusterStopMotionCallback(chip::app::Command *)
+bool __attribute__((weak)) emberAfWindowCoveringClusterStopMotionCallback(chip::app::Command *)
 {
     posPercent100ths_t liftPercent100ths, tiltPercent100ths;
     EndpointId ep = emberAfCurrentEndpoint();
@@ -322,7 +322,7 @@ bool __attribute__((weak)) emberAfWindowCoveringClusterGoToLiftPercentageCallbac
  * @param liftValue
  */
 
-bool __attribute__((weak)) emberAfWindowCoveringClusterGoToLiftValueCallback(chip::app::Command *, uint16_t liftValue)
+bool __attribute__((weak)) emberAfWindowCoveringClusterGoToLiftValueCallback(chip::app::Command *, uint16_t liftPercent100ths)
 {
     EmberAfStatus status = EMBER_ZCL_STATUS_SUCCESS;
     emberAfWindowCoveringClusterPrint("GoToLiftValue Value command received");

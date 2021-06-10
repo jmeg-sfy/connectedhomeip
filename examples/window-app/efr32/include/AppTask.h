@@ -84,4 +84,5 @@ private:
     void UpdateLed(AppEvent::EventType event);
     void UpdateLcd(AppEvent::EventType event);
     void UpdateClusterState(AppEvent::EventType event);
+    void UpdateOperationalStatus(AppEvent::EventType event);
 };

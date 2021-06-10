@@ -35,16 +35,22 @@ const char * AppEvent::TypeString(EventType type)
 
     case EventType::CoverTypeChange:
         return "Cover Type Changed";
-    case EventType::CoverTiltModeChange:
-        return "Tilt Mode Changed";
-    case EventType::CoverLiftUp:
-        return "Lift Up";
-    case EventType::CoverLiftDown:
-        return "Lift Down";
-    case EventType::CoverTiltUp:
-        return "Tilt Up";
-    case EventType::CoverTiltDown:
-        return "Tilt Down";
+    case EventType::CoverConfigStatusChange:
+        return "Cover ConfigStatus Changed";
+    case EventType::CoverOperationalStatusChange:
+        return "Cover OperationalStatus Changed";
+    case EventType::CoverSafetyStatusChange:
+        return "Cover SafetyStatus Changed";
+    case EventType::CoverActuatorChange:
+        return "Cover Actuator Changed";
+    case EventType::CoverLiftUpOrOpen:
+        return "Lift UpOrOpen";
+    case EventType::CoverLiftDownOrClose:
+        return "Lift DownOrClose";
+    case EventType::CoverTiltUpOrOpen:
+        return "Tilt UpOrOpen";
+    case EventType::CoverTiltDownOrClose:
+        return "Tilt DownOrClose";
     case EventType::CoverOpen:
         return "Open";
     case EventType::CoverClosed:
@@ -58,3 +64,4 @@ const char * AppEvent::TypeString(EventType type)
         return "?";
     }
 }
+

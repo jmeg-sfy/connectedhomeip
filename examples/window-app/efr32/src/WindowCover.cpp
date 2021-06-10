@@ -20,35 +20,77 @@
 #include <AppTask.h>
 #include <WindowCover.h>
 
-#define LIFT_DELTA (LCD_COVER_SIZE / 10)
-#define TILT_DELTA 1
+
 #define TIMER_DELAY_MS 500
 
 WindowCover::WindowCover()
 {
-    mLiftTimer.Init(this, "Timer:lift", TIMER_DELAY_MS, LiftTimerCallback);
-    mTiltTimer.Init(this, "Timer:tilt", TIMER_DELAY_MS, TiltTimerCallback);
+    mLift.timer.Init(this, "Timer:lift", TIMER_DELAY_MS, LiftTimerCallback);
+    mTilt.timer.Init(this, "Timer:tilt", TIMER_DELAY_MS, TiltTimerCallback);
+
+    /* Target Position is initial state reflect the current position */
+    mLift.currentPosition = mLift.openLimit;
+    mTilt.currentPosition = mTilt.openLimit;
+
+    mLift.targetPosition = mLift.currentPosition;
+    mTilt.targetPosition = mTilt.currentPosition;
 }
 
-WindowCover::WindowCover(CoverType type, uint16_t liftOpenLimit, uint16_t liftClosedLimit, uint16_t tiltOpenLimit,
-                         uint16_t tiltClosedLimit) :
-    mType(type),
-    mLiftOpenLimit(liftOpenLimit), mLiftClosedLimit(liftClosedLimit), mLift(liftClosedLimit), mTiltOpenLimit(tiltOpenLimit),
-    mTiltClosedLimit(tiltClosedLimit), mTilt(tiltClosedLimit)
-{}
-
-void WindowCover::StatusSet(uint8_t status)
+WindowCover::WindowCover(CoverType type, uint16_t liftopenLimit, uint16_t liftclosedLimit, uint16_t tiltopenLimit, uint16_t tiltclosedLimit) :
+    mType(type)
 {
-    if (status != mStatus)
+    mLift.openLimit = liftopenLimit, mLift.closedLimit = liftclosedLimit;
+    mTilt.openLimit = tiltopenLimit, mTilt.closedLimit = tiltclosedLimit;
+
+
+    /* Target Position is initial state reflect the current position */
+    mLift.currentPosition = liftopenLimit,
+    mTilt.currentPosition = tiltopenLimit,
+
+    mLift.targetPosition = mLift.currentPosition;
+    mTilt.targetPosition = mTilt.currentPosition;
+}
+
+void WindowCover::ConfigStatusSet(uint8_t status)
+{
+    if (status != mConfigStatus)
     {
-        mStatus = status;
-        PostEvent(AppEvent::EventType::CoverStatusChange);
+        mConfigStatus = status;
+        PostEvent(AppEvent::EventType::CoverConfigStatusChange);
     }
 }
 
-uint8_t WindowCover::StatusGet(void)
+uint8_t WindowCover::ConfigStatusGet(void)
 {
-    return mStatus;
+    return mConfigStatus;
+}
+
+void WindowCover::OperationalStatusSet(uint8_t status)
+{
+    if (status != mOperationalStatus)
+    {
+        mOperationalStatus = status;
+        PostEvent(AppEvent::EventType::CoverOperationalStatusChange);
+    }
+}
+
+uint8_t WindowCover::OperationalStatusGet(void)
+{
+    return mOperationalStatus;
+}
+
+void WindowCover::SafetyStatusSet(uint16_t status)
+{
+    if (status != mSafetyStatus)
+    {
+        mSafetyStatus = status;
+        PostEvent(AppEvent::EventType::CoverSafetyStatusChange);
+    }
+}
+
+uint16_t WindowCover::SafetyStatusGet(void)
+{
+    return mSafetyStatus;
 }
 
 void WindowCover::TypeSet(CoverType type)
@@ -64,13 +106,13 @@ void WindowCover::TypeSet(CoverType type)
         case CoverType::Rollershade_exterior_2_motor:
         case CoverType::Drapery:
         case CoverType::Awning:
-            TiltModeSet(false);
+            ActuatorSet(false);
             break;
         // Tilt only
         case CoverType::Shutter:
         case CoverType::Tilt_blind:
         case CoverType::Projector_screen:
-            TiltModeSet(true);
+            ActuatorSet(true);
             break;
         // Lift & Tilt
         case CoverType::Tilt_Lift_blind:
@@ -107,248 +149,252 @@ WindowCover::CoverType WindowCover::TypeGet()
 
 uint16_t WindowCover::LiftOpenLimitGet()
 {
-    return mLiftOpenLimit;
+    return mLift.openLimit;
 }
 
 uint16_t WindowCover::LiftClosedLimitGet()
 {
-    return mLiftClosedLimit;
+    return mLift.closedLimit;
 }
 
-void WindowCover::LiftSet(uint16_t lift)
+
+
+
+
+void WindowCover::PrintActuator(const char * pName, WindowCover::CoverActuator_t * pAct)
 {
-    if (lift > mLiftClosedLimit)
-    {
-        lift = mLiftClosedLimit;
-    }
-    else if (lift < mLiftOpenLimit)
-    {
-        lift = mLiftOpenLimit;
-    }
-    if (lift != mLift)
-    {
-        AppEvent::EventType event = lift > mLift ? AppEvent::EventType::CoverLiftUp : AppEvent::EventType::CoverLiftDown;
-        mLift                     = lift;
-        PostEvent(event);
-    }
+    if (!pName || !pAct) return;
+
+    uint16_t currentAccuratePercentage = PositionToAccuratePercentage(pAct, pAct->currentPosition);
+    uint16_t  targetAccuratePercentage = PositionToAccuratePercentage(pAct, pAct->targetPosition);
+    uint8_t currentPercentage = currentAccuratePercentage / 100;
+    uint8_t  targetPercentage =  targetAccuratePercentage / 100;
+
+    EFR32_LOG("%10s Abs:[ %7u - %7u ] Current %7u, Target %7u", pName,
+        pAct->openLimit, pAct->closedLimit, pAct->currentPosition, pAct->targetPosition);
+    EFR32_LOG("%10s Rel:[   0.00%% - 100.00%% ] Current %3u.%02u%%, Target %3u.%02u%%", pName,
+        currentPercentage, (currentAccuratePercentage - (currentPercentage * 100)),
+         targetPercentage, ( targetAccuratePercentage - ( targetPercentage * 100)));
+
 }
 
+void WindowCover::PrintActuators(void)
+{
+    PrintActuator("Lift", &mLift);
+    PrintActuator("Tilt", &mTilt);
+    PrintStatus();
+}
+
+void WindowCover::PrintStatus(void)
+{
+    EFR32_LOG("Config: 0x%02X, Operational: 0x%02X, Safety: 0x%04X", mConfigStatus, mOperationalStatus, mSafetyStatus);
+}
+
+// void WindowCover::LiftPercentSet(uint8_t percentage)
+// {
+//     LiftSet(PercentToLift(percentage));
+// }
+
+// uint8_t WindowCover::LiftPercentGet()
+// {
+//     return LiftToPercent(mLift.currentPosition);
+// }
+
+void WindowCover::LiftUpOrOpen()    { ActuatorStepTowardOpen(&mLift); }
+void WindowCover::TiltUpOrOpen()    { ActuatorStepTowardOpen(&mTilt); }
+void WindowCover::LiftDownOrClose() { ActuatorStepTowardClose(&mLift); }
+void WindowCover::TiltDownOrClose() { ActuatorStepTowardClose(&mTilt); }
 uint16_t WindowCover::LiftGet()
 {
-    return mLift;
+    return mLift.currentPosition;
 }
-
-void WindowCover::LiftPercentSet(uint8_t percentage)
+void WindowCover::ActuatorStepTowardOpen(CoverActuator_t * pAct)
 {
-    LiftSet(PercentToLift(percentage));
-}
+    if (!pAct) return;
 
-uint8_t WindowCover::LiftPercentGet()
-{
-    return LiftToPercent(mLift);
-}
-
-void WindowCover::LiftUp()
-{
-    LiftSet(mLift + LIFT_DELTA);
-}
-
-void WindowCover::LiftDown()
-{
-    if (mLift >= LIFT_DELTA)
-    {
-        LiftSet(mLift - LIFT_DELTA);
-    }
-    else
-    {
-        LiftSet(mLiftOpenLimit);
+    if (pAct->currentPosition >= pAct->stepDelta) {
+        ActuatorSetPosition(pAct, pAct->currentPosition - pAct->stepDelta);
+    } else {
+        ActuatorSetPosition(pAct, pAct->openLimit);//Percentage attribute will be set to 0%.
     }
 }
 
-void WindowCover::LiftGotoValue(uint16_t lift)
+void WindowCover::ActuatorStepTowardClose(CoverActuator_t * pAct)
 {
-    if (lift > mLiftClosedLimit)
-    {
-        lift = mLiftClosedLimit;
+    if (!pAct) return;
+
+    //EFR32_LOG("ActuatorStepTowardClose %u %u %u", pAct->currentPosition, (pAct->stepDelta - pAct->closedLimit),pAct->closedLimit );
+    if (pAct->currentPosition <= (pAct->closedLimit - pAct->stepDelta)) {
+        ActuatorSetPosition(pAct, pAct->currentPosition + pAct->stepDelta);
+    } else {
+        ActuatorSetPosition(pAct, pAct->closedLimit);//Percentage attribute will be set to 100%.
     }
-    else if (lift < mLiftOpenLimit)
-    {
-        lift = mLiftOpenLimit;
-    }
-    mLiftAction = lift > mLift ? CoverAction::LiftUp : CoverAction::LiftDown;
-    mLiftTarget = lift;
-    mLiftTimer.Start();
-    PostEvent(AppEvent::EventType::CoverStart);
 }
 
-void WindowCover::LiftGotoPercent(uint8_t percentage)
+
+
+
+void WindowCover::LiftGoToAccuratePercentage(uint16_t accuratePercentage)
 {
-    LiftGotoValue(PercentToLift(percentage));
+    ActuatorGoToAccuratePercentage(&mLift, accuratePercentage);
 }
 
-uint8_t WindowCover::LiftToPercent(uint16_t lift)
+void WindowCover::LiftGoToValue(uint16_t value)
 {
-    return (uint8_t)(100 * (lift - mLiftOpenLimit) / (mLiftClosedLimit - mLiftOpenLimit));
-}
-
-uint16_t WindowCover::PercentToLift(uint8_t liftPercent)
-{
-    return mLiftOpenLimit + (mLiftClosedLimit - mLiftOpenLimit) * liftPercent / 100;
+    ActuatorGoToValue(&mLift, value);
 }
 
 uint16_t WindowCover::TiltOpenLimitGet()
 {
-    return mTiltOpenLimit;
+    return mTilt.openLimit;
 }
 
 uint16_t WindowCover::TiltClosedLimitGet()
 {
-    return mTiltClosedLimit;
+    return mTilt.closedLimit;
 }
 
-void WindowCover::TiltSet(uint16_t tilt)
+
+
+uint16_t WindowCover::TiltGet()
 {
-    if (tilt > mTiltClosedLimit)
-    {
-        tilt = mTiltClosedLimit;
+    return mTilt.currentPosition;
+}
+
+// void WindowCover::TiltPercentSet(uint8_t percentage)
+// {
+//     TiltSet(PercentToTilt(percentage));
+// }
+
+// uint8_t WindowCover::TiltPercentGet()
+// {
+//     return TiltToPercent(mTilt.currentPosition);
+// }
+
+
+void WindowCover::ActuatorSetPosition(CoverActuator_t * pAct, uint16_t value)
+{
+    if (!pAct) return;
+
+    if (value > pAct->closedLimit) {
+        value = pAct->closedLimit;
+    } else if (value < pAct->openLimit) {
+        value = pAct->openLimit;
     }
-    else if (tilt < mTiltOpenLimit)
+
+    if (value != pAct->currentPosition)
     {
-        tilt = mTiltOpenLimit;
-    }
-    if (tilt != mTilt)
-    {
-        AppEvent::EventType event = tilt > mTilt ? AppEvent::EventType::CoverTiltUp : AppEvent::EventType::CoverTiltDown;
-        mTilt                     = tilt;
+        AppEvent::EventType event = (value > pAct->currentPosition) ? pAct->eventClosing : pAct->eventOpening;
+        pAct->currentPosition = value;
+
+        // Trick here If direct command set Target to go directly to position
+        if (!pAct->timer.IsActive()) pAct->targetPosition = pAct->currentPosition;
+
         PostEvent(event);
     }
 }
 
-uint16_t WindowCover::TiltGet()
+void WindowCover::ActuatorGoToValue(CoverActuator_t * pAct, uint16_t value)
 {
-    return mTilt;
-}
+    if (!pAct) return;
 
-void WindowCover::TiltPercentSet(uint8_t percentage)
-{
-    TiltSet(PercentToTilt(percentage));
-}
-
-uint8_t WindowCover::TiltPercentGet()
-{
-    return TiltToPercent(mTilt);
-}
-
-void WindowCover::TiltUp()
-{
-    TiltSet(mTilt + TILT_DELTA);
-}
-
-void WindowCover::TiltDown()
-{
-    if (mTilt >= TILT_DELTA)
-    {
-        TiltSet(mTilt - TILT_DELTA);
+    if (value > pAct->closedLimit) {
+        value = pAct->closedLimit;
+    } else if (value < pAct->openLimit) {
+        value = pAct->openLimit;
     }
-    else
-    {
-        TiltSet(mTiltOpenLimit);
+
+    if (value != pAct->currentPosition) {
+        pAct->action = (value > pAct->currentPosition) ? CoverAction::MovingDownOrClose : CoverAction::MovingUpOrOpen;
+        pAct->targetPosition = value;
+        pAct->timer.Start();
+        PostEvent(AppEvent::EventType::CoverStart);
+    } else {
+        pAct->targetPosition = pAct->currentPosition;
+        pAct->timer.Stop();
+        PostEvent(AppEvent::EventType::CoverStop);
     }
 }
 
-void WindowCover::TiltGotoValue(uint16_t tilt)
+void WindowCover::ActuatorGoToAccuratePercentage(CoverActuator_t * pAct, uint16_t accuratePercentage)
 {
-    if (tilt > mTiltClosedLimit)
-    {
-        tilt = mTiltClosedLimit;
+    ActuatorGoToValue(pAct, AccuratePercentageToPosition(pAct, accuratePercentage));
+}
+
+void WindowCover::TiltGoToAccuratePercentage(uint16_t accuratePercentage)
+{
+    ActuatorGoToAccuratePercentage(&mTilt, accuratePercentage);
+}
+
+void WindowCover::TiltGoToValue(uint16_t value)
+{
+    ActuatorGoToValue(&mTilt, value);
+}
+
+uint16_t WindowCover::PositionToAccuratePercentage(CoverActuator_t * pActuator, uint16_t position)
+{
+    if (!pActuator) return UINT16_MAX;
+
+    uint16_t range = pActuator->closedLimit - pActuator->openLimit;
+
+    if (range > 0) {
+        return (uint16_t) (10000 * (position - pActuator->openLimit) / range);
     }
-    else if (tilt < mTiltOpenLimit)
-    {
-        tilt = mTiltOpenLimit;
-    }
-    mTiltAction = tilt > mTilt ? CoverAction::TiltUp : CoverAction::TiltDown;
-    mTiltTarget = tilt;
-    mTiltTimer.Start();
-    PostEvent(AppEvent::EventType::CoverStart);
+
+    return UINT16_MAX;
 }
 
-void WindowCover::TiltGotoPercent(uint8_t percentage)
+uint16_t WindowCover::AccuratePercentageToPosition(CoverActuator_t * pActuator, uint16_t accuratePercentage)
 {
-    TiltGotoValue(PercentToTilt(percentage));
-}
+    if (!pActuator) return UINT16_MAX;
 
-uint8_t WindowCover::TiltToPercent(uint16_t tilt)
-{
-    return (uint8_t)(100 * (tilt - mTiltOpenLimit) / (mTiltClosedLimit - mTiltOpenLimit));
-}
-
-uint16_t WindowCover::PercentToTilt(uint8_t tiltPercent)
-{
-    return mTiltOpenLimit + (mTiltClosedLimit - mTiltOpenLimit) * tiltPercent / 100;
+    uint16_t range = pActuator->closedLimit - pActuator->openLimit;
+    return pActuator->openLimit + (range * accuratePercentage) / 10000;
 }
 
 void WindowCover::Open()
 {
-    LiftGotoValue(mLiftOpenLimit);
-    TiltGotoValue(mTiltOpenLimit);
+    LiftGoToValue(mLift.openLimit);
+    TiltGoToValue(mTilt.openLimit);
 }
 
 void WindowCover::Close()
 {
-    LiftGotoValue(mLiftClosedLimit);
-    TiltGotoValue(mTiltClosedLimit);
+    LiftGoToValue(mLift.closedLimit);
+    TiltGoToValue(mTilt.closedLimit);
 }
 
 void WindowCover::Stop()
 {
-    mLiftTimer.Stop();
-    mTiltTimer.Stop();
-    PostEvent(AppEvent::EventType::CoverStop);
+    LiftGoToValue(mLift.currentPosition);
+    TiltGoToValue(mTilt.currentPosition);
 }
 
-void WindowCover::TiltModeSet(bool mode)
+void WindowCover::ActuatorSet(bool mode)
 {
-    if (mode != mTiltMode)
+    if (mode != mActuator)
     {
-        mTiltMode = mode;
-        PostEvent(AppEvent::EventType::CoverTiltModeChange);
+        mActuator = mode;
+        PostEvent(AppEvent::EventType::CoverActuatorChange);
     }
 }
 
-bool WindowCover::TiltModeGet()
+bool WindowCover::ActuatorGet()
 {
-    return mTiltMode;
+    return mActuator;
 }
 
-void WindowCover::ToggleTiltMode()
+WindowCover::CoverActuator_t * WindowCover::ActuatorGetLift(void) { return &mLift; }
+WindowCover::CoverActuator_t * WindowCover::ActuatorGetTilt(void) { return &mTilt; }
+
+void WindowCover::ToggleActuator()
 {
-    mTiltMode = !mTiltMode;
-    PostEvent(AppEvent::EventType::CoverTiltModeChange);
+    mActuator = !mActuator;
+    PostEvent(AppEvent::EventType::CoverActuatorChange);
 }
 
-void WindowCover::StepUp()
-{
-    if (mTiltMode)
-    {
-        TiltUp();
-    }
-    else
-    {
-        LiftUp();
-    }
-}
-
-void WindowCover::StepDown()
-{
-    if (mTiltMode)
-    {
-        TiltDown();
-    }
-    else
-    {
-        LiftDown();
-    }
-}
+void WindowCover::StepUpOrOpen()    { mActuator ? TiltUpOrOpen()    : LiftUpOrOpen();    }
+void WindowCover::StepDownOrClose() { mActuator ? TiltDownOrClose() : LiftDownOrClose(); }
 
 bool WindowCover::IsOpen(void)
 {
@@ -360,16 +406,16 @@ bool WindowCover::IsOpen(void)
     case CoverType::Rollershade_exterior_2_motor:
     case CoverType::Drapery:
     case CoverType::Awning:
-        return mLift <= mLiftOpenLimit;
+        return mLift.currentPosition <= mLift.openLimit;
     // Tilt only
     case CoverType::Shutter:
     case CoverType::Tilt_blind:
     case CoverType::Projector_screen:
-        return mTilt <= mTiltOpenLimit;
+        return mTilt.currentPosition <= mTilt.openLimit;
     // Lift & Tilt
     case CoverType::Tilt_Lift_blind:
     default:
-        return mLift <= mLiftOpenLimit && mTilt <= mTiltOpenLimit;
+        return mLift.currentPosition <= mLift.openLimit && mTilt.currentPosition <= mTilt.openLimit;
     }
     return false;
 }
@@ -384,23 +430,23 @@ bool WindowCover::IsClosed(void)
     case CoverType::Rollershade_exterior_2_motor:
     case CoverType::Drapery:
     case CoverType::Awning:
-        return mLift >= mLiftClosedLimit;
+        return mLift.currentPosition >= mLift.closedLimit;
     // Tilt only
     case CoverType::Shutter:
     case CoverType::Tilt_blind:
     case CoverType::Projector_screen:
-        return mTilt >= mTiltClosedLimit;
+        return mTilt.currentPosition >= mTilt.closedLimit;
     // Lift & Tilt
     case CoverType::Tilt_Lift_blind:
     default:
-        return mLift >= mLiftClosedLimit && mTilt >= mTiltClosedLimit;
+        return mLift.currentPosition >= mLift.closedLimit && mTilt.currentPosition >= mTilt.closedLimit;
     }
     return false;
 }
 
 bool WindowCover::IsMoving(void)
 {
-    return mLiftTimer.IsActive() || mTiltTimer.IsActive();
+    return mLift.timer.IsActive() || mTilt.timer.IsActive();
 }
 
 const char * WindowCover::TypeString(const WindowCover::CoverType type)
@@ -430,54 +476,40 @@ const char * WindowCover::TypeString(const WindowCover::CoverType type)
     }
 }
 
+// TIMERs
 void WindowCover::LiftTimerCallback(AppTimer & timer, void * context)
-{
-    WindowCover * cover = (WindowCover *) context;
-    switch (cover->mLiftAction)
-    {
-    case CoverAction::LiftDown:
-        if (cover->mLift > cover->mLiftTarget)
-        {
-            cover->LiftDown();
-            timer.Start();
-        }
-        break;
-    case CoverAction::LiftUp:
-        if (cover->mLift < cover->mLiftTarget)
-        {
-            cover->LiftUp();
-            timer.Start();
-        }
-        break;
-    case CoverAction::None:
-    default:
-        timer.Stop();
-        break;
-    }
+{ 
+    if (!context) return;
 
-    if (!timer.IsActive())
-    {
-        cover->mLiftAction = CoverAction::None;
-        cover->PostEvent(AppEvent::EventType::CoverStop);
-    }
+    WindowCover * cover = (WindowCover *) context;
+    ActuatorTimerCallback(timer, cover, cover->ActuatorGetLift());
 }
 
 void WindowCover::TiltTimerCallback(AppTimer & timer, void * context)
-{
+{ 
+    if (!context) return;
+
     WindowCover * cover = (WindowCover *) context;
-    switch (cover->mTiltAction)
+    ActuatorTimerCallback(timer, cover, cover->ActuatorGetTilt());
+}
+
+void WindowCover::ActuatorTimerCallback(AppTimer & timer, WindowCover * pCover, CoverActuator_t * pAct)
+{
+    if (!pCover || !pAct) return;
+
+    switch (pAct->action)
     {
-    case CoverAction::TiltDown:
-        if (cover->mTilt > cover->mTiltTarget)
+    case CoverAction::MovingDownOrClose:
+        if (pAct->currentPosition < pAct->targetPosition)
         {
-            cover->TiltDown();
+            pCover->ActuatorStepTowardClose(pAct);
             timer.Start();
         }
         break;
-    case CoverAction::TiltUp:
-        if (cover->mTilt < cover->mTiltTarget)
+    case CoverAction::MovingUpOrOpen:
+        if (pAct->currentPosition > pAct->targetPosition)
         {
-            cover->TiltUp();
+            pCover->ActuatorStepTowardOpen(pAct);
             timer.Start();
         }
         break;
@@ -489,8 +521,8 @@ void WindowCover::TiltTimerCallback(AppTimer & timer, void * context)
 
     if (!timer.IsActive())
     {
-        cover->mTiltAction = CoverAction::None;
-        cover->PostEvent(AppEvent::EventType::CoverStop);
+        pAct->action = CoverAction::None;
+        pCover->PostEvent(AppEvent::EventType::CoverStop);
     }
 }
 
