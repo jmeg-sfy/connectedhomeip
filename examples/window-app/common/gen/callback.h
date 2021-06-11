@@ -555,10 +555,6 @@ bool emberAfOperationalCredentialsClusterSetFabricCallback(chip::app::Command * 
 bool emberAfOperationalCredentialsClusterUpdateFabricLabelCallback(chip::app::Command * commandObj, uint8_t * Label);
 
 /**
- * @brief Window Covering Cluster WindowCoveringDownClose Command callback
- */
-
-/**
  * @brief Window Covering Cluster DownOrClose Command callback
  */
 
