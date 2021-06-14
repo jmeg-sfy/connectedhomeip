@@ -36,8 +36,8 @@ WindowCover::WindowCover()
     mTilt.targetPosition = mTilt.currentPosition;
 }
 
-WindowCover::WindowCover(CoverType type, uint16_t liftopenLimit, uint16_t liftclosedLimit, uint16_t tiltopenLimit, uint16_t tiltclosedLimit) :
-    mType(type)
+WindowCover::WindowCover(EmberAfWcType type, EmberAfWcEndProductType endProductType, uint16_t liftopenLimit, uint16_t liftclosedLimit, uint16_t tiltopenLimit, uint16_t tiltclosedLimit) :
+    mType(type), mEndProductType(endProductType)
 {
     mLift.openLimit = liftopenLimit, mLift.closedLimit = liftclosedLimit;
     mTilt.openLimit = tiltopenLimit, mTilt.closedLimit = tiltclosedLimit;
@@ -93,7 +93,7 @@ uint16_t WindowCover::SafetyStatusGet(void)
     return mSafetyStatus;
 }
 
-void WindowCover::TypeSet(CoverType type)
+void WindowCover::TypeSet(EmberAfWcType type)
 {
     if (type != mType)
     {
@@ -101,21 +101,21 @@ void WindowCover::TypeSet(CoverType type)
         switch (mType)
         {
         // Lift only
-        case CoverType::Rollershade:
-        case CoverType::Rollershade_2_motor:
-        case CoverType::Rollershade_exterior_2_motor:
-        case CoverType::Drapery:
-        case CoverType::Awning:
+        case EMBER_ZCL_WC_TYPE_ROLLERSHADE:
+        case EMBER_ZCL_WC_TYPE_ROLLERSHADE2_MOTOR:
+        case EMBER_ZCL_WC_TYPE_ROLLERSHADE_EXTERIOR2_MOTOR:
+        case EMBER_ZCL_WC_TYPE_DRAPERY:
+        case EMBER_ZCL_WC_TYPE_AWNING:
             ActuatorSet(false);
             break;
         // Tilt only
-        case CoverType::Shutter:
-        case CoverType::Tilt_blind:
-        case CoverType::Projector_screen:
+        case EMBER_ZCL_WC_TYPE_SHUTTER:
+        case EMBER_ZCL_WC_TYPE_TILT_BLIND_TILT_ONLY:
+        case EMBER_ZCL_WC_TYPE_PROJECTOR_SCREEN:
             ActuatorSet(true);
             break;
         // Lift & Tilt
-        case CoverType::Tilt_Lift_blind:
+        case EMBER_ZCL_WC_TYPE_TILT_BLIND_LIFT_AND_TILT:
         default:
             break;
         }
@@ -127,22 +127,22 @@ void WindowCover::TypeCycle()
 {
     switch (mType)
     {
-    case CoverType::Rollershade:
-        TypeSet(CoverType::Drapery);
+    case EMBER_ZCL_WC_TYPE_ROLLERSHADE:
+        TypeSet(EMBER_ZCL_WC_TYPE_DRAPERY);
         break;
-    case CoverType::Drapery:
-        TypeSet(CoverType::Tilt_Lift_blind);
+    case EMBER_ZCL_WC_TYPE_DRAPERY:
+        TypeSet(EMBER_ZCL_WC_TYPE_TILT_BLIND_LIFT_AND_TILT);
         break;
-    case CoverType::Tilt_Lift_blind:
-        TypeSet(CoverType::Rollershade);
+    case EMBER_ZCL_WC_TYPE_TILT_BLIND_LIFT_AND_TILT:
+        TypeSet(EMBER_ZCL_WC_TYPE_ROLLERSHADE);
         break;
     default:
-        TypeSet(CoverType::Tilt_Lift_blind);
+        TypeSet(EMBER_ZCL_WC_TYPE_TILT_BLIND_LIFT_AND_TILT);
         break;
     }
 }
 
-WindowCover::CoverType WindowCover::TypeGet()
+EmberAfWcType WindowCover::TypeGet()
 {
     return mType;
 }
@@ -401,19 +401,19 @@ bool WindowCover::IsOpen(void)
     switch (mType)
     {
     // Lift only
-    case CoverType::Rollershade:
-    case CoverType::Rollershade_2_motor:
-    case CoverType::Rollershade_exterior_2_motor:
-    case CoverType::Drapery:
-    case CoverType::Awning:
+    case EMBER_ZCL_WC_TYPE_ROLLERSHADE:
+    case EMBER_ZCL_WC_TYPE_ROLLERSHADE2_MOTOR:
+    case EMBER_ZCL_WC_TYPE_ROLLERSHADE_EXTERIOR2_MOTOR:
+    case EMBER_ZCL_WC_TYPE_DRAPERY:
+    case EMBER_ZCL_WC_TYPE_AWNING:
         return mLift.currentPosition <= mLift.openLimit;
     // Tilt only
-    case CoverType::Shutter:
-    case CoverType::Tilt_blind:
-    case CoverType::Projector_screen:
+    case EMBER_ZCL_WC_TYPE_SHUTTER:
+    case EMBER_ZCL_WC_TYPE_TILT_BLIND_TILT_ONLY:
+    case EMBER_ZCL_WC_TYPE_PROJECTOR_SCREEN:
         return mTilt.currentPosition <= mTilt.openLimit;
     // Lift & Tilt
-    case CoverType::Tilt_Lift_blind:
+    case EMBER_ZCL_WC_TYPE_TILT_BLIND_LIFT_AND_TILT:
     default:
         return mLift.currentPosition <= mLift.openLimit && mTilt.currentPosition <= mTilt.openLimit;
     }
@@ -425,19 +425,19 @@ bool WindowCover::IsClosed(void)
     switch (mType)
     {
     // Lift only
-    case CoverType::Rollershade:
-    case CoverType::Rollershade_2_motor:
-    case CoverType::Rollershade_exterior_2_motor:
-    case CoverType::Drapery:
-    case CoverType::Awning:
+    case EMBER_ZCL_WC_TYPE_ROLLERSHADE:
+    case EMBER_ZCL_WC_TYPE_ROLLERSHADE2_MOTOR:
+    case EMBER_ZCL_WC_TYPE_ROLLERSHADE_EXTERIOR2_MOTOR:
+    case EMBER_ZCL_WC_TYPE_DRAPERY:
+    case EMBER_ZCL_WC_TYPE_AWNING:
         return mLift.currentPosition >= mLift.closedLimit;
     // Tilt only
-    case CoverType::Shutter:
-    case CoverType::Tilt_blind:
-    case CoverType::Projector_screen:
+    case EMBER_ZCL_WC_TYPE_SHUTTER:
+    case EMBER_ZCL_WC_TYPE_TILT_BLIND_TILT_ONLY:
+    case EMBER_ZCL_WC_TYPE_PROJECTOR_SCREEN:
         return mTilt.currentPosition >= mTilt.closedLimit;
     // Lift & Tilt
-    case CoverType::Tilt_Lift_blind:
+    case EMBER_ZCL_WC_TYPE_TILT_BLIND_LIFT_AND_TILT:
     default:
         return mLift.currentPosition >= mLift.closedLimit && mTilt.currentPosition >= mTilt.closedLimit;
     }
@@ -449,28 +449,62 @@ bool WindowCover::IsMoving(void)
     return mLift.timer.IsActive() || mTilt.timer.IsActive();
 }
 
-const char * WindowCover::TypeString(const WindowCover::CoverType type)
+const char * WindowCover::TypeGetString(const EmberAfWcType type)
 {
     switch (type)
     {
-    case CoverType::Rollershade:
+    case EMBER_ZCL_WC_TYPE_ROLLERSHADE:
         return "Rollershade";
-    case CoverType::Rollershade_2_motor:
+    case EMBER_ZCL_WC_TYPE_ROLLERSHADE2_MOTOR:
         return "Rollershade_2_motor";
-    case CoverType::Rollershade_exterior_2_motor:
+    case EMBER_ZCL_WC_TYPE_ROLLERSHADE_EXTERIOR2_MOTOR:
         return "Rollershade_exterior_2_motor";
-    case CoverType::Drapery:
+    case EMBER_ZCL_WC_TYPE_DRAPERY:
         return "Drapery";
-    case CoverType::Awning:
+    case EMBER_ZCL_WC_TYPE_AWNING:
         return "Awning";
-    case CoverType::Shutter:
+    case EMBER_ZCL_WC_TYPE_SHUTTER:
         return "Shutter";
-    case CoverType::Tilt_blind:
+    case EMBER_ZCL_WC_TYPE_TILT_BLIND_TILT_ONLY:
         return "Tilt_blind";
-    case CoverType::Tilt_Lift_blind:
+    case EMBER_ZCL_WC_TYPE_TILT_BLIND_LIFT_AND_TILT:
         return "Tilt_Lift_blind";
-    case CoverType::Projector_screen:
+    case EMBER_ZCL_WC_TYPE_PROJECTOR_SCREEN:
         return "Projector_screen";
+    default:
+        return "?";
+    }
+}
+
+const char * WindowCover::EndProductTypeGetString(const EmberAfWcEndProductType endProduct)
+{
+    switch (endProduct)
+    {
+    case EMBER_ZCL_WC_END_PRODUCT_TYPE_ROLLER_SHADE                 : return "ROLLER_SHADE";
+    case EMBER_ZCL_WC_END_PRODUCT_TYPE_ROMAN_SHADE                  : return "ROMAN_SHADE";
+    case EMBER_ZCL_WC_END_PRODUCT_TYPE_BALLOON_SHADE                : return "BALLOON_SHADE";
+    case EMBER_ZCL_WC_END_PRODUCT_TYPE_WOVEN_WOOD                   : return "WOVEN_WOOD";
+    case EMBER_ZCL_WC_END_PRODUCT_TYPE_PLEATED_SHADE                : return "PLEATED_SHADE";
+    case EMBER_ZCL_WC_END_PRODUCT_TYPE_CELLULAR_SHADE               : return "CELLULAR_SHADE";
+    case EMBER_ZCL_WC_END_PRODUCT_TYPE_LAYERED_SHADE                : return "LAYERED_SHADE";
+    case EMBER_ZCL_WC_END_PRODUCT_TYPE_LAYERED_SHADE2_D             : return "LAYERED_SHADE2_D";
+    case EMBER_ZCL_WC_END_PRODUCT_TYPE_SHEER_SHADE                  : return "SHEER_SHADE";
+    case EMBER_ZCL_WC_END_PRODUCT_TYPE_TILT_ONLY_INTERIOR_BLIND     : return "TILT_ONLY_INTERIOR_BLIND";
+    case EMBER_ZCL_WC_END_PRODUCT_TYPE_INTERIOR_BLIND               : return "INTERIOR_BLIND";
+    case EMBER_ZCL_WC_END_PRODUCT_TYPE_VERTICAL_BLIND_STRIP_CURTAIN : return "VERTICAL_BLIND_STRIP_CURTAIN";
+    case EMBER_ZCL_WC_END_PRODUCT_TYPE_INTERIOR_VENETIAN_BLIND      : return "INTERIOR_VENETIAN_BLIND";
+    case EMBER_ZCL_WC_END_PRODUCT_TYPE_EXTERIOR_VENETIAN_BLIND      : return "EXTERIOR_VENETIAN_BLIND";
+    case EMBER_ZCL_WC_END_PRODUCT_TYPE_LATERAL_LEFT_CURTAIN         : return "LATERAL_LEFT_CURTAIN";
+    case EMBER_ZCL_WC_END_PRODUCT_TYPE_LATERAL_RIGHT_CURTAIN        : return "LATERAL_RIGHT_CURTAIN";
+    case EMBER_ZCL_WC_END_PRODUCT_TYPE_CENTRAL_CURTAIN              : return "CENTRAL_CURTAIN";
+    case EMBER_ZCL_WC_END_PRODUCT_TYPE_ROLLER_SHUTTER               : return "ROLLER_SHUTTER";
+    case EMBER_ZCL_WC_END_PRODUCT_TYPE_EXTERIOR_VERTICAL_SCREEN     : return "EXTERIOR_VERTICAL_SCREEN";
+    case EMBER_ZCL_WC_END_PRODUCT_TYPE_AWNING_TERRACE_PATIO         : return "AWNING_TERRACE_PATIO";
+    case EMBER_ZCL_WC_END_PRODUCT_TYPE_AWNING_VERTICAL_SCREEN       : return "AWNING_VERTICAL_SCREEN";
+    case EMBER_ZCL_WC_END_PRODUCT_TYPE_TILT_ONLY_PERGOLA            : return "TILT_ONLY_PERGOLA";
+    case EMBER_ZCL_WC_END_PRODUCT_TYPE_SWINGING_SHUTTER             : return "SWINGING_SHUTTER";
+    case EMBER_ZCL_WC_END_PRODUCT_TYPE_SLIDING_SHUTTER              : return "SLIDING_SHUTTER";
+    case EMBER_ZCL_WC_END_PRODUCT_TYPE_UNKNOWN                      : return "UNKNOWN";
     default:
         return "?";
     }

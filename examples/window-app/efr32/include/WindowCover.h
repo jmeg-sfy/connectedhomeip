@@ -25,28 +25,14 @@
 #include <stdint.h>
 #include <vector>
 
+#include <app/common/gen/enums.h>
+
 #define LIFT_DELTA (LCD_COVER_SIZE / 10)
 #define TILT_DELTA 1
 
 class WindowCover
 {
 public:
-
-
-
-    enum class CoverType
-    {
-        Rollershade                  = 0, // Lift
-        Rollershade_2_motor          = 1, // Lift
-        Rollershade_exterior         = 2, // Lift
-        Rollershade_exterior_2_motor = 3, // Lift
-        Drapery                      = 4, // Lift
-        Awning                       = 5, // Lift
-        Shutter                      = 6, // Tilt
-        Tilt_blind                   = 7, // Tilt
-        Tilt_Lift_blind              = 8, // Lift, Tilt
-        Projector_screen             = 9  // Tilt
-    };
 
     enum class CoverAction
     {
@@ -69,10 +55,11 @@ public:
         AppTimer timer;
     } CoverActuator_t;
 
-    static const char * TypeString(const CoverType type);
+    static const char * TypeGetString(const EmberAfWcType type);
+    static const char * EndProductTypeGetString(const EmberAfWcEndProductType endProduct);
 
     WindowCover();
-    WindowCover(CoverType type, uint16_t liftOpenLimit, uint16_t liftClosedLimit, uint16_t tiltOpenLimit, uint16_t tiltClosedLimit);
+    WindowCover(EmberAfWcType type, EmberAfWcEndProductType endProductType, uint16_t liftopenLimit, uint16_t liftclosedLimit, uint16_t tiltopenLimit, uint16_t tiltclosedLimit);
 
     // Config Status
     void ConfigStatusSet(uint8_t status);
@@ -87,9 +74,15 @@ public:
     uint16_t SafetyStatusGet(void);
 
     // Type
-    void TypeSet(CoverType type);
+    void TypeSet(EmberAfWcType type);
+    EmberAfWcType TypeGet(void);
+
+    // EndProductType
+    void EndProductTypeSet(EmberAfWcEndProductType endProduct);
+    EmberAfWcEndProductType EndProductTypeGet(void);
+
     void TypeCycle();
-    CoverType TypeGet(void);
+
     // Lift
     uint16_t LiftOpenLimitGet(void);
     uint16_t LiftClosedLimitGet(void);
@@ -154,7 +147,9 @@ private:
     uint8_t  mConfigStatus      = 0x03; // bit0: Operational, bit1: Online;
     uint8_t  mOperationalStatus = 0x00; // 0 is no movement;
     uint16_t mSafetyStatus      = 0x00; // 0 is no issues;
-    CoverType mType            = CoverType::Tilt_Lift_blind;
+    EmberAfWcType mType                     = EMBER_ZCL_WC_TYPE_TILT_BLIND_LIFT_AND_TILT;
+    EmberAfWcEndProductType mEndProductType = EMBER_ZCL_WC_END_PRODUCT_TYPE_INTERIOR_BLIND;
+
     bool mActuator;
 
     CoverActuator_t mLift = { CoverAction::None, LIFT_OPEN_LIMIT, LIFT_CLOSED_LIMIT, UINT16_MAX, UINT16_MAX, LIFT_DELTA, AppEvent::EventType::CoverLiftUpOrOpen, AppEvent::EventType::CoverLiftDownOrClose };
