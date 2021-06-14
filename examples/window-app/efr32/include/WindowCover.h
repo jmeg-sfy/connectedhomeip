@@ -100,7 +100,7 @@ public:
     void LiftUpOrOpen();
     void LiftDownOrClose();
     void LiftGoToValue(uint16_t lift);
-    void LiftGoToAccuratePercentage(uint16_t accuratePercentage);
+    void LiftGoToPercent100ths(uint16_t percent100ths);
 
     // Tilt
     uint16_t TiltOpenLimitGet(void);
@@ -112,10 +112,10 @@ public:
     void TiltUpOrOpen();
     void TiltDownOrClose();
     void TiltGoToValue(uint16_t tilt);
-    void TiltGoToAccuratePercentage(uint16_t accuratePercentage);
+    void TiltGoToPercent100ths(uint16_t percent100ths);
 
-    uint16_t PositionToAccuratePercentage(CoverActuator_t * pActuator, uint16_t position);
-    uint16_t AccuratePercentageToPosition(CoverActuator_t * pActuator, uint16_t accuratePercentage);
+    uint16_t PositionToPercent100ths(CoverActuator_t * pActuator, uint16_t position);
+    uint16_t Percent100thsToPosition(CoverActuator_t * pActuator, uint16_t percent100ths);
 
     void ActuatorStepTowardOpen(CoverActuator_t * pActuator);
     void ActuatorStepTowardClose(CoverActuator_t * pActuator);
@@ -134,7 +134,7 @@ public:
     CoverActuator_t * ActuatorGetLift(void);
     CoverActuator_t * ActuatorGetTilt(void);
     void ActuatorGoToValue(CoverActuator_t * pAct, uint16_t value);
-    void ActuatorGoToAccuratePercentage(CoverActuator_t * pAct, uint16_t accuratePercentage);
+    void ActuatorGoToPercent100ths(CoverActuator_t * pAct, uint16_t accuratePercent100ths);
     void ToggleActuator();
     void StepUpOrOpen();
     void StepDownOrClose();

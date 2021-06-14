@@ -165,16 +165,16 @@ void WindowCover::PrintActuator(const char * pName, WindowCover::CoverActuator_t
 {
     if (!pName || !pAct) return;
 
-    uint16_t currentAccuratePercentage = PositionToAccuratePercentage(pAct, pAct->currentPosition);
-    uint16_t  targetAccuratePercentage = PositionToAccuratePercentage(pAct, pAct->targetPosition);
-    uint8_t currentPercentage = currentAccuratePercentage / 100;
-    uint8_t  targetPercentage =  targetAccuratePercentage / 100;
+    uint16_t currentPercent100ths = PositionToPercent100ths(pAct, pAct->currentPosition);
+    uint16_t  targetPercent100ths = PositionToPercent100ths(pAct, pAct->targetPosition);
+    uint8_t currentPercentage = currentPercent100ths / 100;
+    uint8_t  targetPercentage =  targetPercent100ths / 100;
 
     EFR32_LOG("%10s Abs:[ %7u - %7u ] Current %7u, Target %7u", pName,
         pAct->openLimit, pAct->closedLimit, pAct->currentPosition, pAct->targetPosition);
     EFR32_LOG("%10s Rel:[   0.00%% - 100.00%% ] Current %3u.%02u%%, Target %3u.%02u%%", pName,
-        currentPercentage, (currentAccuratePercentage - (currentPercentage * 100)),
-         targetPercentage, ( targetAccuratePercentage - ( targetPercentage * 100)));
+        currentPercentage, (currentPercent100ths - (currentPercentage * 100)),
+         targetPercentage, ( targetPercent100ths - ( targetPercentage * 100)));
 
 }
 
@@ -215,7 +215,7 @@ void WindowCover::ActuatorStepTowardOpen(CoverActuator_t * pAct)
     if (pAct->currentPosition >= pAct->stepDelta) {
         ActuatorSetPosition(pAct, pAct->currentPosition - pAct->stepDelta);
     } else {
-        ActuatorSetPosition(pAct, pAct->openLimit);//Percentage attribute will be set to 0%.
+        ActuatorSetPosition(pAct, pAct->openLimit);//Percent100ths attribute will be set to 0%.
     }
 }
 
@@ -227,16 +227,16 @@ void WindowCover::ActuatorStepTowardClose(CoverActuator_t * pAct)
     if (pAct->currentPosition <= (pAct->closedLimit - pAct->stepDelta)) {
         ActuatorSetPosition(pAct, pAct->currentPosition + pAct->stepDelta);
     } else {
-        ActuatorSetPosition(pAct, pAct->closedLimit);//Percentage attribute will be set to 100%.
+        ActuatorSetPosition(pAct, pAct->closedLimit);//Percent100ths attribute will be set to 100%.
     }
 }
 
 
 
 
-void WindowCover::LiftGoToAccuratePercentage(uint16_t accuratePercentage)
+void WindowCover::LiftGoToPercent100ths(uint16_t percent100ths)
 {
-    ActuatorGoToAccuratePercentage(&mLift, accuratePercentage);
+    ActuatorGoToPercent100ths(&mLift, percent100ths);
 }
 
 void WindowCover::LiftGoToValue(uint16_t value)
@@ -316,14 +316,14 @@ void WindowCover::ActuatorGoToValue(CoverActuator_t * pAct, uint16_t value)
     }
 }
 
-void WindowCover::ActuatorGoToAccuratePercentage(CoverActuator_t * pAct, uint16_t accuratePercentage)
+void WindowCover::ActuatorGoToPercent100ths(CoverActuator_t * pAct, uint16_t percent100ths)
 {
-    ActuatorGoToValue(pAct, AccuratePercentageToPosition(pAct, accuratePercentage));
+    ActuatorGoToValue(pAct, Percent100thsToPosition(pAct, percent100ths));
 }
 
-void WindowCover::TiltGoToAccuratePercentage(uint16_t accuratePercentage)
+void WindowCover::TiltGoToPercent100ths(uint16_t percent100ths)
 {
-    ActuatorGoToAccuratePercentage(&mTilt, accuratePercentage);
+    ActuatorGoToPercent100ths(&mTilt, percent100ths);
 }
 
 void WindowCover::TiltGoToValue(uint16_t value)
@@ -331,7 +331,7 @@ void WindowCover::TiltGoToValue(uint16_t value)
     ActuatorGoToValue(&mTilt, value);
 }
 
-uint16_t WindowCover::PositionToAccuratePercentage(CoverActuator_t * pActuator, uint16_t position)
+uint16_t WindowCover::PositionToPercent100ths(CoverActuator_t * pActuator, uint16_t position)
 {
     if (!pActuator) return UINT16_MAX;
 
@@ -344,12 +344,12 @@ uint16_t WindowCover::PositionToAccuratePercentage(CoverActuator_t * pActuator, 
     return UINT16_MAX;
 }
 
-uint16_t WindowCover::AccuratePercentageToPosition(CoverActuator_t * pActuator, uint16_t accuratePercentage)
+uint16_t WindowCover::Percent100thsToPosition(CoverActuator_t * pActuator, uint16_t percent100ths)
 {
     if (!pActuator) return UINT16_MAX;
 
     uint16_t range = pActuator->closedLimit - pActuator->openLimit;
-    return pActuator->openLimit + (range * accuratePercentage) / 10000;
+    return pActuator->openLimit + (range * percent100ths) / 10000;
 }
 
 void WindowCover::Open()
