@@ -368,26 +368,31 @@ void AppTask::UpdateClusterState(AppEvent::EventType event)
     EmberAfStatus status = EMBER_ZCL_STATUS_SUCCESS;
     switch (event)
     {
-    // ConfigStatus
+    // Non-Fixed Status ConfigStatus
     case AppEvent::EventType::CoverConfigStatusChange: {
-        uint8_t configStatus = mCover.ConfigStatusGet();
-        status = wcSetConfigStatus(WC_DEFAULT_EP, configStatus);
+        status = wcSetConfigStatus(WC_DEFAULT_EP, mCover.ConfigStatusGet());
         break;
     }
-    // OperationalStatus
+    // Reported State SafetyStatus
+    case AppEvent::EventType::CoverSafetyStatusChange: {
+        status = wcSetSafetyStatus(WC_DEFAULT_EP, mCover.SafetyStatusGet());
+        break;
+    }
+    // Reported State OperationalStatus
     case AppEvent::EventType::CoverOperationalStatusChange: {
-        uint8_t operationalStatus = mCover.OperationalStatusGet();
-        status = emberAfWriteAttribute(WC_DEFAULT_EP, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_WC_OPERATIONAL_STATUS_ATTRIBUTE_ID, CLUSTER_MASK_SERVER, (uint8_t *) &operationalStatus, ZCL_BITMAP8_ATTRIBUTE_TYPE);
+        status = wcSetOperationalStatus(WC_DEFAULT_EP, mCover.OperationalStatusGet());
         break;
     }
-
-    // Type
+    // Product-Fixed EndProductType
+    case AppEvent::EventType::CoverEndProductTypeChange: {
+        status = wcSetEndProductType(WC_DEFAULT_EP, mCover.EndProductTypeGet());
+        break;
+    }
+    // Product-Fixed Type
     case AppEvent::EventType::CoverTypeChange: {
-        EmberAfWcType type = static_cast<EmberAfWcType>(mCover.TypeGet());
-        status = wcSetType(1, type);
+        status = wcSetType(WC_DEFAULT_EP, mCover.TypeGet());
         break;
     }
-
     // CurrentPosition – Lift
     case AppEvent::EventType::CoverLiftUpOrOpen:
     case AppEvent::EventType::CoverLiftDownOrClose: {

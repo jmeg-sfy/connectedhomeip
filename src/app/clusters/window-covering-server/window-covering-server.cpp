@@ -66,7 +66,7 @@ using namespace chip;
 
 
 
-#define WC_PERCENTAGE_COEF 100
+
 
 #define CHECK_BOUNDS_INVALID(MIN, VAL, MAX) ((VAL < MIN) || (VAL > MAX))
 #define CHECK_BOUNDS_VALID(MIN, VAL, MAX)   (!CHECK_BOUNDS_INVALID(MIN, VAL, MAX))
@@ -85,18 +85,17 @@ typedef struct wcFeature
 static wcFeature_t m_wcFeature = { true, true, true };
 static EmberAfStatus emberAfWindowCoveringClusterSetValueCallback(EndpointId endpoint, uint8_t command);
 
-// ZCL_WC_TYPE_ATTRIBUTE_ID (0x0000)
+
 //  ZCL_WC_PHYSICAL_CLOSED_LIMIT_LIFT_ATTRIBUTE_ID (0x0001)
 //  ZCL_WC_PHYSICAL_CLOSED_LIMIT_TILT_ATTRIBUTE_ID (0x0002)
-//  ZCL_WC_CURRENT_POSITION_LIFT_ATTRIBUTE_ID (0x0003)
-//  ZCL_WC_CURRENT_POSITION_TILT_ATTRIBUTE_ID (0x0004)
+
 //  ZCL_WC_NUMBER_OF_ACTUATIONS_LIFT_ATTRIBUTE_ID (0x0005)
 //  ZCL_WC_NUMBER_OF_ACTUATIONS_TILT_ATTRIBUTE_ID (0x0006)
 
 
 //  ZCL_WC_OPERATIONAL_STATUS_ATTRIBUTE_ID (0x000A)
 
-//  ZCL_WC_END_PRODUCT_TYPE_ATTRIBUTE_ID (0x000D)
+
 
 //  ZCL_WC_INSTALLED_OPEN_LIMIT_LIFT_ATTRIBUTE_ID (0x0010)
 //  ZCL_WC_INSTALLED_CLOSED_LIMIT_LIFT_ATTRIBUTE_ID (0x0011)
@@ -106,8 +105,7 @@ static EmberAfStatus emberAfWindowCoveringClusterSetValueCallback(EndpointId end
 //  ZCL_WC_ACCELERATION_TIME_LIFT_ATTRIBUTE_ID (0x0015)
 //  ZCL_WC_DECELERATION_TIME_LIFT_ATTRIBUTE_ID (0x0016)
 //  ZCL_WC_MODE_ATTRIBUTE_ID (0x0017)
-//  ZCL_WC_INTERMEDIATE_SETPOINTS_LIFT_ATTRIBUTE_ID (0x0018)
-//  ZCL_WC_INTERMEDIATE_SETPOINTS_TILT_ATTRIBUTE_ID (0x0019)
+
 //  ZCL_WC_SAFETY_STATUS_ATTRIBUTE_ID (0x001A)
 
 EmberAfStatus wcWriteAttribute(chip::EndpointId ep, chip::AttributeId attributeID, uint8_t * dataPtr, EmberAfAttributeType dataType)
@@ -149,6 +147,16 @@ EmberAfStatus wcGetType(EndpointId ep, EmberAfWcType * p_type)
     return wcReadAttribute(ep, ZCL_WC_TYPE_ATTRIBUTE_ID, (uint8_t *) p_type, sizeof(uint8_t));
 }
 
+EmberAfStatus wcSetEndProductType(EndpointId ep, EmberAfWcEndProductType endProduct)
+{
+    return wcWriteAttribute(ep, ZCL_WC_END_PRODUCT_TYPE_ATTRIBUTE_ID, (uint8_t *) &endProduct, ZCL_ENUM8_ATTRIBUTE_TYPE);
+}
+
+EmberAfStatus wcGetEndProductType(EndpointId ep, EmberAfWcEndProductType * p_endProduct)
+{
+    return wcReadAttribute(ep, ZCL_WC_END_PRODUCT_TYPE_ATTRIBUTE_ID, (uint8_t *) p_endProduct, sizeof(uint8_t));
+}
+
 EmberAfStatus wcSetConfigStatus(EndpointId ep, uint8_t configStatus)
 {
     return wcWriteAttribute(ep, ZCL_WC_CONFIG_STATUS_ATTRIBUTE_ID, (uint8_t *) &configStatus, ZCL_BITMAP8_ATTRIBUTE_TYPE);
@@ -159,16 +167,76 @@ EmberAfStatus wcGetConfigStatus(EndpointId ep, uint8_t * p_configStatus)
     return wcReadAttribute(ep, ZCL_WC_CONFIG_STATUS_ATTRIBUTE_ID, (uint8_t *) p_configStatus, sizeof(uint8_t));
 }
 
+EmberAfStatus wcSetOperationalStatus(EndpointId ep, uint8_t operationalStatus)
+{
+    return wcWriteAttribute(ep, ZCL_WC_OPERATIONAL_STATUS_ATTRIBUTE_ID, (uint8_t *) &operationalStatus, ZCL_BITMAP8_ATTRIBUTE_TYPE);
+}
+
+EmberAfStatus wcGetOperationalStatus(EndpointId ep, uint8_t * p_operationalStatus)
+{
+    return wcReadAttribute(ep, ZCL_WC_OPERATIONAL_STATUS_ATTRIBUTE_ID, (uint8_t *) p_operationalStatus, sizeof(uint8_t));
+}
+
+EmberAfStatus wcSetSafetyStatus(EndpointId ep, uint16_t safetyStatus)
+{
+    return wcWriteAttribute(ep, ZCL_WC_OPERATIONAL_STATUS_ATTRIBUTE_ID, (uint8_t *) &safetyStatus, ZCL_BITMAP16_ATTRIBUTE_TYPE);
+}
+
+EmberAfStatus wcGetSafetyStatus(EndpointId ep, uint16_t * p_safetyStatus)
+{
+    return wcReadAttribute(ep, ZCL_WC_OPERATIONAL_STATUS_ATTRIBUTE_ID, (uint8_t *) p_safetyStatus, sizeof(uint16_t));
+}
+
+EmberAfStatus wcSetInstalledOpenLimitLift(EndpointId ep, uint16_t installedOpenLimitLift)
+{
+    return wcWriteAttribute(ep, ZCL_WC_INSTALLED_OPEN_LIMIT_LIFT_ATTRIBUTE_ID, (uint8_t *) &installedOpenLimitLift, ZCL_INT16U_ATTRIBUTE_TYPE);
+}
+
+EmberAfStatus wcGetInstalledOpenLimitLift(EndpointId ep, uint16_t * p_installedOpenLimitLift)
+{
+    return wcReadAttribute(ep, ZCL_WC_INSTALLED_OPEN_LIMIT_LIFT_ATTRIBUTE_ID, (uint8_t *) p_installedOpenLimitLift, sizeof(uint16_t));
+}
+
+EmberAfStatus wcSetInstalledOpenLimitTilt(EndpointId ep, uint16_t installedOpenLimitTilt)
+{
+    return wcWriteAttribute(ep, ZCL_WC_INSTALLED_OPEN_LIMIT_TILT_ATTRIBUTE_ID, (uint8_t *) &installedOpenLimitTilt, ZCL_INT16U_ATTRIBUTE_TYPE);
+}
+
+EmberAfStatus wcGetInstalledOpenLimitTilt(EndpointId ep, uint16_t * p_installedOpenLimitTilt)
+{
+    return wcReadAttribute(ep, ZCL_WC_INSTALLED_OPEN_LIMIT_TILT_ATTRIBUTE_ID, (uint8_t *) p_installedOpenLimitTilt, sizeof(uint16_t));
+}
+
+EmberAfStatus wcSetInstalledClosedLimitLift(EndpointId ep, uint16_t installedClosedLimitLift)
+{
+    return wcWriteAttribute(ep, ZCL_WC_INSTALLED_CLOSED_LIMIT_LIFT_ATTRIBUTE_ID, (uint8_t *) &installedClosedLimitLift, ZCL_INT16U_ATTRIBUTE_TYPE);
+}
+
+EmberAfStatus wcGetInstalledClosedLimitLift(EndpointId ep, uint16_t * p_installedClosedLimitLift)
+{
+    return wcReadAttribute(ep, ZCL_WC_INSTALLED_CLOSED_LIMIT_LIFT_ATTRIBUTE_ID, (uint8_t *) p_installedClosedLimitLift, sizeof(uint16_t));
+}
+
+EmberAfStatus wcSetInstalledClosedLimitTilt(EndpointId ep, uint16_t installedClosedLimitTilt)
+{
+    return wcWriteAttribute(ep, ZCL_WC_INSTALLED_CLOSED_LIMIT_TILT_ATTRIBUTE_ID, (uint8_t *) &installedClosedLimitTilt, ZCL_INT16U_ATTRIBUTE_TYPE);
+}
+
+EmberAfStatus wcGetInstalledClosedLimitTilt(EndpointId ep, uint16_t * p_installedClosedLimitTilt)
+{
+    return wcReadAttribute(ep, ZCL_WC_INSTALLED_CLOSED_LIMIT_TILT_ATTRIBUTE_ID, (uint8_t *) p_installedClosedLimitTilt, sizeof(uint16_t));
+}
+
 EmberAfStatus wcSetTargetPositionLift(EndpointId ep, posPercent100ths_t liftPercent100ths)
 {
-    if (CHECK_BOUNDS_INVALID(0, liftPercent100ths, 10000)) return EMBER_ZCL_STATUS_INVALID_VALUE;
+    if (CHECK_BOUNDS_INVALID(0, liftPercent100ths, WC_PERCENT100THS_MAX)) return EMBER_ZCL_STATUS_INVALID_VALUE;
 
     return wcWriteAttribute(ep, ZCL_WC_TARGET_POSITION_LIFT_PERCENT100_THS_ATTRIBUTE_ID, (uint8_t *) &liftPercent100ths, ZCL_INT16U_ATTRIBUTE_TYPE);
 }
 
 EmberAfStatus wcSetTargetPositionTilt(EndpointId ep, posPercent100ths_t tiltPercent100ths)
 {
-    if (CHECK_BOUNDS_INVALID(0, tiltPercent100ths, 10000)) return EMBER_ZCL_STATUS_INVALID_VALUE;
+    if (CHECK_BOUNDS_INVALID(0, tiltPercent100ths, WC_PERCENT100THS_MAX)) return EMBER_ZCL_STATUS_INVALID_VALUE;
 
     return wcWriteAttribute(ep, ZCL_WC_TARGET_POSITION_TILT_PERCENT100_THS_ATTRIBUTE_ID, (uint8_t *) &tiltPercent100ths, ZCL_INT16U_ATTRIBUTE_TYPE);
 }
@@ -197,7 +265,7 @@ EmberAfStatus wcSetCurrentPositionLift(EndpointId ep, posPercent100ths_t liftPer
 {
     EmberAfStatus status = EMBER_ZCL_STATUS_ACTION_DENIED;
 
-    if (CHECK_BOUNDS_INVALID(0, liftPercent100ths, 10000)) return EMBER_ZCL_STATUS_INVALID_VALUE;
+    if (CHECK_BOUNDS_INVALID(0, liftPercent100ths, WC_PERCENT100THS_MAX)) return EMBER_ZCL_STATUS_INVALID_VALUE;
 
     uint16_t liftValue = liftPercent100ths;
     uint8_t  liftPercentage= liftPercent100ths / 100;
@@ -218,10 +286,10 @@ EmberAfStatus wcSetCurrentPositionTilt(EndpointId ep, posPercent100ths_t tiltPer
 {
     EmberAfStatus status = EMBER_ZCL_STATUS_ACTION_DENIED;
 
-    if (CHECK_BOUNDS_INVALID(0, tiltPercent100ths, 10000)) return EMBER_ZCL_STATUS_INVALID_VALUE;
+    if (CHECK_BOUNDS_INVALID(0, tiltPercent100ths, WC_PERCENT100THS_MAX)) return EMBER_ZCL_STATUS_INVALID_VALUE;
 
     uint16_t tiltValue = tiltPercent100ths;
-    uint8_t  tiltPercentage = tiltPercent100ths / 100;
+    uint8_t  tiltPercentage = tiltPercent100ths / WC_PERCENTAGE_COEF;
 
     /* Since we have multiple attribute for positionning lets use always this helper function to update the current position */
     if (m_wcFeature.PA && m_wcFeature.TL) {
@@ -248,8 +316,8 @@ bool __attribute__((weak)) emberAfWindowCoveringClusterUpOrOpenCallback(chip::ap
 
     emberAfWindowCoveringClusterPrint("UpOrOpen command received");
 
-    wcSetTargetPositionLift(ep, 10000);
-    wcSetTargetPositionTilt(ep, 10000);
+    wcSetTargetPositionLift(ep, WC_PERCENT100THS_MAX);
+    wcSetTargetPositionTilt(ep, WC_PERCENT100THS_MAX);
 
     EmberAfStatus status = emberAfWindowCoveringClusterSetValueCallback(ep, ZCL_UP_OR_OPEN_COMMAND_ID);
     emberAfSendImmediateDefaultResponse(status);

@@ -42,6 +42,7 @@
 #include <app/common/gen/enums.h>
 
 #define WC_PERCENTAGE_COEF 100
+#define WC_PERCENT100THS_MAX 10000
 #define WC_DEFAULT_EP 1
 
 typedef uint16_t posPercent100ths_t;
@@ -57,10 +58,7 @@ typedef uint16_t posPercent100ths_t;
 
 //  ZCL_WC_END_PRODUCT_TYPE_ATTRIBUTE_ID (0x000D)
 
-//  ZCL_WC_INSTALLED_OPEN_LIMIT_LIFT_ATTRIBUTE_ID (0x0010)
-//  ZCL_WC_INSTALLED_CLOSED_LIMIT_LIFT_ATTRIBUTE_ID (0x0011)
-//  ZCL_WC_INSTALLED_OPEN_LIMIT_TILT_ATTRIBUTE_ID (0x0012)
-//  ZCL_WC_INSTALLED_CLOSED_LIMIT_TILT_ATTRIBUTE_ID (0x0013)
+
 //  ZCL_WC_VELOCITY_LIFT_ATTRIBUTE_ID (0x0014)
 //  ZCL_WC_ACCELERATION_TIME_LIFT_ATTRIBUTE_ID (0x0015)
 //  ZCL_WC_DECELERATION_TIME_LIFT_ATTRIBUTE_ID (0x0016)
@@ -78,8 +76,29 @@ EmberAfStatus wcReadAttribute(chip::EndpointId ep, chip::AttributeId attributeID
 EmberAfStatus wcSetType(chip::EndpointId ep, EmberAfWcType type);
 EmberAfStatus wcGetType(chip::EndpointId ep, EmberAfWcType * p_type);
 
+EmberAfStatus wcSetSafetyStatus(chip::EndpointId ep, uint16_t safetyStatus);
+EmberAfStatus wcGetSafetyStatus(chip::EndpointId ep, uint16_t * p_safetyStatus);
+
 EmberAfStatus wcSetConfigStatus(chip::EndpointId ep, uint8_t configStatus);
 EmberAfStatus wcGetConfigStatus(chip::EndpointId ep, uint8_t * p_configStatus);
+
+EmberAfStatus wcSetEndProductType(chip::EndpointId ep, EmberAfWcEndProductType endProduct);
+EmberAfStatus wcGetEndProductType(chip::EndpointId ep, EmberAfWcEndProductType * p_endProduct);
+
+EmberAfStatus wcSetOperationalStatus(chip::EndpointId ep, uint8_t operationalStatus);
+EmberAfStatus wcGetOperationalStatus(chip::EndpointId ep, uint8_t * p_operationalStatus);
+
+EmberAfStatus wcSetInstalledOpenLimitLift(chip::EndpointId ep, uint16_t installedOpenLimitLift);
+EmberAfStatus wcGetInstalledOpenLimitLift(chip::EndpointId ep, uint16_t * p_installedOpenLimitLift);
+
+EmberAfStatus wcSetInstalledOpenLimitTilt(chip::EndpointId ep, uint16_t installedOpenLimitTilt);
+EmberAfStatus wcGetInstalledOpenLimitTilt(chip::EndpointId ep, uint16_t * p_installedOpenLimitTilt);
+
+EmberAfStatus wcSetInstalledClosedLimitLift(chip::EndpointId ep, uint16_t installedClosedLimitLift);
+EmberAfStatus wcGetInstalledClosedLimitLift(chip::EndpointId ep, uint16_t * p_installedClosedLimitLift);
+
+EmberAfStatus wcSetInstalledClosedLimitTilt(chip::EndpointId ep, uint16_t installedClosedLimitTilt);
+EmberAfStatus wcGetInstalledClosedLimitTilt(chip::EndpointId ep, uint16_t * p_installedClosedLimitTilt);
 
 EmberAfStatus wcSetTargetPositionLift(chip::EndpointId ep, posPercent100ths_t liftPercent100ths);
 EmberAfStatus wcGetTargetPositionLift(chip::EndpointId ep, posPercent100ths_t * p_liftPercent100ths);
