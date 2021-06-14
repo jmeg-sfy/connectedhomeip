@@ -30,6 +30,7 @@
 #include <app/common/gen/enums.h>
 #include <lcd.h>
 #include <qrcodegen.h>
+#include <app/clusters/window-covering-server/window-covering-server-helpers.h>
 
 #include <assert.h>
 #include <lib/support/CodeUtils.h>
@@ -53,6 +54,8 @@
 #define FACTORY_RESET_CANCEL_WINDOW_TIMEOUT 3000
 #define WINDOW_COVER_TYPE_CYCLE_TIMEOUT 3000
 #define LCD_ICON_TIMEOUT 1000
+
+#include <app/util/af.h>
 
 namespace {
 
@@ -387,20 +390,20 @@ void AppTask::UpdateClusterState(AppEvent::EventType event)
     // ConfigStatus
     case AppEvent::EventType::CoverConfigStatusChange: {
         uint8_t configStatus = mCover.ConfigStatusGet();
-        status = emberAfWriteAttribute(1, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_WC_CONFIG_STATUS_ATTRIBUTE_ID, CLUSTER_MASK_SERVER, (uint8_t *) &configStatus, ZCL_BITMAP8_ATTRIBUTE_TYPE);
+        status = wcSetConfigStatus(WC_DEFAULT_EP, configStatus);
         break;
     }
     // OperationalStatus
     case AppEvent::EventType::CoverOperationalStatusChange: {
         uint8_t operationalStatus = mCover.OperationalStatusGet();
-        status = emberAfWriteAttribute(1, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_WC_OPERATIONAL_STATUS_ATTRIBUTE_ID, CLUSTER_MASK_SERVER, (uint8_t *) &operationalStatus, ZCL_BITMAP8_ATTRIBUTE_TYPE);
+        status = emberAfWriteAttribute(WC_DEFAULT_EP, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_WC_OPERATIONAL_STATUS_ATTRIBUTE_ID, CLUSTER_MASK_SERVER, (uint8_t *) &operationalStatus, ZCL_BITMAP8_ATTRIBUTE_TYPE);
         break;
     }
 
     // Type
     case AppEvent::EventType::CoverTypeChange: {
-        uint8_t type = static_cast<uint8_t>(mCover.TypeGet());
-        status       = emberAfWriteAttribute(1, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_WC_TYPE_ATTRIBUTE_ID, CLUSTER_MASK_SERVER, (uint8_t *) &type, ZCL_INT8U_ATTRIBUTE_TYPE);
+        EmberAfWcType type = static_cast<EmberAfWcType>(mCover.TypeGet());
+        status = wcSetType(1, type);
         break;
     }
 
@@ -408,7 +411,7 @@ void AppTask::UpdateClusterState(AppEvent::EventType event)
     case AppEvent::EventType::CoverLiftUpOrOpen:
     case AppEvent::EventType::CoverLiftDownOrClose: {
         uint16_t lift = mCover.LiftGet();
-        status        = emberAfWriteAttribute(1, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_WC_CURRENT_POSITION_LIFT_ATTRIBUTE_ID, CLUSTER_MASK_SERVER, (uint8_t *) &lift, ZCL_INT16U_ATTRIBUTE_TYPE);
+        status        = emberAfWriteAttribute(WC_DEFAULT_EP, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_WC_CURRENT_POSITION_LIFT_ATTRIBUTE_ID, CLUSTER_MASK_SERVER, (uint8_t *) &lift, ZCL_INT16U_ATTRIBUTE_TYPE);
         break;
     }
 
@@ -416,7 +419,7 @@ void AppTask::UpdateClusterState(AppEvent::EventType event)
     case AppEvent::EventType::CoverTiltUpOrOpen:
     case AppEvent::EventType::CoverTiltDownOrClose: {
         uint16_t tilt = mCover.TiltGet();
-        status        = emberAfWriteAttribute(1, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_WC_CURRENT_POSITION_TILT_ATTRIBUTE_ID, CLUSTER_MASK_SERVER, (uint8_t *) &tilt, ZCL_INT16U_ATTRIBUTE_TYPE);
+        status        = emberAfWriteAttribute(WC_DEFAULT_EP, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_WC_CURRENT_POSITION_TILT_ATTRIBUTE_ID, CLUSTER_MASK_SERVER, (uint8_t *) &tilt, ZCL_INT16U_ATTRIBUTE_TYPE);
         break;
     }
 
