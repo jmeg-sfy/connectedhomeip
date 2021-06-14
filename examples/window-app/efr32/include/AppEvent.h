@@ -33,6 +33,7 @@ struct AppEvent
         CoverSafetyStatusChange,
         CoverTypeChange,
         CoverActuatorChange,
+        CoverEndProductTypeChange,
         CoverLiftUpOrOpen, CoverLiftDownOrClose,
         CoverTiltUpOrOpen, CoverTiltDownOrClose,
         CoverOpen,
