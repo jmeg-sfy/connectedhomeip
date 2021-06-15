@@ -106,10 +106,10 @@ EmberAfStatus wcGetTargetPositionLift(chip::EndpointId ep, posPercent100ths_t * 
 EmberAfStatus wcSetTargetPositionTilt(chip::EndpointId ep, posPercent100ths_t tiltPercent100ths);
 EmberAfStatus wcGetTargetPositionTilt(chip::EndpointId ep, posPercent100ths_t * p_tiltPercent100ths);
 
-EmberAfStatus wcSetCurrentPositionLift(chip::EndpointId ep, posPercent100ths_t liftPercent100ths);
+EmberAfStatus wcSetCurrentPositionLift(chip::EndpointId ep, posPercent100ths_t liftPercent100ths, uint16_t liftValue);
 EmberAfStatus wcGetCurrentPositionLift(chip::EndpointId ep, posPercent100ths_t * p_liftPercent100ths);
 
-EmberAfStatus wcSetCurrentPositionTilt(chip::EndpointId ep, posPercent100ths_t tiltPercent100ths);
+EmberAfStatus wcSetCurrentPositionTilt(chip::EndpointId ep, posPercent100ths_t tiltPercent100ths, uint16_t tiltValue);
 EmberAfStatus wcGetCurrentPositionTilt(chip::EndpointId ep, posPercent100ths_t * p_tiltPercent100ths);
 
 
