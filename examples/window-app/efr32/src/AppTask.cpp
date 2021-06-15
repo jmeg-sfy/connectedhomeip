@@ -396,16 +396,14 @@ void AppTask::UpdateClusterState(AppEvent::EventType event)
     // CurrentPosition – Lift
     case AppEvent::EventType::CoverLiftUpOrOpen:
     case AppEvent::EventType::CoverLiftDownOrClose: {
-        uint16_t lift = mCover.LiftGet();
-        status        = emberAfWriteAttribute(WC_DEFAULT_EP, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_WC_CURRENT_POSITION_LIFT_ATTRIBUTE_ID, CLUSTER_MASK_SERVER, (uint8_t *) &lift, ZCL_INT16U_ATTRIBUTE_TYPE);
+        status = wcSetCurrentPositionLift(WC_DEFAULT_EP, mCover.LiftPercent100thsGet(), mCover.LiftValueGet());
         break;
     }
 
     // CurrentPosition – Tilt
     case AppEvent::EventType::CoverTiltUpOrOpen:
     case AppEvent::EventType::CoverTiltDownOrClose: {
-        uint16_t tilt = mCover.TiltGet();
-        status        = emberAfWriteAttribute(WC_DEFAULT_EP, ZCL_WINDOW_COVERING_CLUSTER_ID, ZCL_WC_CURRENT_POSITION_TILT_ATTRIBUTE_ID, CLUSTER_MASK_SERVER, (uint8_t *) &tilt, ZCL_INT16U_ATTRIBUTE_TYPE);
+        status = wcSetCurrentPositionTilt(WC_DEFAULT_EP, mCover.TiltPercent100thsGet(), mCover.TiltValueGet());
         break;
     }
 

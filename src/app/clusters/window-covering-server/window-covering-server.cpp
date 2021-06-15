@@ -261,14 +261,13 @@ EmberAfStatus wcGetCurrentPositionTilt(EndpointId ep, posPercent100ths_t * p_til
     return wcReadAttribute(ep, ZCL_WC_CURRENT_POSITION_TILT_PERCENT100_THS_ATTRIBUTE_ID, (uint8_t *) p_tiltPercent100ths, sizeof(posPercent100ths_t));
 }
 
-EmberAfStatus wcSetCurrentPositionLift(EndpointId ep, posPercent100ths_t liftPercent100ths)
+EmberAfStatus wcSetCurrentPositionLift(EndpointId ep, posPercent100ths_t liftPercent100ths, uint16_t liftValue)
 {
     EmberAfStatus status = EMBER_ZCL_STATUS_ACTION_DENIED;
 
     if (CHECK_BOUNDS_INVALID(0, liftPercent100ths, WC_PERCENT100THS_MAX)) return EMBER_ZCL_STATUS_INVALID_VALUE;
 
-    uint16_t liftValue = liftPercent100ths;
-    uint8_t  liftPercentage= liftPercent100ths / 100;
+    uint8_t liftPercentage = liftPercent100ths / WC_PERCENTAGE_COEF;
 
     /* Since we have multiple attribute for positionning lets use always this helper function to update the current position */
     if (m_wcFeature.PA && m_wcFeature.LF) {
@@ -282,14 +281,13 @@ EmberAfStatus wcSetCurrentPositionLift(EndpointId ep, posPercent100ths_t liftPer
     return status;
 }
 
-EmberAfStatus wcSetCurrentPositionTilt(EndpointId ep, posPercent100ths_t tiltPercent100ths)
+EmberAfStatus wcSetCurrentPositionTilt(EndpointId ep, posPercent100ths_t tiltPercent100ths, uint16_t tiltValue)
 {
     EmberAfStatus status = EMBER_ZCL_STATUS_ACTION_DENIED;
 
     if (CHECK_BOUNDS_INVALID(0, tiltPercent100ths, WC_PERCENT100THS_MAX)) return EMBER_ZCL_STATUS_INVALID_VALUE;
 
-    uint16_t tiltValue = tiltPercent100ths;
-    uint8_t  tiltPercentage = tiltPercent100ths / WC_PERCENTAGE_COEF;
+    uint8_t tiltPercentage = tiltPercent100ths / WC_PERCENTAGE_COEF;
 
     /* Since we have multiple attribute for positionning lets use always this helper function to update the current position */
     if (m_wcFeature.PA && m_wcFeature.TL) {
