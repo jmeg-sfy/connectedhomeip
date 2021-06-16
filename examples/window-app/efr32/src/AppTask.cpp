@@ -333,10 +333,10 @@ void AppTask::UpdateLcd(AppEvent::EventType event)
         LcdIcon icon = LcdIcon::None;
         if (event == AppEvent::EventType::CoverActuatorChange)
         {
-            icon = mCover.ActuatorGet() ? LcdIcon::Tilt : LcdIcon::Lift;
+            icon = mCover.SelectedActuatorGet() ? LcdIcon::Tilt : LcdIcon::Lift;
             mIconTimer.Start();
         }
-        LcdPainter::Paint(mCover.TypeGet(), mCover.LiftGet(), mCover.TiltGet(), icon);
+        LcdPainter::Paint(mCover.TypeGet(), mCover.LiftValueGet(), mCover.TiltValueGet(), icon);
     }
     else
     {
@@ -347,6 +347,7 @@ void AppTask::UpdateLcd(AppEvent::EventType event)
 
 void AppTask::UpdateClusterState(AppEvent::EventType event)
 {
+
     EmberAfStatus status = EMBER_ZCL_STATUS_SUCCESS;
     switch (event)
     {
@@ -408,46 +409,32 @@ void AppTask::UpdateClusterState(AppEvent::EventType event)
 
 void AppTask::UpdateOperationalStatus(AppEvent::EventType event)
 {
-    EmberAfStatus status = EMBER_ZCL_STATUS_SUCCESS;
-    uint8_t opState = mCover.OperationalStatusGet();
+    OperationalState stateLift, stateTilt;
+
+    OperationalStatus_t opStatus = mCover.OperationalStatusGet();
+
+    // Fetch actuators state
+    if (mCover.ActuatorGetLift()) stateLift = mCover.ActuatorGetLift()->state;
+    if (mCover.ActuatorGetTilt()) stateTilt = mCover.ActuatorGetTilt()->state;
+
     switch (event) {
-    case AppEvent::EventType::CoverLiftUpOrOpen:
-        opState |=  (OP_STATUS_OPEN  << EMBER_AF_WC_OPERATIONAL_STATUS_GLOBAL_OFFSET);
-        opState &= ~(OP_STATUS_CLOSE << EMBER_AF_WC_OPERATIONAL_STATUS_GLOBAL_OFFSET);
-        opState |=  (OP_STATUS_OPEN  << EMBER_AF_WC_OPERATIONAL_STATUS_LIFT_OFFSET);
-        opState &= ~(OP_STATUS_CLOSE << EMBER_AF_WC_OPERATIONAL_STATUS_LIFT_OFFSET);
+    case AppEvent::EventType::CoverLiftChange:
+        opStatus.lift   = stateLift;
+        opStatus.global = stateLift; //for global status lift always wins !
         break;
-    case AppEvent::EventType::CoverLiftDownOrClose:
-        opState |=  (OP_STATUS_CLOSE << EMBER_AF_WC_OPERATIONAL_STATUS_GLOBAL_OFFSET);
-        opState &= ~(OP_STATUS_OPEN  << EMBER_AF_WC_OPERATIONAL_STATUS_GLOBAL_OFFSET);
-        opState |=  (OP_STATUS_CLOSE << EMBER_AF_WC_OPERATIONAL_STATUS_LIFT_OFFSET);
-        opState &= ~(OP_STATUS_OPEN  << EMBER_AF_WC_OPERATIONAL_STATUS_LIFT_OFFSET);
-        break;
-    case AppEvent::EventType::CoverTiltUpOrOpen:
-        opState |=  (OP_STATUS_OPEN  << EMBER_AF_WC_OPERATIONAL_STATUS_GLOBAL_OFFSET);
-        opState &= ~(OP_STATUS_CLOSE << EMBER_AF_WC_OPERATIONAL_STATUS_GLOBAL_OFFSET);
-        opState |=  (OP_STATUS_OPEN  << EMBER_AF_WC_OPERATIONAL_STATUS_TILT_OFFSET);
-        opState &= ~(OP_STATUS_CLOSE << EMBER_AF_WC_OPERATIONAL_STATUS_TILT_OFFSET);
-        break;
-    case AppEvent::EventType::CoverTiltDownOrClose:
-        opState |=  (OP_STATUS_CLOSE << EMBER_AF_WC_OPERATIONAL_STATUS_GLOBAL_OFFSET);
-        opState &= ~(OP_STATUS_OPEN  << EMBER_AF_WC_OPERATIONAL_STATUS_GLOBAL_OFFSET);
-        opState |=  (OP_STATUS_CLOSE << EMBER_AF_WC_OPERATIONAL_STATUS_TILT_OFFSET);
-        opState &= ~(OP_STATUS_OPEN  << EMBER_AF_WC_OPERATIONAL_STATUS_TILT_OFFSET);
+    case AppEvent::EventType::CoverTiltChange:
+        opStatus.tilt = stateTilt;
+        if (Stall == stateLift)
+            opStatus.global = stateTilt; //for global status lift always wins !
         break;
     case AppEvent::EventType::CoverStop:
-        opState = 0;
+        //opStatus = 0;
         break;
     default:
         break;
     }
 
-    mCover.OperationalStatusSet(opState);
-
-    if (status != EMBER_ZCL_STATUS_SUCCESS)
-    {
-        EFR32_LOG("ERR: UpOrOpendating ZCL %x", status);
-    }
+    mCover.OperationalStatusSet(opStatus);
 }
 
 void AppTask::IconTimerCallback(AppTimer & timer, void * context)
