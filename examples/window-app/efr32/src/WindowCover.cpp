@@ -51,7 +51,13 @@ WindowCover::WindowCover(EmberAfWcType type, EmberAfWcEndProductType endProductT
     mTilt.targetPosition = mTilt.currentPosition;
 }
 
-void WindowCover::ConfigStatusSet(uint8_t status)
+
+inline bool operator!=(const OperationalStatus_t& lhs, const OperationalStatus_t& rhs){ return !memcmp(&lhs, &rhs, sizeof(OperationalStatus_t)) == 0; }
+inline bool operator!=(const ConfigStatus_t& lhs, const ConfigStatus_t& rhs){ return !memcmp(&lhs, &rhs, sizeof(ConfigStatus_t)) == 0; }
+inline bool operator!=(const Mode_t& lhs, const Mode_t& rhs){ return !memcmp(&lhs, &rhs, sizeof(Mode_t)) == 0; }
+
+// Non-Fixed Status ConfigStatus
+void WindowCover::ConfigStatusSet(ConfigStatus_t status)
 {
     if (status != mConfigStatus)
     {
@@ -63,6 +69,20 @@ void WindowCover::ConfigStatusSet(uint8_t status)
 uint8_t WindowCover::ConfigStatusGet(void)
 {
     return mConfigStatus;
+
+// Non-Fixed Status Mode
+void WindowCover::ModeSet(Mode_t mode)
+{
+    if (mode != mMode)
+    {
+        mMode = mode;
+        PostEvent(AppEvent::EventType::CoverModeChange);
+    }
+}
+
+Mode_t WindowCover::ModeGet(void)
+{
+    return mMode;
 }
 
 
@@ -110,13 +130,13 @@ void WindowCover::TypeSet(EmberAfWcType type)
         case EMBER_ZCL_WC_TYPE_ROLLERSHADE_EXTERIOR2_MOTOR:
         case EMBER_ZCL_WC_TYPE_DRAPERY:
         case EMBER_ZCL_WC_TYPE_AWNING:
-            ActuatorSet(false);
+            SelectedActuatorSet(SELECT_LIFT);
             break;
         // Tilt only
         case EMBER_ZCL_WC_TYPE_SHUTTER:
         case EMBER_ZCL_WC_TYPE_TILT_BLIND_TILT_ONLY:
         case EMBER_ZCL_WC_TYPE_PROJECTOR_SCREEN:
-            ActuatorSet(true);
+            SelectedActuatorSet(SELECT_TILT);
             break;
         // Lift & Tilt
         case EMBER_ZCL_WC_TYPE_TILT_BLIND_LIFT_AND_TILT:
@@ -150,6 +170,22 @@ EmberAfWcType WindowCover::TypeGet()
 {
     return mType;
 }
+
+// Product-Fixed EndProductType
+void WindowCover::EndProductTypeSet(EmberAfWcEndProductType endProductType)
+{
+    if (endProductType != mEndProductType)
+    {
+        mEndProductType = endProductType;
+        PostEvent(AppEvent::EventType::CoverEndProductTypeChange);
+    }
+}
+
+EmberAfWcEndProductType WindowCover::EndProductTypeGet()
+{
+    return mEndProductType;
+}
+
 
 uint16_t WindowCover::LiftOpenLimitGet()
 {
@@ -194,16 +230,20 @@ void WindowCover::PrintStatus(void)
     EFR32_LOG("Config: 0x%02X, Operational: 0x%02X, Safety: 0x%04X", mConfigStatus, mOperationalStatus, mSafetyStatus);
 }
 
+void WindowCover::LiftStepTowardOpen()  { ActuatorStepTowardOpen(&mLift); }
+void WindowCover::TiltStepTowardOpen()  { ActuatorStepTowardOpen(&mTilt); }
+void WindowCover::LiftStepTowardClose() { ActuatorStepTowardClose(&mLift); }
+void WindowCover::TiltStepTowardClose() { ActuatorStepTowardClose(&mTilt); }
 
+void WindowCover::StepUpOrOpen()        { mSelectedActuator ? TiltStepTowardOpen()  : LiftStepTowardOpen();  }
+void WindowCover::StepDownOrClose()     { mSelectedActuator ? TiltStepTowardClose() : LiftStepTowardClose(); }
 
-void WindowCover::LiftUpOrOpen()    { ActuatorStepTowardOpen(&mLift); }
-void WindowCover::TiltUpOrOpen()    { ActuatorStepTowardOpen(&mTilt); }
-void WindowCover::LiftDownOrClose() { ActuatorStepTowardClose(&mLift); }
-void WindowCover::TiltDownOrClose() { ActuatorStepTowardClose(&mTilt); }
-uint16_t WindowCover::LiftGet()
-{
-    return mLift.currentPosition;
-}
+uint16_t WindowCover::LiftValueGet(void)                    { return mLift.currentPosition; }
+uint16_t WindowCover::TiltValueGet(void)                    { return mTilt.currentPosition; }
+
+posPercent100ths_t WindowCover::LiftPercent100thsGet(void)  { return PositionToPercent100ths(&mLift, mLift.currentPosition); }
+posPercent100ths_t WindowCover::TiltPercent100thsGet(void)  { return PositionToPercent100ths(&mTilt, mTilt.currentPosition); }
+
 void WindowCover::ActuatorStepTowardOpen(CoverActuator_t * pAct)
 {
     if (!pAct) return;
@@ -262,13 +302,13 @@ void WindowCover::ActuatorSetPosition(CoverActuator_t * pAct, uint16_t value)
 
     if (value != pAct->currentPosition)
     {
-        AppEvent::EventType event = (value > pAct->currentPosition) ? pAct->eventClosing : pAct->eventOpening;
+        pAct->state = (value > pAct->currentPosition) ? MovingDownOrClose : MovingUpOrOpen;
         pAct->currentPosition = value;
 
         // Trick here If direct command set Target to go directly to position
         if (!pAct->timer.IsActive()) pAct->targetPosition = pAct->currentPosition;
 
-        PostEvent(event);
+        PostEvent(pAct->event);
     }
 }
 
@@ -283,7 +323,7 @@ void WindowCover::ActuatorGoToValue(CoverActuator_t * pAct, uint16_t value)
     }
 
     if (value != pAct->currentPosition) {
-        pAct->action = (value > pAct->currentPosition) ? CoverAction::MovingDownOrClose : CoverAction::MovingUpOrOpen;
+        pAct->state = (value > pAct->currentPosition) ? MovingDownOrClose : MovingUpOrOpen;
         pAct->targetPosition = value;
         pAct->timer.Start();
         PostEvent(AppEvent::EventType::CoverStart);
@@ -341,18 +381,18 @@ void WindowCover::Stop()
     TiltGoToValue(mTilt.currentPosition);
 }
 
-void WindowCover::ActuatorSet(bool mode)
+void WindowCover::SelectedActuatorSet(bool mode)
 {
-    if (mode != mActuator)
+    if (mode != mSelectedActuator)
     {
-        mActuator = mode;
+        mSelectedActuator = mode;
         PostEvent(AppEvent::EventType::CoverActuatorChange);
     }
 }
 
-bool WindowCover::ActuatorGet()
+bool WindowCover::SelectedActuatorGet()
 {
-    return mActuator;
+    return mSelectedActuator;
 }
 
 WindowCover::CoverActuator_t * WindowCover::ActuatorGetLift(void) { return &mLift; }
@@ -360,12 +400,10 @@ WindowCover::CoverActuator_t * WindowCover::ActuatorGetTilt(void) { return &mTil
 
 void WindowCover::ToggleActuator()
 {
-    mActuator = !mActuator;
-    PostEvent(AppEvent::EventType::CoverActuatorChange);
+    SelectedActuatorSet(!SelectedActuatorGet());
 }
 
-void WindowCover::StepUpOrOpen()    { mActuator ? TiltUpOrOpen()    : LiftUpOrOpen();    }
-void WindowCover::StepDownOrClose() { mActuator ? TiltDownOrClose() : LiftDownOrClose(); }
+
 
 bool WindowCover::IsOpen(void)
 {
@@ -502,23 +540,23 @@ void WindowCover::ActuatorTimerCallback(AppTimer & timer, WindowCover * pCover, 
 {
     if (!pCover || !pAct) return;
 
-    switch (pAct->action)
+    switch (pAct->state)
     {
-    case CoverAction::MovingDownOrClose:
+    case MovingDownOrClose:
         if (pAct->currentPosition < pAct->targetPosition)
         {
             pCover->ActuatorStepTowardClose(pAct);
             timer.Start();
         }
         break;
-    case CoverAction::MovingUpOrOpen:
+    case MovingUpOrOpen:
         if (pAct->currentPosition > pAct->targetPosition)
         {
             pCover->ActuatorStepTowardOpen(pAct);
             timer.Start();
         }
         break;
-    case CoverAction::None:
+    case Stall:
     default:
         timer.Stop();
         break;
@@ -526,7 +564,7 @@ void WindowCover::ActuatorTimerCallback(AppTimer & timer, WindowCover * pCover, 
 
     if (!timer.IsActive())
     {
-        pAct->action = CoverAction::None;
+        pAct->state = Stall;
         pCover->PostEvent(AppEvent::EventType::CoverStop);
     }
 }
