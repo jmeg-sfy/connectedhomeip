@@ -238,11 +238,14 @@ void WindowCover::TiltStepTowardClose() { ActuatorStepTowardClose(&mTilt); }
 void WindowCover::StepUpOrOpen()        { mSelectedActuator ? TiltStepTowardOpen()  : LiftStepTowardOpen();  }
 void WindowCover::StepDownOrClose()     { mSelectedActuator ? TiltStepTowardClose() : LiftStepTowardClose(); }
 
-uint16_t WindowCover::LiftValueGet(void)                    { return mLift.currentPosition; }
-uint16_t WindowCover::TiltValueGet(void)                    { return mTilt.currentPosition; }
+uint16_t WindowCover::LiftCurrentValueGet(void)                    { return mLift.currentPosition; }
+uint16_t WindowCover::TiltCurrentValueGet(void)                    { return mTilt.currentPosition; }
 
-posPercent100ths_t WindowCover::LiftPercent100thsGet(void)  { return PositionToPercent100ths(&mLift, mLift.currentPosition); }
-posPercent100ths_t WindowCover::TiltPercent100thsGet(void)  { return PositionToPercent100ths(&mTilt, mTilt.currentPosition); }
+posPercent100ths_t WindowCover::LiftCurrentPercent100thsGet(void)  { return PositionToPercent100ths(&mLift, mLift.currentPosition); }
+posPercent100ths_t WindowCover::TiltCurrentPercent100thsGet(void)  { return PositionToPercent100ths(&mTilt, mTilt.currentPosition); }
+
+posPercent100ths_t WindowCover::LiftTargetPercent100thsGet(void)   { return PositionToPercent100ths(&mLift, mLift.targetPosition); }
+posPercent100ths_t WindowCover::TiltTargetPercent100thsGet(void)   { return PositionToPercent100ths(&mTilt, mTilt.targetPosition); }
 
 void WindowCover::ActuatorStepTowardOpen(CoverActuator_t * pAct)
 {
