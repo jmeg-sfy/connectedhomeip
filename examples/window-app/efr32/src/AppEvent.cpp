@@ -29,24 +29,27 @@ const char * AppEvent::TypeString(EventType type)
         return "None";
 
     case EventType::ButtonPressed:
-        return "Button Pressed";
+        return "ButtonPressed";
     case EventType::ButtonReleased:
-        return "Button Released";
-
+        return "ButtonReleased";
+    case EventType::CoverModeChange:
+        return "Mode";
     case EventType::CoverTypeChange:
-        return "Cover Type Changed";
+        return "Type";
+    case EventType::CoverEndProductTypeChange:
+        return "EndProductType";
     case EventType::CoverConfigStatusChange:
-        return "Cover ConfigStatus Changed";
+        return "ConfigStatus";
     case EventType::CoverOperationalStatusChange:
-        return "Cover OperationalStatus Changed";
+        return "OperationalStatus";
     case EventType::CoverSafetyStatusChange:
-        return "Cover SafetyStatus Changed";
+        return "SafetyStatus";
     case EventType::CoverActuatorChange:
-        return "Cover Actuator Changed";
+        return "SelectedActuator";
     case EventType::CoverLiftChange:
-        return "Lift Change";
+        return "Lift";
     case EventType::CoverTiltChange:
-        return "Tilt Change";
+        return "Tilt";
     case EventType::CoverOpen:
         return "Open";
     case EventType::CoverClosed:
