@@ -355,7 +355,7 @@ void AppTask::UpdateLcd(AppEvent::EventType event)
             icon = mCover.SelectedActuatorGet() ? LcdIcon::Tilt : LcdIcon::Lift;
             mIconTimer.Start();
         }
-        LcdPainter::Paint(mCover.TypeGet(), mCover.LiftValueGet(), mCover.TiltValueGet(), icon);
+        LcdPainter::Paint(mCover.TypeGet(), mCover.LiftCurrentValueGet(), mCover.TiltCurrentValueGet(), icon);
     }
     else
     {
@@ -404,12 +404,24 @@ void AppTask::UpdateClusterState(AppEvent::EventType event)
     }
     // CurrentPosition – Lift
     case AppEvent::EventType::CoverLiftChange: {
-        status = wcSetCurrentPositionLift(WC_DEFAULT_EP, mCover.LiftPercent100thsGet(), mCover.LiftValueGet());
+        status = wcSetCurrentPositionLift(WC_DEFAULT_EP, mCover.LiftCurrentPercent100thsGet(), mCover.LiftCurrentValueGet());
         break;
     }
     // CurrentPosition – Tilt
     case AppEvent::EventType::CoverTiltChange: {
-        status = wcSetCurrentPositionTilt(WC_DEFAULT_EP, mCover.TiltPercent100thsGet(), mCover.TiltValueGet());
+        status = wcSetCurrentPositionTilt(WC_DEFAULT_EP, mCover.TiltCurrentPercent100thsGet(), mCover.TiltCurrentValueGet());
+        break;
+    }
+    // TargetPosition – Lift
+    case AppEvent::EventType::CoverStart: {
+        status = wcSetTargetPositionLift(WC_DEFAULT_EP, mCover.LiftTargetPercent100thsGet());
+        status = wcSetTargetPositionTilt(WC_DEFAULT_EP, mCover.TiltTargetPercent100thsGet());
+        break;
+    }
+    // TargetPosition – Tilt
+    case AppEvent::EventType::CoverStop: {
+        status = wcSetTargetPositionTilt(WC_DEFAULT_EP, mCover.LiftTargetPercent100thsGet());
+        status = wcSetTargetPositionTilt(WC_DEFAULT_EP, mCover.TiltTargetPercent100thsGet());
         break;
     }
 

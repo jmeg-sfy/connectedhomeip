@@ -95,8 +95,9 @@ public:
     uint16_t LiftOpenLimitGet(void);
     uint16_t LiftClosedLimitGet(void);
 
-    uint16_t LiftValueGet(void);
-    posPercent100ths_t LiftPercent100thsGet(void);
+    uint16_t LiftCurrentValueGet(void);
+    posPercent100ths_t LiftCurrentPercent100thsGet(void);
+    posPercent100ths_t LiftTargetPercent100thsGet(void);
 
     void LiftStepTowardOpen();
     void LiftStepTowardClose();
@@ -107,8 +108,9 @@ public:
     uint16_t TiltOpenLimitGet(void);
     uint16_t TiltClosedLimitGet(void);
 
-    uint16_t TiltValueGet(void);
-    posPercent100ths_t TiltPercent100thsGet(void);
+    uint16_t TiltCurrentValueGet(void);
+    posPercent100ths_t TiltCurrentPercent100thsGet(void);
+    posPercent100ths_t TiltTargetPercent100thsGet(void);
 
     void TiltStepTowardOpen();
     void TiltStepTowardClose();
