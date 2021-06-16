@@ -210,6 +210,8 @@ void WindowCover::PrintActuator(const char * pName, WindowCover::CoverActuator_t
     uint8_t currentPercentage = currentPercent100ths / 100;
     uint8_t  targetPercentage =  targetPercent100ths / 100;
 
+    EFR32_LOG("%10s State=0x%02X NbActuations=%4u PhyLimit=%4u StepDelta=%4u", pName,
+        pAct->state, pAct->numberOfActuations, pAct->physicalClosedLimit, pAct->stepDelta);
     EFR32_LOG("%10s Abs:[ %7u - %7u ] Current %7u, Target %7u", pName,
         pAct->openLimit, pAct->closedLimit, pAct->currentPosition, pAct->targetPosition);
     EFR32_LOG("%10s Rel:[   0.00%% - 100.00%% ] Current %3u.%02u%%, Target %3u.%02u%%", pName,
@@ -227,7 +229,7 @@ void WindowCover::PrintActuators(void)
 
 void WindowCover::PrintStatus(void)
 {
-    EFR32_LOG("Config: 0x%02X, Operational: 0x%02X, Safety: 0x%04X", mConfigStatus, mOperationalStatus, mSafetyStatus);
+    EFR32_LOG("Config: 0x%02X, Operational: 0x%02X, Safety: 0x%04X, Mode: 0x%02X", mConfigStatus, mOperationalStatus, mSafetyStatus, mMode);
 }
 
 void WindowCover::LiftStepTowardOpen()  { ActuatorStepTowardOpen(&mLift); }
@@ -307,6 +309,7 @@ void WindowCover::ActuatorSetPosition(CoverActuator_t * pAct, uint16_t value)
     {
         pAct->state = (value > pAct->currentPosition) ? MovingDownOrClose : MovingUpOrOpen;
         pAct->currentPosition = value;
+        pAct->numberOfActuations++;
 
         // Trick here If direct command set Target to go directly to position
         if (!pAct->timer.IsActive()) pAct->targetPosition = pAct->currentPosition;
