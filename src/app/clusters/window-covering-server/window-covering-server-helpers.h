@@ -38,14 +38,11 @@
  *******************************************************************************
  ******************************************************************************/
 
-#include <app/util/af-enums.h>
-#include <app/common/gen/enums.h>
 
-#define WC_PERCENTAGE_COEF 100
-#define WC_PERCENT100THS_MAX 10000
-#define WC_DEFAULT_EP 1
+#pragma once
 
-typedef uint16_t posPercent100ths_t;
+#include "window-covering-common.h"
+
 
 //  ZCL_WC_PHYSICAL_CLOSED_LIMIT_LIFT_ATTRIBUTE_ID (0x0001)
 //  ZCL_WC_PHYSICAL_CLOSED_LIMIT_TILT_ATTRIBUTE_ID (0x0002)
@@ -63,11 +60,6 @@ typedef uint16_t posPercent100ths_t;
 //  ZCL_WC_ACCELERATION_TIME_LIFT_ATTRIBUTE_ID (0x0015)
 //  ZCL_WC_DECELERATION_TIME_LIFT_ATTRIBUTE_ID (0x0016)
 //  ZCL_WC_MODE_ATTRIBUTE_ID (0x0017)
-//  ZCL_WC_INTERMEDIATE_SETPOINTS_LIFT_ATTRIBUTE_ID (0x0018)
-//  ZCL_WC_INTERMEDIATE_SETPOINTS_TILT_ATTRIBUTE_ID (0x0019)
-//  ZCL_WC_SAFETY_STATUS_ATTRIBUTE_ID (0x001A)
-
-
 
 
 EmberAfStatus wcWriteAttribute(chip::EndpointId ep, chip::AttributeId attributeID, uint8_t * dataPtr, EmberAfAttributeType dataType);
@@ -82,11 +74,14 @@ EmberAfStatus wcGetSafetyStatus(chip::EndpointId ep, uint16_t * p_safetyStatus);
 EmberAfStatus wcSetConfigStatus(chip::EndpointId ep, uint8_t configStatus);
 EmberAfStatus wcGetConfigStatus(chip::EndpointId ep, uint8_t * p_configStatus);
 
+EmberAfStatus wcSetMode(chip::EndpointId ep, Mode_t * p_mode);
+EmberAfStatus wcGetMode(chip::EndpointId ep, uint8_t * p_mode);
+
+EmberAfStatus wcSetOperationalStatus(chip::EndpointId ep, OperationalStatus_t * p_operationalStatus);
+EmberAfStatus wcGetOperationalStatus(chip::EndpointId ep, OperationalStatus_t * p_operationalStatus);
+
 EmberAfStatus wcSetEndProductType(chip::EndpointId ep, EmberAfWcEndProductType endProduct);
 EmberAfStatus wcGetEndProductType(chip::EndpointId ep, EmberAfWcEndProductType * p_endProduct);
-
-EmberAfStatus wcSetOperationalStatus(chip::EndpointId ep, uint8_t operationalStatus);
-EmberAfStatus wcGetOperationalStatus(chip::EndpointId ep, uint8_t * p_operationalStatus);
 
 EmberAfStatus wcSetInstalledOpenLimitLift(chip::EndpointId ep, uint16_t installedOpenLimitLift);
 EmberAfStatus wcGetInstalledOpenLimitLift(chip::EndpointId ep, uint16_t * p_installedOpenLimitLift);

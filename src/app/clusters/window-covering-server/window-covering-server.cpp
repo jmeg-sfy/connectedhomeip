@@ -68,8 +68,7 @@ using namespace chip;
 
 
 
-#define CHECK_BOUNDS_INVALID(MIN, VAL, MAX) ((VAL < MIN) || (VAL > MAX))
-#define CHECK_BOUNDS_VALID(MIN, VAL, MAX)   (!CHECK_BOUNDS_INVALID(MIN, VAL, MAX))
+
 
 typedef struct wcFeature
 {
@@ -167,12 +166,27 @@ EmberAfStatus wcGetConfigStatus(EndpointId ep, uint8_t * p_configStatus)
     return wcReadAttribute(ep, ZCL_WC_CONFIG_STATUS_ATTRIBUTE_ID, (uint8_t *) p_configStatus, sizeof(uint8_t));
 }
 
-EmberAfStatus wcSetOperationalStatus(EndpointId ep, uint8_t operationalStatus)
+EmberAfStatus wcSetMode(chip::EndpointId ep, Mode_t * p_mode)
 {
-    return wcWriteAttribute(ep, ZCL_WC_OPERATIONAL_STATUS_ATTRIBUTE_ID, (uint8_t *) &operationalStatus, ZCL_BITMAP8_ATTRIBUTE_TYPE);
+    return wcWriteAttribute(ep, ZCL_WC_MODE_ATTRIBUTE_ID, (uint8_t *) p_mode, ZCL_BITMAP8_ATTRIBUTE_TYPE);
 }
 
-EmberAfStatus wcGetOperationalStatus(EndpointId ep, uint8_t * p_operationalStatus)
+// EmberAfStatus wcSetMode(chip::EndpointId ep, uint8_t mode)
+// {
+//     return wcWriteAttribute(ep, ZCL_WC_MODE_ATTRIBUTE_ID, (uint8_t *) &mode, ZCL_BITMAP8_ATTRIBUTE_TYPE);
+// }
+
+EmberAfStatus wcGetMode(chip::EndpointId ep, uint8_t * p_mode)
+{
+    return wcWriteAttribute(ep, ZCL_WC_MODE_ATTRIBUTE_ID, (uint8_t *) p_mode, sizeof(uint8_t));
+}
+
+EmberAfStatus wcSetOperationalStatus(EndpointId ep, OperationalStatus_t * p_operationalStatus)
+{
+    return wcWriteAttribute(ep, ZCL_WC_OPERATIONAL_STATUS_ATTRIBUTE_ID, (uint8_t *) p_operationalStatus, ZCL_BITMAP8_ATTRIBUTE_TYPE);
+}
+
+EmberAfStatus wcGetOperationalStatus(EndpointId ep, OperationalStatus_t * p_operationalStatus)
 {
     return wcReadAttribute(ep, ZCL_WC_OPERATIONAL_STATUS_ATTRIBUTE_ID, (uint8_t *) p_operationalStatus, sizeof(uint8_t));
 }
@@ -622,10 +636,48 @@ static EmberAfStatus emberAfWindowCoveringClusterSetValueCallback(EndpointId end
 
 
 
+uint16_t wcRelPercent100thsToAbsPosition(uint16_t openLimit, uint16_t closedLimit, posPercent100ths_t percent100ths)
+{
+    uint16_t minimum = 0, maximum = UINT16_MAX, range = UINT16_MAX;
+
+    if (openLimit > closedLimit) {
+        minimum = closedLimit;
+        maximum = openLimit;
+    } else {
+        minimum = openLimit;
+        maximum = closedLimit;
+    }
+
+    range = maximum - minimum;
+
+    if (percent100ths > WC_PERCENT100THS_MAX) return maximum;
+
+    return minimum + ((range * percent100ths) / WC_PERCENT100THS_MAX);
+}
 
 
 
+posPercent100ths_t wcAbsPositionToRelPercent100ths(uint16_t openLimit, uint16_t closedLimit, uint16_t position)
+{
+    posPercent100ths_t minimum = 0, range = UINT16_MAX;
 
+    if (openLimit > closedLimit) {
+        minimum = closedLimit;
+        range = openLimit - minimum;
+    } else {
+        minimum = openLimit;
+        range = closedLimit - minimum;
+    }
+
+    if (position < minimum)
+        return 0;
+
+    if (range > 0) {
+        return (posPercent100ths_t) (WC_PERCENT100THS_MAX * (position - minimum) / range);
+    }
+
+    return WC_PERCENT100THS_MAX;
+}
 
 
 
