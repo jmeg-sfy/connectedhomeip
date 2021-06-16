@@ -65,7 +65,9 @@ uint8_t WindowCover::ConfigStatusGet(void)
     return mConfigStatus;
 }
 
-void WindowCover::OperationalStatusSet(uint8_t status)
+
+// Reported State OperationalStatus
+void WindowCover::OperationalStatusSet(OperationalStatus_t status)
 {
     if (status != mOperationalStatus)
     {
@@ -74,11 +76,11 @@ void WindowCover::OperationalStatusSet(uint8_t status)
     }
 }
 
-uint8_t WindowCover::OperationalStatusGet(void)
+OperationalStatus_t WindowCover::OperationalStatusGet(void)
 {
     return mOperationalStatus;
 }
-
+// Reported State SafetyStatus
 void WindowCover::SafetyStatusSet(uint16_t status)
 {
     if (status != mSafetyStatus)
@@ -88,11 +90,13 @@ void WindowCover::SafetyStatusSet(uint16_t status)
     }
 }
 
+
 uint16_t WindowCover::SafetyStatusGet(void)
 {
     return mSafetyStatus;
 }
 
+// Product-Fixed Type
 void WindowCover::TypeSet(EmberAfWcType type)
 {
     if (type != mType)
@@ -190,15 +194,7 @@ void WindowCover::PrintStatus(void)
     EFR32_LOG("Config: 0x%02X, Operational: 0x%02X, Safety: 0x%04X", mConfigStatus, mOperationalStatus, mSafetyStatus);
 }
 
-// void WindowCover::LiftPercentSet(uint8_t percentage)
-// {
-//     LiftSet(PercentToLift(percentage));
-// }
 
-// uint8_t WindowCover::LiftPercentGet()
-// {
-//     return LiftToPercent(mLift.currentPosition);
-// }
 
 void WindowCover::LiftUpOrOpen()    { ActuatorStepTowardOpen(&mLift); }
 void WindowCover::TiltUpOrOpen()    { ActuatorStepTowardOpen(&mTilt); }
@@ -253,24 +249,6 @@ uint16_t WindowCover::TiltClosedLimitGet()
 {
     return mTilt.closedLimit;
 }
-
-
-
-uint16_t WindowCover::TiltGet()
-{
-    return mTilt.currentPosition;
-}
-
-// void WindowCover::TiltPercentSet(uint8_t percentage)
-// {
-//     TiltSet(PercentToTilt(percentage));
-// }
-
-// uint8_t WindowCover::TiltPercentGet()
-// {
-//     return TiltToPercent(mTilt.currentPosition);
-// }
-
 
 void WindowCover::ActuatorSetPosition(CoverActuator_t * pAct, uint16_t value)
 {
@@ -331,25 +309,18 @@ void WindowCover::TiltGoToValue(uint16_t value)
     ActuatorGoToValue(&mTilt, value);
 }
 
-uint16_t WindowCover::PositionToPercent100ths(CoverActuator_t * pActuator, uint16_t position)
+posPercent100ths_t WindowCover::PositionToPercent100ths(CoverActuator_t * pActuator, uint16_t position)
 {
     if (!pActuator) return UINT16_MAX;
 
-    uint16_t range = pActuator->closedLimit - pActuator->openLimit;
-
-    if (range > 0) {
-        return (uint16_t) (10000 * (position - pActuator->openLimit) / range);
-    }
-
-    return UINT16_MAX;
+    return wcAbsPositionToRelPercent100ths(pActuator->openLimit, pActuator->closedLimit, position);
 }
 
-uint16_t WindowCover::Percent100thsToPosition(CoverActuator_t * pActuator, uint16_t percent100ths)
+uint16_t WindowCover::Percent100thsToPosition(CoverActuator_t * pActuator, posPercent100ths_t percent100ths)
 {
     if (!pActuator) return UINT16_MAX;
 
-    uint16_t range = pActuator->closedLimit - pActuator->openLimit;
-    return pActuator->openLimit + (range * percent100ths) / 10000;
+    return wcRelPercent100thsToAbsPosition(pActuator->openLimit, pActuator->closedLimit, percent100ths);
 }
 
 void WindowCover::Open()

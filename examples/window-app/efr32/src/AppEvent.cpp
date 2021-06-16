@@ -43,14 +43,10 @@ const char * AppEvent::TypeString(EventType type)
         return "Cover SafetyStatus Changed";
     case EventType::CoverActuatorChange:
         return "Cover Actuator Changed";
-    case EventType::CoverLiftUpOrOpen:
-        return "Lift UpOrOpen";
-    case EventType::CoverLiftDownOrClose:
-        return "Lift DownOrClose";
-    case EventType::CoverTiltUpOrOpen:
-        return "Tilt UpOrOpen";
-    case EventType::CoverTiltDownOrClose:
-        return "Tilt DownOrClose";
+    case EventType::CoverLiftChange:
+        return "Lift Change";
+    case EventType::CoverTiltChange:
+        return "Tilt Change";
     case EventType::CoverOpen:
         return "Open";
     case EventType::CoverClosed:

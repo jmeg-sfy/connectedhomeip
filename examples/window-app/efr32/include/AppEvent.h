@@ -25,21 +25,26 @@ struct AppEvent
     {
         None = 0,
         // Button events
+        ButtonEventMin, //separator dont use
         ButtonPressed,
         ButtonReleased,
+        ButtonEventMax, //separator dont use
         // Window cover events
+        CoverEventMin,  //separator dont use
         CoverConfigStatusChange,
         CoverOperationalStatusChange,
         CoverSafetyStatusChange,
         CoverTypeChange,
+        CoverModeChange,
         CoverActuatorChange,
         CoverEndProductTypeChange,
-        CoverLiftUpOrOpen, CoverLiftDownOrClose,
-        CoverTiltUpOrOpen, CoverTiltDownOrClose,
+        CoverLiftChange,
+        CoverTiltChange,
         CoverOpen,
         CoverClosed,
         CoverStart,
-        CoverStop
+        CoverStop,
+        CoverEventMax, //separator dont use
     };
 
     static const char * TypeString(EventType type);

@@ -227,30 +227,12 @@ void AppTask::DispatchEvents()
     BaseType_t received = xQueueReceive(mQueue, &event, pdMS_TO_TICKS(10));
     while (received == pdTRUE)
     {
-        switch (event.mType)
-        {
-        case AppEvent::EventType::ButtonPressed:
-        case AppEvent::EventType::ButtonReleased:
+        if (CHECK_BOUNDS_VALID(AppEvent::EventType::ButtonEventMin, event.mType, AppEvent::EventType::ButtonEventMax))
             DispatchButtonEvent(event.mType, event.mContext);
-            break;
-        case AppEvent::EventType::CoverTypeChange:
-        case AppEvent::EventType::CoverConfigStatusChange:
-        case AppEvent::EventType::CoverOperationalStatusChange:
-        case AppEvent::EventType::CoverSafetyStatusChange:
-        case AppEvent::EventType::CoverActuatorChange:
-        case AppEvent::EventType::CoverLiftUpOrOpen:
-        case AppEvent::EventType::CoverLiftDownOrClose:
-        case AppEvent::EventType::CoverTiltUpOrOpen:
-        case AppEvent::EventType::CoverTiltDownOrClose:
-        case AppEvent::EventType::CoverOpen:
-        case AppEvent::EventType::CoverClosed:
-        case AppEvent::EventType::CoverStart:
-        case AppEvent::EventType::CoverStop:
+
+        if (CHECK_BOUNDS_VALID(AppEvent::EventType::CoverEventMin, event.mType, AppEvent::EventType::CoverEventMax))
             DispatchWindowCoverEvent(event.mType, event.mContext);
-            break;
-        default:
-            break;
-        }
+
         received = xQueueReceive(mQueue, &event, 0);
     }
 }
@@ -373,6 +355,12 @@ void AppTask::UpdateClusterState(AppEvent::EventType event)
         status = wcSetConfigStatus(WC_DEFAULT_EP, mCover.ConfigStatusGet());
         break;
     }
+    // Non-Fixed Status Mode
+    case AppEvent::EventType::CoverModeChange: {
+        Mode_t mode = mCover.ModeGet();
+        status = wcSetMode(WC_DEFAULT_EP, &mode);
+        break;
+    }
     // Reported State SafetyStatus
     case AppEvent::EventType::CoverSafetyStatusChange: {
         status = wcSetSafetyStatus(WC_DEFAULT_EP, mCover.SafetyStatusGet());
@@ -380,7 +368,8 @@ void AppTask::UpdateClusterState(AppEvent::EventType event)
     }
     // Reported State OperationalStatus
     case AppEvent::EventType::CoverOperationalStatusChange: {
-        status = wcSetOperationalStatus(WC_DEFAULT_EP, mCover.OperationalStatusGet());
+        OperationalStatus_t opStatus = mCover.OperationalStatusGet();
+        status = wcSetOperationalStatus(WC_DEFAULT_EP, &opStatus);
         break;
     }
     // Product-Fixed EndProductType
@@ -394,15 +383,12 @@ void AppTask::UpdateClusterState(AppEvent::EventType event)
         break;
     }
     // CurrentPosition – Lift
-    case AppEvent::EventType::CoverLiftUpOrOpen:
-    case AppEvent::EventType::CoverLiftDownOrClose: {
+    case AppEvent::EventType::CoverLiftChange: {
         status = wcSetCurrentPositionLift(WC_DEFAULT_EP, mCover.LiftPercent100thsGet(), mCover.LiftValueGet());
         break;
     }
-
     // CurrentPosition – Tilt
-    case AppEvent::EventType::CoverTiltUpOrOpen:
-    case AppEvent::EventType::CoverTiltDownOrClose: {
+    case AppEvent::EventType::CoverTiltChange: {
         status = wcSetCurrentPositionTilt(WC_DEFAULT_EP, mCover.TiltPercent100thsGet(), mCover.TiltValueGet());
         break;
     }
