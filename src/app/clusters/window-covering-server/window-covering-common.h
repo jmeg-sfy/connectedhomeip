@@ -62,7 +62,8 @@ typedef enum OperationalState {
     MovingUpOrOpen    = 0x01,            // is currently opening
     MovingDownOrClose = 0x02,            // is currently closing
     Reserved          = 0x03,            // dont use
-} OperationalState_e;
+} __attribute__((__packed__)) OperationalState_e;
+static_assert (sizeof(OperationalState_e) == sizeof(uint8_t), "OperationalState_e Size is not correct");
 
 typedef struct OperationalStatus {
     OperationalState_e global       : 2; // bit 0-1 M
@@ -70,7 +71,6 @@ typedef struct OperationalStatus {
     OperationalState_e tilt         : 2; // bit 4-5 TL
 } OperationalStatus_t;
 static_assert (sizeof(OperationalStatus_t) == sizeof(uint8_t), "OperationalStatus_t Size is not correct");
-
 
 typedef struct SafetyStatus {
     uint16_t remoteLockout          : 1; // bit 0
