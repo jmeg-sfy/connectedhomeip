@@ -44,6 +44,7 @@ struct AppEvent
         CoverClosed,
         CoverStart,
         CoverStop,
+        CoverSynchronizeCluster,
         CoverEventMax, //separator dont use
     };
 

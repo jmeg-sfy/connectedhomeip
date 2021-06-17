@@ -58,6 +58,8 @@ const char * AppEvent::TypeString(EventType type)
         return "Start";
     case EventType::CoverStop:
         return "Stop";
+    case EventType::CoverSynchronizeCluster:
+        return "Sync";
 
     default:
         return "?";

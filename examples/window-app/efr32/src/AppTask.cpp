@@ -345,12 +345,47 @@ void AppTask::UpdateLcd(AppEvent::EventType event)
 #endif
 }
 
+EmberAfStatus AppTask::SynchronizeCluster(void)
+{
+    EFR32_LOG("AppTask::SynchronizeCluster");
+    // EmberAfStatus wcSetSafetyStatus            (WC_DEFAULT_EP, uint16_t safetyStatus);
+    wcSetConfigStatus(WC_DEFAULT_EP, mCover.ConfigStatusGet());
+
+    Mode_t mode = mCover.ModeGet();
+    wcSetMode(WC_DEFAULT_EP, &mode);
+    wcSetSafetyStatus(WC_DEFAULT_EP, mCover.SafetyStatusGet());
+
+    wcSetInstalledOpenLimitLift  (WC_DEFAULT_EP, mCover.LiftOpenLimitGet());
+    wcSetInstalledOpenLimitTilt  (WC_DEFAULT_EP, mCover.TiltOpenLimitGet());
+
+    wcSetInstalledClosedLimitLift(WC_DEFAULT_EP, mCover.LiftClosedLimitGet());
+    wcSetInstalledClosedLimitTilt(WC_DEFAULT_EP, mCover.TiltClosedLimitGet());
+
+    OperationalStatus_t opStatus = mCover.OperationalStatusGet();
+    wcSetOperationalStatus(WC_DEFAULT_EP, &opStatus);
+
+    wcSetType                    (WC_DEFAULT_EP, mCover.TypeGet());
+    wcSetEndProductType          (WC_DEFAULT_EP, mCover.EndProductTypeGet());
+
+    wcSetTargetPositionLift      (WC_DEFAULT_EP, mCover.LiftTargetPercent100thsGet());
+    wcSetTargetPositionTilt      (WC_DEFAULT_EP, mCover.TiltTargetPercent100thsGet());
+    wcSetCurrentPositionLift     (WC_DEFAULT_EP, mCover.LiftCurrentPercent100thsGet(), mCover.LiftCurrentValueGet());
+    wcSetCurrentPositionTilt     (WC_DEFAULT_EP, mCover.LiftCurrentPercent100thsGet(), mCover.LiftCurrentValueGet());
+
+    return EMBER_ZCL_STATUS_SUCCESS;
+
+}
 void AppTask::UpdateClusterState(AppEvent::EventType event)
 {
 
     EmberAfStatus status = EMBER_ZCL_STATUS_SUCCESS;
     switch (event)
     {
+    // Init/Update/Synch the whole cluster
+    case AppEvent::EventType::CoverSynchronizeCluster: {
+        status = SynchronizeCluster();
+        break;
+    }
     // Non-Fixed Status ConfigStatus
     case AppEvent::EventType::CoverConfigStatusChange: {
         status = wcSetConfigStatus(WC_DEFAULT_EP, mCover.ConfigStatusGet());
