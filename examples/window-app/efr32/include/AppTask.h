@@ -50,6 +50,8 @@ public:
     int Start(void);
     WindowCover & Cover();
     void PostEvent(const AppEvent & event);
+    //void SynchronizeCluster(void); //TODO put as private if we cannot do it without task
+    EmberAfStatus SynchronizeCluster(void);
 
 private:
     AppTask() = default;

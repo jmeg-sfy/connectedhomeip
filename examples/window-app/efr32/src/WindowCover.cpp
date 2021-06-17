@@ -25,15 +25,11 @@
 
 WindowCover::WindowCover()
 {
-    mLift.timer.Init(this, "Timer:lift", TIMER_DELAY_MS, LiftTimerCallback);
-    mTilt.timer.Init(this, "Timer:tilt", TIMER_DELAY_MS, TiltTimerCallback);
-
     /* Target Position is initial state reflect the current position */
     mLift.currentPosition = mLift.openLimit;
     mTilt.currentPosition = mTilt.openLimit;
 
-    mLift.targetPosition = mLift.currentPosition;
-    mTilt.targetPosition = mTilt.currentPosition;
+    InitCommon();
 }
 
 WindowCover::WindowCover(EmberAfWcType type, EmberAfWcEndProductType endProductType, uint16_t liftopenLimit, uint16_t liftclosedLimit, uint16_t tiltopenLimit, uint16_t tiltclosedLimit) :
@@ -47,10 +43,34 @@ WindowCover::WindowCover(EmberAfWcType type, EmberAfWcEndProductType endProductT
     mLift.currentPosition = liftopenLimit,
     mTilt.currentPosition = tiltopenLimit,
 
-    mLift.targetPosition = mLift.currentPosition;
-    mTilt.targetPosition = mTilt.currentPosition;
+    InitCommon();
+
 }
 
+void WindowCover::InitCommon(void)
+{
+    mLift.timer.Init(this, "Timer:lift", TIMER_DELAY_MS, LiftTimerCallback);
+    mTilt.timer.Init(this, "Timer:tilt", TIMER_DELAY_MS, TiltTimerCallback);
+
+    mLift.targetPosition = mLift.currentPosition;
+    mTilt.targetPosition = mTilt.currentPosition;
+
+    mFeatureMap["LF"] = true;
+    mFeatureMap["TL"] = true;
+    mFeatureMap["PA"] = true;
+
+    EFR32_LOG("WC InitCommon");
+    SynchronizeCluster();
+}
+
+void WindowCover::SynchronizeCluster(void)
+{
+    EFR32_LOG("WC:SynchronizeCluster");
+
+    PostEvent(AppEvent::EventType::CoverSynchronizeCluster);
+
+
+}
 
 inline bool operator!=(const OperationalStatus_t& lhs, const OperationalStatus_t& rhs){ return !memcmp(&lhs, &rhs, sizeof(OperationalStatus_t)) == 0; }
 inline bool operator!=(const ConfigStatus_t& lhs, const ConfigStatus_t& rhs){ return !memcmp(&lhs, &rhs, sizeof(ConfigStatus_t)) == 0; }

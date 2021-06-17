@@ -53,6 +53,7 @@ void emberAfPostAttributeChangeCallback(EndpointId endpoint, ClusterId clusterId
 void emberAfWindowCoveringClusterInitCallback(chip::EndpointId endpoint)
 {
     EFR32_LOG("Window Covering Cluster init");
+    AppTask::Instance().Cover().SynchronizeCluster();
 }
 
 /**

@@ -91,6 +91,9 @@ public:
 
     void TypeCycle();
 
+    void InitCommon(void);
+    void SynchronizeCluster();
+
     // Lift
     uint16_t LiftOpenLimitGet(void);
     uint16_t LiftClosedLimitGet(void);
