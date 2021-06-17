@@ -412,15 +412,10 @@ void AppTask::UpdateClusterState(AppEvent::EventType event)
         status = wcSetCurrentPositionTilt(WC_DEFAULT_EP, mCover.TiltCurrentPercent100thsGet(), mCover.TiltCurrentValueGet());
         break;
     }
-    // TargetPosition – Lift
+    // TargetPosition – Lift & Tilt
+    case AppEvent::EventType::CoverStop:
     case AppEvent::EventType::CoverStart: {
         status = wcSetTargetPositionLift(WC_DEFAULT_EP, mCover.LiftTargetPercent100thsGet());
-        status = wcSetTargetPositionTilt(WC_DEFAULT_EP, mCover.TiltTargetPercent100thsGet());
-        break;
-    }
-    // TargetPosition – Tilt
-    case AppEvent::EventType::CoverStop: {
-        status = wcSetTargetPositionTilt(WC_DEFAULT_EP, mCover.LiftTargetPercent100thsGet());
         status = wcSetTargetPositionTilt(WC_DEFAULT_EP, mCover.TiltTargetPercent100thsGet());
         break;
     }
@@ -459,7 +454,9 @@ void AppTask::UpdateOperationalStatus(AppEvent::EventType event)
             opStatus.global = stateTilt; //for global status lift always wins !
         break;
     case AppEvent::EventType::CoverStop:
-        //opStatus = 0;
+        opStatus.global = Stall;
+        opStatus.lift = Stall;
+        opStatus.tilt = Stall;
         break;
     default:
         break;

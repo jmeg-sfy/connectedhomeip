@@ -43,6 +43,7 @@ typedef struct Mode {
     uint8_t maintenanceMode         : 1; // bit 2
     uint8_t ledDisplay              : 1; // bit 3
 } Mode_t;
+static_assert (sizeof(Mode_t) == sizeof(uint8_t), "Mode_t Size is not correct");
 
 typedef struct ConfigStatus {
     uint8_t operational             : 1; // bit 0 M
@@ -53,8 +54,9 @@ typedef struct ConfigStatus {
     uint8_t liftIsEncoderControlled : 1; // bit 5 LF & PA
     uint8_t tiltIsEncoderControlled : 1; // bit 6 LF & PA
 } ConfigStatus_t;
+static_assert (sizeof(ConfigStatus_t) == sizeof(uint8_t), "ConfigStatus_t Size is not correct");
 
-// Match directly with OperationalStatus Field
+// Match directly with OperationalStatus 2 bits Fields
 typedef enum OperationalState {
     Stall             = 0x00,            // currently not moving
     MovingUpOrOpen    = 0x01,            // is currently opening
@@ -63,10 +65,12 @@ typedef enum OperationalState {
 } OperationalState_e;
 
 typedef struct OperationalStatus {
-    uint8_t global                  : 2; // bit 0-1 M
-    uint8_t lift                    : 2; // bit 2-3 LF
-    uint8_t tilt                    : 2; // bit 4-5 TL
+    OperationalState_e global       : 2; // bit 0-1 M
+    OperationalState_e lift         : 2; // bit 2-3 LF
+    OperationalState_e tilt         : 2; // bit 4-5 TL
 } OperationalStatus_t;
+static_assert (sizeof(OperationalStatus_t) == sizeof(uint8_t), "OperationalStatus_t Size is not correct");
+
 
 typedef struct SafetyStatus {
     uint16_t remoteLockout          : 1; // bit 0
@@ -80,7 +84,9 @@ typedef struct SafetyStatus {
     uint16_t motorJammed            : 1; // bit 8
     uint16_t hardwareFailure        : 1; // bit 9
     uint16_t manualOperation        : 1; // bit 10
-} SafeyStatus_t;
+} SafetyStatus_t;
+static_assert (sizeof(SafetyStatus_t) == sizeof(uint16_t), "SafetyStatus_t Size is not correct");
+
 
 posPercent100ths_t wcAbsPositionToRelPercent100ths(uint16_t openLimit, uint16_t closedLimit, uint16_t position);
 uint16_t           wcRelPercent100thsToAbsPosition(uint16_t openLimit, uint16_t closedLimit, posPercent100ths_t percent100ths);
