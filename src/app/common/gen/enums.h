@@ -2934,7 +2934,7 @@ enum EmberAfWarningStobe : uint32_t
 };
 
 // Enum for WcEndProductType
-typedef enum
+enum EmberAfWcEndProductType : uint32_t
 {
     EMBER_ZCL_WC_END_PRODUCT_TYPE_ROLLER_SHADE                 = 0,
     EMBER_ZCL_WC_END_PRODUCT_TYPE_ROMAN_SHADE                  = 1,
@@ -2961,10 +2961,10 @@ typedef enum
     EMBER_ZCL_WC_END_PRODUCT_TYPE_SWINGING_SHUTTER             = 22,
     EMBER_ZCL_WC_END_PRODUCT_TYPE_SLIDING_SHUTTER              = 23,
     EMBER_ZCL_WC_END_PRODUCT_TYPE_UNKNOWN                      = 255,
-} EmberAfWcEndProductType;
+};
 
 // Enum for WcType
-typedef enum
+enum EmberAfWcType : uint32_t
 {
     EMBER_ZCL_WC_TYPE_ROLLERSHADE                 = 0,
     EMBER_ZCL_WC_TYPE_ROLLERSHADE2_MOTOR          = 1,
@@ -2977,7 +2977,7 @@ typedef enum
     EMBER_ZCL_WC_TYPE_TILT_BLIND_LIFT_AND_TILT    = 8,
     EMBER_ZCL_WC_TYPE_PROJECTOR_SCREEN            = 9,
     EMBER_ZCL_WC_TYPE_UNKNOWN                     = 255,
-} EmberAfWcType;
+};
 
 // Enum for WiFiVersionType
 enum EmberAfWiFiVersionType : uint32_t
