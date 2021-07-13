@@ -12942,9 +12942,9 @@ private:
             return;
         }
 
-        if (clusterRevision != 2U)
+        if (clusterRevision != 3U)
         {
-            ChipLogError(chipTool, "Error: Value mismatch. Expected: '%s'", "2");
+            ChipLogError(chipTool, "Error: Value mismatch. Expected: '%s'", "3");
             runner->SetCommandExitStatus(CHIP_ERROR_INTERNAL);
             return;
         }
@@ -13005,9 +13005,9 @@ private:
             return;
         }
 
-        if (clusterRevision != 2U)
+        if (clusterRevision != 3U)
         {
-            ChipLogError(chipTool, "Error: Value mismatch. Expected: '%s'", "2");
+            ChipLogError(chipTool, "Error: Value mismatch. Expected: '%s'", "3");
             runner->SetCommandExitStatus(CHIP_ERROR_INTERNAL);
             return;
         }
