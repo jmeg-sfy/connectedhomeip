@@ -52,6 +52,7 @@ class SelectActionFragment : Fragment() {
       }
       onOffClusterBtn.setOnClickListener { getCallback()?.handleOnOffClicked() }
       sensorClustersBtn.setOnClickListener{ getCallback()?.handleSensorClicked() }
+      windowCoveringClusterBtn.setOnClickListener { getCallback()?.handleWindowCoveringClicked() }
       multiAdminClusterBtn.setOnClickListener{ getCallback()?.handleMultiAdminClicked() }
       opCredClustersBtn.setOnClickListener{ getCallback()?.handleOpCredClicked() }
       basicClusterBtn.setOnClickListener{ getCallback()?.handleBasicClicked() }

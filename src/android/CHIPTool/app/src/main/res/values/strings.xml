@@ -18,12 +18,15 @@
     <string name="camera_unavailable_alert_title">Camera unavailable</string>
     <string name="camera_unavailable_alert_subtitle">Error launching camera to scan the QR code.</string>
     <string name="camera_unavailable_alert_exit">Exit</string>
-    <string name="input_address_btn_text">Input device address</string>
 
     <string name="scan_qr_code_btn_text">Scan QR Code</string>
     <string name="provision_wifi_credentials_btn_text">Provision CHIP device with Wi-Fi</string>
     <string name="provision_thread_credentials_btn_text">Provision CHIP device with Thread</string>
     <string name="on_off_level_btn_text">Light On/Off &amp; Level Cluster</string>
+    <string name="window_covering_btn_text">Window Covering Cluster</string>
+    <string name="send_command_up_btn_text">Up</string>
+    <string name="send_command_on_btn_text">On</string>
+    <string name="send_command_off_btn_text">Off</string>
     <string name="enter_ip_address_hint_text">Enter IP Address (eg. 192.168.10.2)</string>
     <string name="enter_fabric_id_hint_text">Enter Fabric ID</string>
     <string name="enter_device_id_hint_text">Enter Device ID</string>

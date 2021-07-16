@@ -148,6 +148,10 @@ class CHIPToolActivity :
     showFragment(SensorClientFragment.newInstance())
   }
 
+  override fun handleWindowCoveringClicked() {
+    showFragment(WindowCoveringClientFragment.newInstance())
+  }
+
   override fun handleMultiAdminClicked() {
     showFragment(MultiAdminClientFragment.newInstance())
   }

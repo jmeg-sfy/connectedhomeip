@@ -52,6 +52,14 @@
         android:text="@string/sensor_client_btn_text" />
 
     <Button
+        android:id="@+id/windowCoveringClusterBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/window_covering_btn_text" />
+
+    <Button
         android:id="@+id/multiAdminClusterBtn"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
