@@ -24,6 +24,9 @@
     <string name="provision_thread_credentials_btn_text">Provision CHIP device with Thread</string>
     <string name="on_off_level_btn_text">Light On/Off &amp; Level Cluster</string>
     <string name="window_covering_btn_text">Window Covering Cluster</string>
+    <string name="send_command_stopMotion_btn_text">Stop Motion</string>
+    <string name="send_command_upOrOpen_btn_text">Up Or Open</string>
+    <string name="send_command_downOrClose_btn_text">Down Or Close</string>
     <string name="send_command_up_btn_text">Up</string>
     <string name="send_command_on_btn_text">On</string>
     <string name="send_command_off_btn_text">Off</string>

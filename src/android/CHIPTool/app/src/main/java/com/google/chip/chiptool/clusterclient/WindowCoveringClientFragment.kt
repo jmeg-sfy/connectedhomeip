@@ -1,5 +1,8 @@
 package com.google.chip.chiptool.clusterclient
 
+import android.content.Context
+import android.net.nsd.NsdManager
+import android.net.nsd.NsdServiceInfo
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -8,18 +11,23 @@ import android.view.ViewGroup
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import chip.devicecontroller.ChipCommandType
+import chip.devicecontroller.ChipClusters
+import chip.devicecontroller.ChipClusters.WindowCoveringCluster
 import chip.devicecontroller.ChipDeviceController
 import chip.devicecontroller.ChipDeviceControllerException
 import com.google.chip.chiptool.ChipClient
 import com.google.chip.chiptool.GenericChipDeviceListener
 import com.google.chip.chiptool.R
 import com.google.chip.chiptool.util.DeviceIdUtil
-import kotlinx.android.synthetic.main.window_covering_client_fragment.*
+import kotlinx.android.synthetic.main.window_covering_client_fragment.commandStatusTv
+import kotlinx.android.synthetic.main.window_covering_client_fragment.deviceIdEd
+import kotlinx.android.synthetic.main.window_covering_client_fragment.fabricIdEd
+import kotlinx.android.synthetic.main.window_covering_client_fragment.levelBar
 import kotlinx.android.synthetic.main.window_covering_client_fragment.view.*
 
-//import kotlinx.android.synthetic.main.on_off_client_fragment.deviceIdEd
-//import kotlinx.android.synthetic.main.on_off_client_fragment.view.*
+
+
+
 
 
 class WindowCoveringClientFragment : Fragment() {
@@ -27,39 +35,58 @@ class WindowCoveringClientFragment : Fragment() {
   private val deviceController: ChipDeviceController
     get() = ChipClient.getDeviceController()
 
-  private var commandType: ChipCommandType? = null
-
   override fun onCreateView(
-      inflater: LayoutInflater,
-      container: ViewGroup?,
-      savedInstanceState: Bundle?
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    savedInstanceState: Bundle?
   ): View {
     Log.i(TAG, "onCreate View")
     return inflater.inflate(R.layout.window_covering_client_fragment, container, false).apply {
       deviceController.setCompletionListener(ChipControllerCallback())
 
-      downBtn.setOnClickListener { sendDownCommandClick() }
-        upBtn.setOnClickListener { sendUpCommandClick() }
-      stopBtn.setOnClickListener { sendStopCommandClick() }
+     updateAddressBtn.setOnClickListener { updateAddressClick() }
+       downOrCloseBtn.setOnClickListener { sendDownOrCloseCommandClick() }
+          upOrOpenBtn.setOnClickListener { sendUpOrOpenCommandClick() }
+        stopMotionBtn.setOnClickListener { sendStopMotionCommandClick() }
+              readBtn.setOnClickListener { sendReadOnOffClick() }
 
+      levelBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
+
+        }
+
+        override fun onStartTrackingTouch(seekBar: SeekBar?) {
+        }
+
+        override fun onStopTrackingTouch(seekBar: SeekBar?) {
+          Toast.makeText(
+            requireContext(),
+            "Level is: " + levelBar.progress,
+            Toast.LENGTH_SHORT
+          ).show()
+          sendLevelCommandClick()
+        }
+      })
     }
   }
+
+
 
   override fun onStart() {
     super.onStart()
     Log.i(TAG, "onStart beg")
+    // TODO: use the fabric ID that was used to commission the device
+    val testFabricId = "5544332211"
+    fabricIdEd.setText(testFabricId)
     deviceIdEd.setText(DeviceIdUtil.getLastDeviceId(requireContext()).toString())
     Log.i(TAG, "onStart end")
-    //ipAddressEd.setText(deviceController.ipAddress ?: requireContext().getString(R.string.enter_ip_address_hint_text))
   }
 
   inner class ChipControllerCallback : GenericChipDeviceListener() {
-    override fun onConnectDeviceComplete() {
-      sendCommand()
-    }
+    override fun onConnectDeviceComplete() {}
 
     override fun onSendMessageComplete(message: String?) {
-      windowCoveringCommandStatusTv.text = requireContext().getString(R.string.echo_status_response, message)
+      commandStatusTv.text = requireContext().getString(R.string.echo_status_response, message)
     }
 
     override fun onNotifyChipConnectionClosed() {
@@ -75,40 +102,121 @@ class WindowCoveringClientFragment : Fragment() {
     }
   }
 
-  private fun sendUpCommandClick() {
-    commandType = ChipCommandType.UP
-    sendCommand()
-  }
-
-  private fun sendStopCommandClick() {
-    commandType = ChipCommandType.STOP
-    sendCommand()
-  }
-
-  private fun sendDownCommandClick() {
-    commandType = ChipCommandType.DOWN
-    sendCommand()
-  }
-
-  private fun sendCommand() {
-    val chipCommandType = commandType ?: run {
-      Log.e(TAG, "No ChipCommandType specified.")
-      return
+  private fun updateAddressClick() {
+    val serviceInfo = NsdServiceInfo().apply {
+      serviceName = "%016X-%016X".format(
+        fabricIdEd.text.toString().toLong(),
+        deviceIdEd.text.toString().toLong()
+      )
+      serviceType = "_matter._tcp"
     }
 
-    windowCoveringCommandStatusTv.text =
-        requireContext().getString(R.string.send_command_type_label_text_no_level, chipCommandType.name)
+    // TODO: implement the common CHIP mDNS interface for Android and make CHIP stack call the resolver
+    val resolverListener = object : NsdManager.ResolveListener {
+      override fun onResolveFailed(serviceInfo: NsdServiceInfo?, errorCode: Int) {
+        showMessage("Address resolution failed: $errorCode")
+      }
 
-    try {
-      // mask levelValue from integer to uint8_t and if null use 0
-      deviceController.sendCommand(
-        DeviceIdUtil.getLastDeviceId(requireContext()),
-        commandType,
-        0
-      )
-      //deviceController.beginSendCommand(commandType, 0)
-    } catch (e: ChipDeviceControllerException) {
-      windowCoveringCommandStatusTv.text = e.toString()
+      override fun onServiceResolved(serviceInfo: NsdServiceInfo?) {
+        val hostAddress = serviceInfo?.host?.hostAddress ?: ""
+        val port = serviceInfo?.port ?: 0
+
+        showMessage("Address: ${hostAddress}:${port}")
+
+        if (hostAddress == "" || port == 0)
+          return
+
+        try {
+          deviceController.updateAddress(deviceIdEd.text.toString().toLong(), hostAddress, port)
+        } catch (e: ChipDeviceControllerException) {
+          showMessage(e.toString())
+        }
+      }
+    }
+
+    (requireContext().getSystemService(Context.NSD_SERVICE) as NsdManager).apply {
+      resolveService(serviceInfo, resolverListener)
+    }
+  }
+
+  private fun sendLevelCommandClick() {
+    val cluster = ChipClusters.LevelControlCluster(
+      ChipClient.getDeviceController()
+        .getDevicePointer(deviceIdEd.text.toString().toLong()), 1
+    )
+    cluster.moveToLevel(object : ChipClusters.DefaultClusterCallback {
+      override fun onSuccess() {
+        showMessage("MoveToLevel command success")
+      }
+
+      override fun onError(ex: Exception) {
+        showMessage("MoveToLevel command failure $ex")
+        Log.e(TAG, "MoveToLevel command failure", ex)
+      }
+
+    }, levelBar.progress, 0, 0, 0)
+  }
+
+  private fun sendReadOnOffClick() {
+    getWindowCoveringClusterForDevice().readTypeAttribute(object : ChipClusters.IntegerAttributeCallback {
+      override fun onSuccess(type: Int) {
+        Log.v(TAG, "Type attribute value: $type")
+        showMessage("Type attribute value: $type")
+      }
+
+      override fun onError(ex: Exception) {
+        Log.e(TAG, "Error reading Type attribute", ex)
+      }
+    })
+  }
+
+  private fun sendUpOrOpenCommandClick() {
+    getWindowCoveringClusterForDevice().upOrOpen(object : ChipClusters.DefaultClusterCallback {
+      override fun onSuccess() {
+        showMessage("UpOrOpen command success")
+      }
+
+      override fun onError(ex: Exception) {
+        showMessage("UpOrOpen command failure $ex")
+        Log.e(TAG, "UpOrOpen command failure", ex)
+      }
+
+    })
+  }
+
+  private fun sendDownOrCloseCommandClick() {
+    getWindowCoveringClusterForDevice().downOrClose(object : ChipClusters.DefaultClusterCallback {
+      override fun onSuccess() {
+        showMessage("DownOrClose command success")
+      }
+
+      override fun onError(ex: Exception) {
+        showMessage("DownOrClose command failure $ex")
+        Log.e(TAG, "DownOrClose command failure", ex)
+      }
+    })
+  }
+
+  private fun sendStopMotionCommandClick() {
+    getWindowCoveringClusterForDevice().stopMotion(object : ChipClusters.DefaultClusterCallback {
+      override fun onSuccess() {
+        showMessage("StopMotion command success")
+      }
+
+      override fun onError(ex: Exception) {
+        showMessage("StopMotion command failure $ex")
+        Log.e(TAG, "StopMotion command failure", ex)
+      }
+    })
+  }
+
+  private fun getWindowCoveringClusterForDevice(): WindowCoveringCluster {
+    return WindowCoveringCluster(ChipClient.getDeviceController().getDevicePointer(deviceIdEd.text.toString().toLong()), 1)
+  }
+
+  private fun showMessage(msg: String) {
+    requireActivity().runOnUiThread {
+      commandStatusTv.text = msg
     }
   }
 

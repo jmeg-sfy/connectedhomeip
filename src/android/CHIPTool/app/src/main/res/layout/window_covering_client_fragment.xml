@@ -79,7 +79,7 @@
         android:layout_alignParentEnd="true"
         android:layout_below="@id/updateAddressBtn"
         android:background="@android:color/darker_gray"
-        android:text="@string/send_command_stop_btn_text"
+        android:text="@string/send_command_downOrClose_btn_text"
         android:textSize="16sp"/>
 
 
@@ -94,7 +94,7 @@
         android:layout_alignParentStart="true"
         android:layout_below="@id/upOrOpenBtn"
         android:background="@android:color/darker_gray"
-        android:text="@string/read_upOrOpen_downOrClose_attribute_btn_text"
+        android:text="@string/read_attribute_type_btn_text"
         android:textSize="16sp"/>
 
     <SeekBar
