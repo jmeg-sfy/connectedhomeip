@@ -43,44 +43,50 @@
         android:id="@+id/upOrOpenBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:layout_margin="16dp"
-        android:layout_gravity="center"
-        android:layout_alignParentStart="true"
         android:layout_below="@id/updateAddressBtn"
-        android:background="@android:color/darker_gray"
+        android:layout_alignParentStart="true"
+        android:layout_gravity="center"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginBottom="16dp"
+        android:background="@android:color/holo_blue_bright"
+        android:padding="16dp"
         android:text="@string/send_command_upOrOpen_btn_text"
-        android:textSize="16sp"/>
+        android:textSize="12sp" />
 
     <TextView
         android:id="@+id/stopMotionBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:layout_marginStart="48dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="48dp"
-        android:layout_gravity="center"
         android:layout_below="@id/updateAddressBtn"
-        android:layout_toEndOf="@id/upOrOpenBtn"
+        android:layout_gravity="center"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="5dp"
         android:layout_toStartOf="@+id/downOrCloseBtn"
-        android:background="@android:color/darker_gray"
+        android:layout_toEndOf="@id/upOrOpenBtn"
+        android:background="@android:color/holo_blue_bright"
+        android:padding="16dp"
         android:text="@string/send_command_stopMotion_btn_text"
-        android:textSize="16sp"/>
+        android:textSize="12sp" />
 
     <TextView
         android:id="@id/downOrCloseBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:layout_margin="16dp"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:layout_alignParentEnd="true"
         android:layout_below="@id/updateAddressBtn"
-        android:background="@android:color/darker_gray"
+        android:layout_alignParentEnd="true"
+        android:layout_gravity="center"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginBottom="16dp"
+        android:background="@android:color/holo_blue_bright"
+        android:gravity="center"
+        android:padding="16dp"
         android:text="@string/send_command_downOrClose_btn_text"
-        android:textSize="16sp"/>
+        android:textSize="12sp" />
 
 
     <TextView
