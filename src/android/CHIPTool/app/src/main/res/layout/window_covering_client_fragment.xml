@@ -1,126 +1,552 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
-    <EditText
-        android:id="@+id/fabricIdEd"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:inputType="text"
-        android:textSize="20sp"
-        android:hint="@string/enter_fabric_id_hint_text"/>
-
-    <EditText
-        android:id="@+id/deviceIdEd"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_toEndOf="@id/fabricIdEd"
-        android:inputType="text"
-        android:textSize="20sp"
-        android:hint="@string/enter_device_id_hint_text"/>
-
-    <TextView
-        android:id="@+id/updateAddressBtn"
+    <TableLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:layout_margin="16dp"
-        android:layout_gravity="center"
-        android:layout_alignParentStart="true"
-        android:layout_below="@id/deviceIdEd"
-        android:background="@android:color/darker_gray"
-        android:text="@string/update_device_address_btn_text"
-        android:textSize="16sp"/>
+        android:layout_height="match_parent"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp">
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+            <TextView
+                android:layout_marginTop="4dp"
+                android:layout_weight=".3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:background="#c5c5c5"
+                android:text="Matter Information: Cluster Window Covering"
+                android:textSize="14sp" />
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
 
-    <TextView
-        android:id="@+id/upOrOpenBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/updateAddressBtn"
-        android:layout_alignParentStart="true"
-        android:layout_gravity="center"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="5dp"
-        android:layout_marginBottom="16dp"
-        android:background="@android:color/holo_blue_bright"
-        android:padding="16dp"
-        android:text="@string/send_command_upOrOpen_btn_text"
-        android:textSize="12sp" />
+            <EditText
+                android:id="@+id/fabricIdEd"
+                android:layout_weight=".5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_margin="16dp"
+                android:inputType="text"
+                android:textSize="18sp"
+                android:hint="@string/enter_fabric_id_hint_text"/>
 
-    <TextView
-        android:id="@+id/stopMotionBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/updateAddressBtn"
-        android:layout_gravity="center"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="5dp"
-        android:layout_toStartOf="@+id/downOrCloseBtn"
-        android:layout_toEndOf="@id/upOrOpenBtn"
-        android:background="@android:color/holo_blue_bright"
-        android:padding="16dp"
-        android:text="@string/send_command_stopMotion_btn_text"
-        android:textSize="12sp" />
+            <EditText
+                android:id="@+id/deviceIdEd"
+                android:layout_weight=".5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_margin="16dp"
+                android:inputType="text"
+                android:textSize="18sp"
+                android:hint="@string/enter_device_id_hint_text"/>
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+            <TextView
+                android:id="@+id/updateAddressBtn"
+                android:layout_weight=".5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_margin="1dp"
+                android:layout_gravity="center"
+                android:background="@android:color/darker_gray"
+                android:text="@string/update_device_address_btn_text"
+                android:textSize="20sp"/>
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+            <TextView
+                android:layout_marginTop="4dp"
+                android:layout_weight=".3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:background="#c5c5c5"
+                android:text="Product Characteristics"
+                android:textSize="10sp" />
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+            <TextView
+                android:id="@+id/readBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:layout_margin="16dp"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:layout_alignParentStart="true"
+                android:background="@android:color/darker_gray"
+                android:text="@string/read_attribute_type_btn_text"
+                android:textSize="16sp"/>
+            <TextView
+                android:id="@+id/readBtn4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="1dp"
+                android:layout_marginTop="1dp"
+                android:layout_marginEnd="1dp"
+                android:background="@android:color/darker_gray"
+                android:gravity="center"
+                android:padding="16dp"
+                android:text="@string/read_attribute_end_product_type_btn_text"
+                android:textSize="16sp"
+                tools:text="End Product Type" />
+        </TableRow>
 
-    <TextView
-        android:id="@id/downOrCloseBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/updateAddressBtn"
-        android:layout_alignParentEnd="true"
-        android:layout_gravity="center"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="5dp"
-        android:layout_marginBottom="16dp"
-        android:background="@android:color/holo_blue_bright"
-        android:gravity="center"
-        android:padding="16dp"
-        android:text="@string/send_command_downOrClose_btn_text"
-        android:textSize="12sp" />
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+            <TextView
+                android:layout_weight=".25"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="right"
+                android:text="Type: "
+                android:textSize="10sp" />
+            <TextView
+                android:layout_weight=".25"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:text="Roller Blind"
+                android:textSize="10sp" />
+            <TextView
+                android:layout_weight=".25"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="right"
+                android:text="End Product Type: "
+                android:textSize="10sp" />
+            <TextView
+                android:layout_weight=".25"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:text="Sheer Shade"
+                android:textSize="10sp" />
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+            <TextView
+                android:layout_weight=".25"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="right"
+                android:text="Type: "
+                android:textSize="10sp" />
+            <TextView
+                android:layout_weight=".25"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:text="Roller Blind"
+                android:textSize="10sp" />
+            <TextView
+                android:layout_weight=".25"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="right"
+                android:text="End Product Type: "
+                android:textSize="10sp" />
+            <TextView
+                android:layout_weight=".25"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:text="Sheer Shade"
+                android:textSize="10sp" />
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+            <TextView
+                android:layout_marginTop="4dp"
+                android:layout_weight=".3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:background="#c5c5c5"
+                android:text="Product Characteristics"
+                android:textSize="10sp" />
+        </TableRow>
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent" >
+            <!-- first element of the row that is the part of table but it is invisible-->
 
 
-    <TextView
-        android:id="@+id/readBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:layout_margin="16dp"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:layout_alignParentStart="true"
-        android:layout_below="@id/upOrOpenBtn"
-        android:background="@android:color/darker_gray"
-        android:text="@string/read_attribute_type_btn_text"
-        android:textSize="16sp"/>
+            <!-- second element of the row that is shown in the screenshot-->
+            <TextView
+                android:layout_weight=".2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="20%"
+                android:gravity="center"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:background="#c5c5c5" />
 
-    <SeekBar
-        android:id="@+id/levelBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/readBtn"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:max="254"
-        android:padding="16dp" />
+            <TextView
+                android:layout_weight=".3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="30%"
+                android:layout_marginRight="4dp"
+                android:background="#c5c5c5" />
 
-    <TextView
-        android:id="@+id/commandStatusTv"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:layout_below="@id/levelBar"
-        android:singleLine="false"
-        android:minLines="4"
-        android:textSize="20sp"/>
+            <TextView
+                android:layout_weight=".5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="50%"
+                android:layout_marginRight="4dp"
+                android:background="#c5c5c5" />
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+            <TextView
+                android:id="@+id/upOrOpenBtn"
+                android:layout_weight=".3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:background="@android:color/holo_blue_bright"
+                android:padding="12dp"
+                android:text="@string/send_command_upOrOpen_btn_text"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/stopMotionBtn"
+                android:layout_weight=".3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:background="@android:color/holo_blue_bright"
+                android:padding="12dp"
+                android:text="@string/send_command_stopMotion_btn_text"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/downOrCloseBtn"
+                android:layout_weight=".3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:background="@android:color/holo_blue_bright"
+                android:padding="12dp"
+                android:text="@string/send_command_downOrClose_btn_text"
+                android:textSize="12sp" />
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+            <TextView
+                android:layout_marginTop="4dp"
+                android:layout_weight=".3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:background="#c5c5c5"
+                android:text="LIFT"
+                android:textSize="10sp" />
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+            <TextView
+                android:layout_weight=".2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:text="Target Position:"
+                android:textSize="10sp" />
+            <TextView
+                android:layout_weight=".1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="right"
+                android:text="50"
+                android:textSize="10sp" />
+            <TextView
+                android:layout_weight=".3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:text="%"
+                android:textSize="10sp" />
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+            <SeekBar
+                android:id="@+id/lvlPosTargetLift"
+                style="@style/Widget.AppCompat.SeekBar"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:max="10000"
+                android:padding="8dp"
+                android:progress="5000"
+                android:progressBackgroundTint="#1C2000"
+                android:progressTint="#005722"
+                android:thumbTint="#FFE00B"
+                android:verticalScrollbarPosition="defaultPosition" />
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+            <TextView
+                android:layout_weight=".2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:text="Current Position:"
+                android:textSize="10sp" />
+            <TextView
+                android:layout_weight=".1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="right"
+                android:text="50"
+                android:textSize="10sp" />
+            <TextView
+                android:layout_weight=".3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:text="%"
+                android:textSize="10sp" />
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+            <SeekBar
+                android:id="@+id/lvlPosCurrentLift"
+                style="@style/Widget.AppCompat.SeekBar"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:max="10000"
+                android:padding="4dp"
+                android:progress="5000"
+                android:progressBackgroundTint="#1C2000"
+                android:progressTint="#005722"
+                android:thumbTint="#FFE00B"
+                android:verticalScrollbarPosition="defaultPosition" />
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+            <TextView
+                android:layout_marginTop="4dp"
+                android:layout_weight=".3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:background="#c5c5c5"
+                android:text="TILT"
+                android:textSize="10sp" />
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+            <TextView
+                android:layout_weight=".2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:text="Target Position:"
+                android:textSize="10sp" />
+            <TextView
+                android:layout_weight=".1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="right"
+                android:text="50"
+                android:textSize="10sp" />
+            <TextView
+                android:layout_weight=".3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:text="%"
+                android:textSize="10sp" />
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+            <SeekBar
+                android:id="@+id/lvlPosTargetTilt"
+                style="@style/Widget.AppCompat.SeekBar"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:max="10000"
+                android:padding="8dp"
+                android:progress="5000"
+                android:progressBackgroundTint="#1C2000"
+                android:progressTint="#005722"
+                android:thumbTint="#FFE00B"
+                android:verticalScrollbarPosition="defaultPosition" />
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+            <TextView
+                android:layout_weight=".2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:text="Current Position:"
+                android:textSize="10sp" />
+            <TextView
+                android:layout_weight=".1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="right"
+                android:text="50"
+                android:textSize="10sp" />
+            <TextView
+                android:layout_weight=".3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:text="%"
+                android:textSize="10sp" />
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+            <SeekBar
+                android:id="@+id/lvlPosCurrentTilt"
+                style="@style/Widget.AppCompat.SeekBar"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:max="10000"
+                android:padding="4dp"
+                android:progress="5000"
+                android:progressBackgroundTint="#1C2000"
+                android:progressTint="#005722"
+                android:thumbTint="#FFE00B"
+                android:verticalScrollbarPosition="defaultPosition" />
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:id="@+id/commandStatusTv"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#FFEB3B"
+                android:minLines="4"
+                android:padding="16dp"
+                android:singleLine="false"
+                android:textSize="20sp" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <SeekBar
+                android:id="@+id/levelBar5"
+                android:layout_weight=".7"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:gravity="center"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:layout_below="@id/readBtn"
+                android:layout_marginTop="2dp"
+                android:max="254"
+                android:padding="16dp" />
+                />
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        <SeekBar
+            android:id="@+id/levelBar"
+            android:layout_width="14dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_marginTop="30dp"
+            android:gravity="center"
+            android:max="254"
+            android:padding="10dp" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <SeekBar
+                android:id="@+id/levelBar4"
+                style="@style/Widget.AppCompat.SeekBar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="3dp"
+                android:backgroundTint="#E91E63"
+                android:foregroundTint="#CDDC39"
+                android:foregroundTintMode="add"
+                android:gravity="center"
+                android:indeterminateTint="#4CAF50"
+                android:max="10000"
+                android:padding="16dp"
+                android:rotation="270"
+                android:progress="5000"
+                android:progressBackgroundTint="#9C27B0"
+                android:progressTint="#FF5722"
+                android:secondaryProgressTint="#3F51B5"
+                android:thumbTint="#FFEB3B"
+                android:tickMarkTint="#009688"
+                android:verticalScrollbarPosition="defaultPosition" />
+        </TableRow>
+    </TableLayout>
 
 </RelativeLayout>

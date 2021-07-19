@@ -52,6 +52,9 @@
     <string name="send_command_off_btn_text">Off</string>
     <string name="send_command_on_btn_text">On</string>
     <string name="send_command_toggle_btn_text">Toggle</string>
+    <string name="read_attribute_type_btn_text">Type</string>
+    <string name="read_attribute_end_product_type_btn_text">End Product Type</string>
+    <string name="read_on_off_attribute_btn_text">Read On/Off</string>
     <string name="read_on_off_attribute_btn_text">Read</string>
     <string name="show_subscribe_dialog_btn_text">Subscribe</string>
     <string name="send_command_type_label_text">%s/%d command sent!</string>
