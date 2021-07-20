@@ -514,8 +514,12 @@
             android:layout_height="match_parent">
             <TextView
                 android:id="@+id/commandStatusTv"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
                 android:background="#FFEB3B"
                 android:minLines="4"
                 android:padding="16dp"

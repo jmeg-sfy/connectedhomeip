@@ -213,29 +213,49 @@ class WindowCoveringClientFragment : Fragment() {
 
   private fun sendUpOrOpenCommandClick() {
     LAST_CMD = "UpOrOpen"
-    getWindowCoveringClusterForDevice().upOrOpen(WindowCoveringClientFragment.ClusterCallback)
+    try {
+      getWindowCoveringClusterForDevice().upOrOpen(WindowCoveringClientFragment.ClusterCallback)
+    } catch (ex: Exception) {
+      showMessageCb("$LAST_CMD device com issue: $ex")
+    }
   }
 
   private fun sendDownOrCloseCommandClick() {
     LAST_CMD = "DownOrClose"
-    getWindowCoveringClusterForDevice().downOrClose(WindowCoveringClientFragment.ClusterCallback)
+    try {
+      getWindowCoveringClusterForDevice().downOrClose(WindowCoveringClientFragment.ClusterCallback)
+    } catch (ex: Exception) {
+      showMessageCb("$LAST_CMD device com issue: $ex")
+    }
   }
 
   private fun sendStopMotionCommandClick() {
-    LAST_CMD = "GoTo Tilt"
-    getWindowCoveringClusterForDevice().stopMotion(WindowCoveringClientFragment.ClusterCallback)
+    LAST_CMD = "StopMotion"
+    try {
+      getWindowCoveringClusterForDevice().stopMotion(WindowCoveringClientFragment.ClusterCallback)
+    } catch (ex: Exception) {
+      showMessageCb("$LAST_CMD device com issue: $ex")
+    }
   }
 
   private fun goToLiftPercentage(percent100ths : Int) {
     LAST_CMD = "GoToLift"
-    //getWindowCoveringClusterForDevice().goToLiftPercentage(WindowCoveringClientFragment.ClusterCallback, percent100ths / 100, percent100ths)
-    Toast.makeText(requireContext(),"$LAST_CMD: " + getPercent100thsText(percent100ths) + " %", Toast.LENGTH_SHORT).show()
+    try {
+      getWindowCoveringClusterForDevice().goToLiftPercentage(WindowCoveringClientFragment.ClusterCallback, percent100ths / 100, percent100ths)
+      Toast.makeText(requireContext(),"$LAST_CMD: " + getPercent100thsText(percent100ths) + " %", Toast.LENGTH_SHORT).show()
+    } catch (ex: Exception) {
+      showMessageCb("$LAST_CMD device com issue: $ex")
+    }
   }
 
   private fun goToTiltPercentage(percent100ths : Int) {
     LAST_CMD = "GoToTilt"
-    //getWindowCoveringClusterForDevice().goToTiltPercentage(WindowCoveringClientFragment.ClusterCallback, percent100ths / 100, percent100ths)
-    Toast.makeText(requireContext(),"$LAST_CMD: " + getPercent100thsText(percent100ths) + " %", Toast.LENGTH_SHORT).show()
+    try {
+      getWindowCoveringClusterForDevice().goToTiltPercentage(WindowCoveringClientFragment.ClusterCallback, percent100ths / 100, percent100ths)
+      Toast.makeText(requireContext(),"$LAST_CMD: " + getPercent100thsText(percent100ths) + " %", Toast.LENGTH_SHORT).show()
+    } catch (ex: Exception) {
+      showMessageCb("$LAST_CMD device com issue: $ex")
+    }
   }
 
   private fun sendReadOnOffClick() {
