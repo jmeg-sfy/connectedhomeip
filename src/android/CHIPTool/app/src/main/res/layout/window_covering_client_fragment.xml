@@ -150,28 +150,60 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:gravity="right"
-                android:text="Type: "
+                android:text="Config Status: "
                 android:textSize="10sp" />
             <TextView
                 android:layout_weight=".25"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:gravity="left"
-                android:text="Roller Blind"
+                android:text="0x00"
                 android:textSize="10sp" />
             <TextView
                 android:layout_weight=".25"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:gravity="right"
-                android:text="End Product Type: "
+                android:text="Mode: "
                 android:textSize="10sp" />
             <TextView
                 android:layout_weight=".25"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:gravity="left"
-                android:text="Sheer Shade"
+                android:text="0x00"
+                android:textSize="10sp" />
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+            <TextView
+                android:layout_weight=".25"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="right"
+                android:text="Safety Status: "
+                android:textSize="10sp" />
+            <TextView
+                android:layout_weight=".25"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:text="0x00"
+                android:textSize="10sp" />
+            <TextView
+                android:layout_weight=".25"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="right"
+                android:text="Operational Status: "
+                android:textSize="10sp" />
+            <TextView
+                android:layout_weight=".25"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:text="0x00"
                 android:textSize="10sp" />
         </TableRow>
         <TableRow
@@ -293,6 +325,7 @@
                 android:text="Target Position:"
                 android:textSize="10sp" />
             <TextView
+                android:id="@+id/txtPosTargetLift"
                 android:layout_weight=".1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -396,6 +429,7 @@
                 android:text="Target Position:"
                 android:textSize="10sp" />
             <TextView
+                android:id="@+id/txtPosTargetTilt"
                 android:layout_weight=".1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

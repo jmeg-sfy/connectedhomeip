@@ -19,6 +19,8 @@ import com.google.chip.chiptool.ChipClient
 import com.google.chip.chiptool.GenericChipDeviceListener
 import com.google.chip.chiptool.R
 import com.google.chip.chiptool.util.DeviceIdUtil
+import kotlinx.android.synthetic.main.on_off_client_fragment.*
+import kotlinx.android.synthetic.main.window_covering_client_fragment.*
 import kotlinx.android.synthetic.main.window_covering_client_fragment.commandStatusTv
 import kotlinx.android.synthetic.main.window_covering_client_fragment.deviceIdEd
 import kotlinx.android.synthetic.main.window_covering_client_fragment.fabricIdEd
@@ -26,14 +28,33 @@ import kotlinx.android.synthetic.main.window_covering_client_fragment.levelBar
 import kotlinx.android.synthetic.main.window_covering_client_fragment.view.*
 
 
-
-
-
-
 class WindowCoveringClientFragment : Fragment() {
-  private val TAG = "WC_Frag"
-  private val deviceController: ChipDeviceController
-    get() = ChipClient.getDeviceController()
+  //private val TAG = "WC_Frag"
+  //private val LAST_CMD = "-"
+ // private val deviceController: ChipDeviceController get() = ChipClient.getDeviceController()
+
+  private fun getPercent100thsText(percent : Int): String {
+    val acc1 = percent / 100;
+    val acc2 = percent  - acc1 * 100
+    return "$acc1.$acc2"
+  }
+
+  private fun showMessage(msg: String) {
+    requireActivity().runOnUiThread {
+      commandStatusTv.text = msg
+    }
+  }
+
+  object ClusterCallback : ChipClusters.DefaultClusterCallback {
+    override fun onSuccess() {
+      showMessageCb("$LAST_CMD command failure")
+      Log.d(TAG, "$LAST_CMD command failure")
+    }
+    override fun onError(ex: Exception) {
+      showMessageCb("$LAST_CMD command failure $ex")
+      Log.e(TAG, "$LAST_CMD command failure", ex)
+    }
+  }
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -41,8 +62,9 @@ class WindowCoveringClientFragment : Fragment() {
     savedInstanceState: Bundle?
   ): View {
     Log.i(TAG, "onCreate View")
+    showMessageCb = ::showMessage
     return inflater.inflate(R.layout.window_covering_client_fragment, container, false).apply {
-      deviceController.setCompletionListener(ChipControllerCallback())
+      //deviceController.setCompletionListener(ChipControllerCallback())
 
      updateAddressBtn.setOnClickListener { updateAddressClick() }
        downOrCloseBtn.setOnClickListener { sendDownOrCloseCommandClick() }
@@ -50,6 +72,34 @@ class WindowCoveringClientFragment : Fragment() {
         stopMotionBtn.setOnClickListener { sendStopMotionCommandClick() }
               readBtn.setOnClickListener { sendReadOnOffClick() }
 
+      lvlPosTargetLift.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
+          txtPosTargetLift.text = getPercent100thsText(lvlPosTargetLift.progress)
+        }
+        override fun onStartTrackingTouch(seekBar: SeekBar?) { }
+        override fun onStopTrackingTouch(seekBar: SeekBar?) {
+          goToLiftPercentage(lvlPosTargetLift.progress)
+        }
+      })
+      lvlPosTargetTilt.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
+          txtPosTargetTilt.text = getPercent100thsText(lvlPosTargetTilt.progress)
+        }
+        override fun onStartTrackingTouch(seekBar: SeekBar?) { }
+        override fun onStopTrackingTouch(seekBar: SeekBar?) {
+          goToTiltPercentage(lvlPosTargetTilt.progress)
+        }
+      })
+      lvlPosCurrentLift.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) { }
+        override fun onStartTrackingTouch(seekBar: SeekBar?) { }
+        override fun onStopTrackingTouch(seekBar: SeekBar?) { }
+      })
+      lvlPosCurrentTilt.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) { }
+        override fun onStartTrackingTouch(seekBar: SeekBar?) { }
+        override fun onStopTrackingTouch(seekBar: SeekBar?) { }
+      })
       levelBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
         override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
 
@@ -102,6 +152,10 @@ class WindowCoveringClientFragment : Fragment() {
     }
   }
 
+  private fun getWindowCoveringClusterForDevice(): WindowCoveringCluster {
+    return WindowCoveringCluster(ChipClient.getDeviceController().getDevicePointer(deviceIdEd.text.toString().toLong()), 1)
+  }
+
   private fun updateAddressClick() {
     val serviceInfo = NsdServiceInfo().apply {
       serviceName = "%016X-%016X".format(
@@ -127,7 +181,7 @@ class WindowCoveringClientFragment : Fragment() {
           return
 
         try {
-          deviceController.updateAddress(deviceIdEd.text.toString().toLong(), hostAddress, port)
+         // deviceController.updateAddress(deviceIdEd.text.toString().toLong(), hostAddress, port)
         } catch (e: ChipDeviceControllerException) {
           showMessage(e.toString())
         }
@@ -157,6 +211,33 @@ class WindowCoveringClientFragment : Fragment() {
     }, levelBar.progress, 0, 0, 0)
   }
 
+  private fun sendUpOrOpenCommandClick() {
+    LAST_CMD = "UpOrOpen"
+    getWindowCoveringClusterForDevice().upOrOpen(WindowCoveringClientFragment.ClusterCallback)
+  }
+
+  private fun sendDownOrCloseCommandClick() {
+    LAST_CMD = "DownOrClose"
+    getWindowCoveringClusterForDevice().downOrClose(WindowCoveringClientFragment.ClusterCallback)
+  }
+
+  private fun sendStopMotionCommandClick() {
+    LAST_CMD = "GoTo Tilt"
+    getWindowCoveringClusterForDevice().stopMotion(WindowCoveringClientFragment.ClusterCallback)
+  }
+
+  private fun goToLiftPercentage(percent100ths : Int) {
+    LAST_CMD = "GoToLift"
+    //getWindowCoveringClusterForDevice().goToLiftPercentage(WindowCoveringClientFragment.ClusterCallback, percent100ths / 100, percent100ths)
+    Toast.makeText(requireContext(),"$LAST_CMD: " + getPercent100thsText(percent100ths) + " %", Toast.LENGTH_SHORT).show()
+  }
+
+  private fun goToTiltPercentage(percent100ths : Int) {
+    LAST_CMD = "GoToTilt"
+    //getWindowCoveringClusterForDevice().goToTiltPercentage(WindowCoveringClientFragment.ClusterCallback, percent100ths / 100, percent100ths)
+    Toast.makeText(requireContext(),"$LAST_CMD: " + getPercent100thsText(percent100ths) + " %", Toast.LENGTH_SHORT).show()
+  }
+
   private fun sendReadOnOffClick() {
     getWindowCoveringClusterForDevice().readTypeAttribute(object : ChipClusters.IntegerAttributeCallback {
       override fun onSuccess(type: Int) {
@@ -170,58 +251,11 @@ class WindowCoveringClientFragment : Fragment() {
     })
   }
 
-  private fun sendUpOrOpenCommandClick() {
-    getWindowCoveringClusterForDevice().upOrOpen(object : ChipClusters.DefaultClusterCallback {
-      override fun onSuccess() {
-        showMessage("UpOrOpen command success")
-      }
-
-      override fun onError(ex: Exception) {
-        showMessage("UpOrOpen command failure $ex")
-        Log.e(TAG, "UpOrOpen command failure", ex)
-      }
-
-    })
-  }
-
-  private fun sendDownOrCloseCommandClick() {
-    getWindowCoveringClusterForDevice().downOrClose(object : ChipClusters.DefaultClusterCallback {
-      override fun onSuccess() {
-        showMessage("DownOrClose command success")
-      }
-
-      override fun onError(ex: Exception) {
-        showMessage("DownOrClose command failure $ex")
-        Log.e(TAG, "DownOrClose command failure", ex)
-      }
-    })
-  }
-
-  private fun sendStopMotionCommandClick() {
-    getWindowCoveringClusterForDevice().stopMotion(object : ChipClusters.DefaultClusterCallback {
-      override fun onSuccess() {
-        showMessage("StopMotion command success")
-      }
-
-      override fun onError(ex: Exception) {
-        showMessage("StopMotion command failure $ex")
-        Log.e(TAG, "StopMotion command failure", ex)
-      }
-    })
-  }
-
-  private fun getWindowCoveringClusterForDevice(): WindowCoveringCluster {
-    return WindowCoveringCluster(ChipClient.getDeviceController().getDevicePointer(deviceIdEd.text.toString().toLong()), 1)
-  }
-
-  private fun showMessage(msg: String) {
-    requireActivity().runOnUiThread {
-      commandStatusTv.text = msg
-    }
-  }
-
   companion object {
+    var showMessageCb: (msg: String) -> Unit = { _ ->}
+    private var LAST_CMD = "-"
     private const val TAG = "WindowCoveringClientFragment"
     fun newInstance(): WindowCoveringClientFragment = WindowCoveringClientFragment()
   }
 }
+
