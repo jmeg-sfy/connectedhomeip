@@ -402,7 +402,7 @@
                 android:progress="5000"
                 android:progressBackgroundTint="#1C2000"
                 android:progressTint="#005722"
-                android:thumbTint="#FFE00B"
+                android:thumbTint="#FF0000"
                 android:verticalScrollbarPosition="defaultPosition" />
         </TableRow>
         <TableRow
@@ -506,7 +506,7 @@
                 android:progress="5000"
                 android:progressBackgroundTint="#1C2000"
                 android:progressTint="#005722"
-                android:thumbTint="#FFE00B"
+                android:thumbTint="#FF0000"
                 android:verticalScrollbarPosition="defaultPosition" />
         </TableRow>
         <TableRow

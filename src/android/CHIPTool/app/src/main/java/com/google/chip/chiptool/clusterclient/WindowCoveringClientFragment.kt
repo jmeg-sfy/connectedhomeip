@@ -95,6 +95,7 @@ class WindowCoveringClientFragment : Fragment() {
         override fun onStartTrackingTouch(seekBar: SeekBar?) { }
         override fun onStopTrackingTouch(seekBar: SeekBar?) { }
       })
+      lvlPosCurrentTilt.isEnabled = false
       lvlPosCurrentTilt.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
         override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) { }
         override fun onStartTrackingTouch(seekBar: SeekBar?) { }
