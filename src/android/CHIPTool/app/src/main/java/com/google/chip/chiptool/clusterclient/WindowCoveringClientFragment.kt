@@ -31,7 +31,7 @@ import kotlinx.android.synthetic.main.window_covering_client_fragment.view.*
 class WindowCoveringClientFragment : Fragment() {
   //private val TAG = "WC_Frag"
   //private val LAST_CMD = "-"
- // private val deviceController: ChipDeviceController get() = ChipClient.getDeviceController()
+  private val deviceController: ChipDeviceController get() = ChipClient.getDeviceController()
 
   private fun getPercent100thsText(percent : Int): String {
     val acc1 = percent / 100;
@@ -64,7 +64,7 @@ class WindowCoveringClientFragment : Fragment() {
     Log.i(TAG, "onCreate View")
     showMessageCb = ::showMessage
     return inflater.inflate(R.layout.window_covering_client_fragment, container, false).apply {
-      //deviceController.setCompletionListener(ChipControllerCallback())
+      deviceController.setCompletionListener(ChipControllerCallback())
 
      updateAddressBtn.setOnClickListener { updateAddressClick() }
        downOrCloseBtn.setOnClickListener { sendDownOrCloseCommandClick() }
@@ -181,7 +181,7 @@ class WindowCoveringClientFragment : Fragment() {
           return
 
         try {
-         // deviceController.updateAddress(deviceIdEd.text.toString().toLong(), hostAddress, port)
+          deviceController.updateAddress(deviceIdEd.text.toString().toLong(), hostAddress, port)
         } catch (e: ChipDeviceControllerException) {
           showMessage(e.toString())
         }
