@@ -24,6 +24,16 @@
 class WindowCover
 {
 public:
+
+    #if BYTE_ORDER==LITTLE_ENDIAN
+    #elif BYTE_ORDER==BIG_ENDIAN
+        #error "machine is big endian"
+    #elif BYTE_ORDER==PDP_ENDIAN
+        #error "jeez, machine is PDP!"
+    #else
+        #error "What kind of hardware is this?!"
+    #endif
+
     enum class Feature
     {
         Lift          = 0x01,
@@ -33,11 +43,19 @@ public:
 
     struct Mode
     {
+    #if BYTE_ORDER==LITTLE_ENDIAN
         uint8_t motorDirReversed : 1; // bit 0
         uint8_t calibrationMode : 1;  // bit 1
         uint8_t maintenanceMode : 1;  // bit 2
         uint8_t ledDisplay : 1;       // bit 3
+    #else /* BYTE_ORDER==BIG_ENDIAN */
+        uint8_t ledDisplay : 1;       // bit 3
+        uint8_t maintenanceMode : 1;  // bit 2
+        uint8_t calibrationMode : 1;  // bit 1
+        uint8_t motorDirReversed : 1; // bit 0
+    #endif
     };
+
     static_assert(sizeof(Mode) == sizeof(uint8_t), "Mode Size is not correct");
 
     struct ConfigStatus
