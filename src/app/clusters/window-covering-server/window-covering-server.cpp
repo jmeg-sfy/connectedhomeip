@@ -510,7 +510,7 @@ bool emberAfWindowCoveringClusterGoToLiftPercentageCallback(chip::app::CommandHa
     emberAfWindowCoveringClusterPrint("GoToLiftPercentage Percentage command received");
     if (hasLift && isPositionAware)
     {
-        cover.Lift().TargetSet(percent > 100 ? 10000 : percent * 100);
+        cover.Lift().TargetSet(static_cast<uint16_t> (percent * WC_PERCENTAGE_COEF));
     }
     else
     {
@@ -584,7 +584,7 @@ bool emberAfWindowCoveringClusterGoToTiltPercentageCallback(chip::app::CommandHa
     emberAfWindowCoveringClusterPrint("GoToTiltPercentage command received");
     if (hasTilt && isPositionAware)
     {
-        cover.Tilt().TargetSet(percent > 100 ? 10000 : percent * 100);
+        cover.Tilt().TargetSet(static_cast<uint16_t> (percent * WC_PERCENTAGE_COEF));
     }
     else
     {
