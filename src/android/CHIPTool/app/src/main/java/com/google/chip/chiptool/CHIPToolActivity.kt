@@ -39,6 +39,7 @@ import com.google.chip.chiptool.clusterclient.OpCredClientFragment
 import com.google.chip.chiptool.clusterclient.BasicClientFragment
 import com.google.chip.chiptool.clusterclient.OnOffClientFragment
 import com.google.chip.chiptool.clusterclient.SensorClientFragment
+import com.google.chip.chiptool.clusterclient.WindowCoveringClientFragment
 import com.google.chip.chiptool.provisioning.AddressCommissioningFragment
 import com.google.chip.chiptool.provisioning.DeviceProvisioningFragment
 import com.google.chip.chiptool.provisioning.EnterNetworkFragment

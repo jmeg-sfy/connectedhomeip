@@ -75,7 +75,7 @@ class WindowCoveringClientFragment : Fragment() {
         }
         override fun onStartTrackingTouch(seekBar: SeekBar?) { }
         override fun onStopTrackingTouch(seekBar: SeekBar?) {
-          goToLiftPercentage(lvlPosTargetLift.progress)
+          scope.launch { goToLiftPercentage(lvlPosTargetLift.progress) }
         }
       })
       lvlPosTargetTilt.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -84,7 +84,7 @@ class WindowCoveringClientFragment : Fragment() {
         }
         override fun onStartTrackingTouch(seekBar: SeekBar?) { }
         override fun onStopTrackingTouch(seekBar: SeekBar?) {
-          goToTiltPercentage(lvlPosTargetTilt.progress)
+          scope.launch { goToTiltPercentage(lvlPosTargetTilt.progress) }
         }
       })
       lvlPosCurrentLift.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -248,7 +248,7 @@ class WindowCoveringClientFragment : Fragment() {
     })
   }
 
-  private fun getWindowCoveringClusterForDevice(): WindowCoveringCluster {
+  private suspend fun getWindowCoveringClusterForDevice(): WindowCoveringCluster {
     return WindowCoveringCluster(
       ChipClient.getConnectedDevicePointer(deviceIdEd.text.toString().toLong()), 1
     )
