@@ -35,6 +35,8 @@ class WindowCoveringClientFragment : Fragment() {
   //private val LAST_CMD = "-"
   private val deviceController: ChipDeviceController get() = ChipClient.getDeviceController()
 
+  private val scope = CoroutineScope(Dispatchers.Main + Job())
+
   private fun getPercent100thsText(percent : Int): String {
     val acc1 = percent / 100;
     val acc2 = percent  - acc1 * 100
@@ -63,10 +65,10 @@ class WindowCoveringClientFragment : Fragment() {
       deviceController.setCompletionListener(ChipControllerCallback())
 
      updateAddressBtn.setOnClickListener { updateAddressClick() }
-       downOrCloseBtn.setOnClickListener { sendDownOrCloseCommandClick() }
-          upOrOpenBtn.setOnClickListener { sendUpOrOpenCommandClick() }
-        stopMotionBtn.setOnClickListener { sendStopMotionCommandClick() }
-              readBtn.setOnClickListener { sendReadOnOffClick() }
+       downOrCloseBtn.setOnClickListener { scope.launch { sendDownOrCloseCommandClick() }}
+          upOrOpenBtn.setOnClickListener { scope.launch { sendUpOrOpenCommandClick()    }}
+        stopMotionBtn.setOnClickListener { scope.launch { sendStopMotionCommandClick()  }}
+              readBtn.setOnClickListener { scope.launch { sendReadOnOffClick()          }}
 
       lvlPosTargetLift.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
         override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
@@ -111,7 +113,7 @@ class WindowCoveringClientFragment : Fragment() {
             "Level is: " + levelBar.progress,
             Toast.LENGTH_SHORT
           ).show()
-          sendLevelCommandClick()
+          scope.launch { sendLevelCommandClick() }
         }
       })
     }
@@ -166,7 +168,7 @@ class WindowCoveringClientFragment : Fragment() {
     }
   }
 
-  private fun sendLevelCommandClick() {
+  private suspend fun sendLevelCommandClick() {
     val cluster = ChipClusters.LevelControlCluster(
       ChipClient.getDeviceController()
         .getDevicePointer(deviceIdEd.text.toString().toLong()), 1
@@ -184,7 +186,7 @@ class WindowCoveringClientFragment : Fragment() {
     }, levelBar.progress, 0, 0, 0)
   }
 
-  private fun sendUpOrOpenCommandClick() {
+  private suspend fun sendUpOrOpenCommandClick() {
     LAST_CMD = "UpOrOpen"
     try {
       getWindowCoveringClusterForDevice().upOrOpen(WindowCoveringClientFragment.ClusterCallback)
@@ -193,7 +195,7 @@ class WindowCoveringClientFragment : Fragment() {
     }
   }
 
-  private fun sendDownOrCloseCommandClick() {
+  private suspend fun sendDownOrCloseCommandClick() {
     LAST_CMD = "DownOrClose"
     try {
       getWindowCoveringClusterForDevice().downOrClose(WindowCoveringClientFragment.ClusterCallback)
@@ -202,7 +204,7 @@ class WindowCoveringClientFragment : Fragment() {
     }
   }
 
-  private fun sendStopMotionCommandClick() {
+  private suspend fun sendStopMotionCommandClick() {
     LAST_CMD = "StopMotion"
     try {
       getWindowCoveringClusterForDevice().stopMotion(WindowCoveringClientFragment.ClusterCallback)
@@ -211,7 +213,7 @@ class WindowCoveringClientFragment : Fragment() {
     }
   }
 
-  private fun goToLiftPercentage(percent100ths : Int) {
+  private suspend fun goToLiftPercentage(percent100ths : Int) {
     LAST_CMD = "GoToLift"
     try {
       getWindowCoveringClusterForDevice().goToLiftPercentage(WindowCoveringClientFragment.ClusterCallback, percent100ths / 100, percent100ths)
@@ -221,7 +223,7 @@ class WindowCoveringClientFragment : Fragment() {
     }
   }
 
-  private fun goToTiltPercentage(percent100ths : Int) {
+  private suspend fun goToTiltPercentage(percent100ths : Int) {
     LAST_CMD = "GoToTilt"
     try {
       getWindowCoveringClusterForDevice().goToTiltPercentage(WindowCoveringClientFragment.ClusterCallback, percent100ths / 100, percent100ths)
@@ -231,7 +233,7 @@ class WindowCoveringClientFragment : Fragment() {
     }
   }
 
-  private fun sendReadOnOffClick() {
+  private suspend fun sendReadOnOffClick() {
     getWindowCoveringClusterForDevice().readTypeAttribute(object : ChipClusters.IntegerAttributeCallback {
       override fun onSuccess(type: Int) {
         Log.v(TAG, "Type attribute value: $type")
