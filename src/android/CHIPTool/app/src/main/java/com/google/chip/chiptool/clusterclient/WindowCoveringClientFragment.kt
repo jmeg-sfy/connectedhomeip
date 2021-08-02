@@ -157,8 +157,8 @@ class WindowCoveringClientFragment : Fragment() {
   private fun updateAddressClick() {
     try{
       deviceController.updateDevice(
-              fabricIdEd.text.toString().toULong().toLong(),
-              deviceIdEd.text.toString().toULong().toLong()
+          fabricIdEd.text.toString().toULong().toLong(),
+          deviceIdEd.text.toString().toULong().toLong()
       )
       showMessage("Address update started")
     } catch (ex: Exception) {
