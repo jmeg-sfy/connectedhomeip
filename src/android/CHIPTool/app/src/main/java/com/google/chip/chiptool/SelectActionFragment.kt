@@ -113,6 +113,8 @@ class SelectActionFragment : Fragment() {
     fun onProvisionThreadCredentialsClicked()
     /** Notifies listener of Light On/Off & Level Cluster button click. */
     fun handleOnOffClicked()
+    /** Notifies listener of send command button click. */
+    fun handleWindowCoveringClicked()
     /** Notifies listener of Sensor Clusters button click. */
     fun handleSensorClicked()
     /** Notifies listener of Multi-admin Clusters button click. */
