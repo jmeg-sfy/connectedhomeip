@@ -133,6 +133,10 @@ class WindowCoveringClientFragment : Fragment() {
   inner class ChipControllerCallback : GenericChipDeviceListener() {
     override fun onConnectDeviceComplete() {}
 
+    override fun onCommissioningComplete(nodeId: Long, errorCode: Int) {
+      Log.d(TAG, "onCommissioningComplete for nodeId $nodeId: $errorCode")
+    }
+
     override fun onSendMessageComplete(message: String?) {
       commandStatusTv.text = requireContext().getString(R.string.echo_status_response, message)
     }
