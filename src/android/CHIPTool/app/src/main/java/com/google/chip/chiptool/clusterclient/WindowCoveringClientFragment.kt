@@ -41,12 +41,6 @@ class WindowCoveringClientFragment : Fragment() {
     return "$acc1.$acc2"
   }
 
-  private fun showMessage(msg: String) {
-    requireActivity().runOnUiThread {
-      commandStatusTv.text = msg
-    }
-  }
-
   object ClusterCallback : ChipClusters.DefaultClusterCallback {
     override fun onSuccess() {
       showMessageCb("$LAST_CMD command failure")
@@ -254,6 +248,12 @@ class WindowCoveringClientFragment : Fragment() {
     return WindowCoveringCluster(
       ChipClient.getConnectedDevicePointer(deviceIdEd.text.toString().toLong()), 1
     )
+  }
+
+  private fun showMessage(msg: String) {
+    requireActivity().runOnUiThread {
+      commandStatusTv.text = msg
+    }
   }
 
   companion object {
