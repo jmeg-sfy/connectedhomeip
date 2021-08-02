@@ -23,6 +23,11 @@ import kotlinx.android.synthetic.main.window_covering_client_fragment.deviceIdEd
 import kotlinx.android.synthetic.main.window_covering_client_fragment.fabricIdEd
 import kotlinx.android.synthetic.main.window_covering_client_fragment.levelBar
 import kotlinx.android.synthetic.main.window_covering_client_fragment.view.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 
 class WindowCoveringClientFragment : Fragment() {
@@ -150,8 +155,9 @@ class WindowCoveringClientFragment : Fragment() {
     }
   }
 
-  private fun getWindowCoveringClusterForDevice(): WindowCoveringCluster {
-    return WindowCoveringCluster(ChipClient.getDeviceController().getDevicePointer(deviceIdEd.text.toString().toLong()), 1)
+  override fun onStop() {
+    super.onStop()
+    scope.cancel()
   }
 
   private fun updateAddressClick() {
@@ -242,6 +248,12 @@ class WindowCoveringClientFragment : Fragment() {
         Log.e(TAG, "Error reading Type attribute", ex)
       }
     })
+  }
+
+  private fun getWindowCoveringClusterForDevice(): WindowCoveringCluster {
+    return WindowCoveringCluster(
+      ChipClient.getConnectedDevicePointer(deviceIdEd.text.toString().toLong()), 1
+    )
   }
 
   companion object {
