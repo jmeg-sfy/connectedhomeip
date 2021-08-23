@@ -32,7 +32,7 @@ import kotlinx.coroutines.launch
 
 class WindowCoveringClientFragment : Fragment() {
   private val deviceController: ChipDeviceController
-    get() = ChipClient.getDeviceController()
+    get() = ChipClient.getDeviceController(requireContext())
 
   private val scope = CoroutineScope(Dispatchers.Main + Job())
 
@@ -173,7 +173,7 @@ class WindowCoveringClientFragment : Fragment() {
 
   private suspend fun sendLevelCommandClick() {
     val cluster = ChipClusters.LevelControlCluster(
-      ChipClient.getConnectedDevicePointer(deviceIdEd.text.toString().toLong()), 1
+      ChipClient.getConnectedDevicePointer(requireContext(), deviceIdEd.text.toString().toLong()), 1
     )
     cluster.moveToLevel(object : ChipClusters.DefaultClusterCallback {
       override fun onSuccess() {
@@ -250,7 +250,7 @@ class WindowCoveringClientFragment : Fragment() {
 
   private suspend fun getWindowCoveringClusterForDevice(): WindowCoveringCluster {
     return WindowCoveringCluster(
-      ChipClient.getConnectedDevicePointer(deviceIdEd.text.toString().toLong()), 1
+      ChipClient.getConnectedDevicePointer(requireContext(), deviceIdEd.text.toString().toLong()), 1
     )
   }
 
