@@ -118,12 +118,16 @@ const SafetyStatus SafetyStatusGet(chip::EndpointId endpoint);
 
 uint16_t LiftToPercent100ths(chip::EndpointId endpoint, uint16_t lift);
 uint16_t Percent100thsToLift(chip::EndpointId endpoint, uint16_t percent100ths);
-void LiftPositionSet(chip::EndpointId endpoint, uint16_t percent100ths);
+void LiftCurrentPositionSet(chip::EndpointId endpoint, uint16_t percent100ths);
+EmberAfStatus LiftTargetPositionSet(chip::EndpointId endpoint, uint16_t percent100ths);
+uint16_t LiftCurrentPositionGet(chip::EndpointId endpoint);
 LimitStatus LiftLimitStatusGet(chip::EndpointId endpoint);
 
 uint16_t TiltToPercent100ths(chip::EndpointId endpoint, uint16_t tilt);
 uint16_t Percent100thsToTilt(chip::EndpointId endpoint, uint16_t percent100ths);
-void TiltPositionSet(chip::EndpointId endpoint, uint16_t percent100ths);
+void TiltCurrentPositionSet(chip::EndpointId endpoint, uint16_t percent100ths);
+EmberAfStatus TiltTargetPositionSet(chip::EndpointId endpoint, uint16_t percent100ths);
+uint16_t TiltCurrentPositionGet(chip::EndpointId endpoint);
 LimitStatus TiltLimitStatusGet(chip::EndpointId endpoint);
 
 } // namespace WindowCovering
