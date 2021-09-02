@@ -87,6 +87,17 @@ bool IsLiftClosed(chip::EndpointId endpoint);
 bool IsTiltOpen(chip::EndpointId endpoint);
 bool IsTiltClosed(chip::EndpointId endpoint);
 
+// Declare Position Limit Status
+enum class LimitStatus : uint8_t
+{
+    Unknown       = 0x00, //
+    IsUpOrOpen    = 0x01, //
+    IsDownOrClose = 0x02, //
+    Unsupported   = 0x03, //
+};
+static_assert(sizeof(LimitStatus) == sizeof(uint8_t), "LimitStatus Size is not correct");
+
+
 void TypeSet(chip::EndpointId endpoint, EmberAfWcType type);
 EmberAfWcType TypeGet(chip::EndpointId endpoint);
 
@@ -108,10 +119,12 @@ const SafetyStatus SafetyStatusGet(chip::EndpointId endpoint);
 uint16_t LiftToPercent100ths(chip::EndpointId endpoint, uint16_t lift);
 uint16_t Percent100thsToLift(chip::EndpointId endpoint, uint16_t percent100ths);
 void LiftPositionSet(chip::EndpointId endpoint, uint16_t percent100ths);
+LimitStatus LiftLimitStatusGet(chip::EndpointId endpoint);
 
 uint16_t TiltToPercent100ths(chip::EndpointId endpoint, uint16_t tilt);
 uint16_t Percent100thsToTilt(chip::EndpointId endpoint, uint16_t percent100ths);
 void TiltPositionSet(chip::EndpointId endpoint, uint16_t percent100ths);
+LimitStatus TiltLimitStatusGet(chip::EndpointId endpoint);
 
 } // namespace WindowCovering
 } // namespace Clusters
