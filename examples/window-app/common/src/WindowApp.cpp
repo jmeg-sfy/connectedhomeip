@@ -393,10 +393,10 @@ void WindowApp::Cover::Init(chip::EndpointId endpoint)
 
     Attributes::InstalledOpenLimitLift::Set(endpoint, LIFT_OPEN_LIMIT);
     Attributes::InstalledClosedLimitLift::Set(endpoint, LIFT_CLOSED_LIMIT);
-    LiftPositionSet(endpoint, LiftToPercent100ths(endpoint, LIFT_CLOSED_LIMIT));
+    LiftCurrentPositionSet(endpoint, LiftToPercent100ths(endpoint, LIFT_CLOSED_LIMIT));
     Attributes::InstalledOpenLimitTilt::Set(endpoint, TILT_OPEN_LIMIT);
     Attributes::InstalledClosedLimitTilt::Set(endpoint, TILT_CLOSED_LIMIT);
-    TiltPositionSet(endpoint, TiltToPercent100ths(endpoint, TILT_CLOSED_LIMIT));
+    TiltCurrentPositionSet(endpoint, TiltToPercent100ths(endpoint, TILT_CLOSED_LIMIT));
 
     // Attribute: Id  0 Type
     TypeSet(endpoint, EMBER_ZCL_WC_TYPE_TILT_BLIND_LIFT_AND_TILT);
@@ -454,7 +454,7 @@ void WindowApp::Cover::LiftUp()
     {
         percent100ths = 10000;
     }
-    LiftPositionSet(mEndpoint, percent100ths);
+    LiftCurrentPositionSet(mEndpoint, percent100ths);
 }
 
 void WindowApp::Cover::LiftDown()
@@ -476,7 +476,7 @@ void WindowApp::Cover::LiftDown()
     {
         percent100ths = 0;
     }
-    LiftPositionSet(mEndpoint, percent100ths);
+    LiftCurrentPositionSet(mEndpoint, percent100ths);
 }
 
 void WindowApp::Cover::GotoLift(EventId action)
@@ -544,7 +544,7 @@ void WindowApp::Cover::TiltUp()
     {
         percent100ths = 10000;
     }
-    TiltPositionSet(mEndpoint, percent100ths);
+    TiltCurrentPositionSet(mEndpoint, percent100ths);
 }
 
 void WindowApp::Cover::TiltDown()
@@ -566,7 +566,7 @@ void WindowApp::Cover::TiltDown()
     {
         percent100ths = 0;
     }
-    TiltPositionSet(mEndpoint, percent100ths);
+    TiltCurrentPositionSet(mEndpoint, percent100ths);
 }
 
 void WindowApp::Cover::GotoTilt(EventId action)

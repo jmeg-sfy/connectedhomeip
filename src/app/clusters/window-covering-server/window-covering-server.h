@@ -26,6 +26,14 @@ namespace app {
 namespace Clusters {
 namespace WindowCovering {
 
+enum class Features
+{
+    Lift          = 0x01,
+    Tilt          = 0x02,
+    PositionAware = 0x04,
+    Absolute      = 0x08,
+};
+
 struct Mode
 {
     uint8_t motorDirReversed : 1; // bit 0
@@ -116,19 +124,27 @@ const Mode ModeGet(chip::EndpointId endpoint);
 void SafetyStatusSet(chip::EndpointId endpoint, SafetyStatus & status);
 const SafetyStatus SafetyStatusGet(chip::EndpointId endpoint);
 
-uint16_t LiftToPercent100ths(chip::EndpointId endpoint, uint16_t lift);
-uint16_t Percent100thsToLift(chip::EndpointId endpoint, uint16_t percent100ths);
-void LiftCurrentPositionSet(chip::EndpointId endpoint, uint16_t percent100ths);
+
+
+EmberAfStatus LiftCurrentPositionSet(chip::EndpointId endpoint, uint16_t percent100ths);
 EmberAfStatus LiftTargetPositionSet(chip::EndpointId endpoint, uint16_t percent100ths);
 uint16_t LiftCurrentPositionGet(chip::EndpointId endpoint);
 LimitStatus LiftLimitStatusGet(chip::EndpointId endpoint);
 
-uint16_t TiltToPercent100ths(chip::EndpointId endpoint, uint16_t tilt);
-uint16_t Percent100thsToTilt(chip::EndpointId endpoint, uint16_t percent100ths);
-void TiltCurrentPositionSet(chip::EndpointId endpoint, uint16_t percent100ths);
+
+EmberAfStatus TiltCurrentPositionSet(chip::EndpointId endpoint, uint16_t percent100ths);
 EmberAfStatus TiltTargetPositionSet(chip::EndpointId endpoint, uint16_t percent100ths);
 uint16_t TiltCurrentPositionGet(chip::EndpointId endpoint);
 LimitStatus TiltLimitStatusGet(chip::EndpointId endpoint);
+
+
+/* Units Conversion from Absolute to Relative */
+uint16_t LiftToPercent100ths(chip::EndpointId endpoint, uint16_t absoluteValue);
+uint16_t TiltToPercent100ths(chip::EndpointId endpoint, uint16_t absoluteValue);
+
+/* Units Conversion from Relative to Absolute */
+uint16_t Percent100thsToTilt(chip::EndpointId endpoint, uint16_t percent100ths);
+uint16_t Percent100thsToLift(chip::EndpointId endpoint, uint16_t percent100ths);
 
 } // namespace WindowCovering
 } // namespace Clusters
