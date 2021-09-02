@@ -39,8 +39,8 @@
 using namespace chip;
 using namespace chip::app::Clusters::WindowCovering;
 
-#define WC_PERCENT100THS_MIN 0
-#define WC_PERCENT100THS_MAX 10000
+#define WC_PERCENT100THS_MIN_OPEN  0
+#define WC_PERCENT100THS_MAX_CLOSE 10000
 
 static bool HasFeature(chip::EndpointId endpoint, WcFeature feature)
 {
@@ -154,6 +154,46 @@ namespace chip {
 namespace app {
 namespace Clusters {
 namespace WindowCovering {
+
+LimitStatus LiftLimitStatusGet(chip::EndpointId endpoint)
+{
+    uint16_t percent100ths = 0;
+    bool hasLift         = HasFeature(endpoint, Features::Lift);
+    bool isPositionAware = HasFeature(endpoint, Features::PositionAware);
+
+    if (hasLift && isPositionAware) {
+        Attributes::GetCurrentPositionLift(endpoint, &percent100ths);
+        if (WC_PERCENT100THS_MIN_OPEN == percent100ths)
+            return IsUpOrOpen;
+
+        if (WC_PERCENT100THS_MAX_CLOSED == percent100ths)
+            return IsDownOrClose;
+
+        return Unknown;
+    }
+
+    return Unsupported;
+}
+
+LimitStatus TiltLimitStatusGet(chip::EndpointId endpoint)
+{
+    uint16_t percent100ths = 0;
+    bool hasTilt         = HasFeature(endpoint, Features::Tilt);
+    bool isPositionAware = HasFeature(endpoint, Features::PositionAware);
+
+    if (hasTilt && isPositionAware) {
+        Attributes::GetCurrentPositionTilt(endpoint, &percent100ths);
+        if (WC_PERCENT100THS_MIN_OPEN == percent100ths)
+            return IsUpOrOpen;
+
+        if (WC_PERCENT100THS_MAX_CLOSED == percent100ths)
+            return IsDownOrClose;
+
+        return Unknown;
+    }
+
+    return Unsupported;
+}
 
 bool IsLiftOpen(chip::EndpointId endpoint)
 {
@@ -427,6 +467,17 @@ bool emberAfWindowCoveringClusterUpOrOpenCallback(app::CommandHandler * commandO
     EndpointId endpoint = commandPath.mEndpointId;
 
     emberAfWindowCoveringClusterPrint("UpOrOpen command received");
+
+    EmberAfStatus tiltStatus = TiltTargetPositionSet(endpoint, WC_PERCENT100THS_MIN_OPEN);
+    EmberAfStatus liftStatus = LiftTargetPositionSet(endpoint, WC_PERCENT100THS_MIN_OPEN);
+
+    /* By the specification definition we need to support Tilt and/or Lift -> so to simplify only one can be successfull */
+    if ((EMBER_ZCL_STATUS_SUCCESS == liftStatus) || (EMBER_ZCL_STATUS_SUCCESS == tiltStatus))
+        emberAfSendImmediateDefaultResponse(EMBER_ZCL_STATUS_SUCCESS);
+    else
+        emberAfSendImmediateDefaultResponse(EMBER_ZCL_STATUS_UNSUP_COMMAND);
+
+
     if (HasFeature(endpoint, WcFeature::kLift))
     {
         Attributes::TargetPositionLiftPercent100ths::Set(endpoint, WC_PERCENT100THS_MIN);
@@ -457,6 +508,37 @@ bool emberAfWindowCoveringClusterDownOrCloseCallback(app::CommandHandler * comma
         Attributes::TargetPositionTiltPercent100ths::Set(endpoint, WC_PERCENT100THS_MAX);
     }
     emberAfSendImmediateDefaultResponse(EMBER_ZCL_STATUS_SUCCESS);
+    return true;
+}
+
+    EmberAfStatus tiltStatus = TiltTargetPositionSet(endpoint, WC_PERCENT100THS_MAX_CLOSE);
+    EmberAfStatus liftStatus = LiftTargetPositionSet(endpoint, WC_PERCENT100THS_MAX_CLOSE);
+
+    /* By the specification definition we need to support Tilt and/or Lift -> so to simplify only one can be successfull */
+    if ((EMBER_ZCL_STATUS_SUCCESS == liftStatus) || (EMBER_ZCL_STATUS_SUCCESS == tiltStatus))
+        emberAfSendImmediateDefaultResponse(EMBER_ZCL_STATUS_SUCCESS);
+    else
+        emberAfSendImmediateDefaultResponse(EMBER_ZCL_STATUS_UNSUP_COMMAND);
+
+    return true;
+}
+
+/**
+ * @brief  Cluster StopMotion Command callback (from client)
+ */
+bool emberAfWindowCoveringClusterStopMotionCallback(chip::EndpointId endpoint, chip::app::CommandHandler * commandObj)
+{
+    emberAfWindowCoveringClusterPrint("StopMotion command received");
+
+    EmberAfStatus tiltStatus = TiltTargetPositionSet(endpoint, TiltCurrentPositionGet(endpoint));
+    EmberAfStatus liftStatus = LiftTargetPositionSet(endpoint, LiftCurrentPositionGet(endpoint));
+
+    /* By the specification definition we need to support Tilt and/or Lift -> so to simplify only one can be successfull */
+    if ((EMBER_ZCL_STATUS_SUCCESS == liftStatus) || (EMBER_ZCL_STATUS_SUCCESS == tiltStatus))
+        emberAfSendImmediateDefaultResponse(EMBER_ZCL_STATUS_SUCCESS);
+    else
+        emberAfSendImmediateDefaultResponse(EMBER_ZCL_STATUS_UNSUP_COMMAND);
+
     return true;
 }
 
