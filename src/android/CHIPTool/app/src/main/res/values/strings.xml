@@ -18,6 +18,7 @@
     <string name="camera_unavailable_alert_title">Camera unavailable</string>
     <string name="camera_unavailable_alert_subtitle">Error launching camera to scan the QR code.</string>
     <string name="camera_unavailable_alert_exit">Exit</string>
+    <string name="input_address_btn_text">Input device address</string>
 
     <string name="scan_qr_code_btn_text">Scan QR Code</string>
     <string name="provision_wifi_credentials_btn_text">Provision CHIP device with Wi-Fi</string>
@@ -103,6 +104,13 @@
     <string name="sensor_client_subscribe_error_text">Failed to subscribe to the sensor: %1$s</string>
     <string name="sensor_client_unsubscribe_error_text">Failed to unsubscribe from the sensor: %1$s</string>
     <string name="cluster_interaction_tool">Cluster Interaction Tool</string>
+
+    <string name="window_covering_btn_text">Window Covering Cluster</string>
+    <string name="send_command_stopMotion_btn_text">■ - Stop Motion</string>
+    <string name="send_command_upOrOpen_btn_text">↑-  Up  or  Open</string>
+    <string name="send_command_downOrClose_btn_text">↓- Down or Close</string>
+    <string name="read_attribute_type_btn_text">Type</string>
+    <string name="read_attribute_end_product_type_btn_text">End Product Type</string>
 
     <string name="multi_admin_client_btn_text">Multi-admin cluster</string>
     <string name="basic_commissioning_method_btn_text">Basic Commissioning Method</string>
