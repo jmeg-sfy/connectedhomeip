@@ -299,7 +299,13 @@ void WindowAppImpl::DispatchEvent(const WindowApp::Event & event)
         break;
     case EventId::TiltModeChange:
         mIconTimer.Start();
-        mIcon = mTiltMode ? LcdIcon::Tilt : LcdIcon::Lift;
+        switch (mButtonCtrlMode)
+        {
+        case ButtonCtrlMode::Tilt: mIcon = LcdIcon::Tilt; break;
+        case ButtonCtrlMode::Lift: mIcon = LcdIcon::Lift; break;
+        default:
+            break;
+        }
         UpdateLCD();
         break;
     default:

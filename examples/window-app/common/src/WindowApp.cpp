@@ -245,7 +245,11 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
         }
         else if (mDownPressed)
         {
-            mTiltMode     = !mTiltMode;
+            if (ButtonCtrlMode::Tilt == mButtonCtrlMode)
+                mButtonCtrlMode = ButtonCtrlMode::Lift;
+            else
+                mButtonCtrlMode = ButtonCtrlMode::Tilt;
+
             mUpSuppressed = mDownSuppressed = true;
             PostEvent(EventId::TiltModeChange);
         }
@@ -283,7 +287,11 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
         }
         else if (mUpPressed)
         {
-            mTiltMode     = !mTiltMode;
+            if (ButtonCtrlMode::Tilt == mButtonCtrlMode)
+                mButtonCtrlMode = ButtonCtrlMode::Lift;
+            else
+                mButtonCtrlMode = ButtonCtrlMode::Tilt;
+
             mUpSuppressed = mDownSuppressed = true;
             PostEvent(EventId::TiltModeChange);
         }

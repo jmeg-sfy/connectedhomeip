@@ -91,6 +91,12 @@ public:
         WinkOn,
     };
 
+    enum ButtonCtrlMode
+    {
+        Tilt = 0,
+        Lift,
+    };
+
     struct Event
     {
         Event(EventId id) : mId(id), mEndpoint(0) {}
@@ -162,8 +168,10 @@ protected:
     Timer * mLongPressTimer = nullptr;
     Button * mButtonUp      = nullptr;
     Button * mButtonDown    = nullptr;
+    ButtonCtrlMode mButtonCtrlMode;
+
     StateFlags mState;
-    bool mTiltMode       = false;
+
     bool mUpPressed      = false;
     bool mDownPressed    = false;
     bool mUpSuppressed   = false;
