@@ -287,17 +287,17 @@ void WindowAppImpl::DispatchEvent(const WindowApp::Event & event)
     case EventId::BLEConnectionsChanged:
         UpdateLEDs();
         break;
-    case EventId::CoverTypeChange:
-    case EventId::LiftChanged:
-    case EventId::TiltChanged:
+    case EventId::Type:
+    case EventId::LiftCurrentPosition:
+    case EventId::TiltCurrentPosition:
         UpdateLCD();
         break;
-    case EventId::CoverChange:
+    case EventId::BtnCycleType:
         mIconTimer.Start();
         mIcon = (GetCover().mEndpoint == 1) ? LcdIcon::One : LcdIcon::Two;
         UpdateLCD();
         break;
-    case EventId::TiltModeChange:
+    case EventId::BtnCycleActuator:
         mIconTimer.Start();
         switch (mButtonCtrlMode)
         {

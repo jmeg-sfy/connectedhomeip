@@ -251,7 +251,7 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
                 mButtonCtrlMode = ButtonCtrlMode::Tilt;
 
             mUpSuppressed = mDownSuppressed = true;
-            PostEvent(EventId::TiltModeChange);
+            PostEvent(EventId::BtnCycleActuator);
         }
         else if (mTiltMode)
         {
@@ -359,7 +359,7 @@ void WindowApp::HandleLongPress()
         // Long press both buttons: Cycle between window coverings
         mUpSuppressed = mDownSuppressed = true;
         mCurrentCover                   = mCurrentCover < WINDOW_COVER_COUNT - 1 ? mCurrentCover + 1 : 0;
-        PostEvent(EventId::CoverChange);
+        PostEvent(EventId::BtnCycleType);
     }
     else if (mUpPressed)
     {

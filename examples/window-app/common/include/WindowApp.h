@@ -72,17 +72,21 @@ public:
         UpReleased,
         DownPressed,
         DownReleased,
-        // Cover events
-        CoverChange,
-        CoverTypeChange,
-        TiltModeChange,
-        LiftUp,
-        LiftDown,
-        LiftChanged,
-        TiltUp,
-        TiltDown,
-        TiltChanged,
-        StopMotion,
+        BtnCycleType,
+        BtnCycleActuator,
+
+        // Cover Attribute update events
+        Type,
+        ConfigStatus,
+        OperationalStatus,
+        EndProductType,
+        Mode,
+        SafetyStatus,
+        LiftCurrentPosition,
+        TiltCurrentPosition,
+        LiftTargetPosition,
+        TiltTargetPosition,
+
         // Provisioning events
         ProvisionedStateChanged,
         ConnectivityStateChanged,
