@@ -20,6 +20,10 @@
 #include <app-common/zap-generated/enums.h>
 #include <app/util/af-types.h>
 #include <lib/core/CHIPError.h>
+#include <app/clusters/window-covering-server/window-covering-server.h>
+
+
+using namespace chip::app::Clusters::WindowCovering;
 
 class WindowApp
 {
@@ -110,28 +114,57 @@ public:
         chip::EndpointId mEndpoint;
     };
 
+    struct Actuator
+    {
+        uint16_t mOpenLimit          = 0;//WC_PERCENT100THS_MIN;
+        uint16_t mClosedLimit        = 0;//WC_PERCENT100THS_MAX;
+        uint16_t mCurrentPosition    = 0;//LimitStatus::IsUpOrOpen;//WC_PERCENT100THS_DEF;
+        uint16_t mTargetPosition     = 0;//OperationalState::MovingDownOrClose;//WC_PERCENT100THS_DEF;
+
+        uint16_t mStepDelta          = 1;
+        uint16_t mStepMinimun        = 1;
+
+
+
+        uint16_t mNumberOfActuations = 0; //Number of commands sent to the actuators
+
+        void SetPosition(uint16_t value);
+        void StepTowardUpOrOpen();
+        void StepTowardDownOrClose();
+
+        void GoToValue(uint16_t value);
+        void GoToPercentage(chip::Percent100ths percent100ths);
+        void StopMotion();
+        void UpdatePosition();
+
+        void TimerStart();
+        void TimerStop();
+        static void OnTimeout(Timer & timer);
+
+//struct OperationalStatus ff;
+        OperationalState mState;
+
+
+        Timer * mTimer         = nullptr;
+        EventId mAction        = EventId::None;
+    };
+
+
     struct Cover
     {
         void Init(chip::EndpointId endpoint);
         void Finish();
-        void LiftUp();
-        void LiftDown();
-        void GotoLift(EventId action = EventId::None);
-        void TiltUp();
-        void TiltDown();
-        void GotoTilt(EventId action = EventId::None);
         void StopMotion();
         EmberAfWcType CycleType();
 
+        chip::EndpointId mEndpoint = 0;
+
         static void OnLiftTimeout(Timer & timer);
         static void OnTiltTimeout(Timer & timer);
-
-        chip::EndpointId mEndpoint = 0;
-        Timer * mLiftTimer         = nullptr;
-        Timer * mTiltTimer         = nullptr;
-        EventId mLiftAction        = EventId::None;
-        EventId mTiltAction        = EventId::None;
+        Actuator mLift, mTilt;
     };
+
+
 
     static WindowApp & Instance();
 
@@ -186,5 +219,8 @@ private:
     void HandleLongPress();
 
     Cover mCoverList[WINDOW_COVER_COUNT];
+
+
+
     uint8_t mCurrentCover = 0;
 };
