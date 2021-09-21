@@ -162,6 +162,10 @@ namespace app {
 namespace Clusters {
 namespace WindowCovering {
 
+bool HasFeature(chip::EndpointId endpoint, Features feature)
+{
+    return true;
+}
 
 void PrintPercent100ths(const char * pMessage, uint16_t percent100ths)
 {

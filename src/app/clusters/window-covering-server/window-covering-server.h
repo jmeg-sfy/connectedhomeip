@@ -20,6 +20,7 @@
 #include <app-common/zap-generated/attribute-id.h>
 #include <app-common/zap-generated/enums.h>
 #include <app/util/af-types.h>
+#include <app/util/basic-types.h>
 
 namespace chip {
 namespace app {
@@ -105,6 +106,7 @@ enum class LimitStatus : uint8_t
 };
 static_assert(sizeof(LimitStatus) == sizeof(uint8_t), "LimitStatus Size is not correct");
 
+bool HasFeature(chip::EndpointId endpoint, Features feature);
 
 void TypeSet(chip::EndpointId endpoint, EmberAfWcType type);
 EmberAfWcType TypeGet(chip::EndpointId endpoint);
