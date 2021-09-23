@@ -202,9 +202,14 @@ void WindowApp::Finish()
 void WindowApp::DispatchEvent(const WindowApp::Event & event)
 {
     Cover * cover = nullptr;
+    cover = GetCover(event.mEndpoint);
 
-    switch (event.mId)
-    {
+
+    emberAfWindowCoveringClusterPrint("Ep[%u] DispatchEvent=%u %p \n", event.mEndpoint , event.mId , cover);
+
+     cover = &GetCover();
+
+    switch (event.mId) {
     case EventId::ResetWarning:
         mResetWarning = true;
         if (mLongPressTimer)
@@ -222,6 +227,7 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
         break;
 
     case EventId::UpPressed:
+        emberAfWindowCoveringClusterPrint("UpPressed");
         mUpPressed = true;
         if (mLongPressTimer)
         {
@@ -230,6 +236,7 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
         break;
 
     case EventId::UpReleased:
+        emberAfWindowCoveringClusterPrint("UpReleased");
         mUpPressed = false;
         if (mLongPressTimer)
         {
@@ -253,14 +260,16 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
             mUpSuppressed = mDownSuppressed = true;
             PostEvent(EventId::BtnCycleActuator);
         }
-        else if (mTiltMode)
-        {
-            GetCover().TiltUp();
-        }
         else
         {
-            GetCover().LiftUp();
+            emberAfWindowCoveringClusterPrint("Forward");
+            if (ButtonCtrlMode::Tilt == mButtonCtrlMode)
+                GetCover().mTilt.StepTowardUpOrOpen();
+            else
+                GetCover().mLift.StepTowardUpOrOpen();
         }
+
+
         break;
 
     case EventId::DownPressed:
@@ -293,44 +302,55 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
                 mButtonCtrlMode = ButtonCtrlMode::Tilt;
 
             mUpSuppressed = mDownSuppressed = true;
-            PostEvent(EventId::TiltModeChange);
-        }
-        else if (mTiltMode)
-        {
-            GetCover().TiltDown();
+            PostEvent(EventId::BtnCycleActuator);
         }
         else
-        {
-            GetCover().LiftDown();
-        }
+            if (ButtonCtrlMode::Tilt == mButtonCtrlMode)
+                GetCover().mTilt.StepTowardDownOrClose();
+            else
+                GetCover().mLift.StepTowardDownOrClose();
         break;
 
-    case EventId::LiftUp:
-    case EventId::LiftDown:
-        cover = GetCover(event.mEndpoint);
-        if (cover)
-        {
-            cover->GotoLift(event.mId);
+    case EventId::LiftTargetPosition:
+        if (cover) {
+            uint16_t percent100ths;
+            Attributes::GetTargetPositionLiftPercent100ths(event.mEndpoint, &percent100ths);
+            cover->mLift.GoToValue(Percent100thsToLift(event.mEndpoint, percent100ths));
         }
         break;
-
-    case EventId::TiltUp:
-    case EventId::TiltDown:
-        cover = GetCover(event.mEndpoint);
-        if (cover)
-        {
-            cover->GotoTilt(event.mId);
+    case EventId::TiltTargetPosition:
+        if (cover) {
+            uint16_t percent100ths;
+            Attributes::GetTargetPositionTiltPercent100ths(event.mEndpoint, &percent100ths);
+            cover->mTilt.GoToValue(Percent100thsToTilt(event.mEndpoint, percent100ths));
         }
         break;
-
     case EventId::StopMotion:
-        cover = GetCover(event.mEndpoint);
-        if (cover)
-        {
+        if (cover) {
             cover->StopMotion();
         }
         break;
-
+    case EventId::LiftUpdate:
+        if (cover) {
+            cover->mOperationalStatus.lift = cover->mLift.mOpState;
+            OperationalStatusSet(cover->mEndpoint, cover->mOperationalStatus);
+        }
+        break;
+    case EventId::TiltUpdate:
+        if (cover) {
+            cover->mOperationalStatus.tilt = cover->mTilt.mOpState;
+            OperationalStatusSet(cover->mEndpoint, cover->mOperationalStatus);
+        }
+        break;
+    case EventId::BtnCycleActuator:
+        if (cover) {
+            cover->mLift.GoToValue(50);
+            //OperationalStatusSet(event.mEndpoint, cover->mOperationalStatus);
+        }
+        break;
+    case EventId::OperationalStatus:
+        emberAfWindowCoveringClusterPrint("OpState: %02X\n", OperationalStatusGet(cover->mEndpoint));
+        break;
     default:
         break;
     }
@@ -380,7 +400,10 @@ void WindowApp::HandleLongPress()
         // Long press button down: Cycle between covering types
         mDownSuppressed          = true;
         EmberAfWcType cover_type = GetCover().CycleType();
-        mTiltMode                = mTiltMode && (EMBER_ZCL_WC_TYPE_TILT_BLIND_LIFT_AND_TILT == cover_type);
+        if (EMBER_ZCL_WC_TYPE_TILT_BLIND_LIFT_AND_TILT == cover_type)
+            mButtonCtrlMode = ButtonCtrlMode::Tilt;
+        else
+            mButtonCtrlMode = ButtonCtrlMode::Lift;
     }
 }
 
@@ -393,18 +416,47 @@ void WindowApp::OnLongPressTimeout(WindowApp::Timer & timer)
     }
 }
 
+
+void WindowApp::Actuator::OnActuatorTimeout(WindowApp::Timer & timer)
+{
+    WindowApp::Actuator * actuator = static_cast<WindowApp::Actuator *>(timer.mContext);
+    if (actuator) actuator->UpdatePosition();
+}
+
+void WindowApp::Actuator::Init(const char * name, uint32_t timeoutInMs, OperationalState * opState, EventId event)
+{
+    mTimer = WindowApp::Instance().CreateTimer(name, timeoutInMs, OnActuatorTimeout, this);
+   // mOpState = opState;
+    mEvent = event;
+}
+
 void WindowApp::Cover::Init(chip::EndpointId endpoint)
 {
     mEndpoint  = endpoint;
-    mLiftTimer = WindowApp::Instance().CreateTimer("Timer:Lift", COVER_LIFT_TILT_TIMEOUT, OnLiftTimeout, this);
-    mTiltTimer = WindowApp::Instance().CreateTimer("Timer:Tilt", COVER_LIFT_TILT_TIMEOUT, OnTiltTimeout, this);
 
-    Attributes::InstalledOpenLimitLift::Set(endpoint, LIFT_OPEN_LIMIT);
-    Attributes::InstalledClosedLimitLift::Set(endpoint, LIFT_CLOSED_LIMIT);
-    LiftCurrentPositionSet(endpoint, LiftToPercent100ths(endpoint, LIFT_CLOSED_LIMIT));
-    Attributes::InstalledOpenLimitTilt::Set(endpoint, TILT_OPEN_LIMIT);
-    Attributes::InstalledClosedLimitTilt::Set(endpoint, TILT_CLOSED_LIMIT);
-    TiltCurrentPositionSet(endpoint, TiltToPercent100ths(endpoint, TILT_CLOSED_LIMIT));
+
+mLift.mOpenLimit = LIFT_OPEN_LIMIT;
+mLift.mClosedLimit = LIFT_CLOSED_LIMIT;
+mLift.mStepDelta = LIFT_DELTA;
+//mLift.mEvent = LiftUpdate;
+
+
+mTilt.mOpenLimit = TILT_OPEN_LIMIT;
+mTilt.mClosedLimit = TILT_CLOSED_LIMIT;
+mTilt.mStepDelta = TILT_DELTA;
+
+
+    mLift.Init("Lift", COVER_LIFT_TILT_TIMEOUT, nullptr, EventId::LiftUpdate);
+    mTilt.Init("Tilt", COVER_LIFT_TILT_TIMEOUT, nullptr, EventId::TiltUpdate);
+
+    //mTiltTimer = WindowApp::Instance().CreateTimer("Timer:Tilt", COVER_LIFT_TILT_TIMEOUT, OnTiltTimeout, this);
+    Attributes::SetInstalledOpenLimitLift(endpoint, mLift.mOpenLimit);
+    Attributes::SetInstalledClosedLimitLift(endpoint, mLift.mClosedLimit);
+    LiftCurrentPositionSet(endpoint, LiftToPercent100ths(endpoint, mLift.mClosedLimit));
+
+    Attributes::SetInstalledOpenLimitTilt(endpoint, mTilt.mOpenLimit);
+    Attributes::SetInstalledClosedLimitTilt(endpoint, mTilt.mClosedLimit);
+    TiltCurrentPositionSet(endpoint, TiltToPercent100ths(endpoint, mTilt.mClosedLimit));
 
     // Attribute: Id  0 Type
     TypeSet(endpoint, EMBER_ZCL_WC_TYPE_TILT_BLIND_LIFT_AND_TILT);
@@ -413,17 +465,14 @@ void WindowApp::Cover::Init(chip::EndpointId endpoint)
     ConfigStatus configStatus = { .operational             = 1,
                                   .online                  = 1,
                                   .liftIsReversed          = 0,
-                                  .liftIsPA                = 1,
-                                  .tiltIsPA                = 1,
+                                  .liftIsPA                = (HasFeature(endpoint, Features::Lift) && HasFeature(endpoint, Features::PositionAware)),
+                                  .tiltIsPA                = (HasFeature(endpoint, Features::Tilt) && HasFeature(endpoint, Features::PositionAware)),
                                   .liftIsEncoderControlled = 1,
                                   .tiltIsEncoderControlled = 1 };
     ConfigStatusSet(endpoint, configStatus);
 
-    // Attribute: Id 10 OperationalStatus
-    OperationalStatus operationalStatus = { .global = OperationalState::Stall,
-                                            .lift   = OperationalState::Stall,
-                                            .tilt   = OperationalState::Stall };
-    OperationalStatusSet(endpoint, operationalStatus);
+
+    OperationalStatusSet(endpoint, mOperationalStatus);
 
     // Attribute: Id 13 EndProductType
     EndProductTypeSet(endpoint, EMBER_ZCL_WC_END_PRODUCT_TYPE_INTERIOR_BLIND);
@@ -437,191 +486,20 @@ void WindowApp::Cover::Init(chip::EndpointId endpoint)
     SafetyStatusSet(endpoint, safetyStatus);
 }
 
+//Actuator
+
+//currentPosition
+//targetPosition
+
 void WindowApp::Cover::Finish()
 {
-    WindowApp::Instance().DestroyTimer(mLiftTimer);
-    WindowApp::Instance().DestroyTimer(mTiltTimer);
+    WindowApp::Instance().DestroyTimer(mLift.mTimer);
+    WindowApp::Instance().DestroyTimer(mTilt.mTimer);
 }
 
-void WindowApp::Cover::LiftUp()
-{
-    EmberAfStatus status;
-    chip::app::DataModel::Nullable<chip::Percent100ths> current;
-    chip::Percent100ths percent100ths = 5000; // set at middle
 
-    status = Attributes::CurrentPositionLiftPercent100ths::Get(mEndpoint, current);
 
-    if ((status == EMBER_ZCL_STATUS_SUCCESS) && !current.IsNull())
-        percent100ths = current.Value();
 
-    if (percent100ths < 9000)
-    {
-        percent100ths += 1000;
-    }
-    else
-    {
-        percent100ths = 10000;
-    }
-    LiftCurrentPositionSet(mEndpoint, percent100ths);
-}
-
-void WindowApp::Cover::LiftDown()
-{
-    EmberAfStatus status;
-    chip::app::DataModel::Nullable<chip::Percent100ths> current;
-    chip::Percent100ths percent100ths = 5000; // set at middle
-
-    status = Attributes::CurrentPositionLiftPercent100ths::Get(mEndpoint, current);
-
-    if ((status == EMBER_ZCL_STATUS_SUCCESS) && !current.IsNull())
-        percent100ths = current.Value();
-
-    if (percent100ths > 1000)
-    {
-        percent100ths -= 1000;
-    }
-    else
-    {
-        percent100ths = 0;
-    }
-    LiftCurrentPositionSet(mEndpoint, percent100ths);
-}
-
-void WindowApp::Cover::GotoLift(EventId action)
-{
-    chip::app::DataModel::Nullable<chip::Percent100ths> current;
-    chip::app::DataModel::Nullable<chip::Percent100ths> target;
-    Attributes::TargetPositionLiftPercent100ths::Get(mEndpoint, target);
-    Attributes::CurrentPositionLiftPercent100ths::Get(mEndpoint, current);
-
-    if (current.IsNull() || target.IsNull())
-    {
-        return;
-    }
-
-    if (EventId::None != action)
-    {
-        mLiftAction = action;
-    }
-
-    if (EventId::LiftUp == mLiftAction)
-    {
-        if (current.Value() < target.Value())
-        {
-            LiftUp();
-        }
-        else
-        {
-            mLiftAction = EventId::None;
-        }
-    }
-    else
-    {
-        if (current.Value() > target.Value())
-        {
-            LiftDown();
-        }
-        else
-        {
-            mLiftAction = EventId::None;
-        }
-    }
-
-    if (EventId::None != mLiftAction && mLiftTimer)
-    {
-        mLiftTimer->Start();
-    }
-}
-
-void WindowApp::Cover::TiltUp()
-{
-    EmberAfStatus status;
-    chip::app::DataModel::Nullable<chip::Percent100ths> current;
-    chip::Percent100ths percent100ths = 5000; // set at middle
-
-    status = Attributes::CurrentPositionTiltPercent100ths::Get(mEndpoint, current);
-
-    if ((status == EMBER_ZCL_STATUS_SUCCESS) && !current.IsNull())
-        percent100ths = current.Value();
-
-    if (percent100ths < 9000)
-    {
-        percent100ths += 1000;
-    }
-    else
-    {
-        percent100ths = 10000;
-    }
-    TiltCurrentPositionSet(mEndpoint, percent100ths);
-}
-
-void WindowApp::Cover::TiltDown()
-{
-    EmberAfStatus status;
-    chip::app::DataModel::Nullable<chip::Percent100ths> current;
-    chip::Percent100ths percent100ths = 5000; // set at middle
-
-    status = Attributes::CurrentPositionTiltPercent100ths::Get(mEndpoint, current);
-
-    if ((status == EMBER_ZCL_STATUS_SUCCESS) && !current.IsNull())
-        percent100ths = current.Value();
-
-    if (percent100ths > 1000)
-    {
-        percent100ths -= 1000;
-    }
-    else
-    {
-        percent100ths = 0;
-    }
-    TiltCurrentPositionSet(mEndpoint, percent100ths);
-}
-
-void WindowApp::Cover::GotoTilt(EventId action)
-{
-    chip::app::DataModel::Nullable<chip::Percent100ths> current;
-    chip::app::DataModel::Nullable<chip::Percent100ths> target;
-    Attributes::TargetPositionTiltPercent100ths::Get(mEndpoint, target);
-    Attributes::CurrentPositionTiltPercent100ths::Get(mEndpoint, current);
-
-    if (current.IsNull() || target.IsNull())
-    {
-        return;
-    }
-
-    if (EventId::None != action)
-    {
-        mTiltAction = action;
-    }
-
-    if (EventId::TiltUp == mTiltAction)
-    {
-        if (current.Value() < target.Value())
-        {
-            TiltUp();
-        }
-        else
-        {
-            mTiltAction = EventId::None;
-        }
-    }
-    else
-    {
-        if (current.Value() > target.Value())
-        {
-            TiltDown();
-        }
-        else
-        {
-            mTiltAction = EventId::None;
-        }
-    }
-
-    if (EventId::None != mTiltAction && mTiltTimer)
-    {
-        mTiltTimer->Start();
-    }
-}
 
 EmberAfWcType WindowApp::Cover::CycleType()
 {
@@ -649,32 +527,209 @@ EmberAfWcType WindowApp::Cover::CycleType()
 
 void WindowApp::Cover::StopMotion()
 {
-    mLiftAction = EventId::None;
-    if (mLiftTimer)
-    {
-        mLiftTimer->Stop();
+    mTilt.StopMotion();
+    mLift.StopMotion();
+}
+//#############3
+void WindowApp::Actuator::TimerStart()
+{
+    if (mTimer) mTimer->Start();
+}
+
+
+void WindowApp::Actuator::TimerStop()
+{
+    if (mTimer) mTimer->Stop();
+}
+
+
+
+void WindowApp::Actuator::StepTowardUpOrOpen()
+{
+    emberAfWindowCoveringClusterPrint(__func__);
+    if (mStepDelta < mStepMinimum) {
+        mStepDelta = mStepMinimum;
     }
-    mTiltAction = EventId::None;
-    if (mTiltTimer)
-    {
-        mTiltTimer->Stop();
+
+    if (mCurrentPosition >= mStepDelta) {
+        SetPosition(mCurrentPosition - mStepDelta);
+    } else {
+        SetPosition(mOpenLimit); //Percent100ths attribute will be set to 0%.
     }
 }
 
-void WindowApp::Cover::OnLiftTimeout(WindowApp::Timer & timer)
+void WindowApp::Actuator::StepTowardDownOrClose()
 {
-    WindowApp::Cover * cover = static_cast<WindowApp::Cover *>(timer.mContext);
-    if (cover)
-    {
-        cover->GotoLift();
+        emberAfWindowCoveringClusterPrint(__func__);
+    if (mStepDelta < mStepMinimum) {
+        mStepDelta = mStepMinimum;
+    }
+
+
+    //EFR32_LOG("ActuatorStepTowardClose %u %u %u", pAct->currentPosition, (pAct->stepDelta - pAct->closedLimit),pAct->closedLimit );
+    if (mCurrentPosition <= (mClosedLimit - mStepDelta)) {
+        SetPosition(mCurrentPosition + mStepDelta);
+    } else {
+        SetPosition(mClosedLimit); //Percent100ths attribute will be set to 100%.
     }
 }
 
-void WindowApp::Cover::OnTiltTimeout(WindowApp::Timer & timer)
+
+void WindowApp::Actuator::StopMotion()
 {
-    WindowApp::Cover * cover = static_cast<WindowApp::Cover *>(timer.mContext);
-    if (cover)
-    {
-        cover->GotoTilt();
-    }
+        emberAfWindowCoveringClusterPrint(__func__);
+    GoToValue(mCurrentPosition);
 }
+
+// void WindowApp::Actuator::StepTowardUpOrOpen()
+// {
+//     //actuator.Pull();
+
+//     if (actuator.currentPosition < actuator.openLimit)
+//     {
+//         currentPosition += stepDelta;
+//     }
+//     else
+//     {
+//         actuator.currentPosition = actuator.openLimit;
+//     }
+//     //actuator.Push();
+// }
+
+// void WindowApp::Actuator::StepTowardDownOrClose(Actuator &actuator)
+// {
+//     uint16_t percent100ths = 0;
+//    //actuator.Pull();
+//     if (actuator.currentPosition > actuator.currentPosition)
+//     {
+//         percent100ths -= 1000;
+//     }
+//     else
+//     {
+//         actuator.currentPosition = actuator.closedLimit;
+//     }
+//     //actuator.Push();
+// }
+
+
+
+
+void WindowApp::Actuator::GoToPercentage(chip::Percent100ths percent100ths)
+{
+
+
+}
+
+void WindowApp::Actuator::Print(void)
+{
+    emberAfWindowCoveringClusterPrint("T=%u C=%u Delta=%u Min=%u", mTargetPosition, mCurrentPosition, mStepDelta, mStepMinimum);
+    emberAfWindowCoveringClusterPrint("[%u, %u]", mOpenLimit, mClosedLimit);
+}
+
+void WindowApp::Actuator::GoToValue(uint16_t value)
+{
+        emberAfWindowCoveringClusterPrint(__func__);
+    if (value > mClosedLimit) {
+        value = mClosedLimit;
+    } else if (value < mOpenLimit) {
+        value = mOpenLimit;
+    }
+
+    mTargetPosition = value;
+
+    if (mTargetPosition != mCurrentPosition) {
+        mNumberOfActuations++;
+        UpdatePosition(); //1st Update
+       // TimerStart();
+       // PostEvent(EventId::CoverStart);
+    } else { //equals Target == Current
+        //Nothing To do
+        //TimerStop();
+        //PostEvent(EventId::CoverStop);
+    }
+
+
+}
+
+void WindowApp::Actuator::SetPosition(uint16_t value)
+{
+
+    emberAfWindowCoveringClusterPrint(__func__);
+    if (value > mClosedLimit) {
+        value = mClosedLimit;
+    } else if (value < mOpenLimit) {
+        value = mOpenLimit;
+    }
+
+    if (value != mCurrentPosition)
+    {
+       // mState = (value > mCurrentPosition) ? OperationalState::MovingDownOrClose : OperationalState::MovingUpOrOpen;
+        //
+        mCurrentPosition = value;
+        // Trick here If direct command set Target to go directly to position
+        //if (!pAct->timer.IsActive()) pAct->targetPosition = pAct->currentPosition;
+
+        //PostEvent(pAct->event);
+    }
+
+    Print();
+}
+
+
+
+void WindowApp::Actuator::UpdatePosition()
+{
+        emberAfWindowCoveringClusterPrint(__func__);
+    uint16_t currMin = mCurrentPosition - mStepMinimum;
+    if (currMin < mOpenLimit) currMin = mOpenLimit;
+
+    uint16_t currMax = mCurrentPosition + mStepMinimum;
+    if (currMax > mClosedLimit) currMax = mClosedLimit;
+
+    // Detect when actuator cannot go further due to minStep
+    if (((mTargetPosition <= currMax) && (mTargetPosition >= currMin)) || (mCurrentPosition == mTargetPosition))
+    {
+        mOpState = OperationalState::Stall;//Terminate movement
+        emberAfWindowCoveringClusterPrint("Finish job min=%u med=%u max=%u T=%u", currMin, mCurrentPosition, currMax, mTargetPosition);
+        mCurrentPosition = mTargetPosition;// <- succesfully achieved position is always equals to target
+
+    }
+    else //Movement must keep going
+    {
+        mOpState = (mTargetPosition > mCurrentPosition) ? OperationalState::MovingDownOrClose : OperationalState::MovingUpOrOpen;
+    }
+
+    switch (mOpState)
+    {
+        case OperationalState::MovingDownOrClose:
+            StepTowardDownOrClose();
+            TimerStart();
+            break;
+        case OperationalState::MovingUpOrOpen:
+            StepTowardUpOrOpen();
+            TimerStart();
+            break;
+        case OperationalState::Stall:
+        default:
+            TimerStop();
+            break;
+    }
+
+    Instance().PostEvent(mEvent);// no matter what happened we must post an update event to refresh actuator attribute
+    Print();
+}
+
+
+   // Attributes::GetTargetPositionActuatorPercent100ths(mEndpoint, &target);
+    //Attributes::GetCurrentPositionActuatorPercent100ths(mEndpoint, &current);
+   // mOpState = (mTargetPosition > mCurrentPosition) ? OperationalState::MovingDownOrClose : OperationalState::MovingUpOrOpen;
+
+   // Attributes::GetTargetPositionLiftPercent100ths(mEndpoint, &target);
+   // Attributes::GetCurrentPositionLiftPercent100ths(mEndpoint, &current);
+
+
+
+
+
+
+

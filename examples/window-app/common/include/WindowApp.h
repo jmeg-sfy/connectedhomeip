@@ -91,6 +91,11 @@ public:
         LiftTargetPosition,
         TiltTargetPosition,
 
+        // Actuator Update Change
+        LiftUpdate,
+        TiltUpdate,
+
+        StopMotion,
         // Provisioning events
         ProvisionedStateChanged,
         ConnectivityStateChanged,
@@ -116,13 +121,14 @@ public:
 
     struct Actuator
     {
+
         uint16_t mOpenLimit          = 0;//WC_PERCENT100THS_MIN;
         uint16_t mClosedLimit        = 0;//WC_PERCENT100THS_MAX;
         uint16_t mCurrentPosition    = 0;//LimitStatus::IsUpOrOpen;//WC_PERCENT100THS_DEF;
         uint16_t mTargetPosition     = 0;//OperationalState::MovingDownOrClose;//WC_PERCENT100THS_DEF;
 
         uint16_t mStepDelta          = 1;
-        uint16_t mStepMinimun        = 1;
+        uint16_t mStepMinimum        = 1;
 
 
 
@@ -136,17 +142,20 @@ public:
         void GoToPercentage(chip::Percent100ths percent100ths);
         void StopMotion();
         void UpdatePosition();
+        void Print();
 
         void TimerStart();
         void TimerStop();
-        static void OnTimeout(Timer & timer);
+        static void OnActuatorTimeout(Timer & timer);
+        void Init(const char * name, uint32_t timeoutInMs, OperationalState * opState, EventId event);
 
 //struct OperationalStatus ff;
-        OperationalState mState;
+      //  OperationalState * mOpState;
 
 
-        Timer * mTimer         = nullptr;
-        EventId mAction        = EventId::None;
+        Timer *          mTimer   = nullptr;
+        EventId          mEvent  = EventId::None;
+        OperationalState mOpState = OperationalState::Stall;
     };
 
 
@@ -159,8 +168,12 @@ public:
 
         chip::EndpointId mEndpoint = 0;
 
-        static void OnLiftTimeout(Timer & timer);
-        static void OnTiltTimeout(Timer & timer);
+        // Attribute: Id 10 OperationalStatus
+        OperationalStatus mOperationalStatus = { .global = OperationalState::Stall,
+                                            .lift   = OperationalState::Stall,
+                                            .tilt   = OperationalState::Stall };
+
+
         Actuator mLift, mTilt;
     };
 

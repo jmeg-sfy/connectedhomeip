@@ -176,6 +176,19 @@ void PrintPercent100ths(const char * pMessage, uint16_t percent100ths)
 
     emberAfWindowCoveringClusterPrint("%.32s %3u.%02u%%", pMessage, percentage_int, percentage_dec);
 }
+
+// void WindowCover::PrintActuators(void)
+// {
+//     PrintActuator("Lift", &mLift);
+//     PrintActuator("Tilt", &mTilt);
+//     PrintStatus();
+// }
+
+// void WindowCover::PrintStatus(void)
+// {
+//     EFR32_LOG("Config: 0x%02X, Operational: 0x%02X, Safety: 0x%04X, Mode: 0x%02X", mConfigStatus, mOperationalStatus, mSafetyStatus, mMode);
+// }
+
 LimitStatus LiftLimitStatusGet(chip::EndpointId endpoint)
 {
     uint16_t percent100ths = 0;
@@ -310,11 +323,19 @@ const ConfigStatus ConfigStatusGet(chip::EndpointId endpoint)
     return status;
 }
 
-void OperationalStatusSet(chip::EndpointId endpoint, const OperationalStatus & status)
+void OperationalStatusSet(chip::EndpointId endpoint, OperationalStatus & status)
 {
+    /* Global Always follow Lift by priority and then fallback to Tilt */
+    if (OperationalState::Stall != status.lift) {
+        status.global = status.lift;
+    } else {
+        status.global = status.tilt;
+    }
+
     uint8_t global = OperationalStateToValue(status.global);
     uint8_t lift   = OperationalStateToValue(status.lift);
     uint8_t tilt   = OperationalStateToValue(status.tilt);
+
     uint8_t value  = (global & 0x03) | static_cast<uint8_t>((lift & 0x03) << 2) | static_cast<uint8_t>((tilt & 0x03) << 4);
     Attributes::OperationalStatus::Set(endpoint, value);
 }
@@ -564,6 +585,26 @@ uint16_t TiltCurrentPositionGet(chip::EndpointId endpoint)
     return percent100ths;
 }
 
+uint16_t TiltTargetPositionGet(chip::EndpointId endpoint)
+{
+    uint16_t percent100ths = WC_PERCENT100THS_MIN_OPEN;
+
+    Attributes::GetCurrentPositionTiltPercent100ths(endpoint, &percent100ths);
+
+    return percent100ths;
+}
+
+uint16_t LiftTargetPositionGet(chip::EndpointId endpoint)
+{
+    uint16_t percent100ths = WC_PERCENT100THS_MIN_OPEN;
+
+    Attributes::GetCurrentPositionLiftPercent100ths(endpoint, &percent100ths);
+
+    return percent100ths;
+}
+
+
+
 EmberAfStatus TiltTargetPositionSet(chip::EndpointId endpoint, uint16_t percent100ths)
 {
     bool hasTilt         = HasFeature(endpoint, Features::Tilt);
@@ -791,7 +832,7 @@ bool emberAfWindowCoveringClusterGoToTiltValueCallback(app::CommandHandler * com
 
     if (hasAbsolute)
     {
-        status = TiltTargetPositionSet(endpoint, TiltToPercent100ths(endpoint, liftValue));
+        status = TiltTargetPositionSet(endpoint, TiltToPercent100ths(endpoint, tiltValue));
     }
 
     emberAfSendImmediateDefaultResponse(status);

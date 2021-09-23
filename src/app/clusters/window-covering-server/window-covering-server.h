@@ -114,7 +114,7 @@ EmberAfWcType TypeGet(chip::EndpointId endpoint);
 void ConfigStatusSet(chip::EndpointId endpoint, const ConfigStatus & status);
 const ConfigStatus ConfigStatusGet(chip::EndpointId endpoint);
 
-void OperationalStatusSet(chip::EndpointId endpoint, const OperationalStatus & status);
+void OperationalStatusSet(chip::EndpointId endpoint, OperationalStatus & status);
 const OperationalStatus OperationalStatusGet(chip::EndpointId endpoint);
 
 void EndProductTypeSet(chip::EndpointId endpoint, EmberAfWcEndProductType type);
