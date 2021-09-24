@@ -334,12 +334,14 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
         if (cover) {
             cover->mOperationalStatus.lift = cover->mLift.mOpState;
             OperationalStatusSet(cover->mEndpoint, cover->mOperationalStatus);
+            LiftCurrentPositionSet(cover->mEndpoint, LiftToPercent100ths(cover->mEndpoint, cover->mLift.mCurrentPosition));//remove
         }
         break;
     case EventId::TiltUpdate:
         if (cover) {
             cover->mOperationalStatus.tilt = cover->mTilt.mOpState;
             OperationalStatusSet(cover->mEndpoint, cover->mOperationalStatus);
+            TiltCurrentPositionSet(cover->mEndpoint, TiltToPercent100ths(cover->mEndpoint, cover->mTilt.mCurrentPosition));
         }
         break;
     case EventId::BtnCycleActuator:
@@ -734,12 +736,12 @@ void WindowApp::Actuator::UpdatePosition()
     switch (mOpState)
     {
         case OperationalState::MovingDownOrClose:
-            StepTowardDownOrClose();
             TimerStart();
+            StepTowardDownOrClose();
             break;
         case OperationalState::MovingUpOrOpen:
-            StepTowardUpOrOpen();
             TimerStart();
+            StepTowardUpOrOpen();
             break;
         case OperationalState::Stall:
         default:
