@@ -564,7 +564,13 @@ void WindowApp::Actuator::TimerStop()
     if (mTimer) mTimer->Stop();
 }
 
+bool WindowApp::Actuator::IsActive()
+{
+    if (mTimer)
+        return mTimer->mIsActive;
 
+    return false;
+}
 
 void WindowApp::Actuator::StepTowardUpOrOpen()
 {
@@ -685,13 +691,17 @@ void WindowApp::Actuator::SetPosition(uint16_t value)
 
     if (value != mCurrentPosition)
     {
-       // mState = (value > mCurrentPosition) ? OperationalState::MovingDownOrClose : OperationalState::MovingUpOrOpen;
-        //
+
         mCurrentPosition = value;
         // Trick here If direct command set Target to go directly to position
-        //if (!pAct->timer.IsActive()) pAct->targetPosition = pAct->currentPosition;
+        if (!IsActive()) {
+            emberAfWindowCoveringClusterPrint("Mode Manual");
+            // Manual mode : Here we simulate a user pulling the shade by hand -> Motor is OFF
+            Instance().PostEvent(mEvent);// no matter what happened we must post an update event to refresh actuator attribute
+        } else {
+            emberAfWindowCoveringClusterPrint("Mode Automatic");
+        }
 
-        //PostEvent(pAct->event);
     }
 
     Print();
