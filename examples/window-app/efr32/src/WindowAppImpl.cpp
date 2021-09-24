@@ -346,6 +346,10 @@ void WindowAppImpl::UpdateLEDs()
         // Action LED
 
         if (EventId::None != cover.mLiftAction || EventId::None != cover.mTiltAction)
+        LimitStatus liftLimit = cover.mLift.GetLimitState();
+        LimitStatus tiltLimit = cover.mTilt.GetLimitState();
+        EFR32_LOG("OpState: L %02X T %02X, ep=%u\n", cover.mOperationalStatus.lift, cover.mOperationalStatus.tilt, cover.mEndpoint);
+        EFR32_LOG("OpState: Limit T %u  L %u\n", liftLimit, tiltLimit);
         {
             mActionLED.Blink(100);
         }

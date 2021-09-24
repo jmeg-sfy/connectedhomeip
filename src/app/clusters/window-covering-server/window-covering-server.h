@@ -99,10 +99,12 @@ bool IsTiltClosed(chip::EndpointId endpoint);
 // Declare Position Limit Status
 enum class LimitStatus : uint8_t
 {
-    Unknown       = 0x00, //
-    IsUpOrOpen    = 0x01, //
-    IsDownOrClose = 0x02, //
-    Unsupported   = 0x03, //
+    Intermediate      = 0x00, //
+    IsUpOrOpen        = 0x01, //
+    IsDownOrClose     = 0x02, //
+    Inverted          = 0x03, //
+    IsOverUpOrOpen    = 0x04, //
+    IsOverDownOrClose = 0x05, //
 };
 static_assert(sizeof(LimitStatus) == sizeof(uint8_t), "LimitStatus Size is not correct");
 

@@ -189,45 +189,7 @@ void PrintPercent100ths(const char * pMessage, uint16_t percent100ths)
 //     EFR32_LOG("Config: 0x%02X, Operational: 0x%02X, Safety: 0x%04X, Mode: 0x%02X", mConfigStatus, mOperationalStatus, mSafetyStatus, mMode);
 // }
 
-LimitStatus LiftLimitStatusGet(chip::EndpointId endpoint)
-{
-    uint16_t percent100ths = 0;
-    bool hasLift         = HasFeature(endpoint, Features::Lift);
-    bool isPositionAware = HasFeature(endpoint, Features::PositionAware);
 
-    if (hasLift && isPositionAware) {
-        Attributes::GetCurrentPositionLift(endpoint, &percent100ths);
-        if (WC_PERCENT100THS_MIN_OPEN == percent100ths)
-            return LimitStatus::IsUpOrOpen;
-
-        if (WC_PERCENT100THS_MAX_CLOSED == percent100ths)
-            return LimitStatus::IsDownOrClose;
-
-        return LimitStatus::Unknown;
-    }
-
-    return LimitStatus::Unsupported;
-}
-
-LimitStatus TiltLimitStatusGet(chip::EndpointId endpoint)
-{
-    uint16_t percent100ths = 0;
-    bool hasTilt         = HasFeature(endpoint, Features::Tilt);
-    bool isPositionAware = HasFeature(endpoint, Features::PositionAware);
-
-    if (hasTilt && isPositionAware) {
-        Attributes::GetCurrentPositionTilt(endpoint, &percent100ths);
-        if (WC_PERCENT100THS_MIN_OPEN == percent100ths)
-            return LimitStatus::IsUpOrOpen;
-
-        if (WC_PERCENT100THS_MAX_CLOSED == percent100ths)
-            return LimitStatus::IsDownOrClose;
-
-        return LimitStatus::Unknown;
-    }
-
-    return LimitStatus::Unsupported;
-}
 
 bool IsLiftOpen(chip::EndpointId endpoint)
 {

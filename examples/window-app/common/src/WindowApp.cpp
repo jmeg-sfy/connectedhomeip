@@ -417,6 +417,28 @@ void WindowApp::OnLongPressTimeout(WindowApp::Timer & timer)
 }
 
 
+LimitStatus WindowApp::Actuator::GetLimitState()
+{
+    if (mOpenLimit > mClosedLimit)
+        return LimitStatus::Inverted;
+
+    if (mOpenLimit == mCurrentPosition)
+        return LimitStatus::IsUpOrOpen;
+
+    if (mClosedLimit == mCurrentPosition)
+        return LimitStatus::IsDownOrClose;
+
+    if (mOpenLimit > mCurrentPosition)
+        return LimitStatus::IsOverUpOrOpen;
+
+    if (mClosedLimit < mCurrentPosition)
+        return LimitStatus::IsOverDownOrClose;
+
+    return LimitStatus::Intermediate;
+}
+
+
+
 void WindowApp::Actuator::OnActuatorTimeout(WindowApp::Timer & timer)
 {
     WindowApp::Actuator * actuator = static_cast<WindowApp::Actuator *>(timer.mContext);

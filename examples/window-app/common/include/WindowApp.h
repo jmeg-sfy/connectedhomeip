@@ -146,6 +146,8 @@ public:
 
         void TimerStart();
         void TimerStop();
+        LimitStatus GetLimitState();
+
         static void OnActuatorTimeout(Timer & timer);
         void Init(const char * name, uint32_t timeoutInMs, OperationalState * opState, EventId event);
 
