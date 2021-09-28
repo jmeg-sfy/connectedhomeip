@@ -616,7 +616,7 @@ void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeI
     OperationalStatus opStatus = OperationalStatusGet(endpoint);
     uint16_t posTarget = 0, posCurrent = 0;
 
-    emberAfWindowCoveringClusterPrint("WC POST ATTRIBUTE=%u", attributeId);
+    emberAfWindowCoveringClusterPrint("WC POST ATTRIBUTE=%u OpStatus=0x%02X", attributeId, opStatus);
 
     switch (attributeId)
     {
@@ -644,12 +644,16 @@ void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeI
         break;
     /* ============= Positions for Position Aware ============= */
     case ZCL_WC_CURRENT_POSITION_LIFT_PERCENT100_THS_ATTRIBUTE_ID:
-        if (OperationalState::Stall != opStatus.lift)
+        if (OperationalState::Stall != opStatus.lift) {
             opStatus.lift = OperationalState::Stall;
+            OperationalStatusSetWithGlobalUpdated(endpoint, opStatus);
+        }
         break;
     case ZCL_WC_CURRENT_POSITION_TILT_PERCENT100_THS_ATTRIBUTE_ID:
-        if (OperationalState::Stall != opStatus.tilt)
+        if (OperationalState::Stall != opStatus.tilt) {
             opStatus.tilt = OperationalState::Stall;
+            OperationalStatusSetWithGlobalUpdated(endpoint, opStatus);
+        }
         break;
     /* For a device supporting Position Awareness : Changing the Target triggers motions on the real or simulated device */
     case ZCL_WC_TARGET_POSITION_LIFT_PERCENT100_THS_ATTRIBUTE_ID:
