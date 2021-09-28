@@ -190,6 +190,7 @@ public:
     virtual CHIP_ERROR Run();
     virtual void Finish();
     virtual void PostEvent(const Event & event) = 0;
+    virtual void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeId) = 0;
 
 protected:
     struct StateFlags

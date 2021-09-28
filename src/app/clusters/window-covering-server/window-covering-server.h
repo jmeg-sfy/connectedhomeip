@@ -151,7 +151,13 @@ uint16_t TiltToPercent100ths(chip::EndpointId endpoint, uint16_t absoluteValue);
 uint16_t Percent100thsToTilt(chip::EndpointId endpoint, uint16_t percent100ths);
 uint16_t Percent100thsToLift(chip::EndpointId endpoint, uint16_t percent100ths);
 
+
+void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeId);
+
 } // namespace WindowCovering
 } // namespace Clusters
 } // namespace app
 } // namespace chip
+
+void emberAfWindowCoveringClusterPostAttributeChangeCallback(chip::EndpointId endpoint, chip::AttributeId attributeId, uint8_t mask,
+                                        uint16_t manufacturerCode, uint8_t type, uint16_t size, uint8_t * value);

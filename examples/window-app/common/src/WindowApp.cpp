@@ -333,14 +333,14 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
     case EventId::LiftUpdate:
         if (cover) {
             cover->mOperationalStatus.lift = cover->mLift.mOpState;
-            OperationalStatusSet(cover->mEndpoint, cover->mOperationalStatus);
+            OperationalStatusSetWithGlobalUpdated(cover->mEndpoint, cover->mOperationalStatus);
             LiftCurrentPositionSet(cover->mEndpoint, LiftToPercent100ths(cover->mEndpoint, cover->mLift.mCurrentPosition));//remove
         }
         break;
     case EventId::TiltUpdate:
         if (cover) {
             cover->mOperationalStatus.tilt = cover->mTilt.mOpState;
-            OperationalStatusSet(cover->mEndpoint, cover->mOperationalStatus);
+            OperationalStatusSetWithGlobalUpdated(cover->mEndpoint, cover->mOperationalStatus);
             TiltCurrentPositionSet(cover->mEndpoint, TiltToPercent100ths(cover->mEndpoint, cover->mTilt.mCurrentPosition));
         }
         break;

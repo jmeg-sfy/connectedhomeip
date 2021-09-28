@@ -610,7 +610,69 @@ EmberAfStatus TiltTargetPositionSet(chip::EndpointId endpoint, uint16_t percent1
     return EMBER_ZCL_STATUS_SUCCESS;
 }
 
+/* PostAttributeChange is used in all-cluster-app simulation and CI testing : otherwise it is bounded to manufacturer specific implementation */
+void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeId)
+{
+    OperationalStatus opStatus = OperationalStatusGet(endpoint);
+    uint16_t posTarget = 0, posCurrent = 0;
 
+    emberAfWindowCoveringClusterPrint("WC POST ATTRIBUTE=%u", attributeId);
+
+    switch (attributeId)
+    {
+    /* RO Type: Cycling Window Covering Demo */
+    case ZCL_WC_TYPE_ATTRIBUTE_ID:
+        break;
+    /* RO ConfigStatus */
+    case ZCL_WC_CONFIG_STATUS_ATTRIBUTE_ID:
+        break;
+    /* RO OperationalStatus */
+    case ZCL_WC_OPERATIONAL_STATUS_ATTRIBUTE_ID:
+        if (OperationalState::Stall != opStatus.lift)
+            LiftCurrentPositionSet(endpoint, LiftTargetPositionGet(endpoint));
+        if (OperationalState::Stall != opStatus.tilt)
+            TiltCurrentPositionSet(endpoint, TiltTargetPositionGet(endpoint));
+        break;
+    /* RO EndProductType */
+    case ZCL_WC_END_PRODUCT_TYPE_ATTRIBUTE_ID:
+        break;
+    /* RW Mode */
+    case ZCL_WC_MODE_ATTRIBUTE_ID:
+        break;
+    /* RO SafetyStatus */
+    case ZCL_WC_SAFETY_STATUS_ATTRIBUTE_ID:
+        break;
+    /* ============= Positions for Position Aware ============= */
+    case ZCL_WC_CURRENT_POSITION_LIFT_PERCENT100_THS_ATTRIBUTE_ID:
+        if (OperationalState::Stall != opStatus.lift)
+            opStatus.lift = OperationalState::Stall;
+        break;
+    case ZCL_WC_CURRENT_POSITION_TILT_PERCENT100_THS_ATTRIBUTE_ID:
+        if (OperationalState::Stall != opStatus.tilt)
+            opStatus.tilt = OperationalState::Stall;
+        break;
+    /* For a device supporting Position Awareness : Changing the Target triggers motions on the real or simulated device */
+    case ZCL_WC_TARGET_POSITION_LIFT_PERCENT100_THS_ATTRIBUTE_ID:
+        posTarget  = LiftTargetPositionGet(endpoint);
+        posCurrent = LiftCurrentPositionGet(endpoint);
+        if (posCurrent != posTarget) {
+            opStatus.lift = (posCurrent < posTarget) ? OperationalState::MovingDownOrClose : OperationalState::MovingUpOrOpen;
+            OperationalStatusSetWithGlobalUpdated(endpoint, opStatus);
+        }
+        break;
+    /* For a device supporting Position Awareness : Changing the Target triggers motions on the real or simulated device */
+    case ZCL_WC_TARGET_POSITION_TILT_PERCENT100_THS_ATTRIBUTE_ID:
+        posTarget  = TiltTargetPositionGet(endpoint);
+        posCurrent = TiltCurrentPositionGet(endpoint);
+        if (posCurrent != posTarget) {
+            opStatus.tilt = (posCurrent < posTarget) ? OperationalState::MovingDownOrClose : OperationalState::MovingUpOrOpen;
+            OperationalStatusSetWithGlobalUpdated(endpoint, opStatus);
+        }
+        break;
+    default:
+        break;
+    }
+}
 
 } // namespace WindowCovering
 } // namespace Clusters
@@ -826,6 +888,15 @@ bool emberAfWindowCoveringClusterGoToTiltPercentageCallback(app::CommandHandler 
     emberAfSendImmediateDefaultResponse(TiltTargetPositionSet(endpoint, tiltPercent100thsValue));
 
     return true;
+}
+
+/**
+ * @brief  Cluster Attribute Update Callback
+ */
+void __attribute__((weak)) emberAfWindowCoveringClusterPostAttributeChangeCallback(chip::EndpointId endpoint, chip::AttributeId attributeId, uint8_t mask,
+                                        uint16_t manufacturerCode, uint8_t type, uint16_t size, uint8_t * value)
+{
+    PostAttributeChange(endpoint, attributeId);
 }
 
 void MatterWindowCoveringPluginServerInitCallback() {}
