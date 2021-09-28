@@ -646,12 +646,14 @@ void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeI
     case ZCL_WC_CURRENT_POSITION_LIFT_PERCENT100_THS_ATTRIBUTE_ID:
         if (OperationalState::Stall != opStatus.lift) {
             opStatus.lift = OperationalState::Stall;
+            emberAfWindowCoveringClusterPrint("Lift stop");
             OperationalStatusSetWithGlobalUpdated(endpoint, opStatus);
         }
         break;
     case ZCL_WC_CURRENT_POSITION_TILT_PERCENT100_THS_ATTRIBUTE_ID:
         if (OperationalState::Stall != opStatus.tilt) {
             opStatus.tilt = OperationalState::Stall;
+            emberAfWindowCoveringClusterPrint("Tilt stop");
             OperationalStatusSetWithGlobalUpdated(endpoint, opStatus);
         }
         break;
@@ -659,6 +661,7 @@ void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeI
     case ZCL_WC_TARGET_POSITION_LIFT_PERCENT100_THS_ATTRIBUTE_ID:
         posTarget  = LiftTargetPositionGet(endpoint);
         posCurrent = LiftCurrentPositionGet(endpoint);
+        emberAfWindowCoveringClusterPrint("Lift move C=%u -> T=%u", posCurrent, posTarget);
         if (posCurrent != posTarget) {
             opStatus.lift = (posCurrent < posTarget) ? OperationalState::MovingDownOrClose : OperationalState::MovingUpOrOpen;
             OperationalStatusSetWithGlobalUpdated(endpoint, opStatus);
@@ -668,6 +671,7 @@ void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeI
     case ZCL_WC_TARGET_POSITION_TILT_PERCENT100_THS_ATTRIBUTE_ID:
         posTarget  = TiltTargetPositionGet(endpoint);
         posCurrent = TiltCurrentPositionGet(endpoint);
+        emberAfWindowCoveringClusterPrint("Tilt move C=%u -> T=%u", posCurrent, posTarget);
         if (posCurrent != posTarget) {
             opStatus.tilt = (posCurrent < posTarget) ? OperationalState::MovingDownOrClose : OperationalState::MovingUpOrOpen;
             OperationalStatusSetWithGlobalUpdated(endpoint, opStatus);
@@ -696,6 +700,10 @@ void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeI
 void emberAfWindowCoveringClusterInitCallback(chip::EndpointId endpoint)
 {
     emberAfWindowCoveringClusterPrint("Window Covering Cluster init");
+
+    /* Init at Half 50% */
+    LiftCurrentPositionSet(endpoint, 5000);
+    TiltCurrentPositionSet(endpoint, 5000);
 }
 
 /**
