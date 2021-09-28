@@ -89,31 +89,49 @@ static uint16_t ConvertValue(uint16_t inputLowValue, uint16_t inputHighValue, ui
     inputRange = static_cast<uint16_t>(inputMax - inputMin);
     outputRange = static_cast<uint16_t>(outputMax - outputMin);
 
-    if (value < inputMin)
+    emberAfWindowCoveringClusterPrint("ValueIn=%u", value);
+    emberAfWindowCoveringClusterPrint("I range=%u min=%u max=%u",  inputRange,  inputMin, inputMax);
+    emberAfWindowCoveringClusterPrint("O range=%u min=%u max=%u", outputRange, outputMin, outputMax);
+
+    if (1)
     {
-        return outputMin;
+        if (value < inputMin)
+        {
+            return outputMin;
+        }
+
+        if (value > inputMax)
+        {
+            return outputMax;
+        }
+
+
+        emberAfWindowCoveringClusterPrint("ValueIn converted");
+        if (inputRange > 0)
+        {
+            return static_cast<uint16_t>(outputMin + ((outputRange * (value - inputMin) / inputRange)));
+        }
     }
-    
-    if (value > inputMax)
+    else
     {
-        return outputMax;
+        if (inputRange > 0)
+        {
+            return static_cast<uint16_t>((outputRange * (value) / inputRange));
+        }
     }
 
-    if (inputRange > 0)
-    {
-        return static_cast<uint16_t>(outputMin + ((outputRange * (value - inputMin) / inputRange)));
-    }
+    return outputMax;
 
     return outputMax;
 }
 
 
-static uint16_t ValueToPercent100ths(uint16_t openLimit, uint16_t closedLimit, uint16_t value)
+uint16_t ValueToPercent100ths(uint16_t openLimit, uint16_t closedLimit, uint16_t value)
 {
     return ConvertValue(openLimit, closedLimit, WC_PERCENT100THS_MIN_OPEN, WC_PERCENT100THS_MAX_CLOSED, value);
 }
 
-static uint16_t Percent100thsToValue(uint16_t openLimit, uint16_t closedLimit, uint16_t percent100ths)
+uint16_t Percent100thsToValue(uint16_t openLimit, uint16_t closedLimit, uint16_t percent100ths)
 {
     return ConvertValue(WC_PERCENT100THS_MIN_OPEN, WC_PERCENT100THS_MAX_CLOSED, openLimit, closedLimit, percent100ths);
 }
@@ -160,7 +178,9 @@ static uint8_t OperationalStateToValue(const OperationalState & state)
 namespace chip {
 namespace app {
 namespace Clusters {
-namespace WindowCovering {
+namespace WindowCovering { //update to server
+
+EmberEventControl wc_eventControls[EMBER_AF_WINDOW_COVERING_CLUSTER_SERVER_ENDPOINT_COUNT];
 
 bool HasFeature(chip::EndpointId endpoint, Features feature)
 {
@@ -610,6 +630,30 @@ EmberAfStatus TiltTargetPositionSet(chip::EndpointId endpoint, uint16_t percent1
     return EMBER_ZCL_STATUS_SUCCESS;
 }
 
+
+
+void emberAfPluginWindowCoveringEventHandler(EndpointId endpoint)
+{
+    emberAfWindowCoveringClusterPrint("WC DELAYED CALLBACK 100ms");
+}
+
+EmberEventControl * getEventControl(EndpointId endpoint)
+{
+    uint16_t index = emberAfFindClusterServerEndpointIndex(endpoint, ZCL_WINDOW_COVERING_CLUSTER_ID);
+    return &wc_eventControls[index];
+}
+
+EmberEventControl * configureXYEventControl(EndpointId endpoint)
+{
+    EmberEventControl * controller = getEventControl(endpoint);
+
+    controller->endpoint = endpoint;
+    controller->callback = &emberAfPluginWindowCoveringEventHandler;
+
+    return controller;
+}
+
+
 /* PostAttributeChange is used in all-cluster-app simulation and CI testing : otherwise it is bounded to manufacturer specific implementation */
 void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeId)
 {
@@ -628,8 +672,12 @@ void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeI
         break;
     /* RO OperationalStatus */
     case ZCL_WC_OPERATIONAL_STATUS_ATTRIBUTE_ID:
-        if (OperationalState::Stall != opStatus.lift)
+        if (OperationalState::Stall != opStatus.lift) {
+            // kick off the state machine:
+            emberEventControlSetDelayMS(configureXYEventControl(endpoint), 100);
             LiftCurrentPositionSet(endpoint, LiftTargetPositionGet(endpoint));
+        }
+
         if (OperationalState::Stall != opStatus.tilt)
             TiltCurrentPositionSet(endpoint, TiltTargetPositionGet(endpoint));
         break;
@@ -814,6 +862,7 @@ bool emberAfWindowCoveringClusterGoToLiftValueCallback(app::CommandHandler * com
                                                        const Commands::GoToLiftValue::DecodableType & commandData)
 {
     EmberAfStatus status = EMBER_ZCL_STATUS_UNSUP_COMMAND;
+
     bool hasAbsolute = HasFeature(endpoint, Features::Absolute);
 
     emberAfWindowCoveringClusterPrint("GoToLiftValue command received w/ %u", liftValue);
