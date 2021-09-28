@@ -449,7 +449,7 @@ uint16_t LiftCurrentPositionGet(chip::EndpointId endpoint)
 {
     uint16_t percent100ths = WC_PERCENT100THS_MIN_OPEN;
 
-    Attributes::GetCurrentPositionLiftPercent100ths(endpoint, &percent100ths);
+    Attributes::GetTargetPositionLiftPercent100ths(endpoint, &percent100ths);
 
     return percent100ths;
 }
@@ -549,7 +549,7 @@ uint16_t TiltCurrentPositionGet(chip::EndpointId endpoint)
 {
     uint16_t percent100ths = WC_PERCENT100THS_MIN_OPEN;
 
-    Attributes::GetCurrentPositionTiltPercent100ths(endpoint, &percent100ths);
+    Attributes::GetTargetPositionTiltPercent100ths(endpoint, &percent100ths);
 
     return percent100ths;
 }
