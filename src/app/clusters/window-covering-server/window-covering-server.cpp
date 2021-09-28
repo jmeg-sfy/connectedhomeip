@@ -69,7 +69,7 @@ static bool HasFeaturePaTilt(chip::EndpointId endpoint)
     return (HasFeature(endpoint, WcFeature::kTilt) && HasFeature(endpoint, WcFeature::kPositionAwareTilt));
 }
 
-static uint16_t ConvertValue(uint16_t inputLowValue, uint16_t inputHighValue, uint16_t outputLowValue, uint16_t outputHighValue, uint16_t value)
+static uint16_t ConvertValue(uint16_t inputLowValue, uint16_t inputHighValue, uint16_t outputLowValue, uint16_t outputHighValue, uint16_t value, bool offset)
 {
     uint16_t inputMin = inputLowValue, inputMax = inputHighValue, inputRange = UINT16_MAX;
     uint16_t outputMin = outputLowValue, outputMax = outputHighValue, outputRange = UINT16_MAX;
@@ -93,7 +93,7 @@ static uint16_t ConvertValue(uint16_t inputLowValue, uint16_t inputHighValue, ui
     emberAfWindowCoveringClusterPrint("I range=%u min=%u max=%u",  inputRange,  inputMin, inputMax);
     emberAfWindowCoveringClusterPrint("O range=%u min=%u max=%u", outputRange, outputMin, outputMax);
 
-    if (1)
+    if (offset)
     {
         if (value < inputMin)
         {
@@ -128,12 +128,12 @@ static uint16_t ConvertValue(uint16_t inputLowValue, uint16_t inputHighValue, ui
 
 uint16_t ValueToPercent100ths(uint16_t openLimit, uint16_t closedLimit, uint16_t value)
 {
-    return ConvertValue(openLimit, closedLimit, WC_PERCENT100THS_MIN_OPEN, WC_PERCENT100THS_MAX_CLOSED, value);
+    return ConvertValue(openLimit, closedLimit, WC_PERCENT100THS_MIN_OPEN, WC_PERCENT100THS_MAX_CLOSED, value, true);
 }
 
 uint16_t Percent100thsToValue(uint16_t openLimit, uint16_t closedLimit, uint16_t percent100ths)
 {
-    return ConvertValue(WC_PERCENT100THS_MIN_OPEN, WC_PERCENT100THS_MAX_CLOSED, openLimit, closedLimit, percent100ths);
+    return ConvertValue(WC_PERCENT100THS_MIN_OPEN, WC_PERCENT100THS_MAX_CLOSED, openLimit, closedLimit, percent100ths, true);
 }
 
 static bool IsPercent100thsValid(uint16_t percent100ths)
