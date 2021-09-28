@@ -34,7 +34,7 @@ tests:
       minInterval: 0
       maxInterval: 255
       response:
-          value: 5
+          value: 0
 
     ### Step 2x -> Check StopMotion effects
     ### MANDATORY Command
