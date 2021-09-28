@@ -30,9 +30,14 @@ tests:
     - label: "1a: TH adjusts the the DUT to a non-open position"
       command: "UpOrOpen"
 
-    ### Depends on a sleep/wait command how to do this with a real device
+    ### Depends on a sleep/wait command how to do this with a real device for CI keep at 100ms
     - label: "1b: Wait for the movement to start and go on for a few seconds"
-      disabled: true
+      cluster: "DelayCommands"
+      command: "WaitForMs"
+      arguments:
+          values:
+              - name: "ms"
+                value: 100
 
     ### Step 2x -> Check Command instant effects + longer effects
     ### MANDATORY Command

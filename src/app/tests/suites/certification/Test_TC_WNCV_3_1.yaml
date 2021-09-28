@@ -79,9 +79,14 @@ tests:
           constraints:
               type: uint16
 
-    ### Depends on a sleep/wait command how to do this with a real device
+    ### Depends on a sleep/wait command how to do this with a real device for CI keep at 100ms
     - label: "2d: Wait for the movement to finish"
-      disabled: true
+      cluster: "DelayCommands"
+      command: "WaitForMs"
+      arguments:
+          values:
+              - name: "ms"
+                value: 100
 
     ### Step 3x -> Check longer period effect
     ### MANDATORY reads
