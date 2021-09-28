@@ -634,7 +634,15 @@ EmberAfStatus TiltTargetPositionSet(chip::EndpointId endpoint, uint16_t percent1
 
 void emberAfPluginWindowCoveringEventHandler(EndpointId endpoint)
 {
-    emberAfWindowCoveringClusterPrint("WC DELAYED CALLBACK 100ms");
+    OperationalStatus opStatus = OperationalStatusGet(endpoint);
+    emberAfWindowCoveringClusterPrint("WC DELAYED CALLBACK 100ms w/ OpStatus=0x%02X", opStatus);
+
+    /* Update position to simulate movement to pass the CI */
+    if (OperationalState::Stall != opStatus.lift)
+        LiftCurrentPositionSet(endpoint, LiftTargetPositionGet(endpoint));
+
+    if (OperationalState::Stall != opStatus.tilt)
+        TiltCurrentPositionSet(endpoint, TiltTargetPositionGet(endpoint));
 }
 
 EmberEventControl * getEventControl(EndpointId endpoint)
@@ -672,14 +680,10 @@ void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeI
         break;
     /* RO OperationalStatus */
     case ZCL_WC_OPERATIONAL_STATUS_ATTRIBUTE_ID:
-        if (OperationalState::Stall != opStatus.lift) {
+        if ((OperationalState::Stall != opStatus.lift) || (OperationalState::Stall != opStatus.tilt)) {
             // kick off the state machine:
             emberEventControlSetDelayMS(configureXYEventControl(endpoint), 100);
-            LiftCurrentPositionSet(endpoint, LiftTargetPositionGet(endpoint));
         }
-
-        if (OperationalState::Stall != opStatus.tilt)
-            TiltCurrentPositionSet(endpoint, TiltTargetPositionGet(endpoint));
         break;
     /* RO EndProductType */
     case ZCL_WC_END_PRODUCT_TYPE_ATTRIBUTE_ID:
