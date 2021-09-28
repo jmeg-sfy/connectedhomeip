@@ -285,7 +285,8 @@ const ConfigStatus ConfigStatusGet(chip::EndpointId endpoint)
     return status;
 }
 
-void OperationalStatusSet(chip::EndpointId endpoint, OperationalStatus & status)
+
+void OperationalStatusSetWithGlobalUpdated(chip::EndpointId endpoint, OperationalStatus & status)
 {
     /* Global Always follow Lift by priority and then fallback to Tilt */
     if (OperationalState::Stall != status.lift) {
@@ -294,6 +295,12 @@ void OperationalStatusSet(chip::EndpointId endpoint, OperationalStatus & status)
         status.global = status.tilt;
     }
 
+    OperationalStatusSet(endpoint, status);
+}
+
+
+void OperationalStatusSet(chip::EndpointId endpoint, const OperationalStatus & status)
+{
     uint8_t global = OperationalStateToValue(status.global);
     uint8_t lift   = OperationalStateToValue(status.lift);
     uint8_t tilt   = OperationalStateToValue(status.tilt);
