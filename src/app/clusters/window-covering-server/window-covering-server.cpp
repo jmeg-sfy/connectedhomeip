@@ -766,7 +766,7 @@ bool emberAfWindowCoveringClusterUpOrOpenCallback(app::CommandHandler * commandO
 {
     EndpointId endpoint = commandPath.mEndpointId;
 
-    emberAfWindowCoveringClusterPrint("UpOrOpen command received");
+    emberAfWindowCoveringClusterPrint("UpOrOpen command received OpStatus=0x%02X", OperationalStatusGet(endpoint));
 
     EmberAfStatus tiltStatus = TiltTargetPositionSet(endpoint, WC_PERCENT100THS_MIN_OPEN);
     EmberAfStatus liftStatus = LiftTargetPositionSet(endpoint, WC_PERCENT100THS_MIN_OPEN);
@@ -798,7 +798,7 @@ bool emberAfWindowCoveringClusterDownOrCloseCallback(app::CommandHandler * comma
 {
     EndpointId endpoint = commandPath.mEndpointId;
 
-    emberAfWindowCoveringClusterPrint("DownOrClose command received");
+    emberAfWindowCoveringClusterPrint("DownOrClose command received OpStatus=0x%02X", OperationalStatusGet(endpoint));
 
     EmberAfStatus tiltStatus = TiltTargetPositionSet(endpoint, WC_PERCENT100THS_MAX_CLOSED);
     EmberAfStatus liftStatus = LiftTargetPositionSet(endpoint, WC_PERCENT100THS_MAX_CLOSED);
@@ -817,7 +817,7 @@ bool emberAfWindowCoveringClusterDownOrCloseCallback(app::CommandHandler * comma
  */
 bool emberAfWindowCoveringClusterStopMotionCallback(chip::EndpointId endpoint, chip::app::CommandHandler * commandObj)
 {
-    emberAfWindowCoveringClusterPrint("StopMotion command received");
+    emberAfWindowCoveringClusterPrint("StopMotion command received OpStatus=0x%02X", OperationalStatusGet(endpoint));
 
     EmberAfStatus tiltStatus = TiltTargetPositionSet(endpoint, TiltCurrentPositionGet(endpoint));
     EmberAfStatus liftStatus = LiftTargetPositionSet(endpoint, LiftCurrentPositionGet(endpoint));
