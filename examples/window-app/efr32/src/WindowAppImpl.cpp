@@ -356,6 +356,9 @@ void WindowAppImpl::DispatchEvent(const WindowApp::Event & event)
         }
         UpdateLCD();
         break;
+    case EventId::OperationalStatus:
+        UpdateLEDs();
+        break;
     default:
         break;
     }
@@ -393,7 +396,10 @@ void WindowAppImpl::UpdateLEDs()
 
         // Action LED
 
-        if (EventId::None != cover.mLiftAction || EventId::None != cover.mTiltAction)
+       // if (EventId::None != cover.mLiftAction || EventId::None != cover.mTiltAction)
+      //  {
+       //     mActionLED.Blink(100);
+       // }
         LimitStatus liftLimit = cover.mLift.GetLimitState();
         LimitStatus tiltLimit = cover.mTilt.GetLimitState();
         EFR32_LOG("OpState: L %02X T %02X, ep=%u\n", cover.mOperationalStatus.lift, cover.mOperationalStatus.tilt, cover.mEndpoint);
