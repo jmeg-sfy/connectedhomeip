@@ -32,7 +32,7 @@ tests:
       command: "subscribeAttribute"
       attribute: "OperationalStatus"
       minInterval: 0
-      maxInterval: 255
+      maxInterval: 64
       response:
           value: 21
 
@@ -44,6 +44,32 @@ tests:
     ### Depends on the FeatureMap
     # The value of bit 0..1 must be 00b & if (LF) value of bit 2..3 must be 00b & if (TL) value of bit 4..5 must be 00b
     - label: "2b: Verify DUT sends OperationalStatus attribute report to TH"
+      command: "waitForReport"
+      attribute: "OperationalStatus"
+      response:
+          value: 0
+
+    ### Step 3x -> Check DownOrClose effects
+    ### MANDATORY Command
+    - label: "3a: TH sends DownOrClose command to DUT"
+      command: "DownOrClose"
+
+    ### Depends on the FeatureMap
+    # The value of bit 0..1 must be 10b & if (LF) value of bit 2..3 must be 10b else 00b & if (TL) value of bit 4..5 must be 10b else 00b
+    - label: "3b: Verify DUT sends OperationalStatus attribute report to TH"
+      command: "waitForReport"
+      attribute: "OperationalStatus"
+      response:
+          value: 66
+
+    ### Step 4x -> Check StopMotion effects
+    ### MANDATORY Command
+    - label: "4a: TH sends StopMotion command to DUT"
+      command: "StopMotion"
+
+    ### Depends on the FeatureMap
+    # The value of bit 0..1 must be 00b & if (LF) value of bit 2..3 must be 00b & if (TL) value of bit 4..5 must be 00b
+    - label: "4b: Verify DUT sends OperationalStatus attribute report to TH"
       command: "waitForReport"
       attribute: "OperationalStatus"
       response:
