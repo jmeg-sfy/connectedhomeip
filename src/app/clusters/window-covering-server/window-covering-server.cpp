@@ -713,21 +713,23 @@ void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeI
     case ZCL_WC_TARGET_POSITION_LIFT_PERCENT100_THS_ATTRIBUTE_ID:
         posTarget  = LiftTargetPositionGet(endpoint);
         posCurrent = LiftCurrentPositionGet(endpoint);
+        opStatus.lift = OperationalState::Stall;
         emberAfWindowCoveringClusterPrint("Lift move C=%u -> T=%u", posCurrent, posTarget);
         if (posCurrent != posTarget) {
             opStatus.lift = (posCurrent < posTarget) ? OperationalState::MovingDownOrClose : OperationalState::MovingUpOrOpen;
-            OperationalStatusSetWithGlobalUpdated(endpoint, opStatus);
         }
+        OperationalStatusSetWithGlobalUpdated(endpoint, opStatus);
         break;
     /* For a device supporting Position Awareness : Changing the Target triggers motions on the real or simulated device */
     case ZCL_WC_TARGET_POSITION_TILT_PERCENT100_THS_ATTRIBUTE_ID:
         posTarget  = TiltTargetPositionGet(endpoint);
         posCurrent = TiltCurrentPositionGet(endpoint);
+        opStatus.tilt = OperationalState::Stall;
         emberAfWindowCoveringClusterPrint("Tilt move C=%u -> T=%u", posCurrent, posTarget);
         if (posCurrent != posTarget) {
             opStatus.tilt = (posCurrent < posTarget) ? OperationalState::MovingDownOrClose : OperationalState::MovingUpOrOpen;
-            OperationalStatusSetWithGlobalUpdated(endpoint, opStatus);
         }
+        OperationalStatusSetWithGlobalUpdated(endpoint, opStatus);
         break;
     default:
         break;
