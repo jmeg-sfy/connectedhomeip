@@ -682,7 +682,7 @@ void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeI
     case ZCL_WC_OPERATIONAL_STATUS_ATTRIBUTE_ID:
         //if ((OperationalState::Stall != opStatus.lift) || (OperationalState::Stall != opStatus.tilt)) {
             // kick off the state machine:
-            emberEventControlSetDelayMS(configureXYEventControl(endpoint), 100);
+            emberEventControlSetDelayMS(configureXYEventControl(endpoint), 3000);
         //}
         break;
     /* RO EndProductType */
