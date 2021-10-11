@@ -443,9 +443,9 @@ EmberAfStatus LiftCurrentPositionSet(chip::EndpointId endpoint, uint16_t percent
         {
             if (IsPercent100thsValid(percent100ths))
             {
-                Attributes::SetCurrentPositionLiftPercentage(endpoint, static_cast<uint8_t>(percent100ths / 100));
-                Attributes::SetCurrentPositionLiftPercent100ths(endpoint, percent100ths);
-                if (hasAbsolute) Attributes::SetCurrentPositionLift(endpoint, Percent100thsToLift(endpoint, percent100ths));
+                Attributes::CurrentPositionLiftPercentage::Set(endpoint, static_cast<uint8_t>(percent100ths / 100));
+                Attributes::CurrentPositionLiftPercent100ths::Set(endpoint, percent100ths);
+                if (hasAbsolute) Attributes::CurrentPositionLift::Set(endpoint, Percent100thsToLift(endpoint, percent100ths));
             }
             else
             {
@@ -469,7 +469,7 @@ uint16_t LiftCurrentPositionGet(chip::EndpointId endpoint)
 {
     uint16_t percent100ths = WC_PERCENT100THS_MIN_OPEN;
 
-    Attributes::GetTargetPositionLiftPercent100ths(endpoint, &percent100ths);
+    Attributes::TargetPositionLiftPercent100ths::Get(endpoint, &percent100ths);
 
     return percent100ths;
 }
@@ -487,7 +487,7 @@ EmberAfStatus LiftTargetPositionSet(chip::EndpointId endpoint, uint16_t percent1
         {
             if (IsPercent100thsValid(percent100ths))
             {
-                Attributes::SetTargetPositionLiftPercent100ths(endpoint, percent100ths);
+                Attributes::TargetPositionLiftPercent100ths::Set(endpoint, percent100ths);
             }
             else
             {
@@ -500,7 +500,7 @@ EmberAfStatus LiftTargetPositionSet(chip::EndpointId endpoint, uint16_t percent1
              then a zero percentage SHOULD be treated as a DownOrClose command and a non-zero percentage SHOULD be treated as an UpOrOpen command
             */
             /* TODO rewrite this part later */
-            Attributes::SetTargetPositionLiftPercent100ths(endpoint, percent100ths ? WC_PERCENT100THS_MIN_OPEN : WC_PERCENT100THS_MAX_CLOSED);
+            Attributes::TargetPositionLiftPercent100ths::Set(endpoint, percent100ths ? WC_PERCENT100THS_MIN_OPEN : WC_PERCENT100THS_MAX_CLOSED);
         }
     }
     else
@@ -543,9 +543,9 @@ EmberAfStatus TiltCurrentPositionSet(chip::EndpointId endpoint, uint16_t percent
         {
             if (IsPercent100thsValid(percent100ths))
             {
-                Attributes::SetCurrentPositionTiltPercentage(endpoint, static_cast<uint8_t>(percent100ths / 100));
-                Attributes::SetCurrentPositionTiltPercent100ths(endpoint, percent100ths);
-                if (hasAbsolute) Attributes::SetCurrentPositionTilt(endpoint, Percent100thsToTilt(endpoint, percent100ths));
+                Attributes::CurrentPositionTiltPercentage::Set(endpoint, static_cast<uint8_t>(percent100ths / 100));
+                Attributes::CurrentPositionTiltPercent100ths::Set(endpoint, percent100ths);
+                if (hasAbsolute) Attributes::CurrentPositionTilt::Set(endpoint, Percent100thsToTilt(endpoint, percent100ths));
             }
             else
             {
@@ -569,7 +569,7 @@ uint16_t TiltCurrentPositionGet(chip::EndpointId endpoint)
 {
     uint16_t percent100ths = WC_PERCENT100THS_MIN_OPEN;
 
-    Attributes::GetTargetPositionTiltPercent100ths(endpoint, &percent100ths);
+    Attributes::TargetPositionTiltPercent100ths::Get(endpoint, &percent100ths);
 
     return percent100ths;
 }
@@ -578,7 +578,7 @@ uint16_t TiltTargetPositionGet(chip::EndpointId endpoint)
 {
     uint16_t percent100ths = WC_PERCENT100THS_MIN_OPEN;
 
-    Attributes::GetCurrentPositionTiltPercent100ths(endpoint, &percent100ths);
+    Attributes::CurrentPositionTiltPercent100ths::Get(endpoint, &percent100ths);
 
     return percent100ths;
 }
@@ -587,7 +587,7 @@ uint16_t LiftTargetPositionGet(chip::EndpointId endpoint)
 {
     uint16_t percent100ths = WC_PERCENT100THS_MIN_OPEN;
 
-    Attributes::GetCurrentPositionLiftPercent100ths(endpoint, &percent100ths);
+    Attributes::CurrentPositionLiftPercent100ths::Get(endpoint, &percent100ths);
 
     return percent100ths;
 }
@@ -607,7 +607,7 @@ EmberAfStatus TiltTargetPositionSet(chip::EndpointId endpoint, uint16_t percent1
         {
             if (IsPercent100thsValid(percent100ths))
             {
-                Attributes::SetTargetPositionTiltPercent100ths(endpoint, percent100ths);
+                Attributes::TargetPositionTiltPercent100ths::Set(endpoint, percent100ths);
             }
             else
             {
@@ -619,7 +619,7 @@ EmberAfStatus TiltTargetPositionSet(chip::EndpointId endpoint, uint16_t percent1
             /* If the server does not support the Position Aware feature,
              then a zero percentage SHOULD be treated as a DownOrClose command and a non-zero percentage SHOULD be treated as an UpOrOpen command
             */
-            Attributes::SetTargetPositionTiltPercent100ths(endpoint, percent100ths ? WC_PERCENT100THS_MIN_OPEN : WC_PERCENT100THS_MAX_CLOSED);
+            Attributes::TargetPositionTiltPercent100ths::Set(endpoint, percent100ths ? WC_PERCENT100THS_MIN_OPEN : WC_PERCENT100THS_MAX_CLOSED);
         }
     }
     else
@@ -817,7 +817,9 @@ bool emberAfWindowCoveringClusterDownOrCloseCallback(app::CommandHandler * comma
 /**
  * @brief  Cluster StopMotion Command callback (from client)
  */
-bool emberAfWindowCoveringClusterStopMotionCallback(chip::EndpointId endpoint, chip::app::CommandHandler * commandObj)
+bool emberAfWindowCoveringClusterStopMotionCallback(chip::app::CommandHandler * commandObj,
+                                                    const chip::app::ConcreteCommandPath & commandPath, chip::EndpointId endpoint,
+                                                    Commands::StopMotion::DecodableType & commandData)
 {
     emberAfWindowCoveringClusterPrint("StopMotion command received OpStatus=0x%02X", OperationalStatusGet(endpoint));
 

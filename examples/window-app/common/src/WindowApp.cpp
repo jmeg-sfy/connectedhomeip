@@ -314,14 +314,14 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
     case EventId::LiftTargetPosition:
         if (cover) {
             uint16_t percent100ths;
-            Attributes::GetTargetPositionLiftPercent100ths(event.mEndpoint, &percent100ths);
+            Attributes::TargetPositionLiftPercent100ths::Get(event.mEndpoint, &percent100ths);
             cover->mLift.GoToValue(Percent100thsToLift(event.mEndpoint, percent100ths));
         }
         break;
     case EventId::TiltTargetPosition:
         if (cover) {
             uint16_t percent100ths;
-            Attributes::GetTargetPositionTiltPercent100ths(event.mEndpoint, &percent100ths);
+            Attributes::TargetPositionTiltPercent100ths::Get(event.mEndpoint, &percent100ths);
             cover->mTilt.GoToValue(Percent100thsToTilt(event.mEndpoint, percent100ths));
         }
         break;
@@ -474,12 +474,12 @@ mTilt.mStepDelta = TILT_DELTA;
     mTilt.Init("Tilt", COVER_LIFT_TILT_TIMEOUT, nullptr, EventId::TiltUpdate);
 
     //mTiltTimer = WindowApp::Instance().CreateTimer("Timer:Tilt", COVER_LIFT_TILT_TIMEOUT, OnTiltTimeout, this);
-    Attributes::SetInstalledOpenLimitLift(endpoint, mLift.mOpenLimit);
-    Attributes::SetInstalledClosedLimitLift(endpoint, mLift.mClosedLimit);
+    Attributes::InstalledOpenLimitLift::Set(endpoint, mLift.mOpenLimit);
+    Attributes::InstalledClosedLimitLift::Set(endpoint, mLift.mClosedLimit);
     LiftCurrentPositionSet(endpoint, LiftToPercent100ths(endpoint, mLift.mClosedLimit));
 
-    Attributes::SetInstalledOpenLimitTilt(endpoint, mTilt.mOpenLimit);
-    Attributes::SetInstalledClosedLimitTilt(endpoint, mTilt.mClosedLimit);
+    Attributes::InstalledOpenLimitTilt::Set(endpoint, mTilt.mOpenLimit);
+    Attributes::InstalledClosedLimitTilt::Set(endpoint, mTilt.mClosedLimit);
     TiltCurrentPositionSet(endpoint, TiltToPercent100ths(endpoint, mTilt.mClosedLimit));
 
     // Attribute: Id  0 Type
