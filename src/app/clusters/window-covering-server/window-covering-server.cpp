@@ -962,10 +962,9 @@ bool emberAfWindowCoveringClusterGoToTiltPercentageCallback(app::CommandHandler 
 /**
  * @brief  Cluster Attribute Update Callback
  */
-void __attribute__((weak)) emberAfWindowCoveringClusterPostAttributeChangeCallback(chip::EndpointId endpoint, chip::AttributeId attributeId, uint8_t mask,
-                                        uint16_t manufacturerCode, uint8_t type, uint16_t size, uint8_t * value)
+void __attribute__((weak)) WindowCoveringPostAttributeChangeCallback(const app::ConcreteAttributePath & attributePath, uint8_t mask, uint8_t type, uint16_t size, uint8_t * value)
 {
-    PostAttributeChange(endpoint, attributeId);
+    PostAttributeChange(attributePath.mEndpointId, attributePath.mAttributeId);
 }
 
 void MatterWindowCoveringPluginServerInitCallback() {}

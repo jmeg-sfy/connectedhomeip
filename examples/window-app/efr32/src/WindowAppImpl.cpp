@@ -19,6 +19,7 @@
 #include <LcdPainter.h>
 #include <WindowAppImpl.h>
 #include <app-common/zap-generated/attributes/Accessors.h>
+
 #include <app/clusters/window-covering-server/window-covering-server.h>
 #include <app/server/OnboardingCodesUtil.h>
 #include <lcd.h>

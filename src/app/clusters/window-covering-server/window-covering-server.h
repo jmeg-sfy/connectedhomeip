@@ -17,6 +17,8 @@
 
 #pragma once
 
+#include <app-common/zap-generated/ids/Attributes.h>
+#include <app-common/zap-generated/ids/Clusters.h>
 #include <app-common/zap-generated/attribute-id.h>
 #include <app-common/zap-generated/enums.h>
 #include <app/util/af-types.h>
@@ -159,5 +161,4 @@ void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeI
 } // namespace app
 } // namespace chip
 
-void emberAfWindowCoveringClusterPostAttributeChangeCallback(chip::EndpointId endpoint, chip::AttributeId attributeId, uint8_t mask,
-                                        uint16_t manufacturerCode, uint8_t type, uint16_t size, uint8_t * value);
+void WindowCoveringPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & attributePath, uint8_t mask, uint8_t type, uint16_t size, uint8_t * value);
