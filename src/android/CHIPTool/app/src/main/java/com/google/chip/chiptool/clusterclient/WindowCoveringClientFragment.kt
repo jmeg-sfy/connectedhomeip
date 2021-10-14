@@ -1,10 +1,13 @@
 package com.google.chip.chiptool.clusterclient
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -36,6 +39,8 @@ class WindowCoveringClientFragment : Fragment() {
 
   private val scope = CoroutineScope(Dispatchers.Main + Job())
 
+  private lateinit var addressUpdateFragment: AddressUpdateFragment
+
   private fun getPercent100thsText(percent : Int): String {
     val acc1 = percent / 100;
     val acc2 = percent  - acc1 * 100
@@ -63,11 +68,15 @@ class WindowCoveringClientFragment : Fragment() {
     return inflater.inflate(R.layout.window_covering_client_fragment, container, false).apply {
       deviceController.setCompletionListener(ChipControllerCallback())
 
-     updateAddressBtn.setOnClickListener { updateAddressClick() }
+      addressUpdateFragment =
+        childFragmentManager.findFragmentById(R.id.addressUpdateFragment) as AddressUpdateFragment
+
+
        downOrCloseBtn.setOnClickListener { scope.launch { sendDownOrCloseCommandClick() }}
           upOrOpenBtn.setOnClickListener { scope.launch { sendUpOrOpenCommandClick()    }}
         stopMotionBtn.setOnClickListener { scope.launch { sendStopMotionCommandClick()  }}
               readBtn.setOnClickListener { scope.launch { sendReadOnOffClick()          }}
+showSubscribeDialogBtn.setOnClickListener { showSubscribeDialog() }
 
       lvlPosTargetLift.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
         override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
@@ -119,6 +128,57 @@ class WindowCoveringClientFragment : Fragment() {
   }
 
 
+  private fun showSubscribeDialog() {
+    val dialogView = requireActivity().layoutInflater.inflate(R.layout.subscribe_dialog, null)
+    val dialog = AlertDialog.Builder(requireContext()).apply {
+      setView(dialogView)
+    }.create()
+
+    val minIntervalEd = dialogView.findViewById<EditText>(R.id.minIntervalEd)
+    val maxIntervalEd = dialogView.findViewById<EditText>(R.id.maxIntervalEd)
+    dialogView.findViewById<Button>(R.id.subscribeBtn).setOnClickListener {
+      scope.launch {
+        sendSubscribeOnOffClick(
+          minIntervalEd.text.toString().toInt(),
+          maxIntervalEd.text.toString().toInt()
+        )
+        dialog.dismiss()
+      }
+    }
+    dialog.show()
+  }
+
+  private suspend fun sendSubscribeOnOffClick(minInterval: Int, maxInterval: Int) {
+    val onOffCluster = getOnOffClusterForDevice()
+
+    val subscribeCallback = object : ChipClusters.DefaultClusterCallback {
+      override fun onSuccess() {
+        val message = "Subscribe on/off success"
+        Log.v(TAG, message)
+        showMessage(message)
+
+        onOffCluster.reportOnOffAttribute(object : ChipClusters.BooleanAttributeCallback {
+          override fun onSuccess(on: Boolean) {
+            Log.v(TAG, "Report on/off attribute value: $on")
+
+            val formatter = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+            val time = formatter.format(Calendar.getInstance(Locale.getDefault()).time)
+            showReportMessage("Report on/off at $time: ${if (on) "ON" else "OFF"}")
+          }
+
+          override fun onError(ex: Exception) {
+            Log.e(TAG, "Error reporting on/off attribute", ex)
+            showReportMessage("Error reporting on/off attribute: $ex")
+          }
+        })
+      }
+
+      override fun onError(ex: Exception) {
+        Log.e(TAG, "Error configuring on/off attribute", ex)
+      }
+    }
+    onOffCluster.subscribeOnOffAttribute(subscribeCallback, minInterval, maxInterval)
+  }
 
   override fun onStart() {
     super.onStart()
@@ -135,6 +195,7 @@ class WindowCoveringClientFragment : Fragment() {
 
     override fun onCommissioningComplete(nodeId: Long, errorCode: Int) {
       Log.d(TAG, "onCommissioningComplete for nodeId $nodeId: $errorCode")
+      showMessage("Address update complete for nodeId $nodeId with code $errorCode")
     }
 
     override fun onSendMessageComplete(message: String?) {
@@ -159,21 +220,10 @@ class WindowCoveringClientFragment : Fragment() {
     scope.cancel()
   }
 
-  private fun updateAddressClick() {
-    try{
-      deviceController.updateDevice(
-          fabricIdEd.text.toString().toULong().toLong(),
-          deviceIdEd.text.toString().toULong().toLong()
-      )
-      showMessage("Address update started")
-    } catch (ex: Exception) {
-      showMessage("Address update failed: $ex")
-    }
-  }
-
   private suspend fun sendLevelCommandClick() {
     val cluster = ChipClusters.LevelControlCluster(
-      ChipClient.getConnectedDevicePointer(requireContext(), deviceIdEd.text.toString().toLong()), 1
+      ChipClient.getConnectedDevicePointer(requireContext(), addressUpdateFragment.deviceId),
+      WNCV_CONTROL_CLUSTER_ENDPOINT
     )
     cluster.moveToLevel(object : ChipClusters.DefaultClusterCallback {
       override fun onSuccess() {
@@ -250,7 +300,8 @@ class WindowCoveringClientFragment : Fragment() {
 
   private suspend fun getWindowCoveringClusterForDevice(): WindowCoveringCluster {
     return WindowCoveringCluster(
-      ChipClient.getConnectedDevicePointer(requireContext(), deviceIdEd.text.toString().toLong()), 1
+      ChipClient.getConnectedDevicePointer(requireContext(), addressUpdateFragment.deviceId),
+      WNCV_CLUSTER_ENDPOINT
     )
   }
 
@@ -260,10 +311,21 @@ class WindowCoveringClientFragment : Fragment() {
     }
   }
 
+  private fun showReportMessage(msg: String) {
+    requireActivity().runOnUiThread {
+      reportStatusTv.text = msg
+    }
+  }
+
   companion object {
+    private const val TAG = "WindowCoveringClientFragment"
+
+    private const val WNCV_CLUSTER_ENDPOINT = 1
+    private const val LEVEL_CONTROL_CLUSTER_ENDPOINT = 1
+
     var showMessageCb: (msg: String) -> Unit = { _ ->}
     private var LAST_CMD = "-"
-    private const val TAG = "WindowCoveringClientFragment"
+
     fun newInstance(): WindowCoveringClientFragment = WindowCoveringClientFragment()
   }
 }
