@@ -673,36 +673,36 @@ void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeI
     switch (attributeId)
     {
     /* RO Type: Cycling Window Covering Demo */
-    case ZCL_WC_TYPE_ATTRIBUTE_ID:
+    case Attributes::Type::Id:
         break;
     /* RO ConfigStatus */
-    case ZCL_WC_CONFIG_STATUS_ATTRIBUTE_ID:
+    case Attributes::ConfigStatus::Id:
         break;
     /* RO OperationalStatus */
-    case ZCL_WC_OPERATIONAL_STATUS_ATTRIBUTE_ID:
+    case Attributes::OperationalStatus::Id:
         //if ((OperationalState::Stall != opStatus.lift) || (OperationalState::Stall != opStatus.tilt)) {
             // kick off the state machine:
             emberEventControlSetDelayMS(configureXYEventControl(endpoint), 3000);
         //}
         break;
     /* RO EndProductType */
-    case ZCL_WC_END_PRODUCT_TYPE_ATTRIBUTE_ID:
+    case Attributes::EndProductType::Id:
         break;
     /* RW Mode */
-    case ZCL_WC_MODE_ATTRIBUTE_ID:
+    case Attributes::Mode::Id:
         break;
     /* RO SafetyStatus */
-    case ZCL_WC_SAFETY_STATUS_ATTRIBUTE_ID:
+    case Attributes::SafetyStatus::Id:
         break;
     /* ============= Positions for Position Aware ============= */
-    case ZCL_WC_CURRENT_POSITION_LIFT_PERCENT100_THS_ATTRIBUTE_ID:
+    case Attributes::CurrentPositionLiftPercent100ths::Id:
         if (OperationalState::Stall != opStatus.lift) {
             opStatus.lift = OperationalState::Stall;
             emberAfWindowCoveringClusterPrint("Lift stop");
             OperationalStatusSetWithGlobalUpdated(endpoint, opStatus);
         }
         break;
-    case ZCL_WC_CURRENT_POSITION_TILT_PERCENT100_THS_ATTRIBUTE_ID:
+    case Attributes::CurrentPositionTiltPercent100ths::Id:
         if (OperationalState::Stall != opStatus.tilt) {
             opStatus.tilt = OperationalState::Stall;
             emberAfWindowCoveringClusterPrint("Tilt stop");
@@ -710,7 +710,7 @@ void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeI
         }
         break;
     /* For a device supporting Position Awareness : Changing the Target triggers motions on the real or simulated device */
-    case ZCL_WC_TARGET_POSITION_LIFT_PERCENT100_THS_ATTRIBUTE_ID:
+    case Attributes::TargetPositionLiftPercent100ths::Id:
         posTarget  = LiftTargetPositionGet(endpoint);
         posCurrent = LiftCurrentPositionGet(endpoint);
         opStatus.lift = OperationalState::Stall;
@@ -721,7 +721,7 @@ void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeI
         OperationalStatusSetWithGlobalUpdated(endpoint, opStatus);
         break;
     /* For a device supporting Position Awareness : Changing the Target triggers motions on the real or simulated device */
-    case ZCL_WC_TARGET_POSITION_TILT_PERCENT100_THS_ATTRIBUTE_ID:
+    case Attributes::TargetPositionTiltPercent100ths::Id:
         posTarget  = TiltTargetPositionGet(endpoint);
         posCurrent = TiltCurrentPositionGet(endpoint);
         opStatus.tilt = OperationalState::Stall;
