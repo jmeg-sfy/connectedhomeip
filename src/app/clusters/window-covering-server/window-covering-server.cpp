@@ -662,6 +662,7 @@ EmberEventControl * configureXYEventControl(EndpointId endpoint)
 }
 
 
+
 /* PostAttributeChange is used in all-cluster-app simulation and CI testing : otherwise it is bounded to manufacturer specific implementation */
 void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeId)
 {
@@ -756,22 +757,20 @@ void emberAfWindowCoveringClusterInitCallback(chip::EndpointId endpoint)
     emberAfWindowCoveringClusterPrint("Window Covering Cluster init");
 
     /* Init at Half 50% */
-    LiftCurrentPositionSet(endpoint, 5000);
-    TiltCurrentPositionSet(endpoint, 5000);
+    LiftCurrentPositionSet(endpoint, WC_PERCENT100THS_MAX_CLOSED / 2);
+    TiltCurrentPositionSet(endpoint, WC_PERCENT100THS_MAX_CLOSED / 2);
 }
 
 /**
  * @brief  Cluster UpOrOpen Command callback (from client)
  */
-bool emberAfWindowCoveringClusterUpOrOpenCallback(app::CommandHandler * commandObj, const app::ConcreteCommandPath & commandPath,
-                                                  const Commands::UpOrOpen::DecodableType & commandData)
+bool emberAfWindowCoveringClusterUpOrOpenCallback(app::CommandHandler * cmdObj, const app::ConcreteCommandPath & cmdPath,
+                                                  const Commands::UpOrOpen::DecodableType & cmdData)
 {
-    EndpointId endpoint = commandPath.mEndpointId;
+    emberAfWindowCoveringClusterPrint("UpOrOpen command received OpStatus=0x%02X", OperationalStatusGet(cmdPath.mEndpointId));
 
-    emberAfWindowCoveringClusterPrint("UpOrOpen command received OpStatus=0x%02X", OperationalStatusGet(endpoint));
-
-    EmberAfStatus tiltStatus = TiltTargetPositionSet(endpoint, WC_PERCENT100THS_MIN_OPEN);
-    EmberAfStatus liftStatus = LiftTargetPositionSet(endpoint, WC_PERCENT100THS_MIN_OPEN);
+    EmberAfStatus tiltStatus = TiltTargetPositionSet(cmdPath.mEndpointId, WC_PERCENT100THS_MIN_OPEN);
+    EmberAfStatus liftStatus = LiftTargetPositionSet(cmdPath.mEndpointId, WC_PERCENT100THS_MIN_OPEN);
 
     /* By the specification definition we need to support Tilt and/or Lift -> so to simplify only one can be successfull */
     if ((EMBER_ZCL_STATUS_SUCCESS == liftStatus) || (EMBER_ZCL_STATUS_SUCCESS == tiltStatus))
@@ -795,15 +794,13 @@ bool emberAfWindowCoveringClusterUpOrOpenCallback(app::CommandHandler * commandO
 /**
  * @brief  Cluster DownOrClose Command callback (from client)
  */
-bool emberAfWindowCoveringClusterDownOrCloseCallback(app::CommandHandler * commandObj, const app::ConcreteCommandPath & commandPath,
-                                                     const Commands::DownOrClose::DecodableType & commandData)
+bool emberAfWindowCoveringClusterDownOrCloseCallback(app::CommandHandler * cmdObj, const app::ConcreteCommandPath & cmdPath,
+                                                     const Commands::DownOrClose::DecodableType & cmdData)
 {
-    EndpointId endpoint = commandPath.mEndpointId;
+    emberAfWindowCoveringClusterPrint("DownOrClose command received OpStatus=0x%02X", OperationalStatusGet(cmdPath.mEndpointId));
 
-    emberAfWindowCoveringClusterPrint("DownOrClose command received OpStatus=0x%02X", OperationalStatusGet(endpoint));
-
-    EmberAfStatus tiltStatus = TiltTargetPositionSet(endpoint, WC_PERCENT100THS_MAX_CLOSED);
-    EmberAfStatus liftStatus = LiftTargetPositionSet(endpoint, WC_PERCENT100THS_MAX_CLOSED);
+    EmberAfStatus tiltStatus = TiltTargetPositionSet(cmdPath.mEndpointId, WC_PERCENT100THS_MAX_CLOSED);
+    EmberAfStatus liftStatus = LiftTargetPositionSet(cmdPath.mEndpointId, WC_PERCENT100THS_MAX_CLOSED);
 
     /* By the specification definition we need to support Tilt and/or Lift -> so to simplify only one can be successfull */
     if ((EMBER_ZCL_STATUS_SUCCESS == liftStatus) || (EMBER_ZCL_STATUS_SUCCESS == tiltStatus))
@@ -817,14 +814,14 @@ bool emberAfWindowCoveringClusterDownOrCloseCallback(app::CommandHandler * comma
 /**
  * @brief  Cluster StopMotion Command callback (from client)
  */
-bool emberAfWindowCoveringClusterStopMotionCallback(chip::app::CommandHandler * commandObj,
-                                                    const chip::app::ConcreteCommandPath & commandPath, chip::EndpointId endpoint,
-                                                    Commands::StopMotion::DecodableType & commandData)
+bool emberAfWindowCoveringClusterStopMotionCallback(chip::app::CommandHandler * cmdObj,
+                                                    const chip::app::ConcreteCommandPath & cmdPath, chip::EndpointId endpoint,
+                                                    Commands::StopMotion::DecodableType & cmdData)
 {
     emberAfWindowCoveringClusterPrint("StopMotion command received OpStatus=0x%02X", OperationalStatusGet(endpoint));
 
-    EmberAfStatus tiltStatus = TiltTargetPositionSet(endpoint, TiltCurrentPositionGet(endpoint));
-    EmberAfStatus liftStatus = LiftTargetPositionSet(endpoint, LiftCurrentPositionGet(endpoint));
+    EmberAfStatus tiltStatus = TiltTargetPositionSet(cmdPath.mEndpointId, TiltCurrentPositionGet(cmdPath.mEndpointId));
+    EmberAfStatus liftStatus = LiftTargetPositionSet(cmdPath.mEndpointId, LiftCurrentPositionGet(cmdPath.mEndpointId));
 
     /* By the specification definition we need to support Tilt and/or Lift -> so to simplify only one can be successfull */
     if ((EMBER_ZCL_STATUS_SUCCESS == liftStatus) || (EMBER_ZCL_STATUS_SUCCESS == tiltStatus))
@@ -839,7 +836,7 @@ bool emberAfWindowCoveringClusterStopMotionCallback(chip::app::CommandHandler * 
  * @brief  Cluster StopMotion Command callback (from client)
  */
 bool __attribute__((weak))
-emberAfWindowCoveringClusterStopMotionCallback(app::CommandHandler * commandObj, const app::ConcreteCommandPath & commandPath,
+emberAfWindowCoveringClusterStopMotionCallback(app::CommandHandler * cmdObj, const app::ConcreteCommandPath & cmdPath,
                                                const Commands::StopMotion::DecodableType & fields)
 {
     emberAfWindowCoveringClusterPrint("StopMotion command received");
@@ -865,19 +862,19 @@ emberAfWindowCoveringClusterStopMotionCallback(app::CommandHandler * commandObj,
 /**
  * @brief  Cluster GoToLiftValue Command callback (from client)
  */
-bool emberAfWindowCoveringClusterGoToLiftValueCallback(app::CommandHandler * commandObj,
-                                                       const app::ConcreteCommandPath & commandPath,
-                                                       const Commands::GoToLiftValue::DecodableType & commandData)
+bool emberAfWindowCoveringClusterGoToLiftValueCallback(app::CommandHandler * cmdObj,
+                                                       const app::ConcreteCommandPath & cmdPath,
+                                                       const Commands::GoToLiftValue::DecodableType & cmdData)
 {
     EmberAfStatus status = EMBER_ZCL_STATUS_UNSUP_COMMAND;
 
-    bool hasAbsolute = HasFeature(endpoint, Features::Absolute);
+    bool hasAbsolute = HasFeature(cmdPath.mEndpointId, Features::Absolute);
 
-    emberAfWindowCoveringClusterPrint("GoToLiftValue command received w/ %u", liftValue);
+    emberAfWindowCoveringClusterPrint("GoToLiftValue command received w/ %u", cmdData.liftValue);
 
     if (hasAbsolute)
     {
-        status = LiftTargetPositionSet(endpoint, LiftToPercent100ths(endpoint, liftValue));
+        status = LiftTargetPositionSet(cmdPath.mEndpointId, LiftToPercent100ths(cmdPath.mEndpointId, cmdData.liftValue));
     }
 
     emberAfSendImmediateDefaultResponse(status);
@@ -888,16 +885,13 @@ bool emberAfWindowCoveringClusterGoToLiftValueCallback(app::CommandHandler * com
 /**
  * @brief  Cluster GoToLiftPercentage Command callback (from client)
  */
-bool emberAfWindowCoveringClusterGoToLiftPercentageCallback(app::CommandHandler * commandObj,
-                                                            const app::ConcreteCommandPath & commandPath,
-                                                            const Commands::GoToLiftPercentage::DecodableType & commandData)
+bool emberAfWindowCoveringClusterGoToLiftPercentageCallback(app::CommandHandler * cmdObj,
+                                                            const app::ConcreteCommandPath & cmdPath,
+                                                            const Commands::GoToLiftPercentage::DecodableType & cmdData)
 {
-    auto & liftPercentageValue    = commandData.liftPercentageValue;
-    auto & liftPercent100thsValue = commandData.liftPercent100thsValue;
+    emberAfWindowCoveringClusterPrint("GoToLiftPercentage command received w/ %u, %u", cmdData.liftPercentageValue, cmdData.liftPercent100thsValue);
 
-    emberAfWindowCoveringClusterPrint("GoToLiftPercentage command received w/ %u, %u", liftPercentageValue, liftPercent100thsValue);
-
-    emberAfSendImmediateDefaultResponse(LiftTargetPositionSet(endpoint, liftPercent100thsValue));
+    emberAfSendImmediateDefaultResponse(LiftTargetPositionSet(cmdPath.mEndpointId, cmdData.liftPercent100thsValue));
 
     emberAfWindowCoveringClusterPrint("GoToLiftPercentage Percentage command received");
     if (HasFeaturePaLift(endpoint))
@@ -917,22 +911,18 @@ bool emberAfWindowCoveringClusterGoToLiftPercentageCallback(app::CommandHandler 
 /**
  * @brief  Cluster GoToTiltValue Command callback (from client)
  */
-bool emberAfWindowCoveringClusterGoToTiltValueCallback(app::CommandHandler * commandObj,
-                                                       const app::ConcreteCommandPath & commandPath,
-                                                       const Commands::GoToTiltValue::DecodableType & commandData)
+bool emberAfWindowCoveringClusterGoToTiltValueCallback(app::CommandHandler * cmdObj,
+                                                       const app::ConcreteCommandPath & cmdPath,
+                                                       const Commands::GoToTiltValue::DecodableType & cmdData)
 {
-    auto & tiltValue = commandData.tiltValue;
-
-    EndpointId endpoint = commandPath.mEndpointId;
-
     EmberAfStatus status = EMBER_ZCL_STATUS_UNSUP_COMMAND;
-    bool hasAbsolute = HasFeature(endpoint, Features::Absolute);
+    bool hasAbsolute = HasFeature(cmdPath.mEndpointId, Features::Absolute);
 
-    emberAfWindowCoveringClusterPrint("GoToTiltValue command received w/ %u", tiltValue);
+    emberAfWindowCoveringClusterPrint("GoToTiltValue command received w/ %u", cmdData.tiltValue);
 
     if (hasAbsolute)
     {
-        status = TiltTargetPositionSet(endpoint, TiltToPercent100ths(endpoint, tiltValue));
+        status = TiltTargetPositionSet(cmdPath.mEndpointId, TiltToPercent100ths(cmdPath.mEndpointId, cmdData.tiltValue));
     }
 
     emberAfSendImmediateDefaultResponse(status);
@@ -943,18 +933,13 @@ bool emberAfWindowCoveringClusterGoToTiltValueCallback(app::CommandHandler * com
 /**
  * @brief  Cluster GoToTiltPercentage Command callback (from client)
  */
-bool emberAfWindowCoveringClusterGoToTiltPercentageCallback(app::CommandHandler * commandObj,
-                                                            const app::ConcreteCommandPath & commandPath,
-                                                            const Commands::GoToTiltPercentage::DecodableType & commandData)
+bool emberAfWindowCoveringClusterGoToTiltPercentageCallback(app::CommandHandler * cmdObj,
+                                                            const app::ConcreteCommandPath & cmdPath,
+                                                            const Commands::GoToTiltPercentage::DecodableType & cmdData)
 {
-    auto & tiltPercentageValue    = commandData.tiltPercentageValue;
-    auto & tiltPercent100thsValue = commandData.tiltPercent100thsValue;
+    emberAfWindowCoveringClusterPrint("GoToTiltPercentage command received w/ %u, %u", cmdData.tiltPercentageValue, cmdData.tiltPercent100thsValue);
 
-    EndpointId endpoint = commandPath.mEndpointId;
-
-    emberAfWindowCoveringClusterPrint("GoToTiltPercentage command received w/ %u, %u", tiltPercentageValue, tiltPercent100thsValue);
-
-    emberAfSendImmediateDefaultResponse(TiltTargetPositionSet(endpoint, tiltPercent100thsValue));
+    emberAfSendImmediateDefaultResponse(TiltTargetPositionSet(cmdPath.mEndpointId, cmdData.tiltPercent100thsValue));
 
     return true;
 }
