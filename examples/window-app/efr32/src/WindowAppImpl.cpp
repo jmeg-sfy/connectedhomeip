@@ -210,44 +210,49 @@ void WindowAppImpl::PostAttributeChange(chip::EndpointId endpoint, chip::Attribu
     switch (attributeId)
     {
     /* RO Type: Cycling Window Covering Demo */
-    case ZCL_WC_TYPE_ATTRIBUTE_ID:
+    case Attributes::Type::Id:
         PostEvent(WindowApp::Event(WindowApp::EventId::Type, endpoint));
         break;
     /* RO ConfigStatus */
-    case ZCL_WC_CONFIG_STATUS_ATTRIBUTE_ID:
+    case Attributes::ConfigStatus::Id:
         PostEvent(WindowApp::Event(WindowApp::EventId::ConfigStatus, endpoint));
         break;
     /* RO OperationalStatus */
-    case ZCL_WC_OPERATIONAL_STATUS_ATTRIBUTE_ID:
+    case Attributes::OperationalStatus::Id:
         PostEvent(WindowApp::Event(WindowApp::EventId::OperationalStatus, endpoint));
         break;
     /* RO EndProductType */
-    case ZCL_WC_END_PRODUCT_TYPE_ATTRIBUTE_ID:
+    case Attributes::EndProductType::Id:
         PostEvent(WindowApp::Event(WindowApp::EventId::EndProductType, endpoint));
         break;
     /* RW Mode */
-    case ZCL_WC_MODE_ATTRIBUTE_ID:
+    case Attributes::Mode::Id:
         PostEvent(WindowApp::Event(WindowApp::EventId::Mode, endpoint));
         break;
     /* RO SafetyStatus */
-    case ZCL_WC_SAFETY_STATUS_ATTRIBUTE_ID:
+    case Attributes::SafetyStatus::Id:
         PostEvent(WindowApp::Event(WindowApp::EventId::SafetyStatus, endpoint));
         break;
+
     /* ============= Positions for Position Aware ============= */
-    case ZCL_WC_CURRENT_POSITION_LIFT_PERCENT100_THS_ATTRIBUTE_ID:
+    case Attributes::CurrentPositionLiftPercent100ths::Id:
         PostEvent(WindowApp::Event(WindowApp::EventId::LiftCurrentPosition, endpoint));
         break;
-    case ZCL_WC_CURRENT_POSITION_TILT_PERCENT100_THS_ATTRIBUTE_ID:
+
+    case Attributes::CurrentPositionTiltPercent100ths::Id:
         PostEvent(WindowApp::Event(WindowApp::EventId::TiltCurrentPosition, endpoint));
         break;
+
     /* Changing the Target triggers motions on the real or simulated device */
-    case ZCL_WC_TARGET_POSITION_LIFT_PERCENT100_THS_ATTRIBUTE_ID:
+    case Attributes::TargetPositionLiftPercent100ths::Id:
         PostEvent(WindowApp::Event(WindowApp::EventId::LiftTargetPosition, endpoint));
         break;
+
     /* Changing the Target triggers motions on the real or simulated device */
-    case ZCL_WC_TARGET_POSITION_TILT_PERCENT100_THS_ATTRIBUTE_ID:
+    case Attributes::TargetPositionTiltPercent100ths::Id:
         PostEvent(WindowApp::Event(WindowApp::EventId::TiltTargetPosition, endpoint));
         break;
+
     default:
         break;
     }
