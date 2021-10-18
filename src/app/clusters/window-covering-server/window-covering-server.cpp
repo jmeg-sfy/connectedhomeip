@@ -642,6 +642,17 @@ EmberEventControl * configureXYEventControl(EndpointId endpoint)
 }
 
 
+OperationalState ComputeOperationalState(Percent100ths target, Percent100ths current, const char* name)
+{
+    OperationalState opState = OperationalState::Stall;
+
+    /* Compute Operational State from Relative Target and Current */
+    emberAfWindowCoveringClusterPrint("%.5s move C=%u -> T=%u", name, current, target);
+    if (current != target) {
+        opState = (current < target) ? OperationalState::MovingDownOrClose : OperationalState::MovingUpOrOpen;
+    }
+    return opState;
+}
 
 /* PostAttributeChange is used in all-cluster-app simulation and CI testing : otherwise it is bounded to manufacturer specific implementation */
 void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeId)
@@ -692,24 +703,12 @@ void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeI
         break;
     /* For a device supporting Position Awareness : Changing the Target triggers motions on the real or simulated device */
     case Attributes::TargetPositionLiftPercent100ths::Id:
-        posTarget  = LiftTargetPositionGet(endpoint);
-        posCurrent = LiftCurrentPositionGet(endpoint);
-        opStatus.lift = OperationalState::Stall;
-        emberAfWindowCoveringClusterPrint("Lift move C=%u -> T=%u", posCurrent, posTarget);
-        if (posCurrent != posTarget) {
-            opStatus.lift = (posCurrent < posTarget) ? OperationalState::MovingDownOrClose : OperationalState::MovingUpOrOpen;
-        }
+        opStatus.lift = ComputeOperationalState(LiftTargetPositionRelativeGet(endpoint), LiftCurrentPositionRelativeGet(endpoint), "Lift");
         OperationalStatusSetWithGlobalUpdated(endpoint, opStatus);
         break;
     /* For a device supporting Position Awareness : Changing the Target triggers motions on the real or simulated device */
     case Attributes::TargetPositionTiltPercent100ths::Id:
-        posTarget  = TiltTargetPositionGet(endpoint);
-        posCurrent = TiltCurrentPositionGet(endpoint);
-        opStatus.tilt = OperationalState::Stall;
-        emberAfWindowCoveringClusterPrint("Tilt move C=%u -> T=%u", posCurrent, posTarget);
-        if (posCurrent != posTarget) {
-            opStatus.tilt = (posCurrent < posTarget) ? OperationalState::MovingDownOrClose : OperationalState::MovingUpOrOpen;
-        }
+        opStatus.tilt = ComputeOperationalState(TiltTargetPositionRelativeGet(endpoint), TiltCurrentPositionRelativeGet(endpoint), "Tilt");
         OperationalStatusSetWithGlobalUpdated(endpoint, opStatus);
         break;
     default:
