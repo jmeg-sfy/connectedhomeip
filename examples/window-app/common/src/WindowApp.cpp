@@ -313,16 +313,12 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
 
     case EventId::LiftTargetPosition:
         if (cover) {
-            uint16_t percent100ths;
-            Attributes::TargetPositionLiftPercent100ths::Get(event.mEndpoint, &percent100ths);
-            cover->mLift.GoToValue(Percent100thsToLift(event.mEndpoint, percent100ths));
+            cover->mTilt.GoToAbsolute(LiftTargetPositionAbsoluteGet(event.mEndpoint));
         }
         break;
     case EventId::TiltTargetPosition:
         if (cover) {
-            uint16_t percent100ths;
-            Attributes::TargetPositionTiltPercent100ths::Get(event.mEndpoint, &percent100ths);
-            cover->mTilt.GoToValue(Percent100thsToTilt(event.mEndpoint, percent100ths));
+            cover->mTilt.GoToAbsolute(TiltTargetPositionAbsoluteGet(event.mEndpoint));
         }
         break;
     case EventId::StopMotion:
@@ -334,14 +330,15 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
         if (cover) {
             cover->mOperationalStatus.lift = cover->mLift.mOpState;
             OperationalStatusSetWithGlobalUpdated(cover->mEndpoint, cover->mOperationalStatus);
-            LiftCurrentPositionSet(cover->mEndpoint, LiftToPercent100ths(cover->mEndpoint, cover->mLift.mCurrentPosition));//remove
+            //LiftCurrentPositionAbsoluteSet(cover->mEndpoint, cover->mLift.mCurrentPosition);
+            CurrentPositionAbsoluteSet(cover->mEndpoint, LiftAccess(), cover->mLift.mCurrentPosition);
         }
         break;
     case EventId::TiltUpdate:
         if (cover) {
             cover->mOperationalStatus.tilt = cover->mTilt.mOpState;
             OperationalStatusSetWithGlobalUpdated(cover->mEndpoint, cover->mOperationalStatus);
-            TiltCurrentPositionSet(cover->mEndpoint, TiltToPercent100ths(cover->mEndpoint, cover->mTilt.mCurrentPosition));
+            TiltCurrentPositionAbsoluteSet(cover->mEndpoint, cover->mTilt.mCurrentPosition);
         }
         break;
     case EventId::BtnCycleActuator:
@@ -644,11 +641,6 @@ void WindowApp::Actuator::StopMotion()
 
 
 
-void WindowApp::Actuator::GoToPercentage(chip::Percent100ths percent100ths)
-{
-
-
-}
 
 void WindowApp::Actuator::Print(void)
 {
@@ -680,6 +672,11 @@ void WindowApp::Actuator::GoToAbsolute(uint16_t value)
 
 
 }
+
+void WindowApp::Actuator::GoToRelative(chip::Percent100ths percent100ths)
+{
+}
+
 
 void WindowApp::Actuator::SetPosition(uint16_t value)
 {

@@ -120,6 +120,13 @@ struct AbsoluteLimits
     uint16_t closed;
 };
 
+enum class RelativeLimits : Percent100ths
+{
+    UpOrOpen  = WC_PERCENT100THS_MIN_OPEN,
+    Half   = 5000,
+    DownOrClose = WC_PERCENT100THS_MAX_CLOSED,
+};
+
 bool HasFeature(chip::EndpointId endpoint, Features feature);
 
 void TypeSet(chip::EndpointId endpoint, EmberAfWcType type);
@@ -141,27 +148,60 @@ const Mode ModeGet(chip::EndpointId endpoint);
 void SafetyStatusSet(chip::EndpointId endpoint, SafetyStatus & status);
 const SafetyStatus SafetyStatusGet(chip::EndpointId endpoint);
 
+typedef EmberAfStatus (*SetPercentage_f          )(chip::EndpointId endpoint, uint8_t relPercentage);
+typedef EmberAfStatus (*SetPercent100ths_f       )(chip::EndpointId endpoint, uint16_t relPercent100ths);
+typedef EmberAfStatus (*SetAbsolute_f            )(chip::EndpointId endpoint, uint16_t relPercent100ths);
+typedef EmberAfStatus (*GetInstalledOpenLimit_f  )(chip::EndpointId endpoint, uint16_t *relPercent100ths);
+typedef EmberAfStatus (*GetInstalledClosedLimit_f)(chip::EndpointId endpoint, uint16_t *relPercent100ths);
 
+typedef struct
+{
+    SetPercentage_f    SetPercentage;
+    SetPercent100ths_f SetPercent100ths;
+    SetAbsolute_f      SetAbsolute;
+    Features           feature;
+    GetInstalledOpenLimit_f GetInstalledOpenLimit;
+    GetInstalledClosedLimit_f GetInstalledClosedLimit;
+} PositionAccessors;
 
-EmberAfStatus LiftCurrentPositionSet(chip::EndpointId endpoint, uint16_t percent100ths);
-EmberAfStatus LiftTargetPositionSet(chip::EndpointId endpoint, uint16_t percent100ths);
-uint16_t LiftCurrentPositionGet(chip::EndpointId endpoint);
+PositionAccessors * LiftAccess(void);
+PositionAccessors * TiltAccess(void);
+
+/* Setter/Getter Helpers to simplify interaction with the positioning attributes */
+EmberAfStatus CurrentPositionRelativeSet(chip::EndpointId endpoint, PositionAccessors * position, Percent100ths relative);
+EmberAfStatus CurrentPositionAbsoluteSet(chip::EndpointId endpoint, PositionAccessors * position,  uint16_t absolute);//cover->mEndpoint, LiftAccess(), cover->mLift.mCurrentPosition);
+
+//EmberAfStatus LiftCurrentPositionRelativeSet(chip::EndpointId endpoint, Percent100ths relative);
+//EmberAfStatus LiftCurrentPositionAbsoluteSet(chip::EndpointId endpoint, uint16_t absolute);
+Percent100ths LiftCurrentPositionRelativeGet(chip::EndpointId endpoint);
+uint16_t      LiftCurrentPositionAbsoluteGet(chip::EndpointId endpoint);
+
+EmberAfStatus LiftTargetPositionRelativeSet(chip::EndpointId endpoint, Percent100ths relative);
+EmberAfStatus LiftTargetPositionAbsoluteSet(chip::EndpointId endpoint, uint16_t absolute);
+Percent100ths LiftTargetPositionRelativeGet(chip::EndpointId endpoint);
+uint16_t      LiftTargetPositionAbsoluteGet(chip::EndpointId endpoint);
+
+EmberAfStatus TiltCurrentPositionRelativeSet(chip::EndpointId endpoint, Percent100ths relative);
+EmberAfStatus TiltCurrentPositionAbsoluteSet(chip::EndpointId endpoint, uint16_t absolute);
+Percent100ths TiltCurrentPositionRelativeGet(chip::EndpointId endpoint);
+uint16_t      TiltCurrentPositionAbsoluteGet(chip::EndpointId endpoint);
+
+EmberAfStatus TiltTargetPositionRelativeSet(chip::EndpointId endpoint, Percent100ths relative);
+EmberAfStatus TiltTargetPositionAbsoluteSet(chip::EndpointId endpoint, uint16_t absolute);
+Percent100ths TiltTargetPositionRelativeGet(chip::EndpointId endpoint);
+uint16_t      TiltTargetPositionAbsoluteGet(chip::EndpointId endpoint);
+
 LimitStatus LiftLimitStatusGet(chip::EndpointId endpoint);
-
-
-EmberAfStatus TiltCurrentPositionSet(chip::EndpointId endpoint, uint16_t percent100ths);
-EmberAfStatus TiltTargetPositionSet(chip::EndpointId endpoint, uint16_t percent100ths);
-uint16_t TiltCurrentPositionGet(chip::EndpointId endpoint);
 LimitStatus TiltLimitStatusGet(chip::EndpointId endpoint);
 
 
 /* Units Conversion from Absolute to Relative */
-uint16_t LiftToPercent100ths(chip::EndpointId endpoint, uint16_t absoluteValue);
-uint16_t TiltToPercent100ths(chip::EndpointId endpoint, uint16_t absoluteValue);
+// Percent100ths LiftToPercent100ths(chip::EndpointId endpoint, uint16_t absoluteValue);
+// Percent100ths TiltToPercent100ths(chip::EndpointId endpoint, uint16_t absoluteValue);
 
-/* Units Conversion from Relative to Absolute */
-uint16_t Percent100thsToTilt(chip::EndpointId endpoint, uint16_t percent100ths);
-uint16_t Percent100thsToLift(chip::EndpointId endpoint, uint16_t percent100ths);
+// /* Units Conversion from Relative to Absolute */
+// uint16_t Percent100thsToTilt(chip::EndpointId endpoint, Percent100ths percent100ths);
+// uint16_t Percent100thsToLift(chip::EndpointId endpoint, Percent100ths percent100ths);
 
 
 void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeId);
