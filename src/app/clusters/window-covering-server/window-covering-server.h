@@ -24,6 +24,10 @@
 #include <app/util/af-types.h>
 #include <app/util/basic-types.h>
 
+#define WC_PERCENT100THS_MIN_OPEN   0
+#define WC_PERCENT100THS_MAX_CLOSED 10000
+
+
 namespace chip {
 namespace app {
 namespace Clusters {
@@ -109,6 +113,12 @@ enum class LimitStatus : uint8_t
     IsOverDownOrClose = 0x05, //
 };
 static_assert(sizeof(LimitStatus) == sizeof(uint8_t), "LimitStatus Size is not correct");
+
+struct AbsoluteLimits
+{
+    uint16_t open;
+    uint16_t closed;
+};
 
 bool HasFeature(chip::EndpointId endpoint, Features feature);
 

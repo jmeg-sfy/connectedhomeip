@@ -121,9 +121,8 @@ public:
 
     struct Actuator
     {
+        AbsoluteLimits mLimits = { .open = WC_PERCENT100THS_MIN_OPEN, .closed = WC_PERCENT100THS_MAX_CLOSED };// default is 1:1 conversion
 
-        uint16_t mOpenLimit          = 0;//WC_PERCENT100THS_MIN;
-        uint16_t mClosedLimit        = 0;//WC_PERCENT100THS_MAX;
         uint16_t mCurrentPosition    = 0;//LimitStatus::IsUpOrOpen;//WC_PERCENT100THS_DEF;
         uint16_t mTargetPosition     = 0;//OperationalState::MovingDownOrClose;//WC_PERCENT100THS_DEF;
 
@@ -138,8 +137,8 @@ public:
         void StepTowardUpOrOpen();
         void StepTowardDownOrClose();
 
-        void GoToValue(uint16_t value);
-        void GoToPercentage(chip::Percent100ths percent100ths);
+        void GoToAbsolute(uint16_t absolute);
+        void GoToRelative(chip::Percent100ths relative);
         void StopMotion();
         void UpdatePosition();
         void Print();
@@ -173,8 +172,8 @@ public:
 
         // Attribute: Id 10 OperationalStatus
         OperationalStatus mOperationalStatus = { .global = OperationalState::Stall,
-                                            .lift   = OperationalState::Stall,
-                                            .tilt   = OperationalState::Stall };
+                                                 .lift   = OperationalState::Stall,
+                                                 .tilt   = OperationalState::Stall };
 
 
         Actuator mLift, mTilt;

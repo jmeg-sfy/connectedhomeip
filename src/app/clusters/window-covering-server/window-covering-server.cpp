@@ -39,8 +39,6 @@
 using namespace chip;
 using namespace chip::app::Clusters::WindowCovering;
 
-#define WC_PERCENT100THS_MIN_OPEN   0
-#define WC_PERCENT100THS_MAX_CLOSED 10000
 
 #define CHECK_BOUNDS_INVALID(MIN, VAL, MAX) ((VAL < MIN) || (VAL > MAX))
 #define CHECK_BOUNDS_VALID(MIN, VAL, MAX)   (!CHECK_BOUNDS_INVALID(MIN, VAL, MAX))
@@ -126,14 +124,14 @@ static uint16_t ConvertValue(uint16_t inputLowValue, uint16_t inputHighValue, ui
 }
 
 
-uint16_t ValueToPercent100ths(uint16_t openLimit, uint16_t closedLimit, uint16_t value)
+static Percent100ths ValueToPercent100ths(AbsoluteLimits limits, uint16_t absolute)
 {
-    return ConvertValue(openLimit, closedLimit, WC_PERCENT100THS_MIN_OPEN, WC_PERCENT100THS_MAX_CLOSED, value, true);
+    return ConvertValue(limits.open, limits.closed, WC_PERCENT100THS_MIN_OPEN, WC_PERCENT100THS_MAX_CLOSED, absolute, true);
 }
 
-uint16_t Percent100thsToValue(uint16_t openLimit, uint16_t closedLimit, uint16_t percent100ths)
+static uint16_t Percent100thsToValue(AbsoluteLimits limits, Percent100ths relative)
 {
-    return ConvertValue(WC_PERCENT100THS_MIN_OPEN, WC_PERCENT100THS_MAX_CLOSED, openLimit, closedLimit, percent100ths, true);
+    return ConvertValue(WC_PERCENT100THS_MIN_OPEN, WC_PERCENT100THS_MAX_CLOSED, limits.open, limits.closed, relative, true);
 }
 
 static bool IsPercent100thsValid(uint16_t percent100ths)
@@ -187,7 +185,7 @@ bool HasFeature(chip::EndpointId endpoint, Features feature)
     return true;
 }
 
-void PrintPercent100ths(const char * pMessage, uint16_t percent100ths)
+void PrintPercent100ths(const char * pMessage, Percent100ths percent100ths)
 {
     if (!pMessage) return;
 
@@ -411,29 +409,11 @@ const SafetyStatus SafetyStatusGet(chip::EndpointId endpoint)
     return status;
 }
 
-uint16_t LiftToPercent100ths(chip::EndpointId endpoint, uint16_t lift)
-{
-    uint16_t openLimit   = 0;
-    uint16_t closedLimit = 0;
-    Attributes::InstalledOpenLimitLift::Get(endpoint, &openLimit);
-    Attributes::InstalledClosedLimitLift::Get(endpoint, &closedLimit);
-    return ValueToPercent100ths(openLimit, closedLimit, lift);
-}
+/* Conversions might be needed for device supporting ABS flags attribute */
 
-uint16_t Percent100thsToLift(chip::EndpointId endpoint, uint16_t percent100ths)
+static AbsoluteLimits AbsoluteLimitsGet(chip::EndpointId endpoint, PositionAccessors * access)
 {
-    uint16_t openLimit   = 0;
-    uint16_t closedLimit = 0;
-    Attributes::InstalledOpenLimitLift::Get(endpoint, &openLimit);
-    Attributes::InstalledClosedLimitLift::Get(endpoint, &closedLimit);
-    return Percent100thsToValue(openLimit, closedLimit, percent100ths);
-}
-
-EmberAfStatus LiftCurrentPositionSet(chip::EndpointId endpoint, uint16_t percent100ths)
-{
-    bool hasLift         = HasFeature(endpoint, Features::Lift);
-    bool hasAbsolute     = HasFeature(endpoint, Features::Absolute);
-    bool isPositionAware = HasFeature(endpoint, Features::PositionAware);
+    AbsoluteLimits limits = { .open = WC_PERCENT100THS_MIN_OPEN, .closed = WC_PERCENT100THS_MAX_CLOSED };// default is 1:1 conversion
 
     PrintPercent100ths(__func__, percent100ths);
 

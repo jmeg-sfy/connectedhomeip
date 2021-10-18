@@ -346,7 +346,7 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
         break;
     case EventId::BtnCycleActuator:
         if (cover) {
-            cover->mLift.GoToValue(50);
+            cover->mLift.GoToAbsolute(50);
             //OperationalStatusSet(event.mEndpoint, cover->mOperationalStatus);
         }
         break;
@@ -421,19 +421,19 @@ void WindowApp::OnLongPressTimeout(WindowApp::Timer & timer)
 
 LimitStatus WindowApp::Actuator::GetLimitState()
 {
-    if (mOpenLimit > mClosedLimit)
+    if (mLimits.open > mLimits.closed)
         return LimitStatus::Inverted;
 
-    if (mOpenLimit == mCurrentPosition)
+    if (mCurrentPosition == mLimits.open)
         return LimitStatus::IsUpOrOpen;
 
-    if (mClosedLimit == mCurrentPosition)
+    if (mCurrentPosition == mLimits.closed)
         return LimitStatus::IsDownOrClose;
 
-    if (mOpenLimit > mCurrentPosition)
+    if (mCurrentPosition < mLimits.open)
         return LimitStatus::IsOverUpOrOpen;
 
-    if (mClosedLimit < mCurrentPosition)
+    if (mCurrentPosition > mLimits.closed)
         return LimitStatus::IsOverDownOrClose;
 
     return LimitStatus::Intermediate;
@@ -459,14 +459,14 @@ void WindowApp::Cover::Init(chip::EndpointId endpoint)
     mEndpoint  = endpoint;
 
 
-mLift.mOpenLimit = LIFT_OPEN_LIMIT;
-mLift.mClosedLimit = LIFT_CLOSED_LIMIT;
+mLift.mLimits.open = LIFT_OPEN_LIMIT;
+mLift.mLimits.closed = LIFT_CLOSED_LIMIT;
 mLift.mStepDelta = LIFT_DELTA;
 //mLift.mEvent = LiftUpdate;
 
 
-mTilt.mOpenLimit = TILT_OPEN_LIMIT;
-mTilt.mClosedLimit = TILT_CLOSED_LIMIT;
+mTilt.mLimits.open = TILT_OPEN_LIMIT;
+mTilt.mLimits.closed = TILT_CLOSED_LIMIT;
 mTilt.mStepDelta = TILT_DELTA;
 
 
@@ -474,13 +474,13 @@ mTilt.mStepDelta = TILT_DELTA;
     mTilt.Init("Tilt", COVER_LIFT_TILT_TIMEOUT, nullptr, EventId::TiltUpdate);
 
     //mTiltTimer = WindowApp::Instance().CreateTimer("Timer:Tilt", COVER_LIFT_TILT_TIMEOUT, OnTiltTimeout, this);
-    Attributes::InstalledOpenLimitLift::Set(endpoint, mLift.mOpenLimit);
-    Attributes::InstalledClosedLimitLift::Set(endpoint, mLift.mClosedLimit);
-    LiftCurrentPositionSet(endpoint, LiftToPercent100ths(endpoint, mLift.mClosedLimit));
+    Attributes::InstalledOpenLimitLift::Set(endpoint, mLift.mLimits.open);
+    Attributes::InstalledClosedLimitLift::Set(endpoint, mLift.mLimits.closed);
+    //CurrentPositionAbsoluteSet(endpoint, mLift.mLimits.closed, LiftAccess());
 
-    Attributes::InstalledOpenLimitTilt::Set(endpoint, mTilt.mOpenLimit);
-    Attributes::InstalledClosedLimitTilt::Set(endpoint, mTilt.mClosedLimit);
-    TiltCurrentPositionSet(endpoint, TiltToPercent100ths(endpoint, mTilt.mClosedLimit));
+    Attributes::InstalledOpenLimitTilt::Set(endpoint, mTilt.mLimits.open);
+    Attributes::InstalledClosedLimitTilt::Set(endpoint, mTilt.mLimits.closed);
+    TiltCurrentPositionAbsoluteSet(endpoint, mTilt.mLimits.closed);
 
     // Attribute: Id  0 Type
     TypeSet(endpoint, EMBER_ZCL_WC_TYPE_TILT_BLIND_LIFT_AND_TILT);
@@ -584,7 +584,7 @@ void WindowApp::Actuator::StepTowardUpOrOpen()
     if (mCurrentPosition >= mStepDelta) {
         SetPosition(mCurrentPosition - mStepDelta);
     } else {
-        SetPosition(mOpenLimit); //Percent100ths attribute will be set to 0%.
+        SetPosition(mLimits.open); //Percent100ths attribute will be set to 0%.
     }
 }
 
@@ -597,18 +597,18 @@ void WindowApp::Actuator::StepTowardDownOrClose()
 
 
     //EFR32_LOG("ActuatorStepTowardClose %u %u %u", pAct->currentPosition, (pAct->stepDelta - pAct->closedLimit),pAct->closedLimit );
-    if (mCurrentPosition <= (mClosedLimit - mStepDelta)) {
+    if (mCurrentPosition <= (mLimits.closed - mStepDelta)) {
         SetPosition(mCurrentPosition + mStepDelta);
     } else {
-        SetPosition(mClosedLimit); //Percent100ths attribute will be set to 100%.
+        SetPosition(mLimits.closed); //Percent100ths attribute will be set to 100%.
     }
 }
 
 
 void WindowApp::Actuator::StopMotion()
 {
-        emberAfWindowCoveringClusterPrint(__func__);
-    GoToValue(mCurrentPosition);
+    emberAfWindowCoveringClusterPrint(__func__);
+    GoToAbsolute(mCurrentPosition);
 }
 
 // void WindowApp::Actuator::StepTowardUpOrOpen()
@@ -653,16 +653,16 @@ void WindowApp::Actuator::GoToPercentage(chip::Percent100ths percent100ths)
 void WindowApp::Actuator::Print(void)
 {
     emberAfWindowCoveringClusterPrint("T=%u C=%u Delta=%u Min=%u", mTargetPosition, mCurrentPosition, mStepDelta, mStepMinimum);
-    emberAfWindowCoveringClusterPrint("[%u, %u]", mOpenLimit, mClosedLimit);
+    emberAfWindowCoveringClusterPrint("[%u, %u]", mLimits.open, mLimits.closed);
 }
 
-void WindowApp::Actuator::GoToValue(uint16_t value)
+void WindowApp::Actuator::GoToAbsolute(uint16_t value)
 {
         emberAfWindowCoveringClusterPrint(__func__);
-    if (value > mClosedLimit) {
-        value = mClosedLimit;
-    } else if (value < mOpenLimit) {
-        value = mOpenLimit;
+    if (value > mLimits.closed) {
+        value = mLimits.closed;
+    } else if (value < mLimits.open) {
+        value = mLimits.open;
     }
 
     mTargetPosition = value;
@@ -685,10 +685,10 @@ void WindowApp::Actuator::SetPosition(uint16_t value)
 {
 
     emberAfWindowCoveringClusterPrint(__func__);
-    if (value > mClosedLimit) {
-        value = mClosedLimit;
-    } else if (value < mOpenLimit) {
-        value = mOpenLimit;
+    if (value > mLimits.closed) {
+        value = mLimits.closed;
+    } else if (value < mLimits.open) {
+        value = mLimits.open;
     }
 
     if (value != mCurrentPosition)
@@ -715,10 +715,10 @@ void WindowApp::Actuator::UpdatePosition()
 {
         emberAfWindowCoveringClusterPrint(__func__);
     uint16_t currMin = mCurrentPosition - mStepMinimum;
-    if (currMin < mOpenLimit) currMin = mOpenLimit;
+    if (currMin < mLimits.open) currMin = mLimits.open;
 
     uint16_t currMax = mCurrentPosition + mStepMinimum;
-    if (currMax > mClosedLimit) currMax = mClosedLimit;
+    if (currMax > mLimits.closed) currMax = mLimits.closed;
 
     // Detect when actuator cannot go further due to minStep
     if (((mTargetPosition <= currMax) && (mTargetPosition >= currMin)) || (mCurrentPosition == mTargetPosition))
