@@ -138,6 +138,7 @@ public:
         void StepTowardUpOrOpen();//chip::EndpointId endpoint);
         void StepTowardDownOrClose();//chip::EndpointId endpoint);//not sure yet
 
+        void GoToTargetAttribute(chip::EndpointId endpoint);
         void GoToAbsolute(uint16_t absolute);
         void GoToRelative(chip::Percent100ths relative);
         void StopMotion();

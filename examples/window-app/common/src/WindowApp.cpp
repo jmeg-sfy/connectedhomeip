@@ -313,12 +313,12 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
 
     case EventId::LiftTargetPosition:
         if (cover) {
-            cover->mTilt.GoToAbsolute(LiftAccess()->PositionAbsoluteGet(event.mEndpoint, PositionAccessors::Type::Target));
+            cover->mLift.GoToTargetAttribute(event.mEndpoint);
         }
         break;
-    case EventId::TiltCurrentPosition:
+    case EventId::TiltTargetPosition:
         if (cover) {
-            cover->mTilt.GoToAbsolute(TiltAccess()->PositionAbsoluteGet(event.mEndpoint, PositionAccessors::Type::Target));
+            cover->mTilt.GoToTargetAttribute(event.mEndpoint);
         }
         break;
     case EventId::StopMotion:
@@ -659,6 +659,14 @@ void WindowApp::Actuator::GoToAbsolute(uint16_t value)
 
 
 }
+
+void WindowApp::Actuator::GoToTargetAttribute(chip::EndpointId endpoint)
+{
+    /* Update Local target value from Attribute */
+    /* Trigger movement */
+    GoToAbsolute(mAttributes.PositionAbsoluteGet(endpoint, PositionAccessors::Type::Target));
+}
+
 
 void WindowApp::Actuator::GoToRelative(chip::Percent100ths percent100ths)
 {
