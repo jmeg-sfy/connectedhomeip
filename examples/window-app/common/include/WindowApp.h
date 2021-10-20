@@ -121,7 +121,8 @@ public:
 
     struct Actuator
     {
-        AbsoluteLimits mLimits = { .open = WC_PERCENT100THS_MIN_OPEN, .closed = WC_PERCENT100THS_MAX_CLOSED };// default is 1:1 conversion
+        //AbsoluteLimits mLimits = { .open = WC_PERCENT100THS_MIN_OPEN, .closed = WC_PERCENT100THS_MAX_CLOSED };// default is 1:1 conversion
+        ActuatorAccessors mAttributes;
 
         uint16_t mCurrentPosition    = 0;//LimitStatus::IsUpOrOpen;//WC_PERCENT100THS_DEF;
         uint16_t mTargetPosition     = 0;//OperationalState::MovingDownOrClose;//WC_PERCENT100THS_DEF;
@@ -134,8 +135,8 @@ public:
         uint16_t mNumberOfActuations = 0; //Number of commands sent to the actuators
 
         void SetPosition(uint16_t value);
-        void StepTowardUpOrOpen();
-        void StepTowardDownOrClose();
+        void StepTowardUpOrOpen();//chip::EndpointId endpoint);
+        void StepTowardDownOrClose();//chip::EndpointId endpoint);//not sure yet
 
         void GoToAbsolute(uint16_t absolute);
         void GoToRelative(chip::Percent100ths relative);

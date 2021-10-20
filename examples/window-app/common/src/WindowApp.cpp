@@ -313,12 +313,12 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
 
     case EventId::LiftTargetPosition:
         if (cover) {
-            cover->mTilt.GoToAbsolute(LiftTargetPositionAbsoluteGet(event.mEndpoint));
+            cover->mTilt.GoToAbsolute(LiftAccess()->PositionAbsoluteGet(event.mEndpoint, PositionAccessors::Type::Target));
         }
         break;
-    case EventId::TiltTargetPosition:
+    case EventId::TiltCurrentPosition:
         if (cover) {
-            cover->mTilt.GoToAbsolute(TiltTargetPositionAbsoluteGet(event.mEndpoint));
+            cover->mTilt.GoToAbsolute(TiltAccess()->PositionAbsoluteGet(event.mEndpoint, PositionAccessors::Type::Target));
         }
         break;
     case EventId::StopMotion:
@@ -331,14 +331,14 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
             cover->mOperationalStatus.lift = cover->mLift.mOpState;
             OperationalStatusSetWithGlobalUpdated(cover->mEndpoint, cover->mOperationalStatus);
             //LiftCurrentPositionAbsoluteSet(cover->mEndpoint, cover->mLift.mCurrentPosition);
-            CurrentPositionAbsoluteSet(cover->mEndpoint, LiftAccess(), cover->mLift.mCurrentPosition);
+            LiftAccess()->PositionAbsoluteSet(cover->mEndpoint, PositionAccessors::Type::Current, cover->mLift.mCurrentPosition);
         }
         break;
     case EventId::TiltUpdate:
         if (cover) {
             cover->mOperationalStatus.tilt = cover->mTilt.mOpState;
             OperationalStatusSetWithGlobalUpdated(cover->mEndpoint, cover->mOperationalStatus);
-            TiltCurrentPositionAbsoluteSet(cover->mEndpoint, cover->mTilt.mCurrentPosition);
+            TiltAccess()->PositionAbsoluteSet(cover->mEndpoint, PositionAccessors::Type::Current, cover->mTilt.mCurrentPosition);
         }
         break;
     case EventId::BtnCycleActuator:
@@ -416,27 +416,12 @@ void WindowApp::OnLongPressTimeout(WindowApp::Timer & timer)
 }
 
 
+
+
 LimitStatus WindowApp::Actuator::GetLimitState()
 {
-    if (mLimits.open > mLimits.closed)
-        return LimitStatus::Inverted;
-
-    if (mCurrentPosition == mLimits.open)
-        return LimitStatus::IsUpOrOpen;
-
-    if (mCurrentPosition == mLimits.closed)
-        return LimitStatus::IsDownOrClose;
-
-    if (mCurrentPosition < mLimits.open)
-        return LimitStatus::IsOverUpOrOpen;
-
-    if (mCurrentPosition > mLimits.closed)
-        return LimitStatus::IsOverDownOrClose;
-
-    return LimitStatus::Intermediate;
+    return CheckLimitState(mCurrentPosition, mAttributes.mLimits);
 }
-
-
 
 void WindowApp::Actuator::OnActuatorTimeout(WindowApp::Timer & timer)
 {
@@ -456,14 +441,14 @@ void WindowApp::Cover::Init(chip::EndpointId endpoint)
     mEndpoint  = endpoint;
 
 
-mLift.mLimits.open = LIFT_OPEN_LIMIT;
-mLift.mLimits.closed = LIFT_CLOSED_LIMIT;
+//mLift.mLimits.open = LIFT_OPEN_LIMIT;
+//mLift.mLimits.closed = LIFT_CLOSED_LIMIT;
 mLift.mStepDelta = LIFT_DELTA;
 //mLift.mEvent = LiftUpdate;
 
 
-mTilt.mLimits.open = TILT_OPEN_LIMIT;
-mTilt.mLimits.closed = TILT_CLOSED_LIMIT;
+//mTilt.mLimits.open = TILT_OPEN_LIMIT;
+//mTilt.mLimits.closed = TILT_CLOSED_LIMIT;
 mTilt.mStepDelta = TILT_DELTA;
 
 
@@ -471,13 +456,12 @@ mTilt.mStepDelta = TILT_DELTA;
     mTilt.Init("Tilt", COVER_LIFT_TILT_TIMEOUT, nullptr, EventId::TiltUpdate);
 
     //mTiltTimer = WindowApp::Instance().CreateTimer("Timer:Tilt", COVER_LIFT_TILT_TIMEOUT, OnTiltTimeout, this);
-    Attributes::InstalledOpenLimitLift::Set(endpoint, mLift.mLimits.open);
-    Attributes::InstalledClosedLimitLift::Set(endpoint, mLift.mLimits.closed);
+    //Attributes::InstalledOpenLimitLift::Set(endpoint, mLift.mLimits.open);
+    //Attributes::InstalledClosedLimitLift::Set(endpoint, mLift.mLimits.closed);
     //CurrentPositionAbsoluteSet(endpoint, mLift.mLimits.closed, LiftAccess());
 
-    Attributes::InstalledOpenLimitTilt::Set(endpoint, mTilt.mLimits.open);
-    Attributes::InstalledClosedLimitTilt::Set(endpoint, mTilt.mLimits.closed);
-    TiltCurrentPositionAbsoluteSet(endpoint, mTilt.mLimits.closed);
+    LiftAccess()->Init(endpoint, Features::Lift, { LIFT_OPEN_LIMIT, LIFT_CLOSED_LIMIT});
+    TiltAccess()->Init(endpoint, Features::Tilt, { TILT_OPEN_LIMIT, TILT_CLOSED_LIMIT});
 
     // Attribute: Id  0 Type
     TypeSet(endpoint, EMBER_ZCL_WC_TYPE_TILT_BLIND_LIFT_AND_TILT);
@@ -486,8 +470,8 @@ mTilt.mStepDelta = TILT_DELTA;
     ConfigStatus configStatus = { .operational             = 1,
                                   .online                  = 1,
                                   .liftIsReversed          = 0,
-                                  .liftIsPA                = (HasFeature(endpoint, Features::Lift) && HasFeature(endpoint, Features::PositionAware)),
-                                  .tiltIsPA                = (HasFeature(endpoint, Features::Tilt) && HasFeature(endpoint, Features::PositionAware)),
+                                  .liftIsPA                = LiftAccess()->IsPositionAware(endpoint),
+                                  .tiltIsPA                = TiltAccess()->IsPositionAware(endpoint),
                                   .liftIsEncoderControlled = 1,
                                   .tiltIsEncoderControlled = 1 };
     ConfigStatusSet(endpoint, configStatus);
@@ -517,8 +501,6 @@ void WindowApp::Cover::Finish()
     WindowApp::Instance().DestroyTimer(mLift.mTimer);
     WindowApp::Instance().DestroyTimer(mTilt.mTimer);
 }
-
-
 
 
 
@@ -574,6 +556,10 @@ bool WindowApp::Actuator::IsActive()
 void WindowApp::Actuator::StepTowardUpOrOpen()
 {
     emberAfWindowCoveringClusterPrint(__func__);
+
+    //AbsoluteLimits limits = mAttributes.AbsoluteLimitsGet(endpoint);
+    AbsoluteLimits limits = mAttributes.mLimits;
+
     if (mStepDelta < mStepMinimum) {
         mStepDelta = mStepMinimum;
     }
@@ -581,23 +567,27 @@ void WindowApp::Actuator::StepTowardUpOrOpen()
     if (mCurrentPosition >= mStepDelta) {
         SetPosition(mCurrentPosition - mStepDelta);
     } else {
-        SetPosition(mLimits.open); //Percent100ths attribute will be set to 0%.
+        SetPosition(limits.open); //Percent100ths attribute will be set to 0%.
     }
 }
 
-void WindowApp::Actuator::StepTowardDownOrClose()
+void WindowApp::Actuator::StepTowardDownOrClose()//endpoint
 {
-        emberAfWindowCoveringClusterPrint(__func__);
+    emberAfWindowCoveringClusterPrint(__func__);
+
+    //AbsoluteLimits limits = mAttributes.AbsoluteLimitsGet(endpoint);
+    AbsoluteLimits limits = mAttributes.mLimits;
+
     if (mStepDelta < mStepMinimum) {
         mStepDelta = mStepMinimum;
     }
 
 
     //EFR32_LOG("ActuatorStepTowardClose %u %u %u", pAct->currentPosition, (pAct->stepDelta - pAct->closedLimit),pAct->closedLimit );
-    if (mCurrentPosition <= (mLimits.closed - mStepDelta)) {
+    if (mCurrentPosition <= (limits.closed - mStepDelta)) {
         SetPosition(mCurrentPosition + mStepDelta);
     } else {
-        SetPosition(mLimits.closed); //Percent100ths attribute will be set to 100%.
+        SetPosition(limits.closed); //Percent100ths attribute will be set to 100%.
     }
 }
 
@@ -644,20 +634,17 @@ void WindowApp::Actuator::StopMotion()
 
 void WindowApp::Actuator::Print(void)
 {
+    AbsoluteLimits limits = mAttributes.mLimits;
+
     emberAfWindowCoveringClusterPrint("T=%u C=%u Delta=%u Min=%u", mTargetPosition, mCurrentPosition, mStepDelta, mStepMinimum);
-    emberAfWindowCoveringClusterPrint("[%u, %u]", mLimits.open, mLimits.closed);
+    emberAfWindowCoveringClusterPrint("[%u, %u]", limits.open, limits.closed);
 }
 
 void WindowApp::Actuator::GoToAbsolute(uint16_t value)
 {
-        emberAfWindowCoveringClusterPrint(__func__);
-    if (value > mLimits.closed) {
-        value = mLimits.closed;
-    } else if (value < mLimits.open) {
-        value = mLimits.open;
-    }
+    emberAfWindowCoveringClusterPrint(__func__);
 
-    mTargetPosition = value;
+    mTargetPosition = mAttributes.WithinAbsoluteRangeCheck(value);
 
     if (mTargetPosition != mCurrentPosition) {
         mNumberOfActuations++;
@@ -682,11 +669,8 @@ void WindowApp::Actuator::SetPosition(uint16_t value)
 {
 
     emberAfWindowCoveringClusterPrint(__func__);
-    if (value > mLimits.closed) {
-        value = mLimits.closed;
-    } else if (value < mLimits.open) {
-        value = mLimits.open;
-    }
+
+    value = mAttributes.WithinAbsoluteRangeCheck(value);
 
     if (value != mCurrentPosition)
     {
@@ -707,15 +691,17 @@ void WindowApp::Actuator::SetPosition(uint16_t value)
 }
 
 
-
 void WindowApp::Actuator::UpdatePosition()
 {
         emberAfWindowCoveringClusterPrint(__func__);
+
+    AbsoluteLimits limits = mAttributes.mLimits;
+
     uint16_t currMin = mCurrentPosition - mStepMinimum;
-    if (currMin < mLimits.open) currMin = mLimits.open;
+    if (currMin < limits.open) currMin = limits.open;
 
     uint16_t currMax = mCurrentPosition + mStepMinimum;
-    if (currMax > mLimits.closed) currMax = mLimits.closed;
+    if (currMax > limits.closed) currMax = limits.closed;
 
     // Detect when actuator cannot go further due to minStep
     if (((mTargetPosition <= currMax) && (mTargetPosition >= currMin)) || (mCurrentPosition == mTargetPosition))
@@ -727,7 +713,7 @@ void WindowApp::Actuator::UpdatePosition()
     }
     else //Movement must keep going
     {
-        mOpState = (mTargetPosition > mCurrentPosition) ? OperationalState::MovingDownOrClose : OperationalState::MovingUpOrOpen;
+        mOpState = ComputeOperationalState(mTargetPosition, mCurrentPosition);
     }
 
     switch (mOpState)
