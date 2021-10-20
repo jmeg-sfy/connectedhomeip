@@ -206,57 +206,65 @@ void WindowAppImpl::Finish()
     appError(CHIP_ERROR_INTERNAL);
 }
 
+
+
+void WindowApp::Button::Release()
+{
+    Instance().PostEvent(Button::Id::Up == mId ? EventId::UpReleased : EventId::DownReleased);
+}
+
 void WindowAppImpl::PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeId)
 {
-    switch (attributeId)
-    {
-    /* RO Type: Cycling Window Covering Demo */
-    case Attributes::Type::Id:
-        PostEvent(WindowApp::Event(WindowApp::EventId::Type, endpoint));
-        break;
-    /* RO ConfigStatus */
-    case Attributes::ConfigStatus::Id:
-        PostEvent(WindowApp::Event(WindowApp::EventId::ConfigStatus, endpoint));
-        break;
-    /* RO OperationalStatus */
-    case Attributes::OperationalStatus::Id:
-        PostEvent(WindowApp::Event(WindowApp::EventId::OperationalStatus, endpoint));
-        break;
-    /* RO EndProductType */
-    case Attributes::EndProductType::Id:
-        PostEvent(WindowApp::Event(WindowApp::EventId::EndProductType, endpoint));
-        break;
-    /* RW Mode */
-    case Attributes::Mode::Id:
-        PostEvent(WindowApp::Event(WindowApp::EventId::Mode, endpoint));
-        break;
-    /* RO SafetyStatus */
-    case Attributes::SafetyStatus::Id:
-        PostEvent(WindowApp::Event(WindowApp::EventId::SafetyStatus, endpoint));
-        break;
+    Instance().PostEvent(WindowApp::Event(WindowApp::EventId::AttributeChange, endpoint, attributeId));
+    // switch (attributeId)
+    // {
+    // /* RO Type: Cycling Window Covering Demo */
+    // case Attributes::Type::Id:
+    //     PostEvent(WindowApp::Event(WindowApp::EventId::Type, endpoint));
+    //     break;
+    // /* RO ConfigStatus */
+    // case Attributes::ConfigStatus::Id:
+    //     PostEvent(WindowApp::Event(WindowApp::EventId::ConfigStatus, endpoint));
+    //     break;
+    // /* RO OperationalStatus */
+    // case Attributes::OperationalStatus::Id:
+    //     PostEvent(WindowApp::Event(WindowApp::EventId::OperationalStatus, endpoint));
+    //     break;
+    // /* RO EndProductType */
+    // case Attributes::EndProductType::Id:
+    //     PostEvent(WindowApp::Event(WindowApp::EventId::EndProductType, endpoint));
+    //     break;
+    // /* RW Mode */
+    // case Attributes::Mode::Id:
+    //     PostEvent(WindowApp::Event(WindowApp::EventId::Mode, endpoint));
+    //     break;
+    // /* RO SafetyStatus */
+    // case Attributes::SafetyStatus::Id:
+    //     PostEvent(WindowApp::Event(WindowApp::EventId::SafetyStatus, endpoint));
+    //     break;
 
-    /* ============= Positions for Position Aware ============= */
-    case Attributes::CurrentPositionLiftPercent100ths::Id:
-        PostEvent(WindowApp::Event(WindowApp::EventId::LiftCurrentPosition, endpoint));
-        break;
+    // /* ============= Positions for Position Aware ============= */
+    // case Attributes::CurrentPositionLiftPercent100ths::Id:
+    //     PostEvent(WindowApp::Event(WindowApp::EventId::LiftCurrentPosition, endpoint));
+    //     break;
 
-    case Attributes::CurrentPositionTiltPercent100ths::Id:
-        PostEvent(WindowApp::Event(WindowApp::EventId::TiltCurrentPosition, endpoint));
-        break;
+    // case Attributes::CurrentPositionTiltPercent100ths::Id:
+    //     PostEvent(WindowApp::Event(WindowApp::EventId::TiltCurrentPosition, endpoint));
+    //     break;
 
-    /* Changing the Target triggers motions on the real or simulated device */
-    case Attributes::TargetPositionLiftPercent100ths::Id:
-        PostEvent(WindowApp::Event(WindowApp::EventId::LiftTargetPosition, endpoint));
-        break;
+    // /* Changing the Target triggers motions on the real or simulated device */
+    // case Attributes::TargetPositionLiftPercent100ths::Id:
+    //     PostEvent(WindowApp::Event(WindowApp::EventId::LiftTargetPosition, endpoint));
+    //     break;
 
-    /* Changing the Target triggers motions on the real or simulated device */
-    case Attributes::TargetPositionTiltPercent100ths::Id:
-        PostEvent(WindowApp::Event(WindowApp::EventId::TiltTargetPosition, endpoint));
-        break;
+    // /* Changing the Target triggers motions on the real or simulated device */
+    // case Attributes::TargetPositionTiltPercent100ths::Id:
+    //     PostEvent(WindowApp::Event(WindowApp::EventId::TiltTargetPosition, endpoint));
+    //     break;
 
-    default:
-        break;
-    }
+    // default:
+    //     break;
+    // }
 }
 
 void WindowAppImpl::PostEvent(const WindowApp::Event & event)
@@ -341,10 +349,8 @@ void WindowAppImpl::DispatchEvent(const WindowApp::Event & event)
     case EventId::BLEConnectionsChanged:
         UpdateLEDs();
         break;
-    case EventId::Type:
-    case EventId::LiftCurrentPosition:
-    case EventId::TiltCurrentPosition:
-        UpdateLCD();
+    case EventId::AttributeChange:
+        DispatchEventAttribute(event);
         break;
     case EventId::BtnCycleType:
         mIconTimer.Start();
@@ -362,9 +368,44 @@ void WindowAppImpl::DispatchEvent(const WindowApp::Event & event)
         }
         UpdateLCD();
         break;
-    case EventId::OperationalStatus:
+
+        break;
+    default:
+        break;
+    }
+}
+
+
+void WindowApp::DispatchEventAttribute(const WindowApp::Event & event)
+{
+    Cover * cover = nullptr;
+    cover = GetCover(event.mEndpoint);
+
+
+    emberAfWindowCoveringClusterPrint("Ep[%u] DispatchEvent=%u %p \n", event.mEndpoint , event.mId , cover);
+
+    cover = &GetCover();
+
+    switch (event.mAttribute)
+    {
+    /* RO OperationalStatus */
+    case Attributes::OperationalStatus::Id:
         UpdateLEDs();
         break;
+    /* RO Type: not supposed to dynamically change -> Cycling Window Covering Demo */
+    case Attributes::Type::Id:
+    /* ============= Positions for Position Aware ============= */
+    case Attributes::CurrentPositionLiftPercent100ths::Id:
+    case Attributes::CurrentPositionTiltPercent100ths::Id:
+        UpdateLCD();
+        break;
+    /* ### ATTRIBUTEs CHANGEs IGNORED ### */
+    /* RO EndProductType: not supposed to dynamically change */
+    case Attributes::EndProductType::Id:
+    /* RO ConfigStatus: set by WC server */
+    case Attributes::ConfigStatus::Id:
+    /* RO SafetyStatus: set by WC server */
+    case Attributes::SafetyStatus::Id:
     default:
         break;
     }

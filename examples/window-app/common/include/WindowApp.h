@@ -80,16 +80,17 @@ public:
         BtnCycleActuator,
 
         // Cover Attribute update events
-        Type,
-        ConfigStatus,
-        OperationalStatus,
-        EndProductType,
-        Mode,
-        SafetyStatus,
-        LiftCurrentPosition,
-        TiltCurrentPosition,
-        LiftTargetPosition,
-        TiltTargetPosition,
+        AttributeChange,
+  /*       AttrType,
+        AttrConfigStatus,
+        AttrOperationalStatus,
+        AttrEndProductType,
+        AttrMode,
+        AttrSafetyStatus,
+        AttrLiftCurrentPosition,
+        AttrTiltCurrentPosition,
+        AttrLiftTargetPosition,
+        AttrTiltTargetPosition, */
 
         // Actuator Update Change
         LiftUpdate,
@@ -112,11 +113,13 @@ public:
 
     struct Event
     {
-        Event(EventId id) : mId(id), mEndpoint(0) {}
+        Event(EventId id) : mId(id), mEndpoint(1) {}
         Event(EventId id, chip::EndpointId endpoint) : mId(id), mEndpoint(endpoint) {}
+        Event(EventId id, chip::EndpointId endpoint, chip::AttributeId attributeId) : mId(id), mEndpoint(endpoint), mAttributeId(attributeId) {}
 
         EventId mId;
         chip::EndpointId mEndpoint;
+        chip::AttributeId mAttributeId;
     };
 
     struct Actuator

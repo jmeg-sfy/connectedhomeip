@@ -199,6 +199,57 @@ void WindowApp::Finish()
     }
 }
 
+
+
+void WindowApp::DispatchEventAttribute(const WindowApp::Event & event)
+{
+    Cover * cover = nullptr;
+    cover = GetCover(event.mEndpoint);
+
+
+    emberAfWindowCoveringClusterPrint("Ep[%u] DispatchEvent=%u %p \n", event.mEndpoint , event.mId , cover);
+
+    cover = &GetCover();
+
+    switch (event.mAttribute)
+    {
+    /* For a device supporting Position Awareness : Changing the Target triggers motions on the real or simulated device */
+    case Attributes::TargetPositionLiftPercent100ths::Id:
+        if (cover) {
+            cover->mLift.GoToTargetPositionAttribute(event.mEndpoint);
+        }
+        break;
+    /* For a device supporting Position Awareness : Changing the Target triggers motions on the real or simulated device */
+    case Attributes::TargetPositionTiltPercent100ths::Id:
+        if (cover) {
+            cover->mTilt.GoToTargetPositionAttribute(event.mEndpoint);
+        }
+        break;
+    /* RO OperationalStatus */
+    case Attributes::OperationalStatus::Id:
+        emberAfWindowCoveringClusterPrint("OpState: %02X\n", OperationalStatusGet(cover->mEndpoint));
+        break;
+    /* RW Mode */
+    case Attributes::Mode::Id:
+        emberAfWindowCoveringClusterPrint("Mode set externally ignored");
+        break;
+    /* ### ATTRIBUTEs CHANGEs IGNORED ### */
+    /* RO Type: not supposed to dynamically change -> Cycling Window Covering Demo */
+    case Attributes::Type::Id:
+    /* RO EndProductType: not supposed to dynamically change */
+    case Attributes::EndProductType::Id:
+    /* RO ConfigStatus: set by WC server */
+    case Attributes::ConfigStatus::Id:
+    /* RO SafetyStatus: set by WC server */
+    case Attributes::SafetyStatus::Id:
+    /* ============= Positions for Position Aware ============= */
+    case Attributes::CurrentPositionLiftPercent100ths::Id:
+    case Attributes::CurrentPositionTiltPercent100ths::Id:
+    default:
+        break;
+    }
+}
+
 void WindowApp::DispatchEvent(const WindowApp::Event & event)
 {
     Cover * cover = nullptr;
