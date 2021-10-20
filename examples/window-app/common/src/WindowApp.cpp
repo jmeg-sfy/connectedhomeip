@@ -313,12 +313,12 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
 
     case EventId::LiftTargetPosition:
         if (cover) {
-            cover->mLift.GoToTargetAttribute(event.mEndpoint);
+            cover->mLift.GoToTargetPositionAttribute(event.mEndpoint);
         }
         break;
     case EventId::TiltTargetPosition:
         if (cover) {
-            cover->mTilt.GoToTargetAttribute(event.mEndpoint);
+            cover->mTilt.GoToTargetPositionAttribute(event.mEndpoint);
         }
         break;
     case EventId::StopMotion:
@@ -330,15 +330,14 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
         if (cover) {
             cover->mOperationalStatus.lift = cover->mLift.mOpState;
             OperationalStatusSetWithGlobalUpdated(cover->mEndpoint, cover->mOperationalStatus);
-            //LiftCurrentPositionAbsoluteSet(cover->mEndpoint, cover->mLift.mCurrentPosition);
-            LiftAccess()->PositionAbsoluteSet(cover->mEndpoint, PositionAccessors::Type::Current, cover->mLift.mCurrentPosition);
+            cover->mLift.UpdateCurrentPositionAttribute(cover->mEndpoint);
         }
         break;
     case EventId::TiltUpdate:
         if (cover) {
             cover->mOperationalStatus.tilt = cover->mTilt.mOpState;
             OperationalStatusSetWithGlobalUpdated(cover->mEndpoint, cover->mOperationalStatus);
-            TiltAccess()->PositionAbsoluteSet(cover->mEndpoint, PositionAccessors::Type::Current, cover->mTilt.mCurrentPosition);
+            cover->mLift.UpdateCurrentPositionAttribute(cover->mEndpoint);
         }
         break;
     case EventId::BtnCycleActuator:
@@ -660,13 +659,19 @@ void WindowApp::Actuator::GoToAbsolute(uint16_t value)
 
 }
 
-void WindowApp::Actuator::GoToTargetAttribute(chip::EndpointId endpoint)
+void WindowApp::Actuator::GoToTargetPositionAttribute(chip::EndpointId endpoint)
 {
     /* Update Local target value from Attribute */
     /* Trigger movement */
     GoToAbsolute(mAttributes.PositionAbsoluteGet(endpoint, PositionAccessors::Type::Target));
 }
 
+void WindowApp::Actuator::UpdateCurrentPositionAttribute(chip::EndpointId endpoint)
+{
+    /* Update Current position attribute from local current */
+    /* Reflect current position to remote client */
+    mAttributes.PositionAbsoluteSet(endpoint, PositionAccessors::Type::Current, mCurrentPosition);
+}
 
 void WindowApp::Actuator::GoToRelative(chip::Percent100ths percent100ths)
 {
