@@ -510,8 +510,8 @@ mTilt.mStepDelta = TILT_DELTA;
     //Attributes::InstalledClosedLimitLift::Set(endpoint, mLift.mLimits.closed);
     //CurrentPositionAbsoluteSet(endpoint, mLift.mLimits.closed, LiftAccess());
 
-    LiftAccess()->Init(endpoint, Features::Lift, { LIFT_OPEN_LIMIT, LIFT_CLOSED_LIMIT});
-    TiltAccess()->Init(endpoint, Features::Tilt, { TILT_OPEN_LIMIT, TILT_CLOSED_LIMIT});
+    mLift.mAttributes.Init(endpoint, Features::Lift, { LIFT_OPEN_LIMIT, LIFT_CLOSED_LIMIT});
+    mTilt.mAttributes.Init(endpoint, Features::Tilt, { TILT_OPEN_LIMIT, TILT_CLOSED_LIMIT});
 
     // Attribute: Id  0 Type
     TypeSet(endpoint, EMBER_ZCL_WC_TYPE_TILT_BLIND_LIFT_AND_TILT);
@@ -520,8 +520,8 @@ mTilt.mStepDelta = TILT_DELTA;
     ConfigStatus configStatus = { .operational             = 1,
                                   .online                  = 1,
                                   .liftIsReversed          = 0,
-                                  .liftIsPA                = LiftAccess()->IsPositionAware(endpoint),
-                                  .tiltIsPA                = TiltAccess()->IsPositionAware(endpoint),
+                                  .liftIsPA                = mLift.mAttributes.IsPositionAware(endpoint),
+                                  .tiltIsPA                = mTilt.mAttributes.IsPositionAware(endpoint),
                                   .liftIsEncoderControlled = 1,
                                   .tiltIsEncoderControlled = 1 };
     ConfigStatusSet(endpoint, configStatus);
