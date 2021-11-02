@@ -325,16 +325,7 @@ void WindowAppImpl::DispatchEvent(const WindowApp::Event & event)
     WindowApp::DispatchEvent(event);
     switch (event.mId)
     {
-    case EventId::ResetWarning:
-        EFR32_LOG("Factory Reset Triggered. Release button within %ums to cancel.", LONG_PRESS_TIMEOUT);
-        // Turn off all LEDs before starting blink to make sure blink is
-        // co-ordinated.
-        UpdateLEDs();
-        break;
-    case EventId::ResetCanceled:
-        EFR32_LOG("Factory Reset has been Canceled");
-        UpdateLEDs();
-        break;
+
     case EventId::ProvisionedStateChanged:
         UpdateLEDs();
         UpdateLCD();
@@ -349,25 +340,21 @@ void WindowAppImpl::DispatchEvent(const WindowApp::Event & event)
     case EventId::BLEConnectionsChanged:
         UpdateLEDs();
         break;
+    case EventId::ButtonChange:
+        DispatchEventButtonChange(event);
     case EventId::AttributeChange:
-        DispatchEventAttribute(event);
+        DispatchEventAttributeChange(event);
         break;
-    case EventId::BtnCycleType:
-        mIconTimer.Start();
-        mIcon = (GetCover().mEndpoint == 1) ? LcdIcon::One : LcdIcon::Two;
-        UpdateLCD();
+    case EventId::ResetWarning:
+        EFR32_LOG("Factory Reset Triggered. Release button within %ums to cancel.", LONG_PRESS_TIMEOUT);
+        // Turn off all LEDs before starting blink to make sure blink is co-ordinated.
+        UpdateLEDs();
         break;
-    case EventId::BtnCycleActuator:
-        mIconTimer.Start();
-        switch (mButtonCtrlMode)
-        {
-        case ButtonCtrlMode::Tilt: mIcon = LcdIcon::Tilt; break;
-        case ButtonCtrlMode::Lift: mIcon = LcdIcon::Lift; break;
-        default:
-            break;
-        }
-        UpdateLCD();
+    case EventId::ResetCanceled:
+        EFR32_LOG("Factory Reset has been Canceled");
+        UpdateLEDs();
         break;
+
 
         break;
     default:
@@ -376,7 +363,7 @@ void WindowAppImpl::DispatchEvent(const WindowApp::Event & event)
 }
 
 
-void WindowApp::DispatchEventAttribute(const WindowApp::Event & event)
+void WindowApp::DispatchEventAttributeChange(const WindowApp::Event & event)
 {
     Cover * cover = nullptr;
     cover = GetCover(event.mEndpoint);
@@ -409,6 +396,34 @@ void WindowApp::DispatchEventAttribute(const WindowApp::Event & event)
     default:
         break;
     }
+}
+
+void WindowApp::DispatchEventButtonChange(const WindowApp::Event & event)
+{
+    Cover * cover = nullptr;
+    cover = GetCover(event.mEndpoint);
+    emberAfWindowCoveringClusterPrint("Ep[%u] DispatchEvent=%u %p \n", event.mEndpoint, event.mId , cover);
+
+    cover = &GetCover();
+
+    switch (event.mAttribute)
+    {
+    case EventId::BtnCycleType:
+        mIconTimer.Start();
+        mIcon = (GetCover().mEndpoint == 1) ? LcdIcon::One : LcdIcon::Two;
+        UpdateLCD();
+        break;
+    case EventId::BtnCycleActuator:
+        mIconTimer.Start();
+        switch (mButtonCtrlMode)
+        {
+        case ButtonCtrlMode::Tilt: mIcon = LcdIcon::Tilt; break;
+        case ButtonCtrlMode::Lift: mIcon = LcdIcon::Lift; break;
+        default:
+            break;
+        }
+        UpdateLCD();
+        break;
 }
 
 void WindowAppImpl::UpdateLEDs()

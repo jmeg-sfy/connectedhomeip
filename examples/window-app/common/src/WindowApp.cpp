@@ -200,6 +200,34 @@ void WindowApp::Finish()
 }
 
 
+void WindowApp::DispatchEventStateChange(const WindowApp::Event & event)
+{
+    Cover * cover = nullptr;
+    cover = GetCover(event.mEndpoint);
+    emberAfWindowCoveringClusterPrint("Ep[%u] DispatchEvent=%u %p \n", event.mEndpoint, event.mId , cover);
+
+    cover = &GetCover();
+
+    switch (event.mAttribute)
+    {
+    case EventId::ProvisionedStateChanged:
+        UpdateLEDs();
+        UpdateLCD();
+        break;
+    case EventId::ConnectivityStateChanged:
+    case EventId::BLEConnectionsChanged:
+        UpdateLEDs();
+        break;
+    case EventId::ResetWarning:
+        EFR32_LOG("Factory Reset Triggered. Release button within %ums to cancel.", LONG_PRESS_TIMEOUT);
+        // Turn off all LEDs before starting blink to make sure blink is co-ordinated.
+        UpdateLEDs();
+        break;
+    case EventId::ResetCanceled:
+        EFR32_LOG("Factory Reset has been Canceled");
+        UpdateLEDs();
+        break;
+}
 
 void WindowApp::DispatchEventAttribute(const WindowApp::Event & event)
 {
@@ -229,6 +257,22 @@ void WindowApp::DispatchEventAttribute(const WindowApp::Event & event)
     case Attributes::OperationalStatus::Id:
         emberAfWindowCoveringClusterPrint("OpState: %02X\n", OperationalStatusGet(cover->mEndpoint));
         break;
+
+    /* ============= Positions for Position Aware ============= */
+    case Attributes::CurrentPositionLiftPercent100ths::Id:
+        if (cover) {
+            cover->mOperationalStatus.lift = cover->mLift.mOpState;
+            OperationalStatusSetWithGlobalUpdated(cover->mEndpoint, cover->mOperationalStatus);
+            cover->mLift.UpdateCurrentPositionAttribute(cover->mEndpoint);
+        }
+        break;
+    case Attributes::CurrentPositionTiltPercent100ths::Id:
+        if (cover) {
+            cover->mOperationalStatus.tilt = cover->mTilt.mOpState;
+            OperationalStatusSetWithGlobalUpdated(cover->mEndpoint, cover->mOperationalStatus);
+            cover->mLift.UpdateCurrentPositionAttribute(cover->mEndpoint);
+        }
+        break;
     /* RW Mode */
     case Attributes::Mode::Id:
         emberAfWindowCoveringClusterPrint("Mode set externally ignored");
@@ -242,9 +286,6 @@ void WindowApp::DispatchEventAttribute(const WindowApp::Event & event)
     case Attributes::ConfigStatus::Id:
     /* RO SafetyStatus: set by WC server */
     case Attributes::SafetyStatus::Id:
-    /* ============= Positions for Position Aware ============= */
-    case Attributes::CurrentPositionLiftPercent100ths::Id:
-    case Attributes::CurrentPositionTiltPercent100ths::Id:
     default:
         break;
     }
@@ -362,44 +403,20 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
                 GetCover().mLift.StepTowardDownOrClose();
         break;
 
-    case EventId::LiftTargetPosition:
-        if (cover) {
-            cover->mLift.GoToTargetPositionAttribute(event.mEndpoint);
-        }
-        break;
-    case EventId::TiltTargetPosition:
-        if (cover) {
-            cover->mTilt.GoToTargetPositionAttribute(event.mEndpoint);
-        }
-        break;
+
     case EventId::StopMotion:
         if (cover) {
             cover->StopMotion();
         }
         break;
-    case EventId::LiftUpdate:
-        if (cover) {
-            cover->mOperationalStatus.lift = cover->mLift.mOpState;
-            OperationalStatusSetWithGlobalUpdated(cover->mEndpoint, cover->mOperationalStatus);
-            cover->mLift.UpdateCurrentPositionAttribute(cover->mEndpoint);
-        }
-        break;
-    case EventId::TiltUpdate:
-        if (cover) {
-            cover->mOperationalStatus.tilt = cover->mTilt.mOpState;
-            OperationalStatusSetWithGlobalUpdated(cover->mEndpoint, cover->mOperationalStatus);
-            cover->mLift.UpdateCurrentPositionAttribute(cover->mEndpoint);
-        }
-        break;
+
     case EventId::BtnCycleActuator:
         if (cover) {
             cover->mLift.GoToAbsolute(50);
             //OperationalStatusSet(event.mEndpoint, cover->mOperationalStatus);
         }
         break;
-    case EventId::OperationalStatus:
-        emberAfWindowCoveringClusterPrint("OpState: %02X\n", OperationalStatusGet(cover->mEndpoint));
-        break;
+
     default:
         break;
     }
@@ -472,6 +489,8 @@ LimitStatus WindowApp::Actuator::GetLimitState()
 {
     return CheckLimitState(mCurrentPosition, mAttributes.mLimits);
 }
+
+see tick callback
 
 void WindowApp::Actuator::OnActuatorTimeout(WindowApp::Timer & timer)
 {

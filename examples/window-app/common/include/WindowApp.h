@@ -72,10 +72,11 @@ public:
         ResetWarning,
         ResetCanceled,
         // Button events
-        UpPressed,
-        UpReleased,
-        DownPressed,
-        DownReleased,
+        ButtonChange,
+        BtnUpPressed,
+        BtnUpReleased,
+        BtnDownPressed,
+        BtnDownReleased,
         BtnCycleType,
         BtnCycleActuator,
 
