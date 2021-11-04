@@ -320,7 +320,7 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
 
     case EventId::UpPressed:
         emberAfWindowCoveringClusterPrint("UpPressed");
-        mUpPressed = true;
+        mButtonUp->mPressed = true;
         if (mLongPressTimer)
         {
             mLongPressTimer->Start();
@@ -329,7 +329,7 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
 
     case EventId::UpReleased:
         emberAfWindowCoveringClusterPrint("UpReleased");
-        mUpPressed = false;
+        mButtonUp->mPressed = false;
         if (mLongPressTimer)
         {
             mLongPressTimer->Stop();
@@ -338,18 +338,17 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
         {
             PostEvent(EventId::ResetCanceled);
         }
-        if (mUpSuppressed)
+        if (mButtonUp->mSuppressed)
         {
-            mUpSuppressed = false;
+            mButtonUp->mSuppressed = false;
         }
-        else if (mDownPressed)
+        else if (mButtonDown->mPressed)
         {
             if (ButtonCtrlMode::Tilt == mButtonCtrlMode)
                 mButtonCtrlMode = ButtonCtrlMode::Lift;
             else
                 mButtonCtrlMode = ButtonCtrlMode::Tilt;
 
-            mUpSuppressed = mDownSuppressed = true;
             PostEvent(EventId::BtnCycleActuator);
         }
         else
@@ -365,7 +364,7 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
         break;
 
     case EventId::DownPressed:
-        mDownPressed = true;
+        mButtonDown->mPressed = true;
         if (mLongPressTimer)
         {
             mLongPressTimer->Start();
@@ -373,7 +372,7 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
         break;
 
     case EventId::DownReleased:
-        mDownPressed = false;
+        mButtonDown->mPressed = false;
         if (mLongPressTimer)
         {
             mLongPressTimer->Stop();
@@ -382,18 +381,18 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
         {
             PostEvent(EventId::ResetCanceled);
         }
-        if (mDownSuppressed)
+        if (mButtonDown->mSuppressed)
         {
-            mDownSuppressed = false;
+            mButtonDown->mSuppressed = false;
         }
-        else if (mUpPressed)
+        else if (mButtonUp->mPressed)
         {
             if (ButtonCtrlMode::Tilt == mButtonCtrlMode)
                 mButtonCtrlMode = ButtonCtrlMode::Lift;
             else
                 mButtonCtrlMode = ButtonCtrlMode::Tilt;
 
-            mUpSuppressed = mDownSuppressed = true;
+            mButtonUp->mSuppressed = mButtonDown->mSuppressed = true;
             PostEvent(EventId::BtnCycleActuator);
         }
         else
@@ -402,14 +401,11 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
             else
                 GetCover().mLift.StepTowardDownOrClose();
         break;
-
-
     case EventId::StopMotion:
         if (cover) {
             cover->StopMotion();
         }
         break;
-
     case EventId::BtnCycleActuator:
         if (cover) {
             cover->mLift.GoToAbsolute(50);
@@ -440,16 +436,16 @@ void WindowApp::DestroyButton(Button * btn)
 
 void WindowApp::HandleLongPress()
 {
-    if (mUpPressed && mDownPressed)
+    if (mButtonUp->mPressed && mButtonDown->mPressed)
     {
         // Long press both buttons: Cycle between window coverings
-        mUpSuppressed = mDownSuppressed = true;
+        mButtonUp->mSuppressed = mButtonDown->mSuppressed = true;
         mCurrentCover                   = mCurrentCover < WINDOW_COVER_COUNT - 1 ? mCurrentCover + 1 : 0;
         PostEvent(EventId::BtnCycleType);
     }
-    else if (mUpPressed)
+    else if (mButtonUp->mPressed)
     {
-        mUpSuppressed = true;
+        mButtonUp->mSuppressed = true;
         if (mResetWarning)
         {
             // Double long press button up: Reset now, you were warned!
@@ -461,10 +457,10 @@ void WindowApp::HandleLongPress()
             PostEvent(EventId::ResetWarning);
         }
     }
-    else if (mDownPressed)
+    else if (mButtonDown->mPressed)
     {
         // Long press button down: Cycle between covering types
-        mDownSuppressed          = true;
+        mButtonDown->mSuppressed          = true;
         EmberAfWcType cover_type = GetCover().CycleType();
         if (EMBER_ZCL_WC_TYPE_TILT_BLIND_LIFT_AND_TILT == cover_type)
             mButtonCtrlMode = ButtonCtrlMode::Tilt;

@@ -62,6 +62,8 @@ public:
 
         Id mId;
         const char * mName = nullptr;
+        bool mPressed      = false;
+        bool mSuppressed   = false;
     };
 
     enum class EventId
@@ -233,10 +235,8 @@ protected:
 
     StateFlags mState;
 
-    bool mUpPressed      = false;
-    bool mDownPressed    = false;
-    bool mUpSuppressed   = false;
-    bool mDownSuppressed = false;
+
+
     bool mResetWarning   = false;
 
 private:
