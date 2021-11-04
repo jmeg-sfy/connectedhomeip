@@ -291,6 +291,82 @@ void WindowApp::DispatchEventAttribute(const WindowApp::Event & event)
     }
 }
 
+
+void WindowApp::Cover::StepTowardUpOrOpen(ControlMode controlMode)
+{
+    switch (controlMode)
+    {
+    case ControlMode::TiltOnly:
+        mTilt.StepTowardUpOrOpen();
+        break;
+    case ControlMode::LiftOnly:
+        mLift.StepTowardUpOrOpen();
+        break;
+    case ControlMode::All:
+        mTilt.StepTowardUpOrOpen();
+        mLift.StepTowardUpOrOpen();
+        break;
+    }
+}
+
+void WindowApp::Cover::StepTowardDownOrClose(ControlMode controlMode)
+{
+    switch (controlMode)
+    {
+    case ControlMode::TiltOnly:
+        mTilt.StepTowardDownOrClose();
+        break;
+    case ControlMode::LiftOnly:
+        mLift.StepTowardDownOrClose();
+        break;
+    case ControlMode::All:
+        mTilt.StepTowardDownOrClose();
+        mLift.StepTowardDownOrClose();
+        break;
+    }
+}
+
+void WindowApp::Cover::StopMotion(ControlMode controlMode)
+{
+
+    switch (controlMode)
+    {
+    case ControlMode::TiltOnly:
+        mTilt.StopMotion();
+        break;
+    case ControlMode::LiftOnly:
+        mLift.StopMotion();
+        break;
+    case ControlMode::All:
+        mTilt.StopMotion();
+        mLift.StopMotion();
+        break;
+    }
+}
+
+void WindowApp::Cover::UpdateCurrentPositionAttribute(ControlMode controlMode)
+{
+    switch (controlMode)
+    {
+    case ControlMode::TiltOnly:
+        mOperationalStatus.tilt = mTilt.mOpState;
+        mTilt.UpdateCurrentPositionAttribute(mEndpoint);
+        break;
+    case ControlMode::LiftOnly:
+        mOperationalStatus.lift = mLift.mOpState;
+        mLift.UpdateCurrentPositionAttribute(mEndpoint);
+        break;
+    case ControlMode::All:
+        mOperationalStatus.tilt = mTilt.mOpState;
+        mTilt.UpdateCurrentPositionAttribute(mEndpoint);
+        mOperationalStatus.lift = mLift.mOpState;
+        mLift.UpdateCurrentPositionAttribute(mEndpoint);
+        break;
+    }
+    OperationalStatusSetWithGlobalUpdated(mEndpoint, mOperationalStatus);
+}
+
+
 void WindowApp::DispatchEvent(const WindowApp::Event & event)
 {
     Cover * cover = nullptr;
@@ -403,7 +479,7 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
         break;
     case EventId::StopMotion:
         if (cover) {
-            cover->StopMotion();
+            cover->StopMotion(Cover::ControlMode::All);
         }
         break;
     case EventId::BtnCycleActuator:
@@ -593,11 +669,7 @@ EmberAfWcType WindowApp::Cover::CycleType()
     return type;
 }
 
-void WindowApp::Cover::StopMotion()
-{
-    mTilt.StopMotion();
-    mLift.StopMotion();
-}
+
 //#############3
 void WindowApp::Actuator::TimerStart()
 {

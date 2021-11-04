@@ -173,9 +173,19 @@ public:
 
     struct Cover
     {
+        enum ControlMode
+        {
+            TiltOnly = 0,
+            LiftOnly,
+            All,    //Tilt and Lift
+        };
+
         void Init(chip::EndpointId endpoint);
         void Finish();
-        void StopMotion();
+        void StopMotion(ControlMode controlMode);
+        void StepTowardDownOrClose(ControlMode controlMode);
+        void StepTowardUpOrOpen(ControlMode controlMode);
+        void UpdateCurrentPositionAttribute(ControlMode controlMode);
         EmberAfWcType CycleType();
 
         chip::EndpointId mEndpoint = 0;
