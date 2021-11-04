@@ -314,7 +314,7 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
         mResetWarning = false;
         break;
 
-    case EventId::Reset:
+    case EventId::ResetStart:
         ConfigurationMgr().InitiateFactoryReset();
         break;
 
@@ -449,7 +449,7 @@ void WindowApp::HandleLongPress()
         if (mResetWarning)
         {
             // Double long press button up: Reset now, you were warned!
-            PostEvent(EventId::Reset);
+            PostEvent(EventId::ResetStart);
         }
         else
         {

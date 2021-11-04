@@ -69,7 +69,7 @@ public:
     enum class EventId
     {
         None = 0,
-        Reset,
+        ResetStart,
         ResetPressed,
         ResetWarning,
         ResetCanceled,
