@@ -84,13 +84,13 @@ void WindowApp::Timer::Timeout()
 
 void WindowApp::Button::Press()
 {
-    EventId event = Button::Id::Up == mId ? EventId::UpPressed : EventId::DownPressed;
+    EventId event = Button::Id::Up == mId ? EventId::BtnUpPressed : EventId::BtnDownPressed;
     Instance().PostEvent(WindowApp::Event(event));
 }
 
 void WindowApp::Button::Release()
 {
-    Instance().PostEvent(Button::Id::Up == mId ? EventId::UpReleased : EventId::DownReleased);
+    Instance().PostEvent(Button::Id::Up == mId ? EventId::BtnUpReleased : EventId::BtnDownReleased);
 }
 
 WindowApp::Cover & WindowApp::GetCover()
@@ -318,7 +318,7 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
         ConfigurationMgr().InitiateFactoryReset();
         break;
 
-    case EventId::UpPressed:
+    case EventId::BtnUpPressed:
         emberAfWindowCoveringClusterPrint("UpPressed");
         mButtonUp->mPressed = true;
         if (mLongPressTimer)
@@ -327,7 +327,7 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
         }
         break;
 
-    case EventId::UpReleased:
+    case EventId::BtnUpReleased:
         emberAfWindowCoveringClusterPrint("UpReleased");
         mButtonUp->mPressed = false;
         if (mLongPressTimer)
