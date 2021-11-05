@@ -63,7 +63,10 @@ protected:
     WindowApp::Button * CreateButton(WindowApp::Button::Id id, const char * name) override;
     void OnButtonChange(const sl_button_t * handle);
     void ProcessEvents();
+
     void DispatchEvent(const WindowApp::Event & event) override;
+    void DispatchEventButtonChange(const WindowApp::Event & event);
+    void DispatchEventStateChange(const WindowApp::Event & event);
     void DispatchEventAttributeChange(chip::EndpointId endpoint, chip::AttributeId attribute);
 
     void UpdateLEDs();

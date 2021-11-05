@@ -74,7 +74,6 @@ public:
         ResetWarning,
         ResetCanceled,
         // Button events
-        ButtonChange,
         BtnUpPressed,
         BtnUpReleased,
         BtnDownPressed,
@@ -108,11 +107,6 @@ public:
         WinkOn,
     };
 
-    enum ButtonCtrlMode
-    {
-        Tilt = 0,
-        Lift,
-    };
 
     struct Event
     {
@@ -195,11 +189,10 @@ public:
                                                  .lift   = OperationalState::Stall,
                                                  .tilt   = OperationalState::Stall };
 
-
+        //protected:
         Actuator mLift, mTilt;
+
     };
-
-
 
     static WindowApp & Instance();
 
@@ -252,6 +245,8 @@ protected:
 
 private:
     void HandleLongPress();
+    void DispatchEventButtonChange(const Event & event);
+    void DispatchEventStateChange(const Event & event);
     void DispatchEventAttributeChange(chip::EndpointId endpoint, chip::AttributeId attribute);
 
     Cover mCoverList[WINDOW_COVER_COUNT];

@@ -208,25 +208,11 @@ void WindowApp::DispatchEventStateChange(const WindowApp::Event & event)
 
     cover = &GetCover();
 
-    switch (event.mAttribute)
+    switch (event.mId)
     {
-    case EventId::ProvisionedStateChanged:
-        UpdateLEDs();
-        UpdateLCD();
+    default:
         break;
-    case EventId::ConnectivityStateChanged:
-    case EventId::BLEConnectionsChanged:
-        UpdateLEDs();
-        break;
-    case EventId::ResetWarning:
-        EFR32_LOG("Factory Reset Triggered. Release button within %ums to cancel.", LONG_PRESS_TIMEOUT);
-        // Turn off all LEDs before starting blink to make sure blink is co-ordinated.
-        UpdateLEDs();
-        break;
-    case EventId::ResetCanceled:
-        EFR32_LOG("Factory Reset has been Canceled");
-        UpdateLEDs();
-        break;
+    }
 }
 
 
@@ -463,14 +449,21 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
             PostEvent(EventId::BtnCycleActuator);
         }
         else
-            if (ButtonCtrlMode::Tilt == mButtonCtrlMode)
-                GetCover().mTilt.StepTowardDownOrClose();
-            else
-                GetCover().mLift.StepTowardDownOrClose();
+            cover->StepTowardDownOrClose(mControlMode);
         break;
     case EventId::StopMotion:
         if (cover) {
             cover->StopMotion(Cover::ControlMode::All);
+        }
+        break;
+    case EventId::ActuatorUpdateLift:
+        if (cover) {
+            cover->UpdateCurrentPositionAttribute(Cover::ControlMode::LiftOnly);
+        }
+        break;
+    case EventId::ActuatorUpdateTilt:
+        if (cover) {
+            cover->UpdateCurrentPositionAttribute(Cover::ControlMode::TiltOnly);
         }
         break;
     case EventId::BtnCycleActuator:
@@ -584,8 +577,8 @@ mLift.mStepDelta = LIFT_DELTA;
 mTilt.mStepDelta = TILT_DELTA;
 
 
-    mLift.Init("Lift", COVER_LIFT_TILT_TIMEOUT, nullptr, EventId::LiftUpdate);
-    mTilt.Init("Tilt", COVER_LIFT_TILT_TIMEOUT, nullptr, EventId::TiltUpdate);
+    mLift.Init("Lift", COVER_LIFT_TILT_TIMEOUT, nullptr, EventId::ActuatorUpdateLift);
+    mTilt.Init("Tilt", COVER_LIFT_TILT_TIMEOUT, nullptr, EventId::ActuatorUpdateTilt);
 
     //mTiltTimer = WindowApp::Instance().CreateTimer("Timer:Tilt", COVER_LIFT_TILT_TIMEOUT, OnTiltTimeout, this);
     //Attributes::InstalledOpenLimitLift::Set(endpoint, mLift.mLimits.open);
