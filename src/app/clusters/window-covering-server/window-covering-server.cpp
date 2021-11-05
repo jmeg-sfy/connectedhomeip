@@ -120,7 +120,6 @@ static uint16_t ConvertValue(uint16_t inputLowValue, uint16_t inputHighValue, ui
 
     return outputMax;
 
-    return outputMax;
 }
 
 // typedef struct AbsoluteLimits
@@ -482,7 +481,7 @@ EmberAfStatus PositionAccessors::SetAttributeRelativePosition(chip::EndpointId e
 
     return status;
 }
-
+//} // namespace PositionAccessors
 
 EmberAfStatus PositionAccessors::GetAttributeRelativePosition(chip::EndpointId endpoint, Percent100ths * p_relative)
 {
@@ -783,7 +782,7 @@ void PositionAccessors::RegisterCallbacksAbsolute     (SetAttributeU16_f set_cb,
 void emberAfPluginWindowCoveringEventHandler(EndpointId endpoint)
 {
     OperationalStatus opStatus = OperationalStatusGet(endpoint);
-    emberAfWindowCoveringClusterPrint("WC DELAYED CALLBACK 100ms w/ OpStatus=0x%02X", opStatus);
+    emberAfWindowCoveringClusterPrint("WC DELAYED CALLBACK 100ms w/ OpStatus=0x%02X", (unsigned char) opStatus.global);
 
     /* Update position to simulate movement to pass the CI */
     if (OperationalState::Stall != opStatus.lift)
@@ -801,7 +800,7 @@ EmberEventControl * getEventControl(EndpointId endpoint)
 
 EmberEventControl * configureXYEventControl(EndpointId endpoint)
 {
-    EmberEventControl * controller = getEventControl(endpoint);
+    EmberEventControl  * controller = getEventControl(endpoint);
 
     controller->endpoint = endpoint;
     controller->callback = &emberAfPluginWindowCoveringEventHandler;
@@ -886,12 +885,73 @@ LimitStatus CheckLimitState(uint16_t position, AbsoluteLimits limits)
     return LimitStatus::Intermediate;
 }
 
+// void WindowApp::DispatchEventAttributeChange(chip::EndpointId endpoint, chip::AttributeId attribute)
+// {
+//     Cover * cover = nullptr;
+//     cover = GetCover(endpoint);
+
+
+//     emberAfWindowCoveringClusterPrint("Ep[%u] DispatchEvent=%u %p \n", endpoint , (unsigned int)attribute , cover);
+
+//     //cover = &GetCover();
+
+//     switch (attribute)
+//     {
+//     /* For a device supporting Position Awareness : Changing the Target triggers motions on the real or simulated device */
+//     case Attributes::TargetPositionLiftPercent100ths::Id:
+//         if (cover) {
+//             cover->mLift.GoToTargetPositionAttribute(endpoint);
+//         }
+//         break;
+//     /* For a device supporting Position Awareness : Changing the Target triggers motions on the real or simulated device */
+//     case Attributes::TargetPositionTiltPercent100ths::Id:
+//         if (cover) {
+//             cover->mTilt.GoToTargetPositionAttribute(endpoint);
+//         }
+//         break;
+//     /* RO OperationalStatus */
+//     case Attributes::OperationalStatus::Id:
+//         emberAfWindowCoveringClusterPrint("OpState: %02X\n", (unsigned int) OperationalStatusGet(endpoint).global);
+//         break;
+
+//     /* ============= Positions for Position Aware ============= */
+//     case Attributes::CurrentPositionLiftPercent100ths::Id:
+//         if (cover) {
+//             cover->mOperationalStatus.lift = cover->mLift.mOpState;
+//             OperationalStatusSetWithGlobalUpdated(cover->mEndpoint, cover->mOperationalStatus);
+//             cover->mLift.UpdateCurrentPositionAttribute(cover->mEndpoint);
+//         }
+//         break;
+//     case Attributes::CurrentPositionTiltPercent100ths::Id:
+//         if (cover) {
+//             cover->mOperationalStatus.tilt = cover->mTilt.mOpState;
+//             OperationalStatusSetWithGlobalUpdated(cover->mEndpoint, cover->mOperationalStatus);
+//             cover->mTilt.UpdateCurrentPositionAttribute(cover->mEndpoint);
+//         }
+//         break;
+//     /* RW Mode */
+//     case Attributes::Mode::Id:
+//         emberAfWindowCoveringClusterPrint("Mode set externally ignored");
+//         break;
+//     /* ### ATTRIBUTEs CHANGEs IGNORED ### */
+//     /* RO Type: not supposed to dynamically change -> Cycling Window Covering Demo */
+//     case Attributes::Type::Id:
+//     /* RO EndProductType: not supposed to dynamically change */
+//     case Attributes::EndProductType::Id:
+//     /* RO ConfigStatus: set by WC server */
+//     case Attributes::ConfigStatus::Id:
+//     /* RO SafetyStatus: set by WC server */
+//     case Attributes::SafetyStatus::Id:
+//     default:
+//         break;
+//     }
+
 /* PostAttributeChange is used in all-cluster-app simulation and CI testing : otherwise it is bounded to manufacturer specific implementation */
 void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeId)
 {
     OperationalStatus opStatus = OperationalStatusGet(endpoint);
 
-    emberAfWindowCoveringClusterPrint("WC POST ATTRIBUTE=%u OpStatus=0x%02X", attributeId, opStatus);
+    emberAfWindowCoveringClusterPrint("WC POST ATTRIBUTE=%lu OpStatus=0x%02X", attributeId, (unsigned int) opStatus.global);
 
     switch (attributeId)
     {
@@ -1015,7 +1075,7 @@ void emberAfWindowCoveringClusterInitCallback(chip::EndpointId endpoint)
 bool emberAfWindowCoveringClusterUpOrOpenCallback(app::CommandHandler * cmdObj, const app::ConcreteCommandPath & cmdPath,
                                                   const Commands::UpOrOpen::DecodableType & cmdData)
 {
-    emberAfWindowCoveringClusterPrint("UpOrOpen command received OpStatus=0x%02X", OperationalStatusGet(cmdPath.mEndpointId));
+    emberAfWindowCoveringClusterPrint("UpOrOpen command received OpStatus=0x%02X", (unsigned int) OperationalStatusGet(cmdPath.mEndpointId).global);
 
     EmberAfStatus tiltStatus = LiftAccess()->GoToUpOrOpen(cmdPath.mEndpointId);
     EmberAfStatus liftStatus = TiltAccess()->GoToUpOrOpen(cmdPath.mEndpointId);
@@ -1045,7 +1105,7 @@ bool emberAfWindowCoveringClusterUpOrOpenCallback(app::CommandHandler * cmdObj, 
 bool emberAfWindowCoveringClusterDownOrCloseCallback(app::CommandHandler * cmdObj, const app::ConcreteCommandPath & cmdPath,
                                                      const Commands::DownOrClose::DecodableType & cmdData)
 {
-    emberAfWindowCoveringClusterPrint("DownOrClose command received OpStatus=0x%02X", OperationalStatusGet(cmdPath.mEndpointId));
+    emberAfWindowCoveringClusterPrint("DownOrClose command received OpStatus=0x%02X", (unsigned int) OperationalStatusGet(cmdPath.mEndpointId).global);
 
     EmberAfStatus liftStatus = LiftAccess()->GoToDownOrClose(cmdPath.mEndpointId);
     EmberAfStatus tiltStatus = TiltAccess()->GoToDownOrClose(cmdPath.mEndpointId);
@@ -1062,11 +1122,10 @@ bool emberAfWindowCoveringClusterDownOrCloseCallback(app::CommandHandler * cmdOb
 /**
  * @brief  Cluster StopMotion Command callback (from client)
  */
-bool emberAfWindowCoveringClusterStopMotionCallback(chip::app::CommandHandler * cmdObj,
-                                                    const chip::app::ConcreteCommandPath & cmdPath, chip::EndpointId endpoint,
-                                                    Commands::StopMotion::DecodableType & cmdData)
+bool __attribute__((weak)) emberAfWindowCoveringClusterStopMotionCallback(app::CommandHandler * cmdObj, const app::ConcreteCommandPath & cmdPath,
+                                               const Commands::StopMotion::DecodableType & fields)
 {
-    emberAfWindowCoveringClusterPrint("StopMotion command received OpStatus=0x%02X", OperationalStatusGet(endpoint));
+    emberAfWindowCoveringClusterPrint("StopMotion command received OpStatus=0x%02X", (unsigned int) OperationalStatusGet(cmdPath.mEndpointId).global);
 
     EmberAfStatus liftStatus = LiftAccess()->GoToCurrent(cmdPath.mEndpointId);
     EmberAfStatus tiltStatus = TiltAccess()->GoToCurrent(cmdPath.mEndpointId);
