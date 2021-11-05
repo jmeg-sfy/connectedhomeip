@@ -204,7 +204,7 @@ void WindowApp::DispatchEventStateChange(const WindowApp::Event & event)
 {
     Cover * cover = nullptr;
     cover = GetCover(event.mEndpoint);
-    emberAfWindowCoveringClusterPrint("Ep[%u] DispatchEvent=%u %p \n", event.mEndpoint, event.mId , cover);
+    emberAfWindowCoveringClusterPrint("Ep[%u] DispatchEvent=%u %p \n", event.mEndpoint, (unsigned int) event.mId , cover);
 
     cover = &GetCover();
 
@@ -235,7 +235,7 @@ void WindowApp::DispatchEventAttribute(const WindowApp::Event & event)
     cover = GetCover(event.mEndpoint);
 
 
-    emberAfWindowCoveringClusterPrint("Ep[%u] DispatchEvent=%u %p \n", event.mEndpoint , event.mId , cover);
+    emberAfWindowCoveringClusterPrint("Ep[%u] DispatchEvent=%u %p \n", endpoint , (unsigned int)attribute , cover);
 
     cover = &GetCover();
 
@@ -255,23 +255,7 @@ void WindowApp::DispatchEventAttribute(const WindowApp::Event & event)
         break;
     /* RO OperationalStatus */
     case Attributes::OperationalStatus::Id:
-        emberAfWindowCoveringClusterPrint("OpState: %02X\n", OperationalStatusGet(cover->mEndpoint));
-        break;
-
-    /* ============= Positions for Position Aware ============= */
-    case Attributes::CurrentPositionLiftPercent100ths::Id:
-        if (cover) {
-            cover->mOperationalStatus.lift = cover->mLift.mOpState;
-            OperationalStatusSetWithGlobalUpdated(cover->mEndpoint, cover->mOperationalStatus);
-            cover->mLift.UpdateCurrentPositionAttribute(cover->mEndpoint);
-        }
-        break;
-    case Attributes::CurrentPositionTiltPercent100ths::Id:
-        if (cover) {
-            cover->mOperationalStatus.tilt = cover->mTilt.mOpState;
-            OperationalStatusSetWithGlobalUpdated(cover->mEndpoint, cover->mOperationalStatus);
-            cover->mLift.UpdateCurrentPositionAttribute(cover->mEndpoint);
-        }
+        emberAfWindowCoveringClusterPrint("OpState: %02X\n", (unsigned int) OperationalStatusGet(endpoint).global);
         break;
     /* RW Mode */
     case Attributes::Mode::Id:
@@ -286,6 +270,9 @@ void WindowApp::DispatchEventAttribute(const WindowApp::Event & event)
     case Attributes::ConfigStatus::Id:
     /* RO SafetyStatus: set by WC server */
     case Attributes::SafetyStatus::Id:
+    /* ============= Positions for Position Aware ============= */
+    case Attributes::CurrentPositionLiftPercent100ths::Id:
+    case Attributes::CurrentPositionTiltPercent100ths::Id:
     default:
         break;
     }
@@ -373,7 +360,7 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
     cover = GetCover(event.mEndpoint);
 
 
-    emberAfWindowCoveringClusterPrint("Ep[%u] DispatchEvent=%u %p \n", event.mEndpoint , event.mId , cover);
+    emberAfWindowCoveringClusterPrint("Ep[%u] DispatchEvent=%u %p \n", event.mEndpoint , (unsigned int) event.mId , cover);
 
      cover = &GetCover();
 

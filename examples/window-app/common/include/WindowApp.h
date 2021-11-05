@@ -96,8 +96,8 @@ public:
         AttrTiltTargetPosition, */
 
         // Actuator Update Change
-        LiftUpdate,
-        TiltUpdate,
+        ActuatorUpdateLift,
+        ActuatorUpdateTilt,
 
         StopMotion,
         // Provisioning events
