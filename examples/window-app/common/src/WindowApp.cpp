@@ -278,6 +278,13 @@ void WindowApp::DispatchEventAttribute(const WindowApp::Event & event)
     }
 }
 
+void WindowApp::ToogleControlMode(void)
+{
+    if (Cover::ControlMode::TiltOnly == mControlMode)
+        mControlMode = Cover::ControlMode::LiftOnly;
+    else
+        mControlMode = Cover::ControlMode::TiltOnly;
+}
 
 void WindowApp::Cover::StepTowardUpOrOpen(ControlMode controlMode)
 {
@@ -450,11 +457,7 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
         }
         else if (mButtonUp->mPressed)
         {
-            if (ButtonCtrlMode::Tilt == mButtonCtrlMode)
-                mButtonCtrlMode = ButtonCtrlMode::Lift;
-            else
-                mButtonCtrlMode = ButtonCtrlMode::Tilt;
-
+            ToogleControlMode();
             mButtonUp->mSuppressed = mButtonDown->mSuppressed = true;
             PostEvent(EventId::BtnCycleActuator);
         }
@@ -526,9 +529,9 @@ void WindowApp::HandleLongPress()
         mButtonDown->mSuppressed          = true;
         EmberAfWcType cover_type = GetCover().CycleType();
         if (EMBER_ZCL_WC_TYPE_TILT_BLIND_LIFT_AND_TILT == cover_type)
-            mButtonCtrlMode = ButtonCtrlMode::Tilt;
+            mControlMode = Cover::ControlMode::TiltOnly;
         else
-            mButtonCtrlMode = ButtonCtrlMode::Lift;
+            mControlMode = Cover::ControlMode::LiftOnly;
     }
 }
 

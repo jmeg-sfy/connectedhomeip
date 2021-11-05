@@ -208,10 +208,6 @@ void WindowAppImpl::Finish()
 
 
 
-void WindowApp::Button::Release()
-{
-    Instance().PostEvent(Button::Id::Up == mId ? EventId::UpReleased : EventId::DownReleased);
-}
 
 void WindowAppImpl::PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeId)
 {

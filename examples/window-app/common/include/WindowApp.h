@@ -210,6 +210,7 @@ public:
     virtual void Finish();
     virtual void PostEvent(const Event & event) = 0;
     virtual void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeId) = 0;
+    void ToogleControlMode(void);
 
 protected:
     struct StateFlags
@@ -241,7 +242,7 @@ protected:
     Timer * mLongPressTimer = nullptr;
     Button * mButtonUp      = nullptr;
     Button * mButtonDown    = nullptr;
-    ButtonCtrlMode mButtonCtrlMode;
+    Cover::ControlMode mControlMode;
 
     StateFlags mState;
 
