@@ -401,11 +401,8 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
         }
         else if (mButtonDown->mPressed)
         {
-            if (ButtonCtrlMode::Tilt == mButtonCtrlMode)
-                mButtonCtrlMode = ButtonCtrlMode::Lift;
-            else
-                mButtonCtrlMode = ButtonCtrlMode::Tilt;
-
+            ToogleControlMode();
+            mButtonUp->mSuppressed = mButtonDown->mSuppressed = true;
             PostEvent(EventId::BtnCycleActuator);
         }
         else
