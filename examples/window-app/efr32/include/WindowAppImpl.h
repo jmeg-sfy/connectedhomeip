@@ -64,6 +64,8 @@ protected:
     void OnButtonChange(const sl_button_t * handle);
     void ProcessEvents();
     void DispatchEvent(const WindowApp::Event & event) override;
+    void DispatchEventAttributeChange(chip::EndpointId endpoint, chip::AttributeId attribute);
+
     void UpdateLEDs();
     void UpdateLCD();
     void OnMainLoop() override;

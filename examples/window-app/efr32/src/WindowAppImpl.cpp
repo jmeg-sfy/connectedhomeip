@@ -350,26 +350,25 @@ void WindowAppImpl::DispatchEvent(const WindowApp::Event & event)
         EFR32_LOG("Factory Reset has been Canceled");
         UpdateLEDs();
         break;
-
-
-        break;
     default:
         break;
     }
 }
 
 
-void WindowApp::DispatchEventAttributeChange(const WindowApp::Event & event)
+//void WindowApp::DispatchEventAttributeChange(const WindowApp::Event & event)
+void WindowAppImpl::DispatchEventAttributeChange(chip::EndpointId endpoint, chip::AttributeId attribute)
 {
     Cover * cover = nullptr;
-    cover = GetCover(event.mEndpoint);
+    cover = GetCover(endpoint);
 
 
-    emberAfWindowCoveringClusterPrint("Ep[%u] DispatchEvent=%u %p \n", event.mEndpoint , event.mId , cover);
+    EFR32_LOG("Ep[%u] DispatchEvent=%u %p \n", endpoint, attribute, cover);
 
     cover = &GetCover();
 
-    switch (event.mAttribute)
+    DispatchEventAttributeChange(endpoint, attribute);
+    switch (attribute)
     {
     /* RO OperationalStatus */
     case Attributes::OperationalStatus::Id:

@@ -229,28 +229,29 @@ void WindowApp::DispatchEventStateChange(const WindowApp::Event & event)
         break;
 }
 
-void WindowApp::DispatchEventAttribute(const WindowApp::Event & event)
+
+void WindowApp::DispatchEventAttributeChange(chip::EndpointId endpoint, chip::AttributeId attribute)
 {
     Cover * cover = nullptr;
-    cover = GetCover(event.mEndpoint);
+    cover = GetCover(endpoint);
 
 
     emberAfWindowCoveringClusterPrint("Ep[%u] DispatchEvent=%u %p \n", endpoint , (unsigned int)attribute , cover);
 
-    cover = &GetCover();
+    //cover = &GetCover();
 
-    switch (event.mAttribute)
+    switch (attribute)
     {
     /* For a device supporting Position Awareness : Changing the Target triggers motions on the real or simulated device */
     case Attributes::TargetPositionLiftPercent100ths::Id:
         if (cover) {
-            cover->mLift.GoToTargetPositionAttribute(event.mEndpoint);
+            cover->mLift.GoToTargetPositionAttribute(endpoint);
         }
         break;
     /* For a device supporting Position Awareness : Changing the Target triggers motions on the real or simulated device */
     case Attributes::TargetPositionTiltPercent100ths::Id:
         if (cover) {
-            cover->mTilt.GoToTargetPositionAttribute(event.mEndpoint);
+            cover->mTilt.GoToTargetPositionAttribute(endpoint);
         }
         break;
     /* RO OperationalStatus */

@@ -252,6 +252,7 @@ protected:
 
 private:
     void HandleLongPress();
+    void DispatchEventAttributeChange(chip::EndpointId endpoint, chip::AttributeId attribute);
 
     Cover mCoverList[WINDOW_COVER_COUNT];
 
