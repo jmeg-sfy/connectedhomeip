@@ -407,17 +407,13 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
         }
         else
         {
-            emberAfWindowCoveringClusterPrint("Forward");
-            if (ButtonCtrlMode::Tilt == mButtonCtrlMode)
-                GetCover().mTilt.StepTowardUpOrOpen();
-            else
-                GetCover().mLift.StepTowardUpOrOpen();
+            cover->StepTowardUpOrOpen(mControlMode);
         }
 
 
         break;
 
-    case EventId::DownPressed:
+    case EventId::BtnDownPressed:
         mButtonDown->mPressed = true;
         if (mLongPressTimer)
         {
@@ -425,7 +421,7 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
         }
         break;
 
-    case EventId::DownReleased:
+    case EventId::BtnDownReleased:
         mButtonDown->mPressed = false;
         if (mLongPressTimer)
         {

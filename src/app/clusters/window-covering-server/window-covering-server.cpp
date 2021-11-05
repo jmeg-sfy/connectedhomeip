@@ -951,7 +951,7 @@ void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeI
 {
     OperationalStatus opStatus = OperationalStatusGet(endpoint);
 
-    emberAfWindowCoveringClusterPrint("WC POST ATTRIBUTE=%lu OpStatus=0x%02X", attributeId, (unsigned int) opStatus.global);
+    emberAfWindowCoveringClusterPrint("WC POST ATTRIBUTE=%u OpStatus=0x%02X", attributeId, (unsigned int) opStatus.global);
 
     switch (attributeId)
     {
