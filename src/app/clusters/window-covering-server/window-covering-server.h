@@ -127,6 +127,84 @@ enum class RelativeLimits : Percent100ths
     DownOrClose = WC_PERCENT100THS_MAX_CLOSED,
 };
 
+// typedef EmberAfStatus (*SetPercentage_f          )(chip::EndpointId endpoint, uint8_t relPercentage);
+// typedef EmberAfStatus (*SetPercent100ths_f       )(chip::EndpointId endpoint, uint16_t relPercent100ths);
+// typedef EmberAfStatus (*SetAbsolute_f            )(chip::EndpointId endpoint, uint16_t relPercent100ths);
+typedef EmberAfStatus (*GetInstalledOpenLimit_f  )(chip::EndpointId endpoint, uint16_t *relPercent100ths);
+typedef EmberAfStatus (*GetInstalledClosedLimit_f)(chip::EndpointId endpoint, uint16_t *relPercent100ths);
+
+
+typedef EmberAfStatus (*SetAttributeU8_f )(chip::EndpointId endpoint, uint8_t   value);
+typedef EmberAfStatus (*GetAttributeU8_f )(chip::EndpointId endpoint, uint8_t *pValue);
+typedef EmberAfStatus (*SetAttributeU16_f)(chip::EndpointId endpoint, uint16_t   value);
+typedef EmberAfStatus (*GetAttributeU16_f)(chip::EndpointId endpoint, uint16_t *pValue);
+
+//namespace ActuatorAccessors {
+
+struct ActuatorAccessors
+{
+    struct PositionAccessors
+    {
+        enum class Type : uint8_t
+        {
+            Current,
+            Target,
+        };
+        SetAttributeU8_f  mSetPercentageCb;    GetAttributeU8_f  mGetPercentageCb;
+        SetAttributeU16_f mSetPercent100thsCb; GetAttributeU16_f mGetPercent100thsCb;
+        SetAttributeU16_f mSetAbsoluteCb;      GetAttributeU16_f mGetAbsoluteCb;
+
+
+        void RegisterCallbacksPercentage   (SetAttributeU8_f  set_cb, GetAttributeU8_f  get_cb);
+        void RegisterCallbacksPercent100ths(SetAttributeU16_f set_cb, GetAttributeU16_f get_cb);
+        void RegisterCallbacksAbsolute     (SetAttributeU16_f set_cb, GetAttributeU16_f get_cb);
+
+        //private:
+        EmberAfStatus SetAttributeRelativePosition(chip::EndpointId endpoint, Percent100ths     relative);
+        EmberAfStatus GetAttributeRelativePosition(chip::EndpointId endpoint, Percent100ths * p_relative);
+        EmberAfStatus SetAttributeAbsolutePosition(chip::EndpointId endpoint, uint16_t absolute);
+    };
+    SetAttributeU16_f mSetOpenLimitCb;       GetAttributeU16_f mGetOpenLimitCb;
+    SetAttributeU16_f mSetClosedLimitCb;     GetAttributeU16_f mGetClosedLimitCb;
+
+    void RegisterCallbacksOpenLimit    (SetAttributeU16_f set_cb, GetAttributeU16_f get_cb);
+    void RegisterCallbacksClosedLimit  (SetAttributeU16_f set_cb, GetAttributeU16_f get_cb);
+
+    PositionAccessors mCurrent;
+    PositionAccessors mTarget;
+
+    AbsoluteLimits mLimits = { .open = WC_PERCENT100THS_MIN_OPEN, .closed = WC_PERCENT100THS_MAX_CLOSED };// default is 1:1 conversion
+    Features mFeatureTag; //non-endpoint dependant
+
+    void InitializeCallbacks(chip::EndpointId endpoint, Features tag);
+    void InitializeLimits(chip::EndpointId endpoint, AbsoluteLimits limits);
+
+    bool IsPositionAware(chip::EndpointId endpoint);
+
+    EmberAfStatus GoToUpOrOpen   (chip::EndpointId endpoint);
+    EmberAfStatus GoToDownOrClose(chip::EndpointId endpoint);
+    EmberAfStatus GoToCurrent    (chip::EndpointId endpoint);
+
+    OperationalState OperationalStateGet(chip::EndpointId endpoint);
+
+    EmberAfStatus PositionRelativeSet(chip::EndpointId endpoint, PositionAccessors::Type position, Percent100ths relative);
+    EmberAfStatus PositionAbsoluteSet(chip::EndpointId endpoint, PositionAccessors::Type position, uint16_t absolute);
+
+    Percent100ths PositionRelativeGet(chip::EndpointId endpoint, PositionAccessors::Type position);
+    uint16_t      PositionAbsoluteGet(chip::EndpointId endpoint, PositionAccessors::Type position);
+
+    Percent100ths AbsoluteToRelative(chip::EndpointId endpoint, uint16_t absolute);
+    uint16_t      RelativeToAbsolute(chip::EndpointId endpoint, Percent100ths relative);
+
+    AbsoluteLimits AbsoluteLimitsGet(chip::EndpointId endpoint);
+    void           AbsoluteLimitsSet(chip::EndpointId endpoint, AbsoluteLimits limits);
+
+    uint16_t WithinAbsoluteRangeCheck(uint16_t value);
+
+    //private:
+    EmberAfStatus SetAttributeAbsoluteLimits(chip::EndpointId endpoint, AbsoluteLimits     limits);
+    EmberAfStatus GetAttributeAbsoluteLimits(chip::EndpointId endpoint, AbsoluteLimits * p_limits);
+};
 
 ActuatorAccessors & LiftAccess(void);
 ActuatorAccessors & TiltAccess(void);
@@ -152,39 +230,9 @@ const Mode ModeGet(chip::EndpointId endpoint);
 void SafetyStatusSet(chip::EndpointId endpoint, SafetyStatus & status);
 const SafetyStatus SafetyStatusGet(chip::EndpointId endpoint);
 
-// typedef EmberAfStatus (*SetPercentage_f          )(chip::EndpointId endpoint, uint8_t relPercentage);
-// typedef EmberAfStatus (*SetPercent100ths_f       )(chip::EndpointId endpoint, uint16_t relPercent100ths);
-// typedef EmberAfStatus (*SetAbsolute_f            )(chip::EndpointId endpoint, uint16_t relPercent100ths);
-typedef EmberAfStatus (*GetInstalledOpenLimit_f  )(chip::EndpointId endpoint, uint16_t *relPercent100ths);
-typedef EmberAfStatus (*GetInstalledClosedLimit_f)(chip::EndpointId endpoint, uint16_t *relPercent100ths);
 
 
-typedef EmberAfStatus (*SetAttributeU8_f )(chip::EndpointId endpoint, uint8_t   value);
-typedef EmberAfStatus (*GetAttributeU8_f )(chip::EndpointId endpoint, uint8_t *pValue);
-typedef EmberAfStatus (*SetAttributeU16_f)(chip::EndpointId endpoint, uint16_t   value);
-typedef EmberAfStatus (*GetAttributeU16_f)(chip::EndpointId endpoint, uint16_t *pValue);
 
-struct PositionAccessors
-{
-    enum class Type : uint8_t
-    {
-        Current,
-        Target,
-    };
-    SetAttributeU8_f  mSetPercentageCb;    GetAttributeU8_f  mGetPercentageCb;
-    SetAttributeU16_f mSetPercent100thsCb; GetAttributeU16_f mGetPercent100thsCb;
-    SetAttributeU16_f mSetAbsoluteCb;      GetAttributeU16_f mGetAbsoluteCb;
-
-
-    void RegisterCallbacksPercentage   (SetAttributeU8_f  set_cb, GetAttributeU8_f  get_cb);
-    void RegisterCallbacksPercent100ths(SetAttributeU16_f set_cb, GetAttributeU16_f get_cb);
-    void RegisterCallbacksAbsolute     (SetAttributeU16_f set_cb, GetAttributeU16_f get_cb);
-
-    //private:
-    EmberAfStatus SetAttributeRelativePosition(chip::EndpointId endpoint, Percent100ths     relative);
-    EmberAfStatus GetAttributeRelativePosition(chip::EndpointId endpoint, Percent100ths * p_relative);
-    EmberAfStatus SetAttributeAbsolutePosition(chip::EndpointId endpoint, uint16_t absolute);
-};
 
 //     struct Actuator
 //     {
@@ -228,51 +276,9 @@ struct PositionAccessors
 //     };
 
 
-struct ActuatorAccessors
-{
-    SetAttributeU16_f mSetOpenLimitCb;       GetAttributeU16_f mGetOpenLimitCb;
-    SetAttributeU16_f mSetClosedLimitCb;     GetAttributeU16_f mGetClosedLimitCb;
 
-    void RegisterCallbacksOpenLimit    (SetAttributeU16_f set_cb, GetAttributeU16_f get_cb);
-    void RegisterCallbacksClosedLimit  (SetAttributeU16_f set_cb, GetAttributeU16_f get_cb);
-
-
-
-    PositionAccessors mCurrent;
-    PositionAccessors mTarget;
-
-    AbsoluteLimits mLimits;
-    Features mFeatureTag; //non-endpoint dependant
-
-    void Init(chip::EndpointId endpoint, Features tag, AbsoluteLimits limits);
-
-    bool IsPositionAware(chip::EndpointId endpoint);
-
-    EmberAfStatus GoToUpOrOpen   (chip::EndpointId endpoint);
-    EmberAfStatus GoToDownOrClose(chip::EndpointId endpoint);
-    EmberAfStatus GoToCurrent    (chip::EndpointId endpoint);
-
-    OperationalState OperationalStateGet(chip::EndpointId endpoint);
-
-    EmberAfStatus PositionRelativeSet(chip::EndpointId endpoint, PositionAccessors::Type position, Percent100ths relative);
-    EmberAfStatus PositionAbsoluteSet(chip::EndpointId endpoint, PositionAccessors::Type position, uint16_t absolute);
-
-    Percent100ths PositionRelativeGet(chip::EndpointId endpoint, PositionAccessors::Type position);
-    uint16_t      PositionAbsoluteGet(chip::EndpointId endpoint, PositionAccessors::Type position);
-
-    Percent100ths AbsoluteToRelative(chip::EndpointId endpoint, uint16_t absolute);
-    uint16_t      RelativeToAbsolute(chip::EndpointId endpoint, Percent100ths relative);
-
-    AbsoluteLimits AbsoluteLimitsGet(chip::EndpointId endpoint);
-    void           AbsoluteLimitsSet(chip::EndpointId endpoint, AbsoluteLimits limits);
-
-    uint16_t WithinAbsoluteRangeCheck(uint16_t value);
-
-    private:
-    EmberAfStatus SetAttributeAbsoluteLimits(chip::EndpointId endpoint, AbsoluteLimits     limits);
-    EmberAfStatus GetAttributeAbsoluteLimits(chip::EndpointId endpoint, AbsoluteLimits * p_limits);
-} ;
-
+//ActuatorAccessors * LiftAccess(void); mTiltAccess.
+//ActuatorAccessors * TiltAccess(void);
 
 LimitStatus CheckLimitState(uint16_t position, AbsoluteLimits limits);
 

@@ -575,8 +575,8 @@ void WindowApp::Cover::Init(chip::EndpointId endpoint)
     mTilt.Init(Features::Tilt, COVER_LIFT_TILT_TIMEOUT, nullptr, TILT_DELTA);
 
 
-    mLift.mAttributes.Init(endpoint, Features::Lift, { LIFT_OPEN_LIMIT, LIFT_CLOSED_LIMIT});
-    mTilt.mAttributes.Init(endpoint, Features::Tilt, { TILT_OPEN_LIMIT, TILT_CLOSED_LIMIT});
+    mLift.mAttributes.InitializeLimits(endpoint, { LIFT_OPEN_LIMIT, LIFT_CLOSED_LIMIT});
+    mTilt.mAttributes.InitializeLimits(endpoint, { TILT_OPEN_LIMIT, TILT_CLOSED_LIMIT});
 
     // Attribute: Id  0 Type
     TypeSet(endpoint, EMBER_ZCL_WC_TYPE_TILT_BLIND_LIFT_AND_TILT);
@@ -775,15 +775,18 @@ void WindowApp::Actuator::GoToTargetPositionAttribute(chip::EndpointId endpoint)
 {
     /* Update Local target value from Attribute */
     /* Trigger movement */
-    GoToAbsolute(mAttributes.PositionAbsoluteGet(endpoint, PositionAccessors::Type::Target));
+    GoToAbsolute(mAttributes.PositionAbsoluteGet(endpoint, ActuatorAccessors::PositionAccessors::Type::Target));
 }
 
 void WindowApp::Actuator::UpdateCurrentPositionAttribute(chip::EndpointId endpoint)
 {
     /* Update Current position attribute from local current */
     /* Reflect current position to remote client */
-    mAttributes.PositionAbsoluteSet(endpoint, PositionAccessors::Type::Current, mCurrentPosition);
+    mAttributes.PositionAbsoluteSet(endpoint, ActuatorAccessors::PositionAccessors::Type::Current, mCurrentPosition);
 }
+
+
+
 
 void WindowApp::Actuator::GoToRelative(chip::Percent100ths percent100ths)
 {
