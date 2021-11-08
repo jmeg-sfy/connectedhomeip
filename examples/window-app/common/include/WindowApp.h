@@ -121,18 +121,11 @@ public:
 
     struct Actuator
     {
-        //AbsoluteLimits mLimits = { .open = WC_PERCENT100THS_MIN_OPEN, .closed = WC_PERCENT100THS_MAX_CLOSED };// default is 1:1 conversion
-        ActuatorAccessors mAttributes;
+        ActuatorAccessors & mAttributes = LiftAccess(); //defaulted to Lift by default
 
         uint16_t mCurrentPosition    = 0;//LimitStatus::IsUpOrOpen;//WC_PERCENT100THS_DEF;
         uint16_t mTargetPosition     = 0;//OperationalState::MovingDownOrClose;//WC_PERCENT100THS_DEF;
 
-        uint16_t mStepDelta          = 1;
-        uint16_t mStepMinimum        = 1;
-
-
-
-        uint16_t mNumberOfActuations = 0; //Number of commands sent to the actuators
 
         void SetPosition(uint16_t value);
         void StepTowardUpOrOpen();//chip::EndpointId endpoint);
@@ -153,7 +146,7 @@ public:
         LimitStatus GetLimitState();
 
         static void OnActuatorTimeout(Timer & timer);
-        void Init(const char * name, uint32_t timeoutInMs, OperationalState * opState, EventId event);
+        void Init(Features feature, uint32_t timeoutInMs, OperationalState * opState, uint16_t stepDelta);
 
 //struct OperationalStatus ff;
       //  OperationalState * mOpState;
@@ -162,6 +155,11 @@ public:
         Timer *          mTimer   = nullptr;
         EventId          mEvent  = EventId::None;
         OperationalState mOpState = OperationalState::Stall;
+
+        private:
+        uint16_t mStepDelta          = 1;
+        uint16_t mStepMinimum        = 1;
+        uint16_t mNumberOfActuations = 0; //Number of commands sent to the actuators
     };
 
 

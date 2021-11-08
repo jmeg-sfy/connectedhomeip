@@ -547,36 +547,33 @@ void WindowApp::Actuator::OnActuatorTimeout(WindowApp::Timer & timer)
     if (actuator) actuator->UpdatePosition();
 }
 
-void WindowApp::Actuator::Init(const char * name, uint32_t timeoutInMs, OperationalState * opState, EventId event)
+void WindowApp::Actuator::Init(Features feature, uint32_t timeoutInMs, OperationalState * opState, uint16_t stepDelta)
 {
-    mTimer = WindowApp::Instance().CreateTimer(name, timeoutInMs, OnActuatorTimeout, this);
+
    // mOpState = opState;
-    mEvent = event;
+    mStepDelta = stepDelta;
+
+    if (Features::Lift == feature)
+    {
+        mEvent = EventId::ActuatorUpdateLift;
+        mAttributes = LiftAccess();
+        mTimer = WindowApp::Instance().CreateTimer("Lift", timeoutInMs, OnActuatorTimeout, this);
+    }
+    else
+    {
+        mEvent = EventId::ActuatorUpdateTilt;
+        mAttributes = TiltAccess();
+        mTimer = WindowApp::Instance().CreateTimer("Tilt", timeoutInMs, OnActuatorTimeout, this);
+    }
 }
 
 void WindowApp::Cover::Init(chip::EndpointId endpoint)
 {
-    mEndpoint  = endpoint;
+    mEndpoint = endpoint;
 
+    mLift.Init(Features::Lift, COVER_LIFT_TILT_TIMEOUT, nullptr, LIFT_DELTA);
+    mTilt.Init(Features::Tilt, COVER_LIFT_TILT_TIMEOUT, nullptr, TILT_DELTA);
 
-//mLift.mLimits.open = LIFT_OPEN_LIMIT;
-//mLift.mLimits.closed = LIFT_CLOSED_LIMIT;
-mLift.mStepDelta = LIFT_DELTA;
-//mLift.mEvent = LiftUpdate;
-
-
-//mTilt.mLimits.open = TILT_OPEN_LIMIT;
-//mTilt.mLimits.closed = TILT_CLOSED_LIMIT;
-mTilt.mStepDelta = TILT_DELTA;
-
-
-    mLift.Init("Lift", COVER_LIFT_TILT_TIMEOUT, nullptr, EventId::ActuatorUpdateLift);
-    mTilt.Init("Tilt", COVER_LIFT_TILT_TIMEOUT, nullptr, EventId::ActuatorUpdateTilt);
-
-    //mTiltTimer = WindowApp::Instance().CreateTimer("Timer:Tilt", COVER_LIFT_TILT_TIMEOUT, OnTiltTimeout, this);
-    //Attributes::InstalledOpenLimitLift::Set(endpoint, mLift.mLimits.open);
-    //Attributes::InstalledClosedLimitLift::Set(endpoint, mLift.mLimits.closed);
-    //CurrentPositionAbsoluteSet(endpoint, mLift.mLimits.closed, LiftAccess());
 
     mLift.mAttributes.Init(endpoint, Features::Lift, { LIFT_OPEN_LIMIT, LIFT_CLOSED_LIMIT});
     mTilt.mAttributes.Init(endpoint, Features::Tilt, { TILT_OPEN_LIMIT, TILT_CLOSED_LIMIT});
