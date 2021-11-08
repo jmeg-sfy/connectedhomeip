@@ -716,6 +716,13 @@ EmberAfStatus ActuatorAccessors::GoToCurrent(chip::EndpointId endpoint)
     return PositionRelativeSet(endpoint, ActuatorAccessors::PositionAccessors::Type::Target, currentPos);
 }
 
+EmberAfStatus ActuatorAccessors::SetCurrentToTarget(chip::EndpointId endpoint)
+{
+    Percent100ths targetPos = PositionRelativeGet(endpoint, ActuatorAccessors::PositionAccessors::Type::Target);
+
+    return PositionRelativeSet(endpoint, ActuatorAccessors::PositionAccessors::Type::Current, targetPos);
+}
+
 
 void ActuatorAccessors::RegisterCallbacksOpenLimit    (SetAttributeU16_f set_cb, GetAttributeU16_f get_cb)
 {
@@ -790,10 +797,15 @@ void emberAfPluginWindowCoveringEventHandler(EndpointId endpoint)
 
     /* Update position to simulate movement to pass the CI */
     if (OperationalState::Stall != opStatus.lift)
-        LiftAccess().GoToCurrent(endpoint);
+    {
+        LiftAccess().SetCurrentToTarget(endpoint);
+    }
 
+    /* Update position to simulate movement to pass the CI */
     if (OperationalState::Stall != opStatus.tilt)
-        TiltAccess().GoToCurrent(endpoint);
+    {
+        TiltAccess().SetCurrentToTarget(endpoint);
+    }
 }
 
 EmberEventControl * getEventControl(EndpointId endpoint)
@@ -811,7 +823,6 @@ EmberEventControl * configureXYEventControl(EndpointId endpoint)
 
     return controller;
 }
-
 
 OperationalState ComputeOperationalState(uint16_t target, uint16_t current)
 {
@@ -970,10 +981,10 @@ void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeI
         break;
     /* RO OperationalStatus */
     case Attributes::OperationalStatus::Id:
-        //if ((OperationalState::Stall != opStatus.lift) || (OperationalState::Stall != opStatus.tilt)) {
+        if ((OperationalState::Stall != opStatus.lift) || (OperationalState::Stall != opStatus.tilt)) {
             // kick off the state machine:
-            emberEventControlSetDelayMS(configureXYEventControl(endpoint), 3000);
-        //}
+            emberEventControlSetDelayMS(configureXYEventControl(endpoint), 2000);
+        }
         break;
     /* RO EndProductType */
     case Attributes::EndProductType::Id:
@@ -989,30 +1000,27 @@ void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeI
         if (OperationalState::Stall != opStatus.lift) {
             opStatus.lift = OperationalState::Stall;
             emberAfWindowCoveringClusterPrint("Lift stop");
-            OperationalStatusSetWithGlobalUpdated(endpoint, opStatus);
         }
         break;
     case Attributes::CurrentPositionTiltPercent100ths::Id:
         if (OperationalState::Stall != opStatus.tilt) {
             opStatus.tilt = OperationalState::Stall;
             emberAfWindowCoveringClusterPrint("Tilt stop");
-            OperationalStatusSetWithGlobalUpdated(endpoint, opStatus);
         }
         break;
     /* For a device supporting Position Awareness : Changing the Target triggers motions on the real or simulated device */
     case Attributes::TargetPositionLiftPercent100ths::Id:
         opStatus.lift = LiftAccess().OperationalStateGet(endpoint);
-        OperationalStatusSetWithGlobalUpdated(endpoint, opStatus);
         break;
     /* For a device supporting Position Awareness : Changing the Target triggers motions on the real or simulated device */
     case Attributes::TargetPositionTiltPercent100ths::Id:
-        //opStatus.tilt = ComputeOperationalState(PositionRelativeGet(endpoint), PositionRelativeGet(endpoint), "Tilt");
         opStatus.tilt = TiltAccess().OperationalStateGet(endpoint);
-        OperationalStatusSetWithGlobalUpdated(endpoint, opStatus);
         break;
     default:
         break;
     }
+    /* This decides and triggers fake motion for the selected endpoints */
+    OperationalStatusSetWithGlobalUpdated(endpoint, opStatus);
 }
 
 } // namespace WindowCovering
@@ -1023,24 +1031,6 @@ void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeI
 //------------------------------------------------------------------------------
 // Callbacks
 //------------------------------------------------------------------------------
-
-// typedef EmberAfStatus (*GetPos_f)(chip::EndpointId endpoint, uint16_t * relPercent100ths);
-// typedef EmberAfStatus (*SetPos_f)(chip::EndpointId endpoint, uint16_t relPercent100ths)  ;
-
-
-
-
-// typedef struct
-// {
-//     GetPos_f getPos;
-//     SetPos_f setPos;
-// } super_t;
-
-// super_t mSuperLift;
-
-
-
-
 
 /** @brief Window Covering Cluster Init
  *
@@ -1173,7 +1163,7 @@ bool emberAfWindowCoveringClusterGoToTiltValueCallback(app::CommandHandler * cmd
     emberAfWindowCoveringClusterPrint("GoToTiltValue command received w/ %u", cmdData.tiltValue);
 
     /* Absolute works only with devices defining the ABSOLUTE flag on the feature */
-    EmberAfStatus status = TiltAccess()->PositionAbsoluteSet(cmdPath.mEndpointId, PositionAccessors::Type::Target, cmdData.tiltValue);
+    EmberAfStatus status = TiltAccess().PositionAbsoluteSet(cmdPath.mEndpointId, ActuatorAccessors::PositionAccessors::Type::Target, cmdData.tiltValue);
 
     emberAfSendImmediateDefaultResponse(status);
 
@@ -1210,4 +1200,7 @@ void __attribute__((weak)) WindowCoveringPostAttributeChangeCallback(const app::
     PostAttributeChange(attributePath.mEndpointId, attributePath.mAttributeId);
 }
 
-void MatterWindowCoveringPluginServerInitCallback() {}
+void MatterWindowCoveringPluginServerInitCallback()
+{
+    emberAfWindowCoveringClusterPrint("Window Covering Cluster Plugin Init");
+}

@@ -127,19 +127,12 @@ enum class RelativeLimits : Percent100ths
     DownOrClose = WC_PERCENT100THS_MAX_CLOSED,
 };
 
-// typedef EmberAfStatus (*SetPercentage_f          )(chip::EndpointId endpoint, uint8_t relPercentage);
-// typedef EmberAfStatus (*SetPercent100ths_f       )(chip::EndpointId endpoint, uint16_t relPercent100ths);
-// typedef EmberAfStatus (*SetAbsolute_f            )(chip::EndpointId endpoint, uint16_t relPercent100ths);
-typedef EmberAfStatus (*GetInstalledOpenLimit_f  )(chip::EndpointId endpoint, uint16_t *relPercent100ths);
-typedef EmberAfStatus (*GetInstalledClosedLimit_f)(chip::EndpointId endpoint, uint16_t *relPercent100ths);
 
 
 typedef EmberAfStatus (*SetAttributeU8_f )(chip::EndpointId endpoint, uint8_t   value);
 typedef EmberAfStatus (*GetAttributeU8_f )(chip::EndpointId endpoint, uint8_t *pValue);
 typedef EmberAfStatus (*SetAttributeU16_f)(chip::EndpointId endpoint, uint16_t   value);
 typedef EmberAfStatus (*GetAttributeU16_f)(chip::EndpointId endpoint, uint16_t *pValue);
-
-//namespace ActuatorAccessors {
 
 struct ActuatorAccessors
 {
@@ -184,6 +177,7 @@ struct ActuatorAccessors
     EmberAfStatus GoToUpOrOpen   (chip::EndpointId endpoint);
     EmberAfStatus GoToDownOrClose(chip::EndpointId endpoint);
     EmberAfStatus GoToCurrent    (chip::EndpointId endpoint);
+    EmberAfStatus SetCurrentToTarget(chip::EndpointId endpoint);
 
     OperationalState OperationalStateGet(chip::EndpointId endpoint);
 
