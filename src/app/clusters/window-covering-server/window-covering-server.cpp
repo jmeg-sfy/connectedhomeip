@@ -182,6 +182,13 @@ namespace app {
 namespace Clusters {
 namespace WindowCovering { //update to server
 
+static ActuatorAccessors mLiftAccess = { 0 };
+static ActuatorAccessors mTiltAccess = { 0 };
+
+ActuatorAccessors & LiftAccess(void) { return mLiftAccess; }
+ActuatorAccessors & TiltAccess(void) { return mTiltAccess; }
+
+
 EmberEventControl wc_eventControls[EMBER_AF_WINDOW_COVERING_CLUSTER_SERVER_ENDPOINT_COUNT];
 
 bool HasFeature(chip::EndpointId endpoint, Features feature)
@@ -451,11 +458,7 @@ const SafetyStatus SafetyStatusGet(chip::EndpointId endpoint)
 // }
 
 
-ActuatorAccessors mLiftAccess = { 0 };
-ActuatorAccessors mTiltAccess = { 0 };
 
-ActuatorAccessors * LiftAccess(void) { return &mLiftAccess; }
-ActuatorAccessors * TiltAccess(void) { return &mTiltAccess; }
 
 EmberAfStatus PositionAccessors::SetAttributeRelativePosition(chip::EndpointId endpoint, Percent100ths relative)
 {
@@ -786,10 +789,10 @@ void emberAfPluginWindowCoveringEventHandler(EndpointId endpoint)
 
     /* Update position to simulate movement to pass the CI */
     if (OperationalState::Stall != opStatus.lift)
-        LiftAccess()->GoToCurrent(endpoint);
+        LiftAccess().GoToCurrent(endpoint);
 
     if (OperationalState::Stall != opStatus.tilt)
-        TiltAccess()->GoToCurrent(endpoint);
+        TiltAccess().GoToCurrent(endpoint);
 }
 
 EmberEventControl * getEventControl(EndpointId endpoint)
@@ -994,13 +997,13 @@ void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeI
         break;
     /* For a device supporting Position Awareness : Changing the Target triggers motions on the real or simulated device */
     case Attributes::TargetPositionLiftPercent100ths::Id:
-        opStatus.lift = LiftAccess()->OperationalStateGet(endpoint);
+        opStatus.lift = LiftAccess().OperationalStateGet(endpoint);
         OperationalStatusSetWithGlobalUpdated(endpoint, opStatus);
         break;
     /* For a device supporting Position Awareness : Changing the Target triggers motions on the real or simulated device */
     case Attributes::TargetPositionTiltPercent100ths::Id:
         //opStatus.tilt = ComputeOperationalState(PositionRelativeGet(endpoint), PositionRelativeGet(endpoint), "Tilt");
-        opStatus.tilt = TiltAccess()->OperationalStateGet(endpoint);
+        opStatus.tilt = TiltAccess().OperationalStateGet(endpoint);
         OperationalStatusSetWithGlobalUpdated(endpoint, opStatus);
         break;
     default:
@@ -1063,8 +1066,8 @@ void emberAfWindowCoveringClusterInitCallback(chip::EndpointId endpoint)
     emberAfWindowCoveringClusterPrint("Window Covering Cluster init = %u", tte);
 
     /* Init at Half 50% */
-    LiftAccess()->PositionRelativeSet(endpoint, PositionAccessors::Type::Current, WC_PERCENT100THS_MAX_CLOSED / 2);
-    TiltAccess()->PositionRelativeSet(endpoint, PositionAccessors::Type::Current, WC_PERCENT100THS_MAX_CLOSED / 2);
+    LiftAccess().PositionRelativeSet(endpoint, ActuatorAccessors::PositionAccessors::Type::Current, WC_PERCENT100THS_MAX_CLOSED / 2);
+    TiltAccess().PositionRelativeSet(endpoint, ActuatorAccessors::PositionAccessors::Type::Current, WC_PERCENT100THS_MAX_CLOSED / 2);
 }
 
 /* #################### all the time : MANDATORY COMMANDs #################### */
@@ -1077,8 +1080,8 @@ bool emberAfWindowCoveringClusterUpOrOpenCallback(app::CommandHandler * cmdObj, 
 {
     emberAfWindowCoveringClusterPrint("UpOrOpen command received OpStatus=0x%02X", (unsigned int) OperationalStatusGet(cmdPath.mEndpointId).global);
 
-    EmberAfStatus tiltStatus = LiftAccess()->GoToUpOrOpen(cmdPath.mEndpointId);
-    EmberAfStatus liftStatus = TiltAccess()->GoToUpOrOpen(cmdPath.mEndpointId);
+    EmberAfStatus tiltStatus = LiftAccess().GoToUpOrOpen(cmdPath.mEndpointId);
+    EmberAfStatus liftStatus = TiltAccess().GoToUpOrOpen(cmdPath.mEndpointId);
 
     /* By the specification definition we need to support Tilt and/or Lift -> so to simplify only one can be successfull */
     if ((EMBER_ZCL_STATUS_SUCCESS == liftStatus) || (EMBER_ZCL_STATUS_SUCCESS == tiltStatus))
@@ -1107,8 +1110,8 @@ bool emberAfWindowCoveringClusterDownOrCloseCallback(app::CommandHandler * cmdOb
 {
     emberAfWindowCoveringClusterPrint("DownOrClose command received OpStatus=0x%02X", (unsigned int) OperationalStatusGet(cmdPath.mEndpointId).global);
 
-    EmberAfStatus liftStatus = LiftAccess()->GoToDownOrClose(cmdPath.mEndpointId);
-    EmberAfStatus tiltStatus = TiltAccess()->GoToDownOrClose(cmdPath.mEndpointId);
+    EmberAfStatus liftStatus = LiftAccess().GoToDownOrClose(cmdPath.mEndpointId);
+    EmberAfStatus tiltStatus = TiltAccess().GoToDownOrClose(cmdPath.mEndpointId);
 
     /* By the specification definition we need to support Tilt and/or Lift -> so to simplify only one need to be successfull */
     if ((EMBER_ZCL_STATUS_SUCCESS == liftStatus) || (EMBER_ZCL_STATUS_SUCCESS == tiltStatus))
@@ -1127,8 +1130,8 @@ bool __attribute__((weak)) emberAfWindowCoveringClusterStopMotionCallback(app::C
 {
     emberAfWindowCoveringClusterPrint("StopMotion command received OpStatus=0x%02X", (unsigned int) OperationalStatusGet(cmdPath.mEndpointId).global);
 
-    EmberAfStatus liftStatus = LiftAccess()->GoToCurrent(cmdPath.mEndpointId);
-    EmberAfStatus tiltStatus = TiltAccess()->GoToCurrent(cmdPath.mEndpointId);
+    EmberAfStatus liftStatus = LiftAccess().GoToCurrent(cmdPath.mEndpointId);
+    EmberAfStatus tiltStatus = TiltAccess().GoToCurrent(cmdPath.mEndpointId);
 
     /* By the specification definition we need to support Tilt and/or Lift -> so to simplify only one need to be successfull */
     if ((EMBER_ZCL_STATUS_SUCCESS == liftStatus) || (EMBER_ZCL_STATUS_SUCCESS == tiltStatus))
@@ -1178,7 +1181,7 @@ bool emberAfWindowCoveringClusterGoToLiftValueCallback(app::CommandHandler * cmd
     emberAfWindowCoveringClusterPrint("GoToLiftValue command received w/ %u", cmdData.liftValue);
 
     /* Absolute works only with devices defining the ABSOLUTE flag on the feature */
-    EmberAfStatus status = LiftAccess()->PositionAbsoluteSet(cmdPath.mEndpointId, PositionAccessors::Type::Target, cmdData.liftValue);
+    EmberAfStatus status = LiftAccess().PositionAbsoluteSet(cmdPath.mEndpointId, ActuatorAccessors::PositionAccessors::Type::Target, cmdData.liftValue);
 
     emberAfSendImmediateDefaultResponse(status);
 
@@ -1200,7 +1203,7 @@ bool emberAfWindowCoveringClusterGoToLiftPercentageCallback(app::CommandHandler 
       -1/ zero     0 percentage SHOULD be treated as a  DownOrClose command
       -2/ non-zero 1 percentage SHOULD be treated as an UpOrOpen    command
     */
-    EmberAfStatus status = LiftAccess()->PositionRelativeSet(cmdPath.mEndpointId, PositionAccessors::Type::Target, cmdData.liftPercent100thsValue);
+    EmberAfStatus status = LiftAccess().PositionRelativeSet(cmdPath.mEndpointId, ActuatorAccessors::PositionAccessors::Type::Target, cmdData.liftPercent100thsValue);
 
     emberAfSendImmediateDefaultResponse(status);
 
@@ -1251,7 +1254,7 @@ bool emberAfWindowCoveringClusterGoToTiltPercentageCallback(app::CommandHandler 
       -1/ zero     0 percentage SHOULD be treated as a  DownOrClose command
       -2/ non-zero 1 percentage SHOULD be treated as an UpOrOpen    command
     */
-    EmberAfStatus status = TiltAccess()->PositionRelativeSet(cmdPath.mEndpointId, PositionAccessors::Type::Target, cmdData.tiltPercent100thsValue);
+    EmberAfStatus status = TiltAccess().PositionRelativeSet(cmdPath.mEndpointId, ActuatorAccessors::PositionAccessors::Type::Target, cmdData.tiltPercent100thsValue);
 
     emberAfSendImmediateDefaultResponse(status);
 

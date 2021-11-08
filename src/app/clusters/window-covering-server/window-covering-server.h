@@ -127,6 +127,10 @@ enum class RelativeLimits : Percent100ths
     DownOrClose = WC_PERCENT100THS_MAX_CLOSED,
 };
 
+
+ActuatorAccessors & LiftAccess(void);
+ActuatorAccessors & TiltAccess(void);
+
 bool HasFeature(chip::EndpointId endpoint, Features feature);
 
 void TypeSet(chip::EndpointId endpoint, EmberAfWcType type);
@@ -269,8 +273,6 @@ struct ActuatorAccessors
     EmberAfStatus GetAttributeAbsoluteLimits(chip::EndpointId endpoint, AbsoluteLimits * p_limits);
 } ;
 
-ActuatorAccessors * LiftAccess(void);
-ActuatorAccessors * TiltAccess(void);
 
 LimitStatus CheckLimitState(uint16_t position, AbsoluteLimits limits);
 
