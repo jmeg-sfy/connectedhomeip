@@ -138,6 +138,7 @@ public:
         void GoToRelative(chip::Percent100ths relative);
         void StopMotion();
         void UpdatePosition();
+        void PostUpdateAttributes();
         void Print();
 
         void TimerStart();
@@ -153,7 +154,6 @@ public:
 
 
         Timer *          mTimer   = nullptr;
-        EventId          mEvent  = EventId::None;
         OperationalState mOpState = OperationalState::Stall;
 
         private:
@@ -243,13 +243,9 @@ protected:
 
 private:
     void HandleLongPress();
-    void DispatchEventButtonChange(const Event & event);
-    void DispatchEventStateChange(const Event & event);
     void DispatchEventAttributeChange(chip::EndpointId endpoint, chip::AttributeId attribute);
 
     Cover mCoverList[WINDOW_COVER_COUNT];
-
-
 
     uint8_t mCurrentCover = 0;
 };

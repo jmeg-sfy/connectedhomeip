@@ -552,13 +552,11 @@ void WindowApp::Actuator::Init(Features feature, uint32_t timeoutInMs, Operation
 
     if (Features::Lift == feature)
     {
-        mEvent = EventId::ActuatorUpdateLift;
         mAttributes = LiftAccess();
         mTimer = WindowApp::Instance().CreateTimer("Lift", timeoutInMs, OnActuatorTimeout, this);
     }
     else
     {
-        mEvent = EventId::ActuatorUpdateTilt;
         mAttributes = TiltAccess();
         mTimer = WindowApp::Instance().CreateTimer("Tilt", timeoutInMs, OnActuatorTimeout, this);
     }
@@ -787,6 +785,10 @@ void WindowApp::Actuator::GoToRelative(chip::Percent100ths percent100ths)
 {
 }
 
+void WindowApp::Actuator::PostUpdateAttributes(void)
+{
+    Instance().PostEvent((Features::Lift == mAttributes.mFeatureTag) ? EventId::ActuatorUpdateLift : EventId::ActuatorUpdateTilt);
+}
 
 void WindowApp::Actuator::SetPosition(uint16_t value)
 {
@@ -803,7 +805,7 @@ void WindowApp::Actuator::SetPosition(uint16_t value)
         if (!IsActive()) {
             emberAfWindowCoveringClusterPrint("Mode Manual");
             // Manual mode : Here we simulate a user pulling the shade by hand -> Motor is OFF
-            Instance().PostEvent(mEvent);// no matter what happened we must post an update event to refresh actuator attribute
+            PostUpdateAttributes(); // no matter what happened we must post an update event to refresh actuator attribute
         } else {
             emberAfWindowCoveringClusterPrint("Mode Automatic");
         }
@@ -855,8 +857,8 @@ void WindowApp::Actuator::UpdatePosition()
             break;
     }
 
-    Instance().PostEvent(mEvent);// no matter what happened we must post an update event to refresh actuator attribute
     Print();
+    PostUpdateAttributes(); // no matter what happened we must post an update event to refresh actuator attribute
 }
 
 

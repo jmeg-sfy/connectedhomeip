@@ -65,9 +65,6 @@ protected:
     void ProcessEvents();
 
     void DispatchEvent(const WindowApp::Event & event) override;
-    void DispatchEventButtonChange(const WindowApp::Event & event);
-    void DispatchEventStateChange(const WindowApp::Event & event);
-    void DispatchEventAttributeChange(chip::EndpointId endpoint, chip::AttributeId attribute);
 
     void UpdateLEDs();
     void UpdateLCD();
@@ -77,6 +74,7 @@ protected:
     static void OnIconTimeout(WindowApp::Timer & timer);
 
 private:
+    void DispatchEventAttributeChange(chip::EndpointId endpoint, chip::AttributeId attribute);
     TaskHandle_t mHandle = nullptr;
     QueueHandle_t mQueue = nullptr;
     LEDWidget mStatusLED;

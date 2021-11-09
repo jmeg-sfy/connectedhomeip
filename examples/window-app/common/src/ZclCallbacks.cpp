@@ -54,6 +54,7 @@ void MatterPostAttributeChangeCallback(const app::ConcreteAttributePath & attrib
     }
 }
 
+/* Forwards all attributes changes */
 void WindowCoveringPostAttributeChangeCallback(const chip::app::ConcreteAttributePath & attributePath, uint8_t mask, uint8_t type, uint16_t size, uint8_t * value)
 {
     WindowApp::Instance().PostAttributeChange(attributePath.mEndpointId, attributePath.mAttributeId);
