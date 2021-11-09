@@ -571,7 +571,8 @@ EmberAfStatus ActuatorAccessors::PositionRelativeSet(chip::EndpointId endpoint, 
     bool hasAbsolute     = HasFeature(endpoint, Features::Absolute);
     bool isPositionAware = HasFeature(endpoint, Features::PositionAware);
 
-    PrintPercent100ths(__func__, relative);
+    emberAfWindowCoveringClusterPrint("ep[%u] %s %s", endpoint, __func__, (Features::Lift == mFeatureTag) ? "Lift" : "Tilt");
+    PrintPercent100ths((PositionAccessors::Type::Target == type) ? "Target" : "Current", relative);
 
     PositionAccessors * p_position = (PositionAccessors::Type::Target == type) ? &mTarget : &mCurrent;
 
