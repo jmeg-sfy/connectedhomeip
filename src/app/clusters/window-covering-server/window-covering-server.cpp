@@ -161,6 +161,7 @@ static OperationalState ValueToOperationalState(uint8_t value)
         return OperationalState::Reserved;
     }
 }
+
 static uint8_t OperationalStateToValue(const OperationalState & state)
 {
     switch (state)
@@ -420,47 +421,6 @@ const SafetyStatus SafetyStatusGet(chip::EndpointId endpoint)
     return status;
 }
 
-
-   //Attributes::InstalledOpenLimitTilt::Set(endpoint, mTilt.mLimits.open);
-   //Attributes::InstalledClosedLimitTilt::Set(endpoint, mTilt.mLimits.closed);
-   //PositionAbsoluteSet(endpoint, mTilt.mLimits.closed);
-
-/* Conversions might be needed for device supporting ABS flags attribute */
-
-// static AbsoluteLimits LiftAbsoluteLimitsGet(chip::EndpointId endpoint)
-// {
-//     AbsoluteLimits limits = { .open = WC_PERCENT100THS_MIN_OPEN, .closed = WC_PERCENT100THS_MAX_CLOSED };// default is 1:1 conversion
-
-//     if (HasFeature(endpoint, Features::Absolute))
-//     {
-//         Attributes::InstalledOpenLimitLift::Get(endpoint, &limits.open);
-//         Attributes::InstalledClosedLimitLift::Get(endpoint, &limits.closed);
-//     }
-
-//     return limits;
-// }
-
-    //Attributes::InstalledOpenLimitTilt::Set(endpoint, mTilt.mLimits.open);
-    //Attributes::InstalledClosedLimitTilt::Set(endpoint, mTilt.mLimits.closed);
-
-
-// static AbsoluteLimits TiltAbsoluteLimitsGet(chip::EndpointId endpoint)
-// {
-//     AbsoluteLimits limits = { .open = WC_PERCENT100THS_MIN_OPEN, .closed = WC_PERCENT100THS_MAX_CLOSED };// default is 1:1 conversion
-
-//     if (HasFeature(endpoint, Features::Absolute))
-//     {
-//         Attributes::InstalledOpenLimitTilt::Get(endpoint, &limits.open);
-//         Attributes::InstalledClosedLimitTilt::Get(endpoint, &limits.closed);
-//     }
-
-//     return limits;
-// }
-
-
-
-
-//using namespace ActuatorAccessors;
 EmberAfStatus ActuatorAccessors::PositionAccessors::SetAttributeRelativePosition(chip::EndpointId endpoint, Percent100ths relative)
 {
     EmberAfStatus status = EMBER_ZCL_STATUS_UNSUPPORTED_ATTRIBUTE;
@@ -485,7 +445,6 @@ EmberAfStatus ActuatorAccessors::PositionAccessors::SetAttributeRelativePosition
 
     return status;
 }
-//} // namespace PositionAccessors
 
 EmberAfStatus ActuatorAccessors::PositionAccessors::GetAttributeRelativePosition(chip::EndpointId endpoint, Percent100ths * p_relative)
 {
@@ -650,7 +609,7 @@ AbsoluteLimits ActuatorAccessors::AbsoluteLimitsGet(chip::EndpointId endpoint)
     EmberAfStatus status = EMBER_ZCL_STATUS_UNSUPPORTED_ATTRIBUTE;
 
     /* Following the specs: Since a device can declare or not its Absolute limits on a actuator we try to get if present */
-    AbsoluteLimits limits = { .open = WC_PERCENT100THS_MIN_OPEN, .closed = WC_PERCENT100THS_MAX_CLOSED };// default is 1:1 conversion
+    AbsoluteLimits limits = { .open = WC_PERCENT100THS_MIN_OPEN, .closed = WC_PERCENT100THS_MAX_CLOSED }; // default is 1:1 conversion
     if (HasFeature(endpoint, Features::Absolute))
     {
         status = GetAttributeAbsoluteLimits(endpoint, &limits);
@@ -676,7 +635,6 @@ void ActuatorAccessors::AbsoluteLimitsSet(chip::EndpointId endpoint, AbsoluteLim
     }
 }
 
-
 OperationalState ActuatorAccessors::OperationalStateGet(chip::EndpointId endpoint)
 {
     uint16_t  targetPos = PositionAbsoluteGet(endpoint, ActuatorAccessors::PositionAccessors::Type::Target);
@@ -700,7 +658,6 @@ uint16_t      ActuatorAccessors::RelativeToAbsolute(chip::EndpointId endpoint, P
 
 EmberAfStatus ActuatorAccessors::GoToUpOrOpen(chip::EndpointId endpoint)
 {
-
     return PositionAbsoluteSet(endpoint, ActuatorAccessors::PositionAccessors::Type::Target, mLimits.open);
 }
 
@@ -722,7 +679,6 @@ EmberAfStatus ActuatorAccessors::SetCurrentToTarget(chip::EndpointId endpoint)
 
     return PositionRelativeSet(endpoint, ActuatorAccessors::PositionAccessors::Type::Current, targetPos);
 }
-
 
 void ActuatorAccessors::RegisterCallbacksOpenLimit    (SetAttributeU16_f set_cb, GetAttributeU16_f get_cb)
 {
@@ -749,44 +705,6 @@ void ActuatorAccessors::PositionAccessors::RegisterCallbacksAbsolute     (SetAtt
     this->mSetAbsoluteCb = set_cb;
     this->mGetAbsoluteCb = get_cb;
 }
-
-
-
-
-
-//inline Percent100ths LiftAbsoluteToRelative(chip::EndpointId endpoint, uint16_t absolute) { return ValueToPercent100ths(LiftAbsoluteLimitsGet(endpoint), absolute); }
-//inline Percent100ths LiftAbsoluteToRelative(chip::EndpointId endpoint, uint16_t absolute) { return ValueToPercent100ths(LiftAbsoluteLimitsGet(endpoint), absolute); }
-//inline uint16_t LiftRelativeToAbsolute(chip::EndpointId endpoint, Percent100ths relative) { return Percent100thsToValue(LiftAbsoluteLimitsGet(endpoint), relative); }
-
-//inline Percent100ths TiltAbsoluteToRelative(chip::EndpointId endpoint, uint16_t absolute) { return ValueToPercent100ths(TiltAbsoluteLimitsGet(endpoint), absolute); }
-//inline uint16_t TiltRelativeToAbsolute(chip::EndpointId endpoint, Percent100ths relative) { return Percent100thsToValue(TiltAbsoluteLimitsGet(endpoint), relative); }
-
-//EmberAfStatus LiftCurrentPositionAbsoluteSet(chip::EndpointId endpoint, Percent100ths relative) { return LiftCurrentPositionRelativeSet(endpoint, LiftAbsoluteToRelative(endpoint, relative)); }
-
-//EmberAfStatus PositionAbsoluteSet(chip::EndpointId endpoint, PositionAccessors * access, uint16_t absolute) { return PositionRelativeSet(endpoint, access, AbsoluteToRelative(endpoint, access, absolute)); }
-//EmberAfStatus PositionAbsoluteSet(chip::EndpointId endpoint, uint16_t absolute) { return PositionRelativeSet(endpoint, TiltAbsoluteToRelative(endpoint, absolute)); }
-
-
-
-//inline EmberAfStatus LiftTargetPositionAbsoluteSet(chip::EndpointId endpoint, Percent100ths relative)  { return LiftTargetPositionRelativeSet(endpoint, LiftAbsoluteToRelative(endpoint, relative)); }
-//inline EmberAfStatus PositionAbsoluteSet(chip::EndpointId endpoint, Percent100ths relative)  { return PositionRelativeSet(endpoint, TiltAbsoluteToRelative(endpoint, relative)); }
-
-
-//inline uint16_t LiftCurrentPositionAbsoluteGet(chip::EndpointId endpoint) { return LiftRelativeToAbsolute(endpoint, LiftCurrentPositionRelativeGet(endpoint)); }
-//inline uint16_t PositionAbsoluteGet(chip::EndpointId endpoint) { return TiltRelativeToAbsolute(endpoint, PositionRelativeGet(endpoint)); }
-
-//uint16_t TargetPositionAbsoluteGet(chip::EndpointId endpoint, PositionAccessors * access) { return RelativeToAbsolute(endpoint, access, TargetPositionRelativeGet(endpoint, access)); }
-//uint16_t LiftTargetPositionAbsoluteGet(chip::EndpointId endpoint) { return LiftRelativeToAbsolute(endpoint, LiftTargetPositionRelativeGet(endpoint)); }
-//uint16_t PositionAbsoluteGet(chip::EndpointId endpoint) { return TiltRelativeToAbsolute(endpoint, PositionRelativeGet(endpoint)); }
-
-
-
-
-
-
-
-
-
 
 
 
@@ -902,67 +820,6 @@ LimitStatus CheckLimitState(uint16_t position, AbsoluteLimits limits)
 
     return LimitStatus::Intermediate;
 }
-
-// void WindowApp::DispatchEventAttributeChange(chip::EndpointId endpoint, chip::AttributeId attribute)
-// {
-//     Cover * cover = nullptr;
-//     cover = GetCover(endpoint);
-
-
-//     emberAfWindowCoveringClusterPrint("Ep[%u] DispatchEvent=%u %p \n", endpoint , (unsigned int)attribute , cover);
-
-//     //cover = &GetCover();
-
-//     switch (attribute)
-//     {
-//     /* For a device supporting Position Awareness : Changing the Target triggers motions on the real or simulated device */
-//     case Attributes::TargetPositionLiftPercent100ths::Id:
-//         if (cover) {
-//             cover->mLift.GoToTargetPositionAttribute(endpoint);
-//         }
-//         break;
-//     /* For a device supporting Position Awareness : Changing the Target triggers motions on the real or simulated device */
-//     case Attributes::TargetPositionTiltPercent100ths::Id:
-//         if (cover) {
-//             cover->mTilt.GoToTargetPositionAttribute(endpoint);
-//         }
-//         break;
-//     /* RO OperationalStatus */
-//     case Attributes::OperationalStatus::Id:
-//         emberAfWindowCoveringClusterPrint("OpState: %02X\n", (unsigned int) OperationalStatusGet(endpoint).global);
-//         break;
-
-//     /* ============= Positions for Position Aware ============= */
-//     case Attributes::CurrentPositionLiftPercent100ths::Id:
-//         if (cover) {
-//             cover->mOperationalStatus.lift = cover->mLift.mOpState;
-//             OperationalStatusSetWithGlobalUpdated(cover->mEndpoint, cover->mOperationalStatus);
-//             cover->mLift.UpdateCurrentPositionAttribute(cover->mEndpoint);
-//         }
-//         break;
-//     case Attributes::CurrentPositionTiltPercent100ths::Id:
-//         if (cover) {
-//             cover->mOperationalStatus.tilt = cover->mTilt.mOpState;
-//             OperationalStatusSetWithGlobalUpdated(cover->mEndpoint, cover->mOperationalStatus);
-//             cover->mTilt.UpdateCurrentPositionAttribute(cover->mEndpoint);
-//         }
-//         break;
-//     /* RW Mode */
-//     case Attributes::Mode::Id:
-//         emberAfWindowCoveringClusterPrint("Mode set externally ignored");
-//         break;
-//     /* ### ATTRIBUTEs CHANGEs IGNORED ### */
-//     /* RO Type: not supposed to dynamically change -> Cycling Window Covering Demo */
-//     case Attributes::Type::Id:
-//     /* RO EndProductType: not supposed to dynamically change */
-//     case Attributes::EndProductType::Id:
-//     /* RO ConfigStatus: set by WC server */
-//     case Attributes::ConfigStatus::Id:
-//     /* RO SafetyStatus: set by WC server */
-//     case Attributes::SafetyStatus::Id:
-//     default:
-//         break;
-//     }
 
 /* PostAttributeChange is used in all-cluster-app simulation and CI testing : otherwise it is bounded to manufacturer specific implementation */
 void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeId)
