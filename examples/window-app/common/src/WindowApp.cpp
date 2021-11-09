@@ -200,16 +200,118 @@ void WindowApp::Finish()
 }
 
 
-void WindowApp::DispatchEventStateChange(const WindowApp::Event & event)
+void WindowApp::DispatchEvent(const WindowApp::Event & event)
 {
     Cover * cover = nullptr;
     cover = GetCover(event.mEndpoint);
-    emberAfWindowCoveringClusterPrint("Ep[%u] DispatchEvent=%u %p \n", event.mEndpoint, (unsigned int) event.mId , cover);
 
-    cover = &GetCover();
+    emberAfWindowCoveringClusterPrint("Ep[%u] WindowApp::DispatchEvent=%u %p \n", event.mEndpoint , (unsigned int) event.mId , cover);
 
-    switch (event.mId)
-    {
+    switch (event.mId) {
+    case EventId::AttributeChange:
+        DispatchEventAttributeChange(event.mEndpoint, event.mAttributeId);
+        break;
+    case EventId::ResetWarning:
+        mResetWarning = true;
+        if (mLongPressTimer)
+        {
+            mLongPressTimer->Start();
+        }
+        break;
+
+    case EventId::ResetCanceled:
+        mResetWarning = false;
+        break;
+
+    case EventId::ResetStart:
+        ConfigurationMgr().InitiateFactoryReset();
+        break;
+
+    case EventId::BtnUpPressed:
+        emberAfWindowCoveringClusterPrint("UpPressed");
+        mButtonUp->mPressed = true;
+        if (mLongPressTimer)
+        {
+            mLongPressTimer->Start();
+        }
+        break;
+
+    case EventId::BtnUpReleased:
+        emberAfWindowCoveringClusterPrint("UpReleased");
+        mButtonUp->mPressed = false;
+        if (mLongPressTimer)
+        {
+            mLongPressTimer->Stop();
+        }
+        if (mResetWarning)
+        {
+            PostEvent(EventId::ResetCanceled);
+        }
+        if (mButtonUp->mSuppressed)
+        {
+            mButtonUp->mSuppressed = false;
+        }
+        else if (mButtonDown->mPressed)
+        {
+            ToogleControlMode();
+            mButtonUp->mSuppressed = mButtonDown->mSuppressed = true;
+            PostEvent(EventId::BtnCycleActuator);
+        }
+        else
+        {
+            GetCover().StepTowardUpOrOpen(mControlMode);
+        }
+
+
+        break;
+
+    case EventId::BtnDownPressed:
+        emberAfWindowCoveringClusterPrint("DownPressed");
+        mButtonDown->mPressed = true;
+        if (mLongPressTimer)
+        {
+            mLongPressTimer->Start();
+        }
+        break;
+
+    case EventId::BtnDownReleased:
+        emberAfWindowCoveringClusterPrint("DownReleased");
+        mButtonDown->mPressed = false;
+        if (mLongPressTimer)
+        {
+            mLongPressTimer->Stop();
+        }
+        if (mResetWarning)
+        {
+            PostEvent(EventId::ResetCanceled);
+        }
+        if (mButtonDown->mSuppressed)
+        {
+            mButtonDown->mSuppressed = false;
+        }
+        else if (mButtonUp->mPressed)
+        {
+            ToogleControlMode();
+            mButtonUp->mSuppressed = mButtonDown->mSuppressed = true;
+            PostEvent(EventId::BtnCycleActuator);
+        }
+        else
+            GetCover().StepTowardDownOrClose(mControlMode);
+        break;
+    case EventId::ActuatorUpdateLift:
+        if (cover) {
+            cover->UpdateCurrentPositionAttribute(Cover::ControlMode::LiftOnly);
+        }
+        break;
+    case EventId::ActuatorUpdateTilt:
+        if (cover) {
+            cover->UpdateCurrentPositionAttribute(Cover::ControlMode::TiltOnly);
+        }
+        break;
+    case EventId::BtnCycleActuator:
+        GetCover().mLift.GoToAbsolute(50);
+            //OperationalStatusSet(event.mEndpoint, cover->mOperationalStatus);
+        break;
     default:
         break;
     }
@@ -218,27 +320,27 @@ void WindowApp::DispatchEventStateChange(const WindowApp::Event & event)
 
 void WindowApp::DispatchEventAttributeChange(chip::EndpointId endpoint, chip::AttributeId attribute)
 {
-    Cover * cover = nullptr;
-    cover = GetCover(endpoint);
+    Cover * cover = GetCover(endpoint);
 
-
-    emberAfWindowCoveringClusterPrint("Ep[%u] DispatchEvent=%u %p \n", endpoint , (unsigned int)attribute , cover);
-
-    //cover = &GetCover();
+    if (nullptr == cover)
+    {
+        emberAfWindowCoveringClusterPrint("Ep[%u] AttributeChange=%u not supported\n", endpoint, (unsigned int)attribute);
+        return;
+    }
+    else
+    {
+        emberAfWindowCoveringClusterPrint("Ep[%u] AttributeChange=%u %p \n", endpoint, (unsigned int)attribute, cover);
+    }
 
     switch (attribute)
     {
     /* For a device supporting Position Awareness : Changing the Target triggers motions on the real or simulated device */
     case Attributes::TargetPositionLiftPercent100ths::Id:
-        if (cover) {
-            cover->mLift.GoToTargetPositionAttribute(endpoint);
-        }
+        cover->mLift.GoToTargetPositionAttribute(endpoint);
         break;
     /* For a device supporting Position Awareness : Changing the Target triggers motions on the real or simulated device */
     case Attributes::TargetPositionTiltPercent100ths::Id:
-        if (cover) {
-            cover->mTilt.GoToTargetPositionAttribute(endpoint);
-        }
+        cover->mTilt.GoToTargetPositionAttribute(endpoint);
         break;
     /* RO OperationalStatus */
     case Attributes::OperationalStatus::Id:
@@ -249,7 +351,7 @@ void WindowApp::DispatchEventAttributeChange(chip::EndpointId endpoint, chip::At
         emberAfWindowCoveringClusterPrint("Mode set externally ignored");
         break;
     /* ### ATTRIBUTEs CHANGEs IGNORED ### */
-    /* RO Type: not supposed to dynamically change -> Cycling Window Covering Demo */
+    /* RO Type: not supposed to dynamically change */
     case Attributes::Type::Id:
     /* RO EndProductType: not supposed to dynamically change */
     case Attributes::EndProductType::Id:
@@ -348,128 +450,7 @@ void WindowApp::Cover::UpdateCurrentPositionAttribute(ControlMode controlMode)
 }
 
 
-void WindowApp::DispatchEvent(const WindowApp::Event & event)
-{
-    Cover * cover = nullptr;
-    cover = GetCover(event.mEndpoint);
 
-
-    emberAfWindowCoveringClusterPrint("Ep[%u] DispatchEvent=%u %p \n", event.mEndpoint , (unsigned int) event.mId , cover);
-
-     cover = &GetCover();
-
-    switch (event.mId) {
-    case EventId::ResetWarning:
-        mResetWarning = true;
-        if (mLongPressTimer)
-        {
-            mLongPressTimer->Start();
-        }
-        break;
-
-    case EventId::ResetCanceled:
-        mResetWarning = false;
-        break;
-
-    case EventId::ResetStart:
-        ConfigurationMgr().InitiateFactoryReset();
-        break;
-
-    case EventId::BtnUpPressed:
-        emberAfWindowCoveringClusterPrint("UpPressed");
-        mButtonUp->mPressed = true;
-        if (mLongPressTimer)
-        {
-            mLongPressTimer->Start();
-        }
-        break;
-
-    case EventId::BtnUpReleased:
-        emberAfWindowCoveringClusterPrint("UpReleased");
-        mButtonUp->mPressed = false;
-        if (mLongPressTimer)
-        {
-            mLongPressTimer->Stop();
-        }
-        if (mResetWarning)
-        {
-            PostEvent(EventId::ResetCanceled);
-        }
-        if (mButtonUp->mSuppressed)
-        {
-            mButtonUp->mSuppressed = false;
-        }
-        else if (mButtonDown->mPressed)
-        {
-            ToogleControlMode();
-            mButtonUp->mSuppressed = mButtonDown->mSuppressed = true;
-            PostEvent(EventId::BtnCycleActuator);
-        }
-        else
-        {
-            cover->StepTowardUpOrOpen(mControlMode);
-        }
-
-
-        break;
-
-    case EventId::BtnDownPressed:
-        mButtonDown->mPressed = true;
-        if (mLongPressTimer)
-        {
-            mLongPressTimer->Start();
-        }
-        break;
-
-    case EventId::BtnDownReleased:
-        mButtonDown->mPressed = false;
-        if (mLongPressTimer)
-        {
-            mLongPressTimer->Stop();
-        }
-        if (mResetWarning)
-        {
-            PostEvent(EventId::ResetCanceled);
-        }
-        if (mButtonDown->mSuppressed)
-        {
-            mButtonDown->mSuppressed = false;
-        }
-        else if (mButtonUp->mPressed)
-        {
-            ToogleControlMode();
-            mButtonUp->mSuppressed = mButtonDown->mSuppressed = true;
-            PostEvent(EventId::BtnCycleActuator);
-        }
-        else
-            cover->StepTowardDownOrClose(mControlMode);
-        break;
-    case EventId::StopMotion:
-        if (cover) {
-            cover->StopMotion(Cover::ControlMode::All);
-        }
-        break;
-    case EventId::ActuatorUpdateLift:
-        if (cover) {
-            cover->UpdateCurrentPositionAttribute(Cover::ControlMode::LiftOnly);
-        }
-        break;
-    case EventId::ActuatorUpdateTilt:
-        if (cover) {
-            cover->UpdateCurrentPositionAttribute(Cover::ControlMode::TiltOnly);
-        }
-        break;
-    case EventId::BtnCycleActuator:
-        if (cover) {
-            cover->mLift.GoToAbsolute(50);
-            //OperationalStatusSet(event.mEndpoint, cover->mOperationalStatus);
-        }
-        break;
-
-    default:
-        break;
-    }
-}
 
 void WindowApp::DestroyTimer(Timer * timer)
 {
@@ -494,7 +475,7 @@ void WindowApp::HandleLongPress()
         // Long press both buttons: Cycle between window coverings
         mButtonUp->mSuppressed = mButtonDown->mSuppressed = true;
         mCurrentCover                   = mCurrentCover < WINDOW_COVER_COUNT - 1 ? mCurrentCover + 1 : 0;
-        PostEvent(EventId::BtnCycleType);
+        PostEvent(EventId::BtnCycleEndpoint);
     }
     else if (mButtonUp->mPressed)
     {
@@ -571,6 +552,8 @@ void WindowApp::Cover::Init(chip::EndpointId endpoint)
 
     mLift.mAttributes.InitializeLimits(endpoint, { LIFT_OPEN_LIMIT, LIFT_CLOSED_LIMIT});
     mTilt.mAttributes.InitializeLimits(endpoint, { TILT_OPEN_LIMIT, TILT_CLOSED_LIMIT});
+
+    StopMotion(ControlMode::All);
 
     // Attribute: Id  0 Type
     TypeSet(endpoint, EMBER_ZCL_WC_TYPE_TILT_BLIND_LIFT_AND_TILT);

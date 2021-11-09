@@ -69,36 +69,28 @@ public:
     enum class EventId
     {
         None = 0,
+
+        // Reset events
         ResetStart,
         ResetPressed,
         ResetWarning,
         ResetCanceled,
+
         // Button events
         BtnUpPressed,
         BtnUpReleased,
         BtnDownPressed,
         BtnDownReleased,
-        BtnCycleType,
+        BtnCycleEndpoint,
         BtnCycleActuator,
 
         // Cover Attribute update events
         AttributeChange,
-  /*       AttrType,
-        AttrConfigStatus,
-        AttrOperationalStatus,
-        AttrEndProductType,
-        AttrMode,
-        AttrSafetyStatus,
-        AttrLiftCurrentPosition,
-        AttrTiltCurrentPosition,
-        AttrLiftTargetPosition,
-        AttrTiltTargetPosition, */
 
         // Actuator Update Change
         ActuatorUpdateLift,
         ActuatorUpdateTilt,
 
-        StopMotion,
         // Provisioning events
         ProvisionedStateChanged,
         ConnectivityStateChanged,
@@ -149,10 +141,6 @@ public:
         static void OnActuatorTimeout(Timer & timer);
         void Init(Features feature, uint32_t timeoutInMs, OperationalState * opState, uint16_t stepDelta);
 
-//struct OperationalStatus ff;
-      //  OperationalState * mOpState;
-
-
         Timer *          mTimer   = nullptr;
         OperationalState mOpState = OperationalState::Stall;
 
@@ -178,6 +166,7 @@ public:
         void StepTowardDownOrClose(ControlMode controlMode);
         void StepTowardUpOrOpen(ControlMode controlMode);
         void UpdateCurrentPositionAttribute(ControlMode controlMode);
+
         EmberAfWcType CycleType();
 
         chip::EndpointId mEndpoint = 0;

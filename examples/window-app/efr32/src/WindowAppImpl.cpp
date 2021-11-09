@@ -316,112 +316,10 @@ WindowApp::Button * WindowAppImpl::CreateButton(WindowApp::Button::Id id, const 
     return new Button(id, name);
 }
 
-void WindowAppImpl::DispatchEvent(const WindowApp::Event & event)
-{
-   // WindowApp::DispatchEvent(event);
-    switch (event.mId)
-    {
-    //case EventId::ButtonChange:
-    case EventId::BtnUpPressed:
-    case EventId::BtnUpReleased:
-    case EventId::BtnDownPressed:
-    case EventId::BtnDownReleased:
-    case EventId::BtnCycleType:
-    case EventId::BtnCycleActuator:
-        DispatchEventButtonChange(event);
-        break;
-    case EventId::AttributeChange:
-        DispatchEventAttributeChange(event.mEndpoint, event.mAttributeId);
-        break;
-    //case EventId::StateChange:
-    default:
-        DispatchEventStateChange(event);
-        break;
-    }
-}
-
-void WindowAppImpl::DispatchEventButtonChange(const WindowApp::Event & event)
-{
-    Cover * cover = nullptr;
-    cover = GetCover(event.mEndpoint);
-    EFR32_LOG("Ep[%u] DispatchEvent=%u %p \n", event.mEndpoint, event.mId , cover);
-
-    cover = &GetCover();
-
-
-    switch (event.mId)
-    {
-    case EventId::BtnCycleType:
-        mIconTimer.Start();
-        mIcon = (GetCover().mEndpoint == 1) ? LcdIcon::One : LcdIcon::Two;
-        UpdateLCD();
-        break;
-    case EventId::BtnCycleActuator:
-        mIconTimer.Start();
-        switch (mControlMode)
-        {
-        case Cover::ControlMode::TiltOnly: mIcon = LcdIcon::Tilt; break;
-        case Cover::ControlMode::LiftOnly: mIcon = LcdIcon::Lift; break;
-        default:
-            break;
-        }
-        UpdateLCD();
-        break;
-    default:
-        break;
-    }
-}
-
-void WindowAppImpl::DispatchEventStateChange(const WindowApp::Event & event)
-{
-    Cover * cover = nullptr;
-    cover = GetCover(event.mEndpoint);
-    EFR32_LOG("Ep[%u] DispatchEvent=%u %p \n", event.mEndpoint, event.mId , cover);
-
-    cover = &GetCover();
-
-    switch (event.mId)
-    {
-    case EventId::ProvisionedStateChanged:
-        UpdateLEDs();
-        UpdateLCD();
-        break;
-
-    case EventId::WinkOn:
-    case EventId::WinkOff:
-        mState.isWinking = (EventId::WinkOn == event.mId);
-        UpdateLEDs();
-        break;
-    case EventId::ConnectivityStateChanged:
-    case EventId::BLEConnectionsChanged:
-        UpdateLEDs();
-        break;
-    case EventId::ResetWarning:
-        EFR32_LOG("Factory Reset Triggered. Release button within %ums to cancel.", LONG_PRESS_TIMEOUT);
-        // Turn off all LEDs before starting blink to make sure blink is co-ordinated.
-        UpdateLEDs();
-        break;
-    case EventId::ResetCanceled:
-        EFR32_LOG("Factory Reset has been Canceled");
-        UpdateLEDs();
-        break;
-    default:
-        break;
-    }
-}
-
-//void WindowApp::DispatchEventAttributeChange(const WindowApp::Event & event)
 void WindowAppImpl::DispatchEventAttributeChange(chip::EndpointId endpoint, chip::AttributeId attribute)
 {
-    Cover * cover = nullptr;
-    cover = GetCover(endpoint);
+    EFR32_LOG("Ep[%u] WindowAppImpl::DispatchEventAttributeChange=%u\n", endpoint, attribute);
 
-
-    EFR32_LOG("Ep[%u] DispatchEvent=%u %p \n", endpoint, attribute, cover);
-
-    cover = &GetCover();
-
-    DispatchEventAttributeChange(endpoint, attribute);
     switch (attribute)
     {
     /* RO OperationalStatus */
@@ -442,12 +340,71 @@ void WindowAppImpl::DispatchEventAttributeChange(chip::EndpointId endpoint, chip
     case Attributes::ConfigStatus::Id:
     /* RO SafetyStatus: set by WC server */
     case Attributes::SafetyStatus::Id:
+    /* RW Mode: User can change */
+    case Attributes::Mode::Id:
     default:
         break;
     }
 }
 
+void WindowAppImpl::DispatchEvent(const WindowApp::Event & event)
+{
+    EFR32_LOG("Ep[%u] WindowAppImpl::DispatchEvent=%u\n", event.mEndpoint, event.mId);
+    // Cover * cover = nullptr;
+    // cover = GetCover(event.mEndpoint);
 
+
+    // cover = &GetCover();
+    WindowApp::DispatchEvent(event);
+
+    switch (event.mId)
+    {
+    case EventId::WinkOn:
+    case EventId::WinkOff:
+        mState.isWinking = (EventId::WinkOn == event.mId);
+        UpdateLEDs();
+        break;
+    case EventId::AttributeChange:
+        DispatchEventAttributeChange(event.mEndpoint, event.mAttributeId);
+        break;
+    case EventId::ResetWarning:
+        EFR32_LOG("Factory Reset Triggered. Release button within %ums to cancel.", LONG_PRESS_TIMEOUT);
+        // Turn off all LEDs before starting blink to make sure blink is
+        // co-ordinated.
+        UpdateLEDs();
+        break;
+    case EventId::ResetCanceled:
+        EFR32_LOG("Factory Reset has been Canceled");
+        UpdateLEDs();
+        break;
+    case EventId::ProvisionedStateChanged:
+        UpdateLEDs();
+        UpdateLCD();
+        break;
+    case EventId::ConnectivityStateChanged:
+    case EventId::BLEConnectionsChanged:
+        UpdateLEDs();
+        break;
+    case EventId::BtnCycleEndpoint:
+        mIconTimer.Start();
+        mIcon = (GetCover().mEndpoint == 1) ? LcdIcon::One : LcdIcon::Two;
+        UpdateLCD();
+        break;
+    case EventId::BtnCycleActuator:
+        mIconTimer.Start();
+        switch (mControlMode)
+        {
+        case Cover::ControlMode::TiltOnly: mIcon = LcdIcon::Tilt; break;
+        case Cover::ControlMode::LiftOnly: mIcon = LcdIcon::Lift; break;
+        default:
+            break;
+        }
+        UpdateLCD();
+        break;
+    default:
+        break;
+    }
+}
 
 void WindowAppImpl::UpdateLEDs()
 {
