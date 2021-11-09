@@ -967,7 +967,8 @@ LimitStatus CheckLimitState(uint16_t position, AbsoluteLimits limits)
 /* PostAttributeChange is used in all-cluster-app simulation and CI testing : otherwise it is bounded to manufacturer specific implementation */
 void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeId)
 {
-    OperationalStatus opStatus = OperationalStatusGet(endpoint);
+    OperationalStatus prevOpStatus = OperationalStatusGet(endpoint);
+    OperationalStatus opStatus = prevOpStatus;
 
     emberAfWindowCoveringClusterPrint("WC POST ATTRIBUTE=%u OpStatus=0x%02X", (unsigned int) attributeId, (unsigned int) opStatus.global);
 
@@ -1019,8 +1020,10 @@ void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeI
     default:
         break;
     }
-    /* This decides and triggers fake motion for the selected endpoints */
-    OperationalStatusSetWithGlobalUpdated(endpoint, opStatus);
+
+    /* This decides and triggers fake motion for the selected endpoint */
+    if (opStatus != prevOpStatus)
+        OperationalStatusSetWithGlobalUpdated(endpoint, opStatus);
 }
 
 } // namespace WindowCovering

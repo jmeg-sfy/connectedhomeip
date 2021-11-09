@@ -531,15 +531,12 @@ void WindowApp::OnLongPressTimeout(WindowApp::Timer & timer)
     }
 }
 
-
-
-
 LimitStatus WindowApp::Actuator::GetLimitState()
 {
     return CheckLimitState(mCurrentPosition, mAttributes.mLimits);
 }
 
-see tick callback
+
 
 void WindowApp::Actuator::OnActuatorTimeout(WindowApp::Timer & timer)
 {
