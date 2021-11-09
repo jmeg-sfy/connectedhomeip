@@ -571,7 +571,6 @@ void WindowApp::Cover::Init(chip::EndpointId endpoint)
     mLift.Init(Features::Lift, COVER_LIFT_TILT_TIMEOUT, nullptr, LIFT_DELTA);
     mTilt.Init(Features::Tilt, COVER_LIFT_TILT_TIMEOUT, nullptr, TILT_DELTA);
 
-
     mLift.mAttributes.InitializeLimits(endpoint, { LIFT_OPEN_LIMIT, LIFT_CLOSED_LIMIT});
     mTilt.mAttributes.InitializeLimits(endpoint, { TILT_OPEN_LIMIT, TILT_CLOSED_LIMIT});
 
@@ -588,14 +587,13 @@ void WindowApp::Cover::Init(chip::EndpointId endpoint)
                                   .tiltIsEncoderControlled = 1 };
     ConfigStatusSet(endpoint, configStatus);
 
-
-    OperationalStatusSet(endpoint, mOperationalStatus);
+    OperationalStatusSetWithGlobalUpdated(endpoint, mOperationalStatus);
 
     // Attribute: Id 13 EndProductType
     EndProductTypeSet(endpoint, EMBER_ZCL_WC_END_PRODUCT_TYPE_INTERIOR_BLIND);
 
     // Attribute: Id 24 Mode
-    Mode mode = { .motorDirReversed = 0, .calibrationMode = 1, .maintenanceMode = 1, .ledDisplay = 1 };
+    Mode mode = { .motorDirReversed = 0, .calibrationMode = 0, .maintenanceMode = 0, .ledDisplay = 0 };
     ModeSet(endpoint, mode);
 
     // Attribute: Id 27 SafetyStatus (Optional)
