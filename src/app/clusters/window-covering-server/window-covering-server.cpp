@@ -531,7 +531,7 @@ EmberAfStatus ActuatorAccessors::GetAttributeAbsoluteLimits(chip::EndpointId end
 
 uint16_t ActuatorAccessors::WithinAbsoluteRangeCheck(uint16_t value)
 {
-    AbsoluteLimits limits = mLimits;//mAttributes.AbsoluteLimitsGet();
+    AbsoluteLimits limits = mLimits;
 
     if (value > limits.closed) {
         value = limits.closed;

@@ -120,22 +120,15 @@ struct AbsoluteLimits
     uint16_t closed;
 };
 
-enum class RelativeLimits : Percent100ths
-{
-    UpOrOpen  = WC_PERCENT100THS_MIN_OPEN,
-    Half   = 5000,
-    DownOrClose = WC_PERCENT100THS_MAX_CLOSED,
-};
-
-
-
 typedef EmberAfStatus (*SetAttributeU8_f )(chip::EndpointId endpoint, uint8_t   value);
 typedef EmberAfStatus (*GetAttributeU8_f )(chip::EndpointId endpoint, uint8_t *pValue);
 typedef EmberAfStatus (*SetAttributeU16_f)(chip::EndpointId endpoint, uint16_t   value);
 typedef EmberAfStatus (*GetAttributeU16_f)(chip::EndpointId endpoint, uint16_t *pValue);
 
+/* Represents the Actuator part of the WindowCovering and helps to handle attributes complexity between RELATIVE and ABSOLUTE attribute */
 struct ActuatorAccessors
 {
+    /* Represents the Positioning part and helps to handle attributes complexity between RELATIVE and ABSOLUTE attribute */
     struct PositionAccessors
     {
         enum class Type : uint8_t
@@ -147,7 +140,6 @@ struct ActuatorAccessors
         SetAttributeU16_f mSetPercent100thsCb; GetAttributeU16_f mGetPercent100thsCb;
         SetAttributeU16_f mSetAbsoluteCb;      GetAttributeU16_f mGetAbsoluteCb;
 
-
         void RegisterCallbacksPercentage   (SetAttributeU8_f  set_cb, GetAttributeU8_f  get_cb);
         void RegisterCallbacksPercent100ths(SetAttributeU16_f set_cb, GetAttributeU16_f get_cb);
         void RegisterCallbacksAbsolute     (SetAttributeU16_f set_cb, GetAttributeU16_f get_cb);
@@ -156,7 +148,8 @@ struct ActuatorAccessors
         EmberAfStatus SetAttributeRelativePosition(chip::EndpointId endpoint, Percent100ths     relative);
         EmberAfStatus GetAttributeRelativePosition(chip::EndpointId endpoint, Percent100ths * p_relative);
         EmberAfStatus SetAttributeAbsolutePosition(chip::EndpointId endpoint, uint16_t absolute);
-    };
+    }; // struct PositionAccessors
+
     SetAttributeU16_f mSetOpenLimitCb;       GetAttributeU16_f mGetOpenLimitCb;
     SetAttributeU16_f mSetClosedLimitCb;     GetAttributeU16_f mGetClosedLimitCb;
 
@@ -166,7 +159,7 @@ struct ActuatorAccessors
     PositionAccessors mCurrent;
     PositionAccessors mTarget;
 
-    AbsoluteLimits mLimits = { .open = WC_PERCENT100THS_MIN_OPEN, .closed = WC_PERCENT100THS_MAX_CLOSED };// default is 1:1 conversion
+    AbsoluteLimits mLimits = { .open = WC_PERCENT100THS_MIN_OPEN, .closed = WC_PERCENT100THS_MAX_CLOSED }; // default is 1:1 conversion
     Features mFeatureTag; //non-endpoint dependant
 
     void InitializeCallbacks(chip::EndpointId endpoint, Features tag);
@@ -174,12 +167,14 @@ struct ActuatorAccessors
 
     bool IsPositionAware(chip::EndpointId endpoint);
 
+    /* Compute the operational state of an actuator from current and target */
+    OperationalState OperationalStateGet(chip::EndpointId endpoint);
+
+    /* Setter/Getter Helpers to simplify interaction with the positioning attributes */
     EmberAfStatus GoToUpOrOpen   (chip::EndpointId endpoint);
     EmberAfStatus GoToDownOrClose(chip::EndpointId endpoint);
     EmberAfStatus GoToCurrent    (chip::EndpointId endpoint);
     EmberAfStatus SetCurrentToTarget(chip::EndpointId endpoint);
-
-    OperationalState OperationalStateGet(chip::EndpointId endpoint);
 
     EmberAfStatus PositionRelativeSet(chip::EndpointId endpoint, PositionAccessors::Type position, Percent100ths relative);
     EmberAfStatus PositionAbsoluteSet(chip::EndpointId endpoint, PositionAccessors::Type position, uint16_t absolute);
@@ -187,18 +182,20 @@ struct ActuatorAccessors
     Percent100ths PositionRelativeGet(chip::EndpointId endpoint, PositionAccessors::Type position);
     uint16_t      PositionAbsoluteGet(chip::EndpointId endpoint, PositionAccessors::Type position);
 
+    /* Units Conversion from Absolute to Relative */
     Percent100ths AbsoluteToRelative(chip::EndpointId endpoint, uint16_t absolute);
+    /* Units Conversion from Relative to Absolute */
     uint16_t      RelativeToAbsolute(chip::EndpointId endpoint, Percent100ths relative);
-
-    AbsoluteLimits AbsoluteLimitsGet(chip::EndpointId endpoint);
-    void           AbsoluteLimitsSet(chip::EndpointId endpoint, AbsoluteLimits limits);
 
     uint16_t WithinAbsoluteRangeCheck(uint16_t value);
 
-    //private:
+    /* Absolute Limits are exposed by device using the ABS flag in the FeatureMap */
+    AbsoluteLimits AbsoluteLimitsGet(chip::EndpointId endpoint);
+    void           AbsoluteLimitsSet(chip::EndpointId endpoint, AbsoluteLimits limits);
+
     EmberAfStatus SetAttributeAbsoluteLimits(chip::EndpointId endpoint, AbsoluteLimits     limits);
     EmberAfStatus GetAttributeAbsoluteLimits(chip::EndpointId endpoint, AbsoluteLimits * p_limits);
-};
+}; // struct ActuatorAccessors
 
 ActuatorAccessors & LiftAccess(void);
 ActuatorAccessors & TiltAccess(void);
@@ -224,104 +221,7 @@ const Mode ModeGet(chip::EndpointId endpoint);
 void SafetyStatusSet(chip::EndpointId endpoint, SafetyStatus & status);
 const SafetyStatus SafetyStatusGet(chip::EndpointId endpoint);
 
-
-
-
-
-//     struct Actuator
-//     {
-//         AbsoluteLimits mLimits = { .open = WC_PERCENT100THS_MIN_OPEN, .closed = WC_PERCENT100THS_MAX_CLOSED };// default is 1:1 conversion
-
-//         uint16_t mCurrentPosition    = 0;//LimitStatus::IsUpOrOpen;//WC_PERCENT100THS_DEF;
-//         uint16_t mTargetPosition     = 0;//OperationalState::MovingDownOrClose;//WC_PERCENT100THS_DEF;
-
-//         uint16_t mStepDelta          = 1;
-//         uint16_t mStepMinimum        = 1;
-
-
-
-//         uint16_t mNumberOfActuations = 0; //Number of commands sent to the actuators
-
-//         void SetPosition(uint16_t value);
-//         void StepTowardUpOrOpen();
-//         void StepTowardDownOrClose();
-
-//         void GoToAbsolute(uint16_t absolute);
-//         void GoToRelative(chip::Percent100ths relative);
-//         void StopMotion();
-//         void UpdatePosition();
-//         void Print();
-
-//         void TimerStart();
-//         void TimerStop();
-//         bool IsActive();
-//         LimitStatus GetLimitState();
-
-//         static void OnActuatorTimeout(Timer & timer);
-//         void Init(const char * name, uint32_t timeoutInMs, OperationalState * opState, EventId event);
-
-// //struct OperationalStatus ff;
-//       //  OperationalState * mOpState;
-
-
-//         Timer *          mTimer   = nullptr;
-//         EventId          mEvent  = EventId::None;
-//         OperationalState mOpState = OperationalState::Stall;
-//     };
-
-
-
-//ActuatorAccessors * LiftAccess(void); mTiltAccess.
-//ActuatorAccessors * TiltAccess(void);
-
 LimitStatus CheckLimitState(uint16_t position, AbsoluteLimits limits);
-
-/* Setter/Getter Helpers to simplify interaction with the positioning attributes */
-//EmberAfStatus PositionRelativeSet(chip::EndpointId endpoint, PositionAccessors * access, Percent100ths relative);
-//EmberAfStatus PositionAbsoluteSet(chip::EndpointId endpoint, PositionAccessors * access, uint16_t absolute);//cover->mEndpoint, LiftAccess(), cover->mLift.mCurrentPosition);
-
-//Percent100ths PositionRelativeGet(chip::EndpointId endpoint, PositionAccessors * access);
-//uint16_t      PositionAbsoluteGet(chip::EndpointId endpoint, PositionAccessors * access);
-
-
-
-
-// EmberAfStatus  TargetPositionRelativeSet(chip::EndpointId endpoint, PositionAccessors * access, Percent100ths relative);
-// EmberAfStatus  TargetPositionAbsoluteSet(chip::EndpointId endpoint, PositionAccessors * access, uint16_t absolute);
-// EmberAfStatus  TargetPositionRelativeSet(chip::EndpointId endpoint, PositionAccessors * access, Percent100ths relative);
-// Percent100ths  TargetPositionRelativeGet(chip::EndpointId endpoint, PositionAccessors * access);
-
-//EmberAfStatus LiftCurrentPositionRelativeSet(chip::EndpointId endpoint, Percent100ths relative);
-//EmberAfStatus LiftCurrentPositionAbsoluteSet(chip::EndpointId endpoint, uint16_t absolute);
-//Percent100ths LiftCurrentPositionRelativeGet(chip::EndpointId endpoint);
-//uint16_t      LiftCurrentPositionAbsoluteGet(chip::EndpointId endpoint);
-
-//EmberAfStatus LiftTargetPositionRelativeSet(chip::EndpointId endpoint, Percent100ths relative);
-//EmberAfStatus LiftTargetPositionAbsoluteSet(chip::EndpointId endpoint, uint16_t absolute);
-//Percent100ths LiftTargetPositionRelativeGet(chip::EndpointId endpoint);
-//uint16_t      LiftTargetPositionAbsoluteGet(chip::EndpointId endpoint);
-
-//EmberAfStatus TiltCurrentPositionRelativeSet(chip::EndpointId endpoint, Percent100ths relative);
-//EmberAfStatus TiltCurrentPositionAbsoluteSet(chip::EndpointId endpoint, uint16_t absolute);
-//Percent100ths TiltCurrentPositionRelativeGet(chip::EndpointId endpoint);
-//uint16_t      TiltCurrentPositionAbsoluteGet(chip::EndpointId endpoint);
-
-//EmberAfStatus TiltTargetPositionRelativeSet(chip::EndpointId endpoint, Percent100ths relative);
-//EmberAfStatus TiltTargetPositionAbsoluteSet(chip::EndpointId endpoint, uint16_t absolute);
-//Percent100ths TiltTargetPositionRelativeGet(chip::EndpointId endpoint);
-//uint16_t      TiltTargetPositionAbsoluteGet(chip::EndpointId endpoint);
-
-LimitStatus LiftLimitStatusGet(chip::EndpointId endpoint);
-LimitStatus TiltLimitStatusGet(chip::EndpointId endpoint);
-
-
-/* Units Conversion from Absolute to Relative */
-// Percent100ths LiftToPercent100ths(chip::EndpointId endpoint, uint16_t absoluteValue);
-// Percent100ths TiltToPercent100ths(chip::EndpointId endpoint, uint16_t absoluteValue);
-
-// /* Units Conversion from Relative to Absolute */
-// uint16_t Percent100thsToTilt(chip::EndpointId endpoint, Percent100ths percent100ths);
-// uint16_t Percent100thsToLift(chip::EndpointId endpoint, Percent100ths percent100ths);
 
 OperationalState ComputeOperationalState(uint16_t target, uint16_t current);
 void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeId);
