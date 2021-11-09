@@ -1022,7 +1022,7 @@ void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeI
     }
 
     /* This decides and triggers fake motion for the selected endpoint */
-    if (opStatus != prevOpStatus)
+    if ((opStatus.lift != prevOpStatus.lift) && (opStatus.tilt != prevOpStatus.tilt))
         OperationalStatusSetWithGlobalUpdated(endpoint, opStatus);
 }
 
