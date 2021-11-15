@@ -21,55 +21,121 @@ config:
     endpoint: 1
 
 tests:
+    ######## UpOrOpen Reports #######
+    ### Step 0x -> Initialize the Covering position before any testing
+    ### MANDATORY Init Commands
+    - label: "0a: TH sends DownOrClose command to preposition the DUT in the opposite direction"
+      command: "DownOrClose"
+
+    - label: "0b: TH Waits for 10 seconds movement(s) on the device"
+      cluster: "DelayCommands"
+      command: "WaitForMs"
+      arguments:
+          values:
+              - name: "ms"
+                value: 10000
+
     ### Step 1x -> Check UpOrOpen effects
     ### MANDATORY Command
     - label: "1a: TH sends UpOrOpen command to DUT"
       command: "UpOrOpen"
 
+    - label: "1b: TH leave the device moving for 5 seconds"
+      cluster: "DelayCommands"
+      command: "WaitForMs"
+      arguments:
+          values:
+              - name: "ms"
+                value: 5000
+
     ### Depends on the FeatureMap
     # The value of bit 0..1 must be 01b & if (LF) value of bit 2..3 must be 01b else 00b & if (TL) value of bit 4..5 must be 01b else 00b
-    - label: "1b: Verify DUT sends OperationalStatus attribute report to TH"
+    # Only 3 possibilities are possible here : 11h = 17, 14h = 20 or 15h = 21 then check a range for simplicity [17 - 21]
+    - label: "1c: Verify DUT reports OperationalStatus attribute to TH after a UpOrOpen"
       command: "subscribeAttribute"
       attribute: "OperationalStatus"
-      minInterval: 0
-      maxInterval: 64
+      minInterval: 1
+      maxInterval: 2
       response:
-          value: 21
+          constraints:
+              minValue: 17
+              maxValue: 21
 
     ### Step 2x -> Check StopMotion effects
     ### MANDATORY Command
-    - label: "2a: TH sends StopMotion command to DUT"
+    - label: "2a: TH sends a StopMotion command to DUT"
       command: "StopMotion"
 
-    ### Depends on the FeatureMap
+    - label: "2b: TH waits for 3 seconds the end of inertial movement(s) on the device"
+      cluster: "DelayCommands"
+      command: "WaitForMs"
+      arguments:
+          values:
+              - name: "ms"
+                value: 3000
+
+    ### Must Be ZERO
     # The value of bit 0..1 must be 00b & if (LF) value of bit 2..3 must be 00b & if (TL) value of bit 4..5 must be 00b
-    - label: "2b: Verify DUT sends OperationalStatus attribute report to TH"
+    - label: "2c: Verify DUT reports OperationalStatus attribute to TH after a StopMotion"
       command: "waitForReport"
       attribute: "OperationalStatus"
       response:
           value: 0
 
-    ### Step 3x -> Check DownOrClose effects
+    ######## DownOrClose Reports #######
+    ### Step 3x -> Initialize the Covering position before any testing
+    ### MANDATORY Init Commands
+    - label: "3a: TH sends UpOrOpen command to preposition the DUT in the opposite direction"
+      command: "UpOrOpen"
+
+    - label: "3b: TH Waits for 10 seconds movement(s) on the device"
+      cluster: "DelayCommands"
+      command: "WaitForMs"
+      arguments:
+          values:
+              - name: "ms"
+                value: 10000
+
+    ### Step 4x -> Check DownOrClose effects
     ### MANDATORY Command
-    - label: "3a: TH sends DownOrClose command to DUT"
+    - label: "4a: TH sends a DownOrClose command to DUT"
       command: "DownOrClose"
+
+    - label: "4b: TH leave the device moving for 5 seconds"
+      cluster: "DelayCommands"
+      command: "WaitForMs"
+      arguments:
+          values:
+              - name: "ms"
+                value: 5000
 
     ### Depends on the FeatureMap
     # The value of bit 0..1 must be 10b & if (LF) value of bit 2..3 must be 10b else 00b & if (TL) value of bit 4..5 must be 10b else 00b
-    - label: "3b: Verify DUT sends OperationalStatus attribute report to TH"
+    # Only 3 possibilities are possible here : 22h = 34, 28h = 40 or 2Ah = 242 then check a range for simplicity [34 - 42]
+    - label: "4c: Verify DUT reports OperationalStatus attribute to TH after a DownOrClose"
       command: "waitForReport"
       attribute: "OperationalStatus"
       response:
-          value: 66
+          constraints:
+              minValue: 34
+              maxValue: 42
 
-    ### Step 4x -> Check StopMotion effects
+    ### Step 5x -> Check StopMotion effects
     ### MANDATORY Command
-    - label: "4a: TH sends StopMotion command to DUT"
+    - label: "5a: TH sends a StopMotion command to DUT"
       command: "StopMotion"
 
-    ### Depends on the FeatureMap
+    - label: "5b: TH waits for 3 seconds the end of inertial movement(s) on the device"
+      cluster: "DelayCommands"
+      command: "WaitForMs"
+      arguments:
+          values:
+              - name: "ms"
+                value: 3000
+
+    ### Must Be ZERO
     # The value of bit 0..1 must be 00b & if (LF) value of bit 2..3 must be 00b & if (TL) value of bit 4..5 must be 00b
-    - label: "4b: Verify DUT sends OperationalStatus attribute report to TH"
+    - label: "5c: Verify DUT reports OperationalStatus attribute to TH after a StopMotion"
       command: "waitForReport"
       attribute: "OperationalStatus"
       response:
