@@ -829,7 +829,7 @@ void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeI
     OperationalStatus prevOpStatus = OperationalStatusGet(endpoint);
     OperationalStatus opStatus = prevOpStatus;
 
-    emberAfWindowCoveringClusterPrint("WC POST ATTRIBUTE=%u OpStatus=0x%02X", (unsigned int) attributeId, (unsigned int) opStatus.global);
+    emberAfWindowCoveringClusterPrint("WC POST ATTRIBUTE=%u OpStatus global=0x%02X lift=0x%02X tilt=0x%02X", (unsigned int) attributeId, (unsigned int) opStatus.global, (unsigned int) opStatus.lift, (unsigned int) opStatus.tilt);
 
     switch (attributeId)
     {
@@ -841,9 +841,9 @@ void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeI
         break;
     /* RO OperationalStatus */
     case Attributes::OperationalStatus::Id:
-        if ((OperationalState::Stall != opStatus.lift) || (OperationalState::Stall != opStatus.tilt)) {
-            // kick off the state machine:
-            emberEventControlSetDelayMS(configureXYEventControl(endpoint), 2000);
+        if (OperationalState::Stall != opStatus.global) {
+            // Finish the fake motion attribute update:
+            emberEventControlSetDelayMS(FinalizeFakeMotionEventControl(endpoint), 6000);
         }
         break;
     /* RO EndProductType */
@@ -881,7 +881,7 @@ void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeI
     }
 
     /* This decides and triggers fake motion for the selected endpoint */
-    if ((opStatus.lift != prevOpStatus.lift) && (opStatus.tilt != prevOpStatus.tilt))
+    if ((opStatus.lift != prevOpStatus.lift) || (opStatus.tilt != prevOpStatus.tilt))
         OperationalStatusSetWithGlobalUpdated(endpoint, opStatus);
 }
 
