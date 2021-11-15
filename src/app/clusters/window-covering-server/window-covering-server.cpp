@@ -804,6 +804,9 @@ void ActuatorAccessors::InitializeCallbacks(chip::EndpointId endpoint, Features 
 
 void ActuatorAccessors::InitializeLimits(chip::EndpointId endpoint)
 {
+    // If the attributes are present we need to get their values from the default ZAP configuration
+    mLimits = AbsoluteLimitsGet(endpoint);
+
     InitializeLimits(endpoint, mLimits);
 }
 
