@@ -734,7 +734,7 @@ EmberEventControl * getEventControl(EndpointId endpoint)
     return &wc_eventControls[index];
 }
 
-EmberEventControl * configureXYEventControl(EndpointId endpoint)
+EmberEventControl * FinalizeFakeMotionEventControl(EndpointId endpoint)
 {
     EmberEventControl  * controller = getEventControl(endpoint);
 
@@ -783,6 +783,11 @@ void ActuatorAccessors::InitializeCallbacks(chip::EndpointId endpoint, Features 
 
         mTarget.RegisterCallbacksPercent100ths (Attributes::TargetPositionTiltPercent100ths::Set , Attributes::TargetPositionTiltPercent100ths::Get);
     }
+}
+
+void ActuatorAccessors::InitializeLimits(chip::EndpointId endpoint)
+{
+    InitializeLimits(endpoint, mLimits);
 }
 
 void ActuatorAccessors::InitializeLimits(chip::EndpointId endpoint, AbsoluteLimits limits)

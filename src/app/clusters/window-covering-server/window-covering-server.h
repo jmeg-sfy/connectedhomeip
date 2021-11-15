@@ -163,6 +163,7 @@ struct ActuatorAccessors
     Features mFeatureTag; //non-endpoint dependant
 
     void InitializeCallbacks(chip::EndpointId endpoint, Features tag);
+    void InitializeLimits(chip::EndpointId endpoint);
     void InitializeLimits(chip::EndpointId endpoint, AbsoluteLimits limits);
 
     bool IsPositionAware(chip::EndpointId endpoint);
