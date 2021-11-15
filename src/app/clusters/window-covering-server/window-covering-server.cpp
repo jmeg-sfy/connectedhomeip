@@ -906,6 +906,9 @@ void emberAfWindowCoveringClusterInitCallback(chip::EndpointId endpoint)
     LiftAccess().InitializeCallbacks(endpoint, Features::Lift);
     TiltAccess().InitializeCallbacks(endpoint, Features::Tilt);
 
+    LiftAccess().InitializeLimits(endpoint);
+    TiltAccess().InitializeLimits(endpoint);
+
     /* Init at Half 50% */
     LiftAccess().PositionRelativeSet(endpoint, ActuatorAccessors::PositionAccessors::Type::Current, WC_PERCENT100THS_MAX_CLOSED / 2);
     TiltAccess().PositionRelativeSet(endpoint, ActuatorAccessors::PositionAccessors::Type::Current, WC_PERCENT100THS_MAX_CLOSED / 2);
