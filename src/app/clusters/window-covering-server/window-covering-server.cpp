@@ -123,12 +123,6 @@ static uint16_t ConvertValue(uint16_t inputLowValue, uint16_t inputHighValue, ui
 
 }
 
-// typedef struct AbsoluteLimits
-// {
-//     uint16_t open;
-//     uint16_t closed;
-// } AbsoluteLimits;
-
 static Percent100ths ValueToPercent100ths(AbsoluteLimits limits, uint16_t absolute)
 {
     return ConvertValue(limits.open, limits.closed, WC_PERCENT100THS_MIN_OPEN, WC_PERCENT100THS_MAX_CLOSED, absolute, true);
@@ -191,8 +185,6 @@ static ActuatorAccessors mTiltAccess = { 0 };
 ActuatorAccessors & LiftAccess(void) { return mLiftAccess; }
 ActuatorAccessors & TiltAccess(void) { return mTiltAccess; }
 
-
-EmberEventControl wc_eventControls[EMBER_AF_WINDOW_COVERING_CLUSTER_SERVER_ENDPOINT_COUNT];
 
 bool HasFeature(chip::EndpointId endpoint, Features feature)
 {
@@ -342,7 +334,6 @@ void OperationalStatusSetWithGlobalUpdated(chip::EndpointId endpoint, Operationa
 
     OperationalStatusSet(endpoint, status);
 }
-
 
 void OperationalStatusSet(chip::EndpointId endpoint, const OperationalStatus & status)
 {
@@ -727,7 +718,7 @@ void ActuatorAccessors::PositionAccessors::RegisterCallbacksAbsolute     (SetAtt
 
 
 
-void emberAfPluginWindowCoveringEventHandler(EndpointId endpoint)
+void emberAfPluginWindowCoveringFinalizeFakeMotionEventHandler(EndpointId endpoint)
 {
     OperationalStatus opStatus = OperationalStatusGet(endpoint);
     emberAfWindowCoveringClusterPrint("WC DELAYED CALLBACK 100ms w/ OpStatus=0x%02X", (unsigned char) opStatus.global);
@@ -745,6 +736,8 @@ void emberAfPluginWindowCoveringEventHandler(EndpointId endpoint)
     }
 }
 
+EmberEventControl wc_eventControls[EMBER_AF_WINDOW_COVERING_CLUSTER_SERVER_ENDPOINT_COUNT];
+
 EmberEventControl * getEventControl(EndpointId endpoint)
 {
     uint16_t index = emberAfFindClusterServerEndpointIndex(endpoint, ZCL_WINDOW_COVERING_CLUSTER_ID);
@@ -753,10 +746,10 @@ EmberEventControl * getEventControl(EndpointId endpoint)
 
 EmberEventControl * FinalizeFakeMotionEventControl(EndpointId endpoint)
 {
-    EmberEventControl  * controller = getEventControl(endpoint);
+    EmberEventControl * controller = getEventControl(endpoint);
 
     controller->endpoint = endpoint;
-    controller->callback = &emberAfPluginWindowCoveringEventHandler;
+    controller->callback = &emberAfPluginWindowCoveringFinalizeFakeMotionEventHandler;
 
     return controller;
 }
@@ -770,8 +763,6 @@ OperationalState ComputeOperationalState(uint16_t target, uint16_t current)
     }
     return opState;
 }
-
-
 
 void ActuatorAccessors::InitializeCallbacks(chip::EndpointId endpoint, Features tag)
 {
@@ -825,7 +816,6 @@ bool ActuatorAccessors::IsPositionAware(chip::EndpointId endpoint)
 {
     return (HasFeature(endpoint, mFeatureTag) && HasFeature(endpoint, Features::PositionAware));
 }
-
 
 LimitStatus CheckLimitState(uint16_t position, AbsoluteLimits limits)
 {
