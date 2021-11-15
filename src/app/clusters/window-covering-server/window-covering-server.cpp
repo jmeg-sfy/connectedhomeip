@@ -425,22 +425,23 @@ EmberAfStatus ActuatorAccessors::PositionAccessors::SetAttributeRelativePosition
 {
     EmberAfStatus status = EMBER_ZCL_STATUS_UNSUPPORTED_ATTRIBUTE;
 
-    if (this->mSetPercentageCb)
-    {
-        status = this->mSetPercentageCb(endpoint, static_cast<uint8_t>(relative / 100));
-    }
-    else
-    {
-        emberAfWindowCoveringClusterPrint("SetPercentage undef");
-    }
-
-    if ((EMBER_ZCL_STATUS_SUCCESS == status) && this->mSetPercent100thsCb)
+    /* This part is always the mandatory one */
+    if (this->mSetPercent100thsCb)
     {
         status = this->mSetPercent100thsCb(endpoint, relative);
     }
     else
     {
-        emberAfWindowCoveringClusterPrint("SetPercent100ths undef");
+        emberAfWindowCoveringClusterPrint("SetPercent100thsCb undef");
+    }
+
+    if ((EMBER_ZCL_STATUS_SUCCESS == status) && this->mSetPercentageCb)
+    {
+        status = this->mSetPercentageCb(endpoint, static_cast<uint8_t>(relative / 100));
+    }
+    else
+    {
+        emberAfWindowCoveringClusterPrint("SetPercentageCb undef");
     }
 
     return status;
