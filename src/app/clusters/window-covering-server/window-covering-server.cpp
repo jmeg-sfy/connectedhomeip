@@ -31,6 +31,7 @@
 #include <app/util/attribute-storage.h>
 #include <lib/support/TypeTraits.h>
 #include <string.h>
+#include <map>
 
 #ifdef EMBER_AF_PLUGIN_SCENES
 #include <app/clusters/scenes/scenes.h>
@@ -135,6 +136,7 @@ static Percent100ths ValueToPercent100ths(AbsoluteLimits limits, uint16_t absolu
 
 static uint16_t Percent100thsToValue(AbsoluteLimits limits, Percent100ths relative)
 {
+    emberAfWindowCoveringClusterPrint("Percent100thsToValue");
     return ConvertValue(WC_PERCENT100THS_MIN_OPEN, WC_PERCENT100THS_MAX_CLOSED, limits.open, limits.closed, relative, true);
 }
 
@@ -194,7 +196,20 @@ EmberEventControl wc_eventControls[EMBER_AF_WINDOW_COVERING_CLUSTER_SERVER_ENDPO
 
 bool HasFeature(chip::EndpointId endpoint, Features feature)
 {
-    return true;
+    bool hasFeature = false;
+    const char * featureName = "-";
+    uint32_t featureMapAttr = 0;
+    emberAfReadServerAttribute(endpoint, Clusters::WindowCovering::Id, Attributes::FeatureMap::Id, (uint8_t *) &featureMapAttr, sizeof(featureMapAttr));
+
+    auto item = mFeatureId.find(feature);
+    if (item != mFeatureId.end())
+        featureName = item->second;
+
+    hasFeature = (featureMapAttr & (typeof(featureMapAttr))feature);
+
+    emberAfWindowCoveringClusterPrint("%5.5s=%u: 0x%04X", featureName, hasFeature, featureMapAttr);
+
+    return hasFeature;
 }
 
 void PrintPercent100ths(const char * pMessage, Percent100ths percent100ths)
@@ -336,6 +351,7 @@ void OperationalStatusSet(chip::EndpointId endpoint, const OperationalStatus & s
     uint8_t tilt   = OperationalStateToValue(status.tilt);
 
     uint8_t value  = (global & 0x03) | static_cast<uint8_t>((lift & 0x03) << 2) | static_cast<uint8_t>((tilt & 0x03) << 4);
+    emberAfWindowCoveringClusterPrint("OperationalStatusSet %u 0x%02X global=0x%02X lift=0x%02X tilt=0x%02X", value, value, global, lift, tilt);
     Attributes::OperationalStatus::Set(endpoint, value);
 }
 
@@ -665,6 +681,7 @@ EmberAfStatus ActuatorAccessors::GoToUpOrOpen(chip::EndpointId endpoint)
 
 EmberAfStatus ActuatorAccessors::GoToDownOrClose(chip::EndpointId endpoint)
 {
+    emberAfWindowCoveringClusterPrint("Limit Closed %u", mLimits.closed);
     return PositionAbsoluteSet(endpoint, ActuatorAccessors::PositionAccessors::Type::Target, mLimits.closed);
 }
 

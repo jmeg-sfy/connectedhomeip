@@ -23,6 +23,7 @@
 #include <app-common/zap-generated/enums.h>
 #include <app/util/af-types.h>
 #include <app/util/basic-types.h>
+#include <map>
 
 #define WC_PERCENT100THS_MIN_OPEN   0
 #define WC_PERCENT100THS_MAX_CLOSED 10000
@@ -39,6 +40,13 @@ enum class Features
     Tilt          = 0x02,
     PositionAware = 0x04,
     Absolute      = 0x08,
+};
+
+static const std::map<Features, const char *> mFeatureId = {
+    { Features::Lift,          "Lift" },
+    { Features::Tilt,          "Tilt" },
+    { Features::PositionAware, "PA"   },
+    { Features::Absolute,      "ABS"  },
 };
 
 struct Mode
