@@ -318,7 +318,7 @@ WindowApp::Button * WindowAppImpl::CreateButton(WindowApp::Button::Id id, const 
 
 void WindowAppImpl::DispatchEventAttributeChange(chip::EndpointId endpoint, chip::AttributeId attribute)
 {
-    EFR32_LOG("Ep[%u] WindowAppImpl::DispatchEventAttributeChange=%u\n", endpoint, attribute);
+    EFR32_LOG("Ep[%u] EFR32 AttributeChange=%u\n", endpoint, attribute);
 
     switch (attribute)
     {
@@ -349,13 +349,14 @@ void WindowAppImpl::DispatchEventAttributeChange(chip::EndpointId endpoint, chip
 
 void WindowAppImpl::DispatchEvent(const WindowApp::Event & event)
 {
-    EFR32_LOG("Ep[%u] WindowAppImpl::DispatchEvent=%u\n", event.mEndpoint, event.mId);
     // Cover * cover = nullptr;
     // cover = GetCover(event.mEndpoint);
 
 
     // cover = &GetCover();
     WindowApp::DispatchEvent(event);
+
+    EFR32_LOG("Ep[%u] EFR32 DispatchEvent=%u\n", event.mEndpoint, event.mId);
 
     switch (event.mId)
     {

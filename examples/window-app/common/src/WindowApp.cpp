@@ -205,7 +205,7 @@ void WindowApp::DispatchEvent(const WindowApp::Event & event)
     Cover * cover = nullptr;
     cover = GetCover(event.mEndpoint);
 
-    emberAfWindowCoveringClusterPrint("Ep[%u] WindowApp::DispatchEvent=%u %p \n", event.mEndpoint , (unsigned int) event.mId , cover);
+    emberAfWindowCoveringClusterPrint("Ep[%u] DispatchEvent=%u %p \n", event.mEndpoint , (unsigned int) event.mId , cover);
 
     switch (event.mId) {
     case EventId::AttributeChange:
