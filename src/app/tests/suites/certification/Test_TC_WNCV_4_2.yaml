@@ -44,13 +44,13 @@ tests:
 
     ######## GoToTiltPercentage Long-Run 30 percent #######
     ### Step 2x ->  Check GoToTiltPercentage 30% Long-Run effects
-    - label: "2a: TH sends GoToTiltPercentage command with 30% to DUT"
+    - label: "2a: TH sends GoToTiltPercentage command with 30.00 percent to DUT"
       command: "GoToTiltPercentage"
       arguments:
           values:
-              - name: "liftPercent100thsValue"
+              - name: "tiltPercent100thsValue"
                 value: 3000
-              - name: "liftPercentageValue"
+              - name: "tiltPercentageValue"
                 value: 30
 
     ### Depends on a sleep/wait command how to do this with a real device for CI keep at 100ms
@@ -118,13 +118,13 @@ tests:
 
     ######## GoToTiltPercentage Long-Run for 60.2 percent #######
     ### Step 4x ->  Check GoToTiltPercentage 60.20% Long-Run effects
-    - label: "4a: TH sends GoToTiltPercentage command with 60.20% to DUT"
+    - label: "4a: TH sends GoToTiltPercentage command with 60.20 percent to DUT"
       command: "GoToTiltPercentage"
       arguments:
           values:
-              - name: "liftPercent100thsValue"
+              - name: "tiltPercent100thsValue"
                 value: 6005
-              - name: "liftPercentageValue"
+              - name: "tiltPercentageValue"
                 value: 60
 
     ### Depends on a sleep/wait command how to do this with a real device for CI keep at 100ms
