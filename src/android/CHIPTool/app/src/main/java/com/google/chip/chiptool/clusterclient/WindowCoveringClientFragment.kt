@@ -19,6 +19,11 @@ import com.google.chip.chiptool.ChipClient
 import com.google.chip.chiptool.GenericChipDeviceListener
 import com.google.chip.chiptool.R
 import com.google.chip.chiptool.util.DeviceIdUtil
+
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
+
 import kotlinx.android.synthetic.main.on_off_client_fragment.*
 import kotlinx.android.synthetic.main.window_covering_client_fragment.*
 import kotlinx.android.synthetic.main.window_covering_client_fragment.commandStatusTv
@@ -37,9 +42,10 @@ class WindowCoveringClientFragment : Fragment() {
   private val deviceController: ChipDeviceController
     get() = ChipClient.getDeviceController(requireContext())
 
-  private val scope = CoroutineScope(Dispatchers.Main + Job())
+  private lateinit var scope: CoroutineScope
 
-  private lateinit var addressUpdateFragment: AddressUpdateFragment
+  private lateinit var addressUpdateFragment2: AddressUpdateFragment
+
 
   private fun getPercent100thsText(percent : Int): String {
     val acc1 = percent / 100;
@@ -68,14 +74,12 @@ class WindowCoveringClientFragment : Fragment() {
     return inflater.inflate(R.layout.window_covering_client_fragment, container, false).apply {
       deviceController.setCompletionListener(ChipControllerCallback())
 
-      addressUpdateFragment =
-        childFragmentManager.findFragmentById(R.id.addressUpdateFragment) as AddressUpdateFragment
+      addressUpdateFragment2 = childFragmentManager.findFragmentById(R.id.addressUpdateFragment) as AddressUpdateFragment
 
-
-       downOrCloseBtn.setOnClickListener { scope.launch { sendDownOrCloseCommandClick() }}
-          upOrOpenBtn.setOnClickListener { scope.launch { sendUpOrOpenCommandClick()    }}
-        stopMotionBtn.setOnClickListener { scope.launch { sendStopMotionCommandClick()  }}
-              readBtn.setOnClickListener { scope.launch { sendReadOnOffClick()          }}
+        downOrCloseBtn.setOnClickListener { scope.launch { sendDownOrCloseCommandClick() }}
+           upOrOpenBtn.setOnClickListener { scope.launch { sendUpOrOpenCommandClick()    }}
+         stopMotionBtn.setOnClickListener { scope.launch { sendStopMotionCommandClick()  }}
+               readBtn.setOnClickListener { scope.launch { sendReadOnOffClick()          }}
 showSubscribeDialogBtn.setOnClickListener { showSubscribeDialog() }
 
       lvlPosTargetLift.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -138,47 +142,61 @@ showSubscribeDialogBtn.setOnClickListener { showSubscribeDialog() }
     val maxIntervalEd = dialogView.findViewById<EditText>(R.id.maxIntervalEd)
     dialogView.findViewById<Button>(R.id.subscribeBtn).setOnClickListener {
       scope.launch {
-        sendSubscribeOnOffClick(
+        sendSubscribeCurrentPositionLiftPercent100ths(
           minIntervalEd.text.toString().toInt(),
           maxIntervalEd.text.toString().toInt()
         )
+        // sendSubscribeCurrentPositionTiltPercent100ths(
+        //   minIntervalEd.text.toString().toInt(),
+        //   maxIntervalEd.text.toString().toInt()
+        // )
         dialog.dismiss()
       }
     }
     dialog.show()
   }
 
-  private suspend fun sendSubscribeOnOffClick(minInterval: Int, maxInterval: Int) {
-    val onOffCluster = getOnOffClusterForDevice()
+//reportTargetPositionLiftPercent100thsAttribute
+//reportTargetPositionTiltPercent100thsAttribute
+//reportOperationalStatusAttribute
+//reportCurrentPositionLiftPercent100thsAttribute
+//reportCurrentPositionTiltPercent100thsAttribute
+// object : ChipClusters.IntegerAttributeCallback {
+//       override fun onSuccess(type: Int) {
+//         Log.v(TAG, "Type attribute value: $type")
+//         showMessage("Type attribute value: $type")
+//       }
 
-    val subscribeCallback = object : ChipClusters.DefaultClusterCallback {
-      override fun onSuccess() {
-        val message = "Subscribe on/off success"
-        Log.v(TAG, message)
-        showMessage(message)
+//       override fun onError(ex: Exception) {
+//         Log.e(TAG, "Error reading Type attribute", ex)
+//       }
 
-        onOffCluster.reportOnOffAttribute(object : ChipClusters.BooleanAttributeCallback {
-          override fun onSuccess(on: Boolean) {
-            Log.v(TAG, "Report on/off attribute value: $on")
+  // private suspend fun sendSubscribeCurrentPositionTiltPercent100ths(minInterval: Int, maxInterval: Int) {
+  //   val subscribeCallback = object : ChipClusters.DefaultClusterCallback {
+  //     override fun onSuccess() {
+  //       val message = "Subscribe on/off success"
+  //       Log.v(TAG, message)
+  //       showMessage(message)
 
-            val formatter = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
-            val time = formatter.format(Calendar.getInstance(Locale.getDefault()).time)
-            showReportMessage("Report on/off at $time: ${if (on) "ON" else "OFF"}")
-          }
+  //       getWindowCoveringClusterForDevice().reportCurrentPositionTiltPercent100thsAttribute(object : ChipClusters.IntegerAttributeCallback {
+  //         override fun onSuccess(currentPositionTiltPercent100ths: Int) {
+  //           Log.v(TAG, "Report on/off attribute value: $currentPositionTiltPercent100ths")
+  //           lvlPosCurrentTilt.progress = currentPositionTiltPercent100ths
+  //           txtPosCurrentTilt.text = getPercent100thsText(currentPositionTiltPercent100ths)
+  //         }
 
-          override fun onError(ex: Exception) {
-            Log.e(TAG, "Error reporting on/off attribute", ex)
-            showReportMessage("Error reporting on/off attribute: $ex")
-          }
-        })
-      }
+  //         override fun onError(ex: Exception) {
+  //           Log.e(TAG, "Error reporting on/off attribute", ex)
+  //         }
+  //       })
+  //     }
 
-      override fun onError(ex: Exception) {
-        Log.e(TAG, "Error configuring on/off attribute", ex)
-      }
-    }
-    onOffCluster.subscribeOnOffAttribute(subscribeCallback, minInterval, maxInterval)
-  }
+  //     override fun onError(ex: Exception) {
+  //       Log.e(TAG, "Error configuring on/off attribute", ex)
+  //     }
+  //   }
+  //   getWindowCoveringClusterForDevice().subscribeCurrentPositionTiltPercent100thsAttribute(subscribeCallback, minInterval, maxInterval)
+  // }
 
   override fun onStart() {
     super.onStart()
@@ -198,9 +216,9 @@ showSubscribeDialogBtn.setOnClickListener { showSubscribeDialog() }
       showMessage("Address update complete for nodeId $nodeId with code $errorCode")
     }
 
-    override fun onSendMessageComplete(message: String?) {
-      commandStatusTv.text = requireContext().getString(R.string.echo_status_response, message)
-    }
+    // override fun onSendMessageComplete(message: String?) {
+    //   commandStatusTv.text = requireContext().getString(R.string.echo_status_response, message)
+    // }
 
     override fun onNotifyChipConnectionClosed() {
       Log.d(TAG, "onNotifyChipConnectionClosed")
@@ -222,8 +240,8 @@ showSubscribeDialogBtn.setOnClickListener { showSubscribeDialog() }
 
   private suspend fun sendLevelCommandClick() {
     val cluster = ChipClusters.LevelControlCluster(
-      ChipClient.getConnectedDevicePointer(requireContext(), addressUpdateFragment.deviceId),
-      WNCV_CONTROL_CLUSTER_ENDPOINT
+      ChipClient.getConnectedDevicePointer(requireContext(), addressUpdateFragment2.deviceId),
+      WNCV_CLUSTER_ENDPOINT
     )
     cluster.moveToLevel(object : ChipClusters.DefaultClusterCallback {
       override fun onSuccess() {
@@ -275,6 +293,57 @@ showSubscribeDialogBtn.setOnClickListener { showSubscribeDialog() }
     }
   }
 
+  private suspend fun sendSubscribeCurrentPositionLiftPercent100ths(minInterval: Int, maxInterval: Int) {
+    val wncvCluster = getWindowCoveringClusterForDevice()
+    val subscribeCallback = object : ChipClusters.DefaultClusterCallback {
+      override fun onSuccess() {
+        val message = "Subscribe on/off success"
+        Log.v(TAG, message)
+        showMessage(message)
+
+        wncvCluster.reportCurrentPositionLiftPercent100thsAttribute(object : ChipClusters.IntegerAttributeCallback {
+          override fun onSuccess(currentPositionLiftPercent100ths: Int) {
+            Log.v(TAG, "Report on/off attribute value: $currentPositionLiftPercent100ths")
+
+            val formatter = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+            val time = formatter.format(Calendar.getInstance(Locale.getDefault()).time)
+           // showReportMessage("Report on/off at $time: ${if (currentPositionLiftPercent100ths) "ON" else "OFF"}")
+            lvlPosCurrentLift.progress = currentPositionLiftPercent100ths
+            txtPosCurrentLift.text = getPercent100thsText(currentPositionLiftPercent100ths)
+          }
+
+          override fun onError(ex: Exception) {
+            Log.e(TAG, "Error reporting on/off attribute", ex)
+            showReportMessage("Error reporting on/off attribute: $ex")
+          }
+        })
+      }
+
+      override fun onError(ex: Exception) {
+        Log.e(TAG, "Error configuring on/off attribute", ex)
+      }
+    }
+    wncvCluster.subscribeCurrentPositionLiftPercent100thsAttribute(subscribeCallback, minInterval, maxInterval)
+  }
+
+        // "Temperature" to mapOf(
+        //     "read" to { device: Long, endpointId: Int, callback: ReadCallback ->
+        //       val cluster = ChipClusters.TemperatureMeasurementCluster(device, endpointId)
+        //       cluster.readMeasuredValueAttribute(callback)
+        //     },
+        //     "subscribe" to { device: Long, endpointId: Int, callback: ReadCallback ->
+        //       val cluster = ChipClusters.TemperatureMeasurementCluster(device, endpointId)
+        //       cluster.reportMeasuredValueAttribute(callback)
+        //       cluster.subscribeMeasuredValueAttribute(object : ChipClusters.DefaultClusterCallback {
+        //         override fun onSuccess() = Unit
+        //         override fun onError(ex: Exception) {
+        //           callback.onError(ex)
+        //         }
+        //       }, MIN_REFRESH_PERIOD_S, MAX_REFRESH_PERIOD_S)
+        //     },
+        //     "unitValue" to 0.01,
+        //     "unitSymbol" to "\u00B0C"
+
   private suspend fun goToTiltPercentage(percent100ths : Int) {
     LAST_CMD = "GoToTilt"
     try {
@@ -300,7 +369,7 @@ showSubscribeDialogBtn.setOnClickListener { showSubscribeDialog() }
 
   private suspend fun getWindowCoveringClusterForDevice(): WindowCoveringCluster {
     return WindowCoveringCluster(
-      ChipClient.getConnectedDevicePointer(requireContext(), addressUpdateFragment.deviceId),
+      ChipClient.getConnectedDevicePointer(requireContext(), addressUpdateFragment2.deviceId),
       WNCV_CLUSTER_ENDPOINT
     )
   }
@@ -321,7 +390,6 @@ showSubscribeDialogBtn.setOnClickListener { showSubscribeDialog() }
     private const val TAG = "WindowCoveringClientFragment"
 
     private const val WNCV_CLUSTER_ENDPOINT = 1
-    private const val LEVEL_CONTROL_CLUSTER_ENDPOINT = 1
 
     var showMessageCb: (msg: String) -> Unit = { _ ->}
     private var LAST_CMD = "-"
