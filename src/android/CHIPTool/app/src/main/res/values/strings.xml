@@ -105,13 +105,6 @@
     <string name="sensor_client_unsubscribe_error_text">Failed to unsubscribe from the sensor: %1$s</string>
     <string name="cluster_interaction_tool">Cluster Interaction Tool</string>
 
-    <string name="window_covering_btn_text">Window Covering Cluster</string>
-    <string name="send_command_stopMotion_btn_text">■ - Stop Motion</string>
-    <string name="send_command_upOrOpen_btn_text">↑-  Up  or  Open</string>
-    <string name="send_command_downOrClose_btn_text">↓- Down or Close</string>
-    <string name="read_attribute_type_btn_text">Type</string>
-    <string name="read_attribute_end_product_type_btn_text">End Product Type</string>
-
     <string name="multi_admin_client_btn_text">Multi-admin cluster</string>
     <string name="basic_commissioning_method_btn_text">Basic Commissioning Method</string>
     <string name="enter_discriminator_hint_text">Enter Discriminator</string>
@@ -173,4 +166,11 @@
     <string name="select_a_command">Select a command</string>
     <string name="select_a_cluster">Select a cluster</string>
     <string name="endpoint_name">Endpoint: </string>
+
+    <string name="wncv_btn_text">Window Covering Cluster</string>
+    <string name="wncv_cmd_stopMotion_btn_text">■ - Stop Motion</string>
+    <string name="wncv_cmd_upOrOpen_btn_text">↑-  Up  or  Open</string>
+    <string name="wncv_cmd_downOrClose_btn_text">↓- Down or Close</string>
+    <string name="wncv_attr_type_text">Type</string>
+    <string name="wncv_attr_end_product_type_text">End Product Type</string>
 </resources>

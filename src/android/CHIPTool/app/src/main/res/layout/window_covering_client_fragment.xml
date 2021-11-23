@@ -92,7 +92,7 @@
                 android:gravity="center"
                 android:layout_alignParentStart="true"
                 android:background="@android:color/darker_gray"
-                android:text="@string/read_attribute_type_btn_text"
+                android:text="@string/wncv_attr_type_text"
                 android:textSize="16sp"/>
             <TextView
                 android:id="@+id/readBtn4"
@@ -105,7 +105,7 @@
                 android:background="@android:color/darker_gray"
                 android:gravity="center"
                 android:padding="16dp"
-                android:text="@string/read_attribute_end_product_type_btn_text"
+                android:text="@string/wncv_attr_end_product_type_text"
                 android:textSize="16sp"
                 tools:text="End Product Type" />
         </TableRow>
@@ -267,7 +267,7 @@
                 android:layout_marginRight="4dp"
                 android:background="@android:color/holo_blue_bright"
                 android:padding="12dp"
-                android:text="@string/send_command_upOrOpen_btn_text"
+                android:text="@string/wncv_cmd_upOrOpen_btn_text"
                 android:textSize="12sp" />
 
             <TextView
@@ -280,7 +280,7 @@
                 android:layout_marginRight="4dp"
                 android:background="@android:color/holo_blue_bright"
                 android:padding="12dp"
-                android:text="@string/send_command_stopMotion_btn_text"
+                android:text="@string/wncv_cmd_stopMotion_btn_text"
                 android:textSize="12sp" />
 
             <TextView
@@ -293,7 +293,7 @@
                 android:layout_marginRight="4dp"
                 android:background="@android:color/holo_blue_bright"
                 android:padding="12dp"
-                android:text="@string/send_command_downOrClose_btn_text"
+                android:text="@string/wncv_cmd_downOrClose_btn_text"
                 android:textSize="12sp" />
         </TableRow>
         <TableRow
