@@ -199,7 +199,7 @@ bool HasFeature(chip::EndpointId endpoint, Features feature)
 
     hasFeature = (featureMapAttr & (typeof(featureMapAttr))feature);
 
-    emberAfWindowCoveringClusterPrint("%5.5s=%u: 0x%04X", featureName, hasFeature, featureMapAttr);
+    emberAfWindowCoveringClusterPrint("%5.5s=%u: 0x%" PRIx32, featureName, hasFeature, featureMapAttr);
 
     return hasFeature;
 }
