@@ -681,14 +681,38 @@ EmberAfStatus ActuatorAccessors::GoToDownOrClose(chip::EndpointId endpoint)
 
 EmberAfStatus ActuatorAccessors::GoToCurrent(chip::EndpointId endpoint)
 {
-    Percent100ths currentPos = PositionRelativeGet(endpoint, ActuatorAccessors::PositionAccessors::Type::Current);
+    NPercent100ths currentPos;
+
+    EmberAfStatus status = PositionRelativeGet(endpoint, ActuatorAccessors::PositionAccessors::Type::Current, currentPos);
+
+    if (EMBER_ZCL_STATUS_SUCCESS != status)
+    {
+        return status;
+    }
+
+    if (currentPos.IsNull())
+    {
+        return EMBER_ZCL_STATUS_CONSTRAINT_ERROR;
+    }
 
     return PositionRelativeSet(endpoint, ActuatorAccessors::PositionAccessors::Type::Target, currentPos);
 }
 
 EmberAfStatus ActuatorAccessors::SetCurrentAtTarget(chip::EndpointId endpoint)
 {
-    Percent100ths targetPos = PositionRelativeGet(endpoint, ActuatorAccessors::PositionAccessors::Type::Target);
+    NPercent100ths targetPos;
+
+    EmberAfStatus status = PositionRelativeGet(endpoint, ActuatorAccessors::PositionAccessors::Type::Target, targetPos);
+
+    if (EMBER_ZCL_STATUS_SUCCESS != status)
+    {
+        return status;
+    }
+
+    if (targetPos.IsNull())
+    {
+        return EMBER_ZCL_STATUS_CONSTRAINT_ERROR;
+    }
 
     return PositionRelativeSet(endpoint, ActuatorAccessors::PositionAccessors::Type::Current, targetPos);
 }
