@@ -517,8 +517,6 @@ LimitStatus WindowApp::Actuator::GetLimitState()
     return CheckLimitState(mCurrentPosition, mAttributes.mLimits);
 }
 
-
-
 void WindowApp::Actuator::OnActuatorTimeout(WindowApp::Timer & timer)
 {
     WindowApp::Actuator * actuator = static_cast<WindowApp::Actuator *>(timer.mContext);
@@ -550,8 +548,8 @@ void WindowApp::Cover::Init(chip::EndpointId endpoint)
     mLift.Init(WcFeature::kLift, COVER_LIFT_TILT_TIMEOUT, nullptr, LIFT_DELTA);
     mTilt.Init(WcFeature::kTilt, COVER_LIFT_TILT_TIMEOUT, nullptr, TILT_DELTA);
 
-    mLift.mAttributes.InitializeLimits(endpoint, { LIFT_OPEN_LIMIT, LIFT_CLOSED_LIMIT});
-    mTilt.mAttributes.InitializeLimits(endpoint, { TILT_OPEN_LIMIT, TILT_CLOSED_LIMIT});
+    mLift.mAttributes.InitializeLimits(endpoint, { LIFT_OPEN_LIMIT, LIFT_CLOSED_LIMIT });
+    mTilt.mAttributes.InitializeLimits(endpoint, { TILT_OPEN_LIMIT, TILT_CLOSED_LIMIT });
 
     StopMotion(ControlMode::All);
 
@@ -749,9 +747,15 @@ void WindowApp::Actuator::GoToAbsolute(uint16_t value)
 
 void WindowApp::Actuator::GoToTargetPositionAttribute(chip::EndpointId endpoint)
 {
+    NAbsolute targetPos;
     /* Update Local target value from Attribute */
-    /* Trigger movement */
-    GoToAbsolute(mAttributes.PositionAbsoluteGet(endpoint, ActuatorAccessors::PositionAccessors::Type::Target));
+    mAttributes.PositionAbsoluteGet(endpoint, ActuatorAccessors::PositionAccessors::Type::Target, targetPos);
+
+    if (!targetPos.IsNull())
+    {
+        /* Trigger movement */
+        GoToAbsolute(targetPos.Value());
+    }
 }
 
 void WindowApp::Actuator::UpdateCurrentPositionAttribute(chip::EndpointId endpoint)
