@@ -228,56 +228,16 @@ void PrintPercent100ths(const char * pMessage, Percent100ths percent100ths)
 
 
 
-bool IsLiftOpen(chip::EndpointId endpoint)
 {
-    EmberAfStatus status;
-    app::DataModel::Nullable<Percent100ths> position;
 
-    status = Attributes::TargetPositionLiftPercent100ths::Get(endpoint, position);
 
-    if ((status != EMBER_ZCL_STATUS_SUCCESS) || position.IsNull())
-        return false;
-
-    return ((position.Value() == WC_PERCENT100THS_MIN));
 }
 
-bool IsTiltOpen(chip::EndpointId endpoint)
 {
-    EmberAfStatus status;
-    app::DataModel::Nullable<Percent100ths> position;
 
-    status = Attributes::TargetPositionTiltPercent100ths::Get(endpoint, position);
 
-    if ((status != EMBER_ZCL_STATUS_SUCCESS) || position.IsNull())
-        return false;
 
-    return ((position.Value() == WC_PERCENT100THS_MIN));
-}
 
-bool IsLiftClosed(chip::EndpointId endpoint)
-{
-    EmberAfStatus status;
-    app::DataModel::Nullable<Percent100ths> position;
-
-    status = Attributes::TargetPositionLiftPercent100ths::Get(endpoint, position);
-
-    if ((status != EMBER_ZCL_STATUS_SUCCESS) || position.IsNull())
-        return false;
-
-    return ((position.Value() == WC_PERCENT100THS_MAX));
-}
-
-bool IsTiltClosed(chip::EndpointId endpoint)
-{
-    EmberAfStatus status;
-    app::DataModel::Nullable<Percent100ths> position;
-
-    status = Attributes::TargetPositionTiltPercent100ths::Get(endpoint, position);
-
-    if ((status != EMBER_ZCL_STATUS_SUCCESS) || position.IsNull())
-        return false;
-
-    return ((position.Value() == WC_PERCENT100THS_MAX));
 }
 
 void TypeSet(chip::EndpointId endpoint, EmberAfWcType type)

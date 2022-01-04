@@ -104,12 +104,6 @@ struct SafetyStatus
 };
 static_assert(sizeof(SafetyStatus) == sizeof(uint16_t), "SafetyStatus Size is not correct");
 
-bool IsLiftOpen(chip::EndpointId endpoint);
-bool IsLiftClosed(chip::EndpointId endpoint);
-
-bool IsTiltOpen(chip::EndpointId endpoint);
-bool IsTiltClosed(chip::EndpointId endpoint);
-
 // Declare Position Limit Status
 enum class LimitStatus : uint8_t
 {
