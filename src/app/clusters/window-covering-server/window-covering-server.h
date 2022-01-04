@@ -236,6 +236,8 @@ const SafetyStatus SafetyStatusGet(chip::EndpointId endpoint);
 LimitStatus CheckLimitState(uint16_t position, AbsoluteLimits limits);
 
 OperationalState ComputeOperationalState(uint16_t target, uint16_t current);
+OperationalState ComputeOperationalState(NPercent100ths target, NPercent100ths current);
+
 void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeId);
 
 } // namespace WindowCovering

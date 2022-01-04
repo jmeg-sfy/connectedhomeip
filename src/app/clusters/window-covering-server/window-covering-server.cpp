@@ -706,6 +706,16 @@ OperationalState ComputeOperationalState(uint16_t target, uint16_t current)
     return opState;
 }
 
+OperationalState ComputeOperationalState(NPercent100ths target, NPercent100ths current)
+{
+    if (!current.IsNull() && !target.IsNull())
+    {
+        return ComputeOperationalState(target.Value(), current.Value());
+    }
+    return OperationalState::Stall;
+}
+
+
 void ActuatorAccessors::InitializeCallbacks(chip::EndpointId endpoint, WcFeature tag)
 {
     mFeatureTag = tag;
