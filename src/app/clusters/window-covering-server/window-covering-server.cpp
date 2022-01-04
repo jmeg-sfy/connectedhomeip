@@ -529,26 +529,21 @@ EmberAfStatus ActuatorAccessors::PositionAbsoluteGet(chip::EndpointId endpoint, 
     return status;
 }
 
-Percent100ths ActuatorAccessors::PositionRelativeGet(chip::EndpointId endpoint, ActuatorAccessors::PositionAccessors::Type type)
+EmberAfStatus ActuatorAccessors::PositionRelativeGet(chip::EndpointId endpoint, ActuatorAccessors::PositionAccessors::Type type, NPercent100ths& relative)
 {
-    Percent100ths relative = WC_PERCENT100THS_MIN_OPEN;
-
-    PositionAccessors * p_position = (PositionAccessors::Type::Target == type) ? &mTarget : &mCurrent;
+    PositionAccessors & posAccessors = (PositionAccessors::Type::Target == type) ? mTarget : mCurrent;
     /* Position Attribute Getter should never fail since Percent100ths are mandatory for all WindowCovering */
-    p_position->GetAttributeRelativePosition(endpoint, &relative);
-
-    return relative;
+    return posAccessors.GetAttributeRelativePosition(endpoint, relative);
 }
 
-EmberAfStatus ActuatorAccessors::PositionRelativeSet(chip::EndpointId endpoint, ActuatorAccessors::PositionAccessors::Type type, Percent100ths relative)
+EmberAfStatus ActuatorAccessors::PositionRelativeSet(chip::EndpointId endpoint, ActuatorAccessors::PositionAccessors::Type type, const NPercent100ths& relative)
 {
     EmberAfStatus status = EMBER_ZCL_STATUS_SUCCESS;
 
-    bool hasAbsolute     = HasFeature(endpoint, Features::Absolute);
     emberAfWindowCoveringClusterPrint("ep[%u] %s %s", endpoint, __func__, (WcFeature::kLift == mFeatureTag) ? "Lift" : "Tilt");
     PrintPercent100ths((PositionAccessors::Type::Target == type) ? "Target" : "Current", relative);
 
-    PositionAccessors * p_position = (PositionAccessors::Type::Target == type) ? &mTarget : &mCurrent;
+    PositionAccessors & posAccessors = (PositionAccessors::Type::Target == type) ? mTarget : mCurrent;
 
     /* Position Attribute is mandatory in that case */
     if (IsPositionAware(endpoint))
@@ -557,10 +552,12 @@ EmberAfStatus ActuatorAccessors::PositionRelativeSet(chip::EndpointId endpoint, 
         if (IsPercent100thsValid(relative))
         {
             /* Relative 100ths are always mandatory */
-            status = p_position->SetAttributeRelativePosition(endpoint, relative);
-            if ((EMBER_ZCL_STATUS_SUCCESS == status) && hasAbsolute)
+            status = posAccessors.SetAttributeRelativePosition(endpoint, relative);
+            if ((EMBER_ZCL_STATUS_SUCCESS == status) && HasFeature(endpoint, WcFeature::kAbsolutePosition))
             {
-                status = p_position->SetAttributeAbsolutePosition(endpoint, RelativeToAbsolute(endpoint, relative));
+                NAbsolute absolute;
+                RelativeToAbsolute(endpoint, relative, absolute);
+                status = posAccessors.SetAttributeAbsolutePosition(endpoint, absolute);
             }
         }
         else
@@ -574,6 +571,14 @@ EmberAfStatus ActuatorAccessors::PositionRelativeSet(chip::EndpointId endpoint, 
     }
 
     return status;
+}
+
+EmberAfStatus ActuatorAccessors::PositionRelativeSet(chip::EndpointId endpoint, ActuatorAccessors::PositionAccessors::Type type, Percent100ths relative)
+{
+    NPercent100ths temp;
+    temp.Value(relative);
+
+    return PositionRelativeSet(endpoint, type, temp);
 }
 
 EmberAfStatus ActuatorAccessors::PositionAbsoluteSet(chip::EndpointId endpoint, ActuatorAccessors::PositionAccessors::Type type, uint16_t absolute)
