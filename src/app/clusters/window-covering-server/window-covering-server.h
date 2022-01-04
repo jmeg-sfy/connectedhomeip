@@ -188,16 +188,16 @@ struct ActuatorAccessors
 
     EmberAfStatus PositionRelativeSet(chip::EndpointId endpoint, PositionAccessors::Type type, NPercent100ths relative);
     EmberAfStatus PositionRelativeSet(chip::EndpointId endpoint, PositionAccessors::Type type, Percent100ths relative);
-    EmberAfStatus PositionAbsoluteSet(chip::EndpointId endpoint, PositionAccessors::Type type, NAbsolute absolute);
+    EmberAfStatus PositionAbsoluteSet(chip::EndpointId endpoint, PositionAccessors::Type type, const NAbsolute& absolute);
     EmberAfStatus PositionAbsoluteSet(chip::EndpointId endpoint, PositionAccessors::Type type, uint16_t absolute);
 
     EmberAfStatus PositionRelativeGet(chip::EndpointId endpoint, PositionAccessors::Type type, NPercent100ths relative);
-    EmberAfStatus PositionAbsoluteGet(chip::EndpointId endpoint, PositionAccessors::Type type, NAbsolute absolute);
+    EmberAfStatus PositionAbsoluteGet(chip::EndpointId endpoint, PositionAccessors::Type type, NAbsolute& absolute);
 
     /* Units Conversion from Absolute to Relative */
-    Percent100ths AbsoluteToRelative(chip::EndpointId endpoint, uint16_t absolute);
+    void AbsoluteToRelative(chip::EndpointId endpoint, const NAbsolute& absolute, NPercent100ths& relative);
     /* Units Conversion from Relative to Absolute */
-    uint16_t      RelativeToAbsolute(chip::EndpointId endpoint, Percent100ths relative);
+    void RelativeToAbsolute(chip::EndpointId endpoint, const NPercent100ths& relative, NAbsolute& absolute);
 
     uint16_t WithinAbsoluteRangeCheck(uint16_t value);
 

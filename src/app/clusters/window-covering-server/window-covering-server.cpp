@@ -495,14 +495,27 @@ uint16_t ActuatorAccessors::WithinAbsoluteRangeCheck(uint16_t value)
     return value;
 }
 
-EmberAfStatus ActuatorAccessors::PositionAbsoluteSet(chip::EndpointId endpoint, ActuatorAccessors::PositionAccessors::Type type, uint16_t absolute)
+EmberAfStatus ActuatorAccessors::PositionAbsoluteSet(chip::EndpointId endpoint, ActuatorAccessors::PositionAccessors::Type type, const NAbsolute& absolute)
 {
-    return PositionRelativeSet(endpoint, type, AbsoluteToRelative(endpoint, absolute));
+    NPercent100ths relative;
+
+    AbsoluteToRelative(endpoint, absolute, relative);
+
+    return PositionRelativeSet(endpoint, type, relative);
 }
 
-uint16_t      ActuatorAccessors::PositionAbsoluteGet(chip::EndpointId endpoint, ActuatorAccessors::PositionAccessors::Type type)
+EmberAfStatus ActuatorAccessors::PositionAbsoluteGet(chip::EndpointId endpoint, ActuatorAccessors::PositionAccessors::Type type, NAbsolute& absolute)
 {
-    return RelativeToAbsolute(endpoint, PositionRelativeGet(endpoint, type));
+    NPercent100ths relative;
+
+    EmberAfStatus status = PositionRelativeGet(endpoint, type, relative);
+
+    if (EMBER_ZCL_STATUS_SUCCESS == status)
+    {
+        RelativeToAbsolute(endpoint, relative, absolute);
+    }
+
+    return status;
 }
 
 Percent100ths ActuatorAccessors::PositionRelativeGet(chip::EndpointId endpoint, ActuatorAccessors::PositionAccessors::Type type)
@@ -552,6 +565,13 @@ EmberAfStatus ActuatorAccessors::PositionRelativeSet(chip::EndpointId endpoint, 
     return status;
 }
 
+EmberAfStatus ActuatorAccessors::PositionAbsoluteSet(chip::EndpointId endpoint, ActuatorAccessors::PositionAccessors::Type type, uint16_t absolute)
+{
+    NAbsolute temp;
+    temp.Value(absolute);
+
+    return PositionAbsoluteSet(endpoint, type, temp);
+}
 
 /* Conversions might be needed for device supporting ABS flags attribute */
 
@@ -596,14 +616,30 @@ OperationalState ActuatorAccessors::OperationalStateGet(chip::EndpointId endpoin
     return ComputeOperationalState(targetPos, currentPos);
 }
 
-Percent100ths ActuatorAccessors::AbsoluteToRelative(chip::EndpointId endpoint, uint16_t absolute)
+void ActuatorAccessors::AbsoluteToRelative(chip::EndpointId endpoint, const NAbsolute& absolute, NPercent100ths& relative)
 {
-    return ValueToPercent100ths(AbsoluteLimitsGet(endpoint), absolute);
+    if (absolute.IsNull())
+    {
+        relative.SetNull();
+    }
+    else
+    {
+        Percent100ths temp = ValueToPercent100ths(AbsoluteLimitsGet(endpoint), absolute.Value());
+        relative.Value(temp);
+    }
 }
 
-uint16_t      ActuatorAccessors::RelativeToAbsolute(chip::EndpointId endpoint, Percent100ths relative)
+void ActuatorAccessors::RelativeToAbsolute(chip::EndpointId endpoint, const NPercent100ths& relative, NAbsolute& absolute)
 {
-    return Percent100thsToValue(AbsoluteLimitsGet(endpoint), relative);
+    if (relative.IsNull())
+    {
+        absolute.SetNull();
+    }
+    else
+    {
+        uint16_t temp = Percent100thsToValue(AbsoluteLimitsGet(endpoint), relative.Value());
+        absolute.Value(temp);
+    }
 }
 
 EmberAfStatus ActuatorAccessors::GoToUpOrOpen(chip::EndpointId endpoint)
