@@ -670,13 +670,12 @@ void ActuatorAccessors::RelativeToAbsolute(chip::EndpointId endpoint, const NPer
 
 EmberAfStatus ActuatorAccessors::GoToUpOrOpen(chip::EndpointId endpoint)
 {
-    return PositionAbsoluteSet(endpoint, ActuatorAccessors::PositionAccessors::Type::Target, mLimits.open);
+    return PositionRelativeSet(endpoint, ActuatorAccessors::PositionAccessors::Type::Target, WC_PERCENT100THS_MIN_OPEN);
 }
 
 EmberAfStatus ActuatorAccessors::GoToDownOrClose(chip::EndpointId endpoint)
 {
-    emberAfWindowCoveringClusterPrint("Limit Closed %u", mLimits.closed);
-    return PositionAbsoluteSet(endpoint, ActuatorAccessors::PositionAccessors::Type::Target, mLimits.closed);
+    return PositionRelativeSet(endpoint, ActuatorAccessors::PositionAccessors::Type::Target, WC_PERCENT100THS_MAX_CLOSED);
 }
 
 EmberAfStatus ActuatorAccessors::GoToCurrent(chip::EndpointId endpoint)
