@@ -624,7 +624,7 @@ EmberAfStatus ActuatorAccessors::GoToCurrent(chip::EndpointId endpoint)
     return PositionRelativeSet(endpoint, ActuatorAccessors::PositionAccessors::Type::Target, currentPos);
 }
 
-EmberAfStatus ActuatorAccessors::SetCurrentToTarget(chip::EndpointId endpoint)
+EmberAfStatus ActuatorAccessors::SetCurrentAtTarget(chip::EndpointId endpoint)
 {
     Percent100ths targetPos = PositionRelativeGet(endpoint, ActuatorAccessors::PositionAccessors::Type::Target);
 
@@ -667,13 +667,13 @@ void emberAfPluginWindowCoveringFinalizeFakeMotionEventHandler(EndpointId endpoi
     /* Update position to simulate movement to pass the CI */
     if (OperationalState::Stall != opStatus.lift)
     {
-        LiftAccess().SetCurrentToTarget(endpoint);
+        LiftAccess().SetCurrentAtTarget(endpoint);
     }
 
     /* Update position to simulate movement to pass the CI */
     if (OperationalState::Stall != opStatus.tilt)
     {
-        TiltAccess().SetCurrentToTarget(endpoint);
+        TiltAccess().SetCurrentAtTarget(endpoint);
     }
 }
 

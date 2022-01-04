@@ -26,6 +26,8 @@
 #include <app/util/basic-types.h>
 #include <map>
 
+#include <app/data-model/Nullable.h>
+
 #define WC_PERCENT100THS_MIN_OPEN   0
 #define WC_PERCENT100THS_MAX_CLOSED 10000
 
@@ -117,10 +119,20 @@ struct AbsoluteLimits
     uint16_t closed;
 };
 
-typedef EmberAfStatus (*SetAttributeU8_f )(chip::EndpointId endpoint, uint8_t   value);
-typedef EmberAfStatus (*GetAttributeU8_f )(chip::EndpointId endpoint, uint8_t *pValue);
-typedef EmberAfStatus (*SetAttributeU16_f)(chip::EndpointId endpoint, uint16_t   value);
-typedef EmberAfStatus (*GetAttributeU16_f)(chip::EndpointId endpoint, uint16_t *pValue);
+typedef app::DataModel::Nullable<Percent> NPercent;
+typedef app::DataModel::Nullable<Percent100ths> NPercent100ths;
+typedef app::DataModel::Nullable<uint16_t> NAbsolute;
+
+typedef EmberAfStatus (*SetAttributeU8_f )           (EndpointId endpoint, uint8_t   value);
+typedef EmberAfStatus (*GetAttributeU8_f )           (EndpointId endpoint, uint8_t *pValue);
+typedef EmberAfStatus (*SetAttributeU16_f)           (EndpointId endpoint, uint16_t   value);
+typedef EmberAfStatus (*GetAttributeU16_f)           (EndpointId endpoint, uint16_t *pValue);
+typedef EmberAfStatus (*SetAttributePercent_f )      (EndpointId endpoint, const NPercent&);
+typedef EmberAfStatus (*GetAttributePercent_f )      (EndpointId endpoint, NPercent&);
+typedef EmberAfStatus (*SetAttributePercent100ths_f) (EndpointId endpoint, const NPercent100ths&);
+typedef EmberAfStatus (*GetAttributePercent100ths_f) (EndpointId endpoint, NPercent100ths&);
+typedef EmberAfStatus (*SetAttributeNullableU16_f)   (EndpointId endpoint, const NAbsolute&);
+typedef EmberAfStatus (*GetAttributeNullableU16_f)   (EndpointId endpoint, NAbsolute&);
 
 /* Represents the Actuator part of the WindowCovering and helps to handle attributes complexity between RELATIVE and ABSOLUTE attribute */
 struct ActuatorAccessors
@@ -133,18 +145,18 @@ struct ActuatorAccessors
             Current,
             Target,
         };
-        SetAttributeU8_f  mSetPercentageCb;    GetAttributeU8_f  mGetPercentageCb;
-        SetAttributeU16_f mSetPercent100thsCb; GetAttributeU16_f mGetPercent100thsCb;
-        SetAttributeU16_f mSetAbsoluteCb;      GetAttributeU16_f mGetAbsoluteCb;
+        SetAttributePercent_f  mSetPercentageCb;    GetAttributePercent_f  mGetPercentageCb;
+        SetAttributePercent100ths_f mSetPercent100thsCb; GetAttributePercent100ths_f mGetPercent100thsCb;
+        SetAttributeNullableU16_f mSetAbsoluteCb;      GetAttributeNullableU16_f mGetAbsoluteCb;
 
-        void RegisterCallbacksPercentage   (SetAttributeU8_f  set_cb, GetAttributeU8_f  get_cb);
-        void RegisterCallbacksPercent100ths(SetAttributeU16_f set_cb, GetAttributeU16_f get_cb);
-        void RegisterCallbacksAbsolute     (SetAttributeU16_f set_cb, GetAttributeU16_f get_cb);
+        void RegisterCallbacksPercentage   (SetAttributePercent_f  set_cb, GetAttributePercent_f  get_cb);
+        void RegisterCallbacksPercent100ths(SetAttributePercent100ths_f set_cb, GetAttributePercent100ths_f get_cb);
+        void RegisterCallbacksAbsolute     (SetAttributeNullableU16_f set_cb, GetAttributeNullableU16_f get_cb);
 
         //private:
-        EmberAfStatus SetAttributeRelativePosition(chip::EndpointId endpoint, Percent100ths     relative);
-        EmberAfStatus GetAttributeRelativePosition(chip::EndpointId endpoint, Percent100ths * p_relative);
-        EmberAfStatus SetAttributeAbsolutePosition(chip::EndpointId endpoint, uint16_t absolute);
+        EmberAfStatus SetAttributeRelativePosition(chip::EndpointId endpoint, NPercent100ths relative);
+        EmberAfStatus GetAttributeRelativePosition(chip::EndpointId endpoint, NPercent100ths relative);
+        EmberAfStatus SetAttributeAbsolutePosition(chip::EndpointId endpoint, NAbsolute absolute);
     }; // struct PositionAccessors
 
     SetAttributeU16_f mSetOpenLimitCb;       GetAttributeU16_f mGetOpenLimitCb;
@@ -169,16 +181,18 @@ struct ActuatorAccessors
     OperationalState OperationalStateGet(chip::EndpointId endpoint);
 
     /* Setter/Getter Helpers to simplify interaction with the positioning attributes */
-    EmberAfStatus GoToUpOrOpen   (chip::EndpointId endpoint);
-    EmberAfStatus GoToDownOrClose(chip::EndpointId endpoint);
-    EmberAfStatus GoToCurrent    (chip::EndpointId endpoint);
-    EmberAfStatus SetCurrentToTarget(chip::EndpointId endpoint);
+    EmberAfStatus GoToUpOrOpen      (chip::EndpointId endpoint);
+    EmberAfStatus GoToDownOrClose   (chip::EndpointId endpoint);
+    EmberAfStatus GoToCurrent       (chip::EndpointId endpoint);
+    EmberAfStatus SetCurrentAtTarget(chip::EndpointId endpoint);
 
-    EmberAfStatus PositionRelativeSet(chip::EndpointId endpoint, PositionAccessors::Type position, Percent100ths relative);
-    EmberAfStatus PositionAbsoluteSet(chip::EndpointId endpoint, PositionAccessors::Type position, uint16_t absolute);
+    EmberAfStatus PositionRelativeSet(chip::EndpointId endpoint, PositionAccessors::Type type, NPercent100ths relative);
+    EmberAfStatus PositionRelativeSet(chip::EndpointId endpoint, PositionAccessors::Type type, Percent100ths relative);
+    EmberAfStatus PositionAbsoluteSet(chip::EndpointId endpoint, PositionAccessors::Type type, NAbsolute absolute);
+    EmberAfStatus PositionAbsoluteSet(chip::EndpointId endpoint, PositionAccessors::Type type, uint16_t absolute);
 
-    Percent100ths PositionRelativeGet(chip::EndpointId endpoint, PositionAccessors::Type position);
-    uint16_t      PositionAbsoluteGet(chip::EndpointId endpoint, PositionAccessors::Type position);
+    EmberAfStatus PositionRelativeGet(chip::EndpointId endpoint, PositionAccessors::Type type, NPercent100ths relative);
+    EmberAfStatus PositionAbsoluteGet(chip::EndpointId endpoint, PositionAccessors::Type type, NAbsolute absolute);
 
     /* Units Conversion from Absolute to Relative */
     Percent100ths AbsoluteToRelative(chip::EndpointId endpoint, uint16_t absolute);
