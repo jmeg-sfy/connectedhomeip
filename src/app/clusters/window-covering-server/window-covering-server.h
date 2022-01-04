@@ -20,6 +20,7 @@
 #include <app-common/zap-generated/ids/Attributes.h>
 #include <app-common/zap-generated/ids/Clusters.h>
 #include <app-common/zap-generated/attribute-id.h>
+#include <app-common/zap-generated/cluster-objects.h>
 #include <app-common/zap-generated/enums.h>
 #include <app/util/af-types.h>
 #include <app/util/basic-types.h>
@@ -34,19 +35,13 @@ namespace app {
 namespace Clusters {
 namespace WindowCovering {
 
-enum class Features
-{
-    Lift          = 0x01,
-    Tilt          = 0x02,
-    PositionAware = 0x04,
-    Absolute      = 0x08,
-};
 
-static const std::map<Features, const char *> mFeatureId = {
-    { Features::Lift,          "Lift" },
-    { Features::Tilt,          "Tilt" },
-    { Features::PositionAware, "PA"   },
-    { Features::Absolute,      "ABS"  },
+static const std::map<WcFeature, const char *> mFeatureId = {
+    { WcFeature::kLift             , "Lift"   },
+    { WcFeature::kTilt             , "Tilt"   },
+    { WcFeature::kPositionAwareLift, "LiftPa" },
+    { WcFeature::kAbsolutePosition , "ABS"    },
+    { WcFeature::kPositionAwareTilt, "TiltPa" },
 };
 
 struct Mode
@@ -162,9 +157,9 @@ struct ActuatorAccessors
     PositionAccessors mTarget;
 
     AbsoluteLimits mLimits = { .open = WC_PERCENT100THS_MIN_OPEN, .closed = WC_PERCENT100THS_MAX_CLOSED }; // default is 1:1 conversion
-    Features mFeatureTag; //non-endpoint dependant
+    WcFeature mFeatureTag; //non-endpoint dependant
 
-    void InitializeCallbacks(chip::EndpointId endpoint, Features tag);
+    void InitializeCallbacks(chip::EndpointId endpoint, WcFeature tag);
     void InitializeLimits(chip::EndpointId endpoint);
     void InitializeLimits(chip::EndpointId endpoint, AbsoluteLimits limits);
 
@@ -203,7 +198,7 @@ struct ActuatorAccessors
 ActuatorAccessors & LiftAccess(void);
 ActuatorAccessors & TiltAccess(void);
 
-bool HasFeature(chip::EndpointId endpoint, Features feature);
+bool HasFeature(chip::EndpointId endpoint, WcFeature feature);
 
 void TypeSet(chip::EndpointId endpoint, EmberAfWcType type);
 EmberAfWcType TypeGet(chip::EndpointId endpoint);

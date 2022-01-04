@@ -139,7 +139,7 @@ public:
         LimitStatus GetLimitState();
 
         static void OnActuatorTimeout(Timer & timer);
-        void Init(Features feature, uint32_t timeoutInMs, OperationalState * opState, uint16_t stepDelta);
+        void Init(WcFeature feature, uint32_t timeoutInMs, OperationalState * opState, uint16_t stepDelta);
 
         Timer *          mTimer   = nullptr;
         OperationalState mOpState = OperationalState::Stall;

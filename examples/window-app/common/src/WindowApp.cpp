@@ -525,13 +525,13 @@ void WindowApp::Actuator::OnActuatorTimeout(WindowApp::Timer & timer)
     if (actuator) actuator->UpdatePosition();
 }
 
-void WindowApp::Actuator::Init(Features feature, uint32_t timeoutInMs, OperationalState * opState, uint16_t stepDelta)
+void WindowApp::Actuator::Init(WcFeature feature, uint32_t timeoutInMs, OperationalState * opState, uint16_t stepDelta)
 {
 
    // mOpState = opState;
     mStepDelta = stepDelta;
 
-    if (Features::Lift == feature)
+    if (WcFeature::kLift == feature)
     {
         mAttributes = LiftAccess();
         mTimer = WindowApp::Instance().CreateTimer("Lift", timeoutInMs, OnActuatorTimeout, this);
@@ -547,8 +547,8 @@ void WindowApp::Cover::Init(chip::EndpointId endpoint)
 {
     mEndpoint = endpoint;
 
-    mLift.Init(Features::Lift, COVER_LIFT_TILT_TIMEOUT, nullptr, LIFT_DELTA);
-    mTilt.Init(Features::Tilt, COVER_LIFT_TILT_TIMEOUT, nullptr, TILT_DELTA);
+    mLift.Init(WcFeature::kLift, COVER_LIFT_TILT_TIMEOUT, nullptr, LIFT_DELTA);
+    mTilt.Init(WcFeature::kTilt, COVER_LIFT_TILT_TIMEOUT, nullptr, TILT_DELTA);
 
     mLift.mAttributes.InitializeLimits(endpoint, { LIFT_OPEN_LIMIT, LIFT_CLOSED_LIMIT});
     mTilt.mAttributes.InitializeLimits(endpoint, { TILT_OPEN_LIMIT, TILT_CLOSED_LIMIT});
@@ -770,7 +770,7 @@ void WindowApp::Actuator::GoToRelative(chip::Percent100ths percent100ths)
 
 void WindowApp::Actuator::PostUpdateAttributes(void)
 {
-    Instance().PostEvent((Features::Lift == mAttributes.mFeatureTag) ? EventId::ActuatorUpdateLift : EventId::ActuatorUpdateTilt);
+    Instance().PostEvent((WcFeature::kLift == mAttributes.mFeatureTag) ? EventId::ActuatorUpdateLift : EventId::ActuatorUpdateTilt);
 }
 
 void WindowApp::Actuator::SetPosition(uint16_t value)

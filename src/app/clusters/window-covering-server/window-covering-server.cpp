@@ -20,7 +20,7 @@
 #include <app-common/zap-generated/attribute-id.h>
 #include <app-common/zap-generated/attributes/Accessors.h>
 #include <app-common/zap-generated/cluster-id.h>
-#include <app-common/zap-generated/cluster-objects.h>
+
 #include <app-common/zap-generated/command-id.h>
 #include <app/CommandHandler.h>
 #include <app/ConcreteCommandPath.h>
@@ -186,22 +186,7 @@ ActuatorAccessors & LiftAccess(void) { return mLiftAccess; }
 ActuatorAccessors & TiltAccess(void) { return mTiltAccess; }
 
 
-bool HasFeature(chip::EndpointId endpoint, Features feature)
 {
-    bool hasFeature = false;
-    const char * featureName = "-";
-    uint32_t featureMapAttr = 0;
-    emberAfReadServerAttribute(endpoint, Clusters::WindowCovering::Id, Attributes::FeatureMap::Id, (uint8_t *) &featureMapAttr, sizeof(featureMapAttr));
-
-    auto item = mFeatureId.find(feature);
-    if (item != mFeatureId.end())
-        featureName = item->second;
-
-    hasFeature = (featureMapAttr & (typeof(featureMapAttr))feature);
-
-    emberAfWindowCoveringClusterPrint("%5.5s=%u: 0x%" PRIx32, featureName, hasFeature, featureMapAttr);
-
-    return hasFeature;
 }
 
 void PrintPercent100ths(const char * pMessage, Percent100ths percent100ths)
@@ -539,7 +524,7 @@ EmberAfStatus ActuatorAccessors::PositionRelativeSet(chip::EndpointId endpoint, 
     bool hasAbsolute     = HasFeature(endpoint, Features::Absolute);
     bool isPositionAware = HasFeature(endpoint, Features::PositionAware);
 
-    emberAfWindowCoveringClusterPrint("ep[%u] %s %s", endpoint, __func__, (Features::Lift == mFeatureTag) ? "Lift" : "Tilt");
+    emberAfWindowCoveringClusterPrint("ep[%u] %s %s", endpoint, __func__, (WcFeature::kLift == mFeatureTag) ? "Lift" : "Tilt");
     PrintPercent100ths((PositionAccessors::Type::Target == type) ? "Target" : "Current", relative);
 
     PositionAccessors * p_position = (PositionAccessors::Type::Target == type) ? &mTarget : &mCurrent;
@@ -579,7 +564,7 @@ AbsoluteLimits ActuatorAccessors::AbsoluteLimitsGet(chip::EndpointId endpoint)
 
     /* Following the specs: Since a device can declare or not its Absolute limits on a actuator we try to get if present */
     AbsoluteLimits limits = { .open = WC_PERCENT100THS_MIN_OPEN, .closed = WC_PERCENT100THS_MAX_CLOSED }; // default is 1:1 conversion
-    if (HasFeature(endpoint, Features::Absolute))
+    if (HasFeature(endpoint, WcFeature::kAbsolutePosition))
     {
         status = GetAttributeAbsoluteLimits(endpoint, &limits);
     }
@@ -598,7 +583,7 @@ void ActuatorAccessors::AbsoluteLimitsSet(chip::EndpointId endpoint, AbsoluteLim
     /* Following the specs: Since a device can declare or not its Absolute limits on a actuator we try to set if present */
     mLimits = limits;
 
-    if (HasFeature(endpoint, Features::Absolute))
+    if (HasFeature(endpoint, WcFeature::kAbsolutePosition))
     {
         SetAttributeAbsoluteLimits(endpoint, limits);
     }
@@ -610,7 +595,6 @@ OperationalState ActuatorAccessors::OperationalStateGet(chip::EndpointId endpoin
     uint16_t currentPos = PositionAbsoluteGet(endpoint, ActuatorAccessors::PositionAccessors::Type::Current);
 
     /* Compute Operational State from Relative Target and Current */
-    emberAfWindowCoveringClusterPrint("%.5s[%2u] Cur=%5u <> Tar=%5u", (Features::Lift == mFeatureTag) ? "Lift" : "Tilt", endpoint, currentPos, targetPos);
 
     return ComputeOperationalState(targetPos, currentPos);
 }
@@ -718,18 +702,19 @@ OperationalState ComputeOperationalState(uint16_t target, uint16_t current)
 {
     OperationalState opState = OperationalState::Stall;
 
-    if (current != target) {
+    if (current != target)
+    {
         opState = (current < target) ? OperationalState::MovingDownOrClose : OperationalState::MovingUpOrOpen;
     }
     return opState;
 }
 
-void ActuatorAccessors::InitializeCallbacks(chip::EndpointId endpoint, Features tag)
+void ActuatorAccessors::InitializeCallbacks(chip::EndpointId endpoint, WcFeature tag)
 {
     mFeatureTag = tag;
 
     // Preset all the Attribute Accessors needed for the actuator
-    if (mFeatureTag == Features::Lift)
+    if (mFeatureTag == WcFeature::kLift)
     {
         RegisterCallbacksOpenLimit    (Attributes::InstalledOpenLimitLift::Set  , Attributes::InstalledOpenLimitLift::Get);
         RegisterCallbacksClosedLimit  (Attributes::InstalledClosedLimitLift::Set, Attributes::InstalledClosedLimitLift::Get);
@@ -879,8 +864,8 @@ void emberAfWindowCoveringClusterInitCallback(chip::EndpointId endpoint)
 {
     emberAfWindowCoveringClusterPrint("Window Covering Cluster init");
 
-    LiftAccess().InitializeCallbacks(endpoint, Features::Lift);
-    TiltAccess().InitializeCallbacks(endpoint, Features::Tilt);
+    LiftAccess().InitializeCallbacks(endpoint, WcFeature::kLift);
+    TiltAccess().InitializeCallbacks(endpoint, WcFeature::kTilt);
 
     LiftAccess().InitializeLimits(endpoint);
     TiltAccess().InitializeLimits(endpoint);
