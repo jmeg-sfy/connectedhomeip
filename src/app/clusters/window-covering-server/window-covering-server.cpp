@@ -172,17 +172,28 @@ ActuatorAccessors & LiftAccess(void) { return mLiftAccess; }
 ActuatorAccessors & TiltAccess(void) { return mTiltAccess; }
 
 
+void Percent100thsToStr(NPercent100ths percent100ths, char str[10])
 {
+    if (percent100ths.IsNull())
+    {
+        snprintf(str, 10, "NotSet");
+    }
+    else
+    {
+        uint16_t percentage_int = percent100ths.Value() / 100;
+        uint16_t percentage_dec = static_cast<uint16_t>(percent100ths.Value() - ( percentage_int * 100 ));
+        snprintf(str, 10, "%3u.%02u", percentage_int, percentage_dec);
+    }
 }
 
-void PrintPercent100ths(const char * pMessage, Percent100ths percent100ths)
+void PrintPercent100ths(const char * pMessage, NPercent100ths percent100ths)
 {
     if (!pMessage) return;
 
-    uint16_t percentage_int = percent100ths / 100;
-    uint16_t percentage_dec = static_cast<uint16_t>(percent100ths - ( percentage_int * 100 ));
+    char str[10];
+    Percent100thsToStr(percent100ths, str);
 
-    emberAfWindowCoveringClusterPrint("%.32s %3u.%02u%%", pMessage, percentage_int, percentage_dec);
+    emberAfWindowCoveringClusterPrint("%.32s %.10s%%", pMessage, str);
 }
 
 // void WindowCover::PrintActuators(void)
@@ -629,6 +640,12 @@ OperationalState ActuatorAccessors::OperationalStateGet(chip::EndpointId endpoin
     PositionRelativeGet(endpoint, ActuatorAccessors::PositionAccessors::Type::Current, currentPos);
 
     /* Compute Operational State from Relative Target and Current */
+    char  targetStr[10];
+    char currentStr[10];
+    Percent100thsToStr( targetPos,  targetStr);
+    Percent100thsToStr(currentPos, currentStr);
+
+    emberAfWindowCoveringClusterPrint("%.5s[%2u] Cur=%s <> Tar=%s", (WcFeature::kLift == mFeatureTag) ? "Lift" : "Tilt", endpoint, currentStr, targetStr);
 
     return ComputeOperationalState(targetPos, currentPos);
 }
