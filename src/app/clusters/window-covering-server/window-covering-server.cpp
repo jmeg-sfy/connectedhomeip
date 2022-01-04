@@ -634,8 +634,10 @@ void ActuatorAccessors::AbsoluteLimitsSet(chip::EndpointId endpoint, AbsoluteLim
 
 OperationalState ActuatorAccessors::OperationalStateGet(chip::EndpointId endpoint)
 {
-    uint16_t  targetPos = PositionAbsoluteGet(endpoint, ActuatorAccessors::PositionAccessors::Type::Target);
-    uint16_t currentPos = PositionAbsoluteGet(endpoint, ActuatorAccessors::PositionAccessors::Type::Current);
+    NPercent100ths targetPos, currentPos;
+
+    PositionRelativeGet(endpoint, ActuatorAccessors::PositionAccessors::Type::Target ,  targetPos);
+    PositionRelativeGet(endpoint, ActuatorAccessors::PositionAccessors::Type::Current, currentPos);
 
     /* Compute Operational State from Relative Target and Current */
 
