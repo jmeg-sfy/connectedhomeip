@@ -44,30 +44,6 @@ using namespace chip::app::Clusters::WindowCovering;
 #define CHECK_BOUNDS_INVALID(MIN, VAL, MAX) ((VAL < MIN) || (VAL > MAX))
 #define CHECK_BOUNDS_VALID(MIN, VAL, MAX)   (!CHECK_BOUNDS_INVALID(MIN, VAL, MAX))
 
-static bool HasFeature(chip::EndpointId endpoint, WcFeature feature)
-{
-    uint32_t FeatureMap = 0;
-    if (EMBER_ZCL_STATUS_SUCCESS ==
-        emberAfReadServerAttribute(endpoint, chip::app::Clusters::WindowCovering::Id,
-                                   chip::app::Clusters::WindowCovering::Attributes::FeatureMap::Id,
-                                   reinterpret_cast<uint8_t *>(&FeatureMap), sizeof(FeatureMap)))
-    {
-        return (FeatureMap & chip::to_underlying(feature)) != 0;
-    }
-
-    return false;
-}
-
-static bool HasFeaturePaLift(chip::EndpointId endpoint)
-{
-    return (HasFeature(endpoint, WcFeature::kLift) && HasFeature(endpoint, WcFeature::kPositionAwareLift));
-}
-
-static bool HasFeaturePaTilt(chip::EndpointId endpoint)
-{
-    return (HasFeature(endpoint, WcFeature::kTilt) && HasFeature(endpoint, WcFeature::kPositionAwareTilt));
-}
-
 static uint16_t ConvertValue(uint16_t inputLowValue, uint16_t inputHighValue, uint16_t outputLowValue, uint16_t outputHighValue, uint16_t value, bool offset)
 {
     uint16_t inputMin = inputLowValue, inputMax = inputHighValue, inputRange = UINT16_MAX;
@@ -223,16 +199,29 @@ void PrintPercent100ths(const char * pMessage, Percent100ths percent100ths)
 
 
 
+
+
+bool HasFeature(chip::EndpointId endpoint, WcFeature feature)
 {
+    bool hasFeature = false;
+    const char * featureName = "-";
+    uint32_t FeatureMap = 0;
 
+    if (EMBER_ZCL_STATUS_SUCCESS ==
+        emberAfReadServerAttribute(endpoint, chip::app::Clusters::WindowCovering::Id,
+                                   chip::app::Clusters::WindowCovering::Attributes::FeatureMap::Id,
+                                   reinterpret_cast<uint8_t *>(&FeatureMap), sizeof(FeatureMap)))
+    {
+        auto item = mFeatureId.find(feature);
+        if (item != mFeatureId.end())
+            featureName = item->second;
 
-}
+        hasFeature = (FeatureMap & chip::to_underlying(feature));
+    }
 
-{
+    emberAfWindowCoveringClusterPrint("%5.5s=%u: 0x%" PRIx32, featureName, hasFeature, FeatureMap);
 
-
-
-
+    return hasFeature;
 }
 
 void TypeSet(chip::EndpointId endpoint, EmberAfWcType type)
