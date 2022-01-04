@@ -520,17 +520,14 @@ EmberAfStatus ActuatorAccessors::PositionRelativeSet(chip::EndpointId endpoint, 
 {
     EmberAfStatus status = EMBER_ZCL_STATUS_SUCCESS;
 
-    bool hasFeature      = HasFeature(endpoint, mFeatureTag);
     bool hasAbsolute     = HasFeature(endpoint, Features::Absolute);
-    bool isPositionAware = HasFeature(endpoint, Features::PositionAware);
-
     emberAfWindowCoveringClusterPrint("ep[%u] %s %s", endpoint, __func__, (WcFeature::kLift == mFeatureTag) ? "Lift" : "Tilt");
     PrintPercent100ths((PositionAccessors::Type::Target == type) ? "Target" : "Current", relative);
 
     PositionAccessors * p_position = (PositionAccessors::Type::Target == type) ? &mTarget : &mCurrent;
 
     /* Position Attribute is mandatory in that case */
-    if (hasFeature && isPositionAware)
+    if (IsPositionAware(endpoint))
     {
         /* Attribute is mandatory in that case */
         if (IsPercent100thsValid(relative))
@@ -759,7 +756,18 @@ void ActuatorAccessors::InitializeLimits(chip::EndpointId endpoint, AbsoluteLimi
 
 bool ActuatorAccessors::IsPositionAware(chip::EndpointId endpoint)
 {
-    return (HasFeature(endpoint, mFeatureTag) && HasFeature(endpoint, Features::PositionAware));
+    bool isPositionAware = false;
+
+    if (WcFeature::kLift == mFeatureTag)
+    {
+        isPositionAware = (HasFeature(endpoint, WcFeature::kLift) && HasFeature(endpoint, WcFeature::kPositionAwareLift));
+    }
+    else
+    {
+        isPositionAware = (HasFeature(endpoint, WcFeature::kTilt) && HasFeature(endpoint, WcFeature::kPositionAwareTilt));
+    }
+
+    return isPositionAware;
 }
 
 LimitStatus CheckLimitState(uint16_t position, AbsoluteLimits limits)
