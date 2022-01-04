@@ -134,12 +134,22 @@ static uint16_t Percent100thsToValue(AbsoluteLimits limits, Percent100ths relati
     return ConvertValue(WC_PERCENT100THS_MIN_OPEN, WC_PERCENT100THS_MAX_CLOSED, limits.open, limits.closed, relative, true);
 }
 
-static bool IsPercent100thsValid(uint16_t percent100ths)
+static bool IsPercent100thsValid(Percent100ths percent100ths)
 {
     if (CHECK_BOUNDS_VALID(WC_PERCENT100THS_MIN_OPEN, percent100ths, WC_PERCENT100THS_MAX_CLOSED))
         return true;
 
     return false;
+}
+
+static bool IsPercent100thsValid(NPercent100ths percent100ths)
+{
+    if (!percent100ths.IsNull())
+    {
+        return IsPercent100thsValid(percent100ths.Value());
+    }
+
+    return true;
 }
 
 static OperationalState ValueToOperationalState(uint8_t value)
