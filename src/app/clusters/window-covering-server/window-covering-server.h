@@ -154,9 +154,9 @@ struct ActuatorAccessors
         void RegisterCallbacksAbsolute     (SetAttributeNullableU16_f set_cb, GetAttributeNullableU16_f get_cb);
 
         //private:
-        EmberAfStatus SetAttributeRelativePosition(chip::EndpointId endpoint, NPercent100ths relative);
-        EmberAfStatus GetAttributeRelativePosition(chip::EndpointId endpoint, NPercent100ths relative);
-        EmberAfStatus SetAttributeAbsolutePosition(chip::EndpointId endpoint, NAbsolute absolute);
+        EmberAfStatus SetAttributeRelativePosition(chip::EndpointId endpoint, const NPercent100ths& relative);
+        EmberAfStatus GetAttributeRelativePosition(chip::EndpointId endpoint, NPercent100ths& relative);
+        EmberAfStatus SetAttributeAbsolutePosition(chip::EndpointId endpoint, const NAbsolute& absolute);
     }; // struct PositionAccessors
 
     SetAttributeU16_f mSetOpenLimitCb;       GetAttributeU16_f mGetOpenLimitCb;

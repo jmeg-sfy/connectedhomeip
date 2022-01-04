@@ -373,23 +373,34 @@ const SafetyStatus SafetyStatusGet(chip::EndpointId endpoint)
     return status;
 }
 
-EmberAfStatus ActuatorAccessors::PositionAccessors::SetAttributeRelativePosition(chip::EndpointId endpoint, Percent100ths relative)
+EmberAfStatus ActuatorAccessors::PositionAccessors::SetAttributeRelativePosition(chip::EndpointId endpoint, const NPercent100ths& relPercent100ths)
 {
     EmberAfStatus status = EMBER_ZCL_STATUS_UNSUPPORTED_ATTRIBUTE;
+
+    NPercent relPercent;
 
     /* This part is always the mandatory one */
     if (this->mSetPercent100thsCb)
     {
-        status = this->mSetPercent100thsCb(endpoint, relative);
+        status = this->mSetPercent100thsCb(endpoint, relPercent100ths);
     }
     else
     {
         emberAfWindowCoveringClusterPrint("SetPercent100thsCb undef");
     }
 
-    if ((EMBER_ZCL_STATUS_SUCCESS == status) && this->mSetPercentageCb)
+    if (this->mSetPercentageCb && (EMBER_ZCL_STATUS_SUCCESS == status))
     {
-        status = this->mSetPercentageCb(endpoint, static_cast<uint8_t>(relative / 100));
+        if (relPercent100ths.IsNull())
+        {
+            relPercent.SetNull();
+        }
+        else
+        {
+            relPercent.Value() = static_cast<Percent>(relPercent100ths.Value() / 100);
+        }
+
+        status = this->mSetPercentageCb(endpoint, relPercent);
     }
     else
     {
@@ -399,13 +410,13 @@ EmberAfStatus ActuatorAccessors::PositionAccessors::SetAttributeRelativePosition
     return status;
 }
 
-EmberAfStatus ActuatorAccessors::PositionAccessors::GetAttributeRelativePosition(chip::EndpointId endpoint, Percent100ths * p_relative)
+EmberAfStatus ActuatorAccessors::PositionAccessors::GetAttributeRelativePosition(chip::EndpointId endpoint, NPercent100ths& relative)
 {
     EmberAfStatus status = EMBER_ZCL_STATUS_UNSUPPORTED_ATTRIBUTE;
 
-    if (this->mGetPercent100thsCb && p_relative)
+    if (this->mGetPercent100thsCb)
     {
-        status = this->mGetPercent100thsCb(endpoint, p_relative);
+        status = this->mGetPercent100thsCb(endpoint, relative);
     }
     else
     {
@@ -416,9 +427,9 @@ EmberAfStatus ActuatorAccessors::PositionAccessors::GetAttributeRelativePosition
 }
 
 
-EmberAfStatus ActuatorAccessors::PositionAccessors::SetAttributeAbsolutePosition(chip::EndpointId endpoint, uint16_t absolute)
+EmberAfStatus ActuatorAccessors::PositionAccessors::SetAttributeAbsolutePosition(chip::EndpointId endpoint, const NAbsolute& absolute)
 {
-    EmberAfStatus status = EMBER_ZCL_STATUS_SUCCESS;
+    EmberAfStatus status = EMBER_ZCL_STATUS_UNSUPPORTED_ATTRIBUTE;
 
     if (this->mSetAbsoluteCb)
     {
@@ -434,7 +445,7 @@ EmberAfStatus ActuatorAccessors::PositionAccessors::SetAttributeAbsolutePosition
 
 EmberAfStatus ActuatorAccessors::SetAttributeAbsoluteLimits(chip::EndpointId endpoint, AbsoluteLimits limits)
 {
-    EmberAfStatus status = EMBER_ZCL_STATUS_SUCCESS;
+    EmberAfStatus status = EMBER_ZCL_STATUS_UNSUPPORTED_ATTRIBUTE;
 
     if (mSetOpenLimitCb)
     {
@@ -445,7 +456,7 @@ EmberAfStatus ActuatorAccessors::SetAttributeAbsoluteLimits(chip::EndpointId end
         emberAfWindowCoveringClusterPrint("SetOpenLimitCb undef");
     }
 
-    if (this->mSetClosedLimitCb)
+    if (this->mSetClosedLimitCb && (EMBER_ZCL_STATUS_SUCCESS == status))
     {
         status = this->mSetClosedLimitCb(endpoint, limits.closed);
     }
@@ -459,9 +470,9 @@ EmberAfStatus ActuatorAccessors::SetAttributeAbsoluteLimits(chip::EndpointId end
 
 EmberAfStatus ActuatorAccessors::GetAttributeAbsoluteLimits(chip::EndpointId endpoint, AbsoluteLimits * p_limits)
 {
-    EmberAfStatus status = EMBER_ZCL_STATUS_SUCCESS;
+    EmberAfStatus status = EMBER_ZCL_STATUS_UNSUPPORTED_ATTRIBUTE;
 
-    if (this->mGetOpenLimitCb)
+    if (this->mGetOpenLimitCb && p_limits)
     {
         status = this->mGetOpenLimitCb(endpoint, &p_limits->open);
     }
@@ -470,7 +481,7 @@ EmberAfStatus ActuatorAccessors::GetAttributeAbsoluteLimits(chip::EndpointId end
         emberAfWindowCoveringClusterPrint("GetOpenLimitCb undef");
     }
 
-    if (this->mGetClosedLimitCb)
+    if (this->mGetClosedLimitCb && (EMBER_ZCL_STATUS_SUCCESS == status))
     {
         status = this->mGetClosedLimitCb(endpoint, &p_limits->closed);
     }
@@ -677,17 +688,17 @@ void ActuatorAccessors::RegisterCallbacksClosedLimit  (SetAttributeU16_f set_cb,
     this->mSetClosedLimitCb = set_cb;
     this->mGetClosedLimitCb = get_cb;
 }
-void ActuatorAccessors::PositionAccessors::RegisterCallbacksPercentage   (SetAttributeU8_f  set_cb, GetAttributeU8_f  get_cb)
+void ActuatorAccessors::PositionAccessors::RegisterCallbacksPercentage   (SetAttributePercent_f  set_cb, GetAttributePercent_f  get_cb)
 {
     this->mSetPercentageCb = set_cb;
     this->mGetPercentageCb = get_cb;
 }
-void ActuatorAccessors::PositionAccessors::RegisterCallbacksPercent100ths(SetAttributeU16_f set_cb, GetAttributeU16_f get_cb)
+void ActuatorAccessors::PositionAccessors::RegisterCallbacksPercent100ths(SetAttributePercent100ths_f set_cb, GetAttributePercent100ths_f get_cb)
 {
     this->mSetPercent100thsCb = set_cb;
     this->mGetPercent100thsCb = get_cb;
 }
-void ActuatorAccessors::PositionAccessors::RegisterCallbacksAbsolute     (SetAttributeU16_f set_cb, GetAttributeU16_f get_cb)
+void ActuatorAccessors::PositionAccessors::RegisterCallbacksAbsolute     (SetAttributeNullableU16_f set_cb, GetAttributeNullableU16_f get_cb)
 {
     this->mSetAbsoluteCb = set_cb;
     this->mGetAbsoluteCb = get_cb;
