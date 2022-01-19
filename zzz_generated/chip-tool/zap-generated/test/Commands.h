@@ -40370,20 +40370,118 @@ public:
         switch (mTestIndex++)
         {
         case 0:
-            ChipLogProgress(chipTool, " ***** Test Step 0 : Wait for the commissioned device to be retrieved\n");
-            err = TestWaitForTheCommissionedDeviceToBeRetrieved_0();
+            ChipLogProgress(
+                chipTool,
+                " ***** Test Step 0 : 1a: TH sends DownOrClose command to preposition the DUT in the opposite direction\n");
+            err = Test1aThSendsDownOrCloseCommandToPrepositionTheDutInTheOppositeDirection_0();
             break;
         case 1:
-            ChipLogProgress(chipTool, " ***** Test Step 1 : 1a: TH adjusts the the DUT to a non-open position\n");
-            err = Test1aThAdjustsTheTheDutToANonOpenPosition_1();
+            ChipLogProgress(chipTool, " ***** Test Step 1 : 1b: TH Waits for 10 seconds movement(s) on the device\n");
+            err = Test1bThWaitsFor10SecondsMovementsOnTheDevice_1();
             break;
         case 2:
-            ChipLogProgress(chipTool, " ***** Test Step 2 : 2a: TH sends UpOrOpen command to DUT\n");
-            err = Test2aThSendsUpOrOpenCommandToDut_2();
+            ChipLogProgress(chipTool,
+                            " ***** Test Step 2 : 1c: If (PA & LF) TH reads CurrentPositionLiftPercent100ths attribute from DUT\n");
+            err = Test1cIfPaLfThReadsCurrentPositionLiftPercent100thsAttributeFromDut_2();
             break;
         case 3:
-            ChipLogProgress(chipTool, " ***** Test Step 3 : 3a: TH reads OperationalStatus attribute from DUT\n");
-            err = Test3aThReadsOperationalStatusAttributeFromDut_3();
+            ChipLogProgress(
+                chipTool,
+                " ***** Test Step 3 : 1d: If (PA & LF) TH reads CurrentPositionLiftPercentage optional attribute from DUT\n");
+            err = Test1dIfPaLfThReadsCurrentPositionLiftPercentageOptionalAttributeFromDut_3();
+            break;
+        case 4:
+            ChipLogProgress(chipTool,
+                            " ***** Test Step 4 : 1e: If (PA & TL) TH reads CurrentPositionTiltPercent100ths attribute from DUT\n");
+            err = Test1eIfPaTlThReadsCurrentPositionTiltPercent100thsAttributeFromDut_4();
+            break;
+        case 5:
+            ChipLogProgress(
+                chipTool,
+                " ***** Test Step 5 : 1f: If (PA & TL) TH reads CurrentPositionTiltPercentage optional attribute from DUT\n");
+            err = Test1fIfPaTlThReadsCurrentPositionTiltPercentageOptionalAttributeFromDut_5();
+            break;
+        case 6:
+            ChipLogProgress(chipTool, " ***** Test Step 6 : 2a: TH sends UpOrOpen command to DUT\n");
+            err = Test2aThSendsUpOrOpenCommandToDut_6();
+            break;
+        case 7:
+            ChipLogProgress(chipTool, " ***** Test Step 7 : 2b: DUT updates its attributes\n");
+            err = Test2bDutUpdatesItsAttributes_7();
+            break;
+        case 8:
+            ChipLogProgress(chipTool,
+                            " ***** Test Step 8 : 2c: If (PA & LF) TH reads TargetPositionLiftPercent100ths attribute from DUT\n");
+            err = Test2cIfPaLfThReadsTargetPositionLiftPercent100thsAttributeFromDut_8();
+            break;
+        case 9:
+            ChipLogProgress(chipTool, " ***** Test Step 9 : 2e: TH leave the device moving for 5 seconds\n");
+            err = Test2eThLeaveTheDeviceMovingFor5Seconds_9();
+            break;
+        case 10:
+            ChipLogProgress(
+                chipTool,
+                " ***** Test Step 10 : Report: 3a: Verify DUT reports OperationalStatus attribute to TH after a UpOrOpen\n");
+            err = TestReport3aVerifyDutReportsOperationalStatusAttributeToThAfterAUpOrOpen_10();
+            break;
+        case 11:
+            ChipLogProgress(chipTool,
+                            " ***** Test Step 11 : 3a: Verify DUT reports OperationalStatus attribute to TH after a UpOrOpen\n");
+            err = Test3aVerifyDutReportsOperationalStatusAttributeToThAfterAUpOrOpen_11();
+            break;
+        case 12:
+            ChipLogProgress(
+                chipTool, " ***** Test Step 12 : 3b: If (PA & LF) TH reads CurrentPositionLiftPercent100ths attribute from DUT\n");
+            err = Test3bIfPaLfThReadsCurrentPositionLiftPercent100thsAttributeFromDut_12();
+            break;
+        case 13:
+            ChipLogProgress(
+                chipTool,
+                " ***** Test Step 13 : 3c: If (PA & LF) TH reads CurrentPositionLiftPercentage optional attribute from DUT\n");
+            err = Test3cIfPaLfThReadsCurrentPositionLiftPercentageOptionalAttributeFromDut_13();
+            break;
+        case 14:
+            ChipLogProgress(
+                chipTool, " ***** Test Step 14 : 3d: If (PA & TL) TH reads CurrentPositionTiltPercent100ths attribute from DUT\n");
+            err = Test3dIfPaTlThReadsCurrentPositionTiltPercent100thsAttributeFromDut_14();
+            break;
+        case 15:
+            ChipLogProgress(
+                chipTool,
+                " ***** Test Step 15 : 3e: If (PA & LF) TH reads CurrentPositionTiltPercentage optional attribute from DUT\n");
+            err = Test3eIfPaLfThReadsCurrentPositionTiltPercentageOptionalAttributeFromDut_15();
+            break;
+        case 16:
+            ChipLogProgress(chipTool, " ***** Test Step 16 : 4a: TH sends a StopMotion command to DUT\n");
+            err = Test4aThSendsAStopMotionCommandToDut_16();
+            break;
+        case 17:
+            ChipLogProgress(chipTool,
+                            " ***** Test Step 17 : 4b: TH waits for 3 seconds the end of inertial movement(s) on the device\n");
+            err = Test4bThWaitsFor3SecondsTheEndOfInertialMovementsOnTheDevice_17();
+            break;
+        case 18:
+            ChipLogProgress(chipTool,
+                            " ***** Test Step 18 : 4c: Verify DUT reports OperationalStatus attribute to TH after a StopMotion\n");
+            err = Test4cVerifyDutReportsOperationalStatusAttributeToThAfterAStopMotion_18();
+            break;
+        case 19:
+            ChipLogProgress(chipTool, " ***** Test Step 19 : 5a: TH waits for x seconds attributes update on the device\n");
+            err = Test5aThWaitsForXSecondsAttributesUpdateOnTheDevice_19();
+            break;
+        case 20:
+            ChipLogProgress(chipTool,
+                            " ***** Test Step 20 : 5b: If (PA & LF) TH reads TargetPositionLiftPercent100ths attribute from DUT\n");
+            err = Test5bIfPaLfThReadsTargetPositionLiftPercent100thsAttributeFromDut_20();
+            break;
+        case 21:
+            ChipLogProgress(chipTool,
+                            " ***** Test Step 21 : 5c: If (PA & TL) TH reads TargetPositionTiltPercent100ths attribute from DUT\n");
+            err = Test5cIfPaTlThReadsTargetPositionTiltPercent100thsAttributeFromDut_21();
+            break;
+        case 22:
+            ChipLogProgress(chipTool, " ***** Test Step 22 : 5d: TH reads OperationalStatus attribute from DUT must be ZERO\n");
+            err = Test5dThReadsOperationalStatusAttributeFromDutMustBeZero_22();
             break;
         }
 
@@ -40396,32 +40494,189 @@ public:
 
 private:
     std::atomic_uint16_t mTestIndex;
-    const uint16_t mTestCount = 4;
+    const uint16_t mTestCount = 23;
 
     chip::Optional<chip::CharSpan> mCluster;
     chip::Optional<chip::EndpointId> mEndpoint;
+
+    typedef void (*Test_Test_TC_WNCV_3_1_OperationalStatus_ReportCallback)(void * context, uint8_t value);
+    Test_Test_TC_WNCV_3_1_OperationalStatus_ReportCallback mTest_Test_TC_WNCV_3_1_OperationalStatus_Reported = nullptr;
+
+    static void OnFailureCallback_2(void * context, EmberAfStatus status)
+    {
+        (static_cast<Test_TC_WNCV_3_1 *>(context))->OnFailureResponse_2(status);
+    }
+
+    static void OnSuccessCallback_2(void * context,
+                                    const chip::app::DataModel::Nullable<chip::Percent100ths> & currentPositionLiftPercent100ths)
+    {
+        (static_cast<Test_TC_WNCV_3_1 *>(context))->OnSuccessResponse_2(currentPositionLiftPercent100ths);
+    }
 
     static void OnFailureCallback_3(void * context, EmberAfStatus status)
     {
         (static_cast<Test_TC_WNCV_3_1 *>(context))->OnFailureResponse_3(status);
     }
 
-    static void OnSuccessCallback_3(void * context, uint8_t operationalStatus)
+    static void OnSuccessCallback_3(void * context,
+                                    const chip::app::DataModel::Nullable<chip::Percent> & currentPositionLiftPercentage)
     {
-        (static_cast<Test_TC_WNCV_3_1 *>(context))->OnSuccessResponse_3(operationalStatus);
+        (static_cast<Test_TC_WNCV_3_1 *>(context))->OnSuccessResponse_3(currentPositionLiftPercentage);
+    }
+
+    static void OnFailureCallback_4(void * context, EmberAfStatus status)
+    {
+        (static_cast<Test_TC_WNCV_3_1 *>(context))->OnFailureResponse_4(status);
+    }
+
+    static void OnSuccessCallback_4(void * context,
+                                    const chip::app::DataModel::Nullable<chip::Percent100ths> & currentPositionTiltPercent100ths)
+    {
+        (static_cast<Test_TC_WNCV_3_1 *>(context))->OnSuccessResponse_4(currentPositionTiltPercent100ths);
+    }
+
+    static void OnFailureCallback_5(void * context, EmberAfStatus status)
+    {
+        (static_cast<Test_TC_WNCV_3_1 *>(context))->OnFailureResponse_5(status);
+    }
+
+    static void OnSuccessCallback_5(void * context,
+                                    const chip::app::DataModel::Nullable<chip::Percent> & currentPositionTiltPercentage)
+    {
+        (static_cast<Test_TC_WNCV_3_1 *>(context))->OnSuccessResponse_5(currentPositionTiltPercentage);
+    }
+
+    static void OnFailureCallback_8(void * context, EmberAfStatus status)
+    {
+        (static_cast<Test_TC_WNCV_3_1 *>(context))->OnFailureResponse_8(status);
+    }
+
+    static void OnSuccessCallback_8(void * context,
+                                    const chip::app::DataModel::Nullable<chip::Percent100ths> & targetPositionLiftPercent100ths)
+    {
+        (static_cast<Test_TC_WNCV_3_1 *>(context))->OnSuccessResponse_8(targetPositionLiftPercent100ths);
+    }
+
+    static void OnFailureCallback_10(void * context, EmberAfStatus status)
+    {
+        (static_cast<Test_TC_WNCV_3_1 *>(context))->OnFailureResponse_10(status);
+    }
+
+    static void OnSuccessCallback_10(void * context, uint8_t operationalStatus)
+    {
+        (static_cast<Test_TC_WNCV_3_1 *>(context))->OnSuccessResponse_10(operationalStatus);
+    }
+
+    bool mReceivedReport_10 = false;
+
+    static void OnFailureCallback_11(void * context, EmberAfStatus status)
+    {
+        (static_cast<Test_TC_WNCV_3_1 *>(context))->OnFailureResponse_11(status);
+    }
+
+    static void OnSuccessCallback_11(void * context, uint8_t operationalStatus)
+    {
+        (static_cast<Test_TC_WNCV_3_1 *>(context))->OnSuccessResponse_11(operationalStatus);
+    }
+
+    static void OnSubscriptionEstablished_11(void * context)
+    {
+        (static_cast<Test_TC_WNCV_3_1 *>(context))->OnSubscriptionEstablishedResponse_11();
+    }
+
+    static void OnFailureCallback_12(void * context, EmberAfStatus status)
+    {
+        (static_cast<Test_TC_WNCV_3_1 *>(context))->OnFailureResponse_12(status);
+    }
+
+    static void OnSuccessCallback_12(void * context,
+                                     const chip::app::DataModel::Nullable<chip::Percent100ths> & currentPositionLiftPercent100ths)
+    {
+        (static_cast<Test_TC_WNCV_3_1 *>(context))->OnSuccessResponse_12(currentPositionLiftPercent100ths);
+    }
+
+    static void OnFailureCallback_13(void * context, EmberAfStatus status)
+    {
+        (static_cast<Test_TC_WNCV_3_1 *>(context))->OnFailureResponse_13(status);
+    }
+
+    static void OnSuccessCallback_13(void * context,
+                                     const chip::app::DataModel::Nullable<chip::Percent> & currentPositionLiftPercentage)
+    {
+        (static_cast<Test_TC_WNCV_3_1 *>(context))->OnSuccessResponse_13(currentPositionLiftPercentage);
+    }
+
+    static void OnFailureCallback_14(void * context, EmberAfStatus status)
+    {
+        (static_cast<Test_TC_WNCV_3_1 *>(context))->OnFailureResponse_14(status);
+    }
+
+    static void OnSuccessCallback_14(void * context,
+                                     const chip::app::DataModel::Nullable<chip::Percent100ths> & currentPositionTiltPercent100ths)
+    {
+        (static_cast<Test_TC_WNCV_3_1 *>(context))->OnSuccessResponse_14(currentPositionTiltPercent100ths);
+    }
+
+    static void OnFailureCallback_15(void * context, EmberAfStatus status)
+    {
+        (static_cast<Test_TC_WNCV_3_1 *>(context))->OnFailureResponse_15(status);
+    }
+
+    static void OnSuccessCallback_15(void * context,
+                                     const chip::app::DataModel::Nullable<chip::Percent> & currentPositionTiltPercentage)
+    {
+        (static_cast<Test_TC_WNCV_3_1 *>(context))->OnSuccessResponse_15(currentPositionTiltPercentage);
+    }
+
+    static void OnFailureCallback_18(void * context, EmberAfStatus status)
+    {
+        (static_cast<Test_TC_WNCV_3_1 *>(context))->OnFailureResponse_18(status);
+    }
+
+    static void OnSuccessCallback_18(void * context, uint8_t operationalStatus)
+    {
+        (static_cast<Test_TC_WNCV_3_1 *>(context))->OnSuccessResponse_18(operationalStatus);
+    }
+
+    bool mReceivedReport_18 = false;
+
+    static void OnFailureCallback_20(void * context, EmberAfStatus status)
+    {
+        (static_cast<Test_TC_WNCV_3_1 *>(context))->OnFailureResponse_20(status);
+    }
+
+    static void OnSuccessCallback_20(void * context,
+                                     const chip::app::DataModel::Nullable<chip::Percent100ths> & targetPositionLiftPercent100ths)
+    {
+        (static_cast<Test_TC_WNCV_3_1 *>(context))->OnSuccessResponse_20(targetPositionLiftPercent100ths);
+    }
+
+    static void OnFailureCallback_21(void * context, EmberAfStatus status)
+    {
+        (static_cast<Test_TC_WNCV_3_1 *>(context))->OnFailureResponse_21(status);
+    }
+
+    static void OnSuccessCallback_21(void * context,
+                                     const chip::app::DataModel::Nullable<chip::Percent100ths> & targetPositionTiltPercent100ths)
+    {
+        (static_cast<Test_TC_WNCV_3_1 *>(context))->OnSuccessResponse_21(targetPositionTiltPercent100ths);
+    }
+
+    static void OnFailureCallback_22(void * context, EmberAfStatus status)
+    {
+        (static_cast<Test_TC_WNCV_3_1 *>(context))->OnFailureResponse_22(status);
+    }
+
+    static void OnSuccessCallback_22(void * context, uint8_t operationalStatus)
+    {
+        (static_cast<Test_TC_WNCV_3_1 *>(context))->OnSuccessResponse_22(operationalStatus);
     }
 
     //
     // Tests methods
     //
 
-    CHIP_ERROR TestWaitForTheCommissionedDeviceToBeRetrieved_0()
-    {
-        SetIdentity(kIdentityAlpha);
-        return WaitForCommissionee();
-    }
-
-    CHIP_ERROR Test1aThAdjustsTheTheDutToANonOpenPosition_1()
+    CHIP_ERROR Test1aThSendsDownOrCloseCommandToPrepositionTheDutInTheOppositeDirection_0()
     {
         const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
         using RequestType               = chip::app::Clusters::WindowCovering::Commands::DownOrClose::Type;
@@ -40429,22 +40684,120 @@ private:
         RequestType request;
 
         auto success = [](void * context, const typename RequestType::ResponseType & data) {
-            (static_cast<Test_TC_WNCV_3_1 *>(context))->OnSuccessResponse_1();
+            (static_cast<Test_TC_WNCV_3_1 *>(context))->OnSuccessResponse_0();
         };
 
         auto failure = [](void * context, EmberAfStatus status) {
-            (static_cast<Test_TC_WNCV_3_1 *>(context))->OnFailureResponse_1(status);
+            (static_cast<Test_TC_WNCV_3_1 *>(context))->OnFailureResponse_0(status);
         };
 
         ReturnErrorOnFailure(chip::Controller::InvokeCommand(mDevices[kIdentityAlpha], this, success, failure, endpoint, request));
         return CHIP_NO_ERROR;
     }
 
-    void OnFailureResponse_1(EmberAfStatus status) { ThrowFailureResponse(); }
+    void OnFailureResponse_0(EmberAfStatus status) { ThrowFailureResponse(); }
 
-    void OnSuccessResponse_1() { NextTest(); }
+    void OnSuccessResponse_0() { NextTest(); }
 
-    CHIP_ERROR Test2aThSendsUpOrOpenCommandToDut_2()
+    CHIP_ERROR Test1bThWaitsFor10SecondsMovementsOnTheDevice_1()
+    {
+        SetIdentity(kIdentityAlpha);
+        return WaitForMs(10000);
+    }
+
+    CHIP_ERROR Test1cIfPaLfThReadsCurrentPositionLiftPercent100thsAttributeFromDut_2()
+    {
+        const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
+        chip::Controller::WindowCoveringClusterTest cluster;
+        cluster.Associate(mDevices[kIdentityAlpha], endpoint);
+
+        ReturnErrorOnFailure(
+            cluster.ReadAttribute<chip::app::Clusters::WindowCovering::Attributes::CurrentPositionLiftPercent100ths::TypeInfo>(
+                this, OnSuccessCallback_2, OnFailureCallback_2));
+        return CHIP_NO_ERROR;
+    }
+
+    void OnFailureResponse_2(EmberAfStatus status) { ThrowFailureResponse(); }
+
+    void OnSuccessResponse_2(const chip::app::DataModel::Nullable<chip::Percent100ths> & currentPositionLiftPercent100ths)
+    {
+        VerifyOrReturn(CheckConstraintType("currentPositionLiftPercent100ths", "", "uint16"));
+        VerifyOrReturn(
+            CheckConstraintMinValue<chip::Percent100ths>("currentPositionLiftPercent100ths", currentPositionLiftPercent100ths, 1U));
+        VerifyOrReturn(CheckConstraintMaxValue<chip::Percent100ths>("currentPositionLiftPercent100ths",
+                                                                    currentPositionLiftPercent100ths, 10000U));
+        NextTest();
+    }
+
+    CHIP_ERROR Test1dIfPaLfThReadsCurrentPositionLiftPercentageOptionalAttributeFromDut_3()
+    {
+        const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
+        chip::Controller::WindowCoveringClusterTest cluster;
+        cluster.Associate(mDevices[kIdentityAlpha], endpoint);
+
+        ReturnErrorOnFailure(
+            cluster.ReadAttribute<chip::app::Clusters::WindowCovering::Attributes::CurrentPositionLiftPercentage::TypeInfo>(
+                this, OnSuccessCallback_3, OnFailureCallback_3));
+        return CHIP_NO_ERROR;
+    }
+
+    void OnFailureResponse_3(EmberAfStatus status) { ThrowFailureResponse(); }
+
+    void OnSuccessResponse_3(const chip::app::DataModel::Nullable<chip::Percent> & currentPositionLiftPercentage)
+    {
+        VerifyOrReturn(CheckConstraintType("currentPositionLiftPercentage", "", "uint8"));
+        VerifyOrReturn(CheckConstraintMinValue<chip::Percent>("currentPositionLiftPercentage", currentPositionLiftPercentage, 1));
+        VerifyOrReturn(CheckConstraintMaxValue<chip::Percent>("currentPositionLiftPercentage", currentPositionLiftPercentage, 100));
+        NextTest();
+    }
+
+    CHIP_ERROR Test1eIfPaTlThReadsCurrentPositionTiltPercent100thsAttributeFromDut_4()
+    {
+        const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
+        chip::Controller::WindowCoveringClusterTest cluster;
+        cluster.Associate(mDevices[kIdentityAlpha], endpoint);
+
+        ReturnErrorOnFailure(
+            cluster.ReadAttribute<chip::app::Clusters::WindowCovering::Attributes::CurrentPositionTiltPercent100ths::TypeInfo>(
+                this, OnSuccessCallback_4, OnFailureCallback_4));
+        return CHIP_NO_ERROR;
+    }
+
+    void OnFailureResponse_4(EmberAfStatus status) { ThrowFailureResponse(); }
+
+    void OnSuccessResponse_4(const chip::app::DataModel::Nullable<chip::Percent100ths> & currentPositionTiltPercent100ths)
+    {
+        VerifyOrReturn(CheckConstraintType("currentPositionTiltPercent100ths", "", "uint16"));
+        VerifyOrReturn(
+            CheckConstraintMinValue<chip::Percent100ths>("currentPositionTiltPercent100ths", currentPositionTiltPercent100ths, 1U));
+        VerifyOrReturn(CheckConstraintMaxValue<chip::Percent100ths>("currentPositionTiltPercent100ths",
+                                                                    currentPositionTiltPercent100ths, 10000U));
+        NextTest();
+    }
+
+    CHIP_ERROR Test1fIfPaTlThReadsCurrentPositionTiltPercentageOptionalAttributeFromDut_5()
+    {
+        const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
+        chip::Controller::WindowCoveringClusterTest cluster;
+        cluster.Associate(mDevices[kIdentityAlpha], endpoint);
+
+        ReturnErrorOnFailure(
+            cluster.ReadAttribute<chip::app::Clusters::WindowCovering::Attributes::CurrentPositionTiltPercentage::TypeInfo>(
+                this, OnSuccessCallback_5, OnFailureCallback_5));
+        return CHIP_NO_ERROR;
+    }
+
+    void OnFailureResponse_5(EmberAfStatus status) { ThrowFailureResponse(); }
+
+    void OnSuccessResponse_5(const chip::app::DataModel::Nullable<chip::Percent> & currentPositionTiltPercentage)
+    {
+        VerifyOrReturn(CheckConstraintType("currentPositionTiltPercentage", "", "uint8"));
+        VerifyOrReturn(CheckConstraintMinValue<chip::Percent>("currentPositionTiltPercentage", currentPositionTiltPercentage, 1));
+        VerifyOrReturn(CheckConstraintMaxValue<chip::Percent>("currentPositionTiltPercentage", currentPositionTiltPercentage, 100));
+        NextTest();
+    }
+
+    CHIP_ERROR Test2aThSendsUpOrOpenCommandToDut_6()
     {
         const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
         using RequestType               = chip::app::Clusters::WindowCovering::Commands::UpOrOpen::Type;
@@ -40452,35 +40805,322 @@ private:
         RequestType request;
 
         auto success = [](void * context, const typename RequestType::ResponseType & data) {
-            (static_cast<Test_TC_WNCV_3_1 *>(context))->OnSuccessResponse_2();
+            (static_cast<Test_TC_WNCV_3_1 *>(context))->OnSuccessResponse_6();
         };
 
         auto failure = [](void * context, EmberAfStatus status) {
-            (static_cast<Test_TC_WNCV_3_1 *>(context))->OnFailureResponse_2(status);
+            (static_cast<Test_TC_WNCV_3_1 *>(context))->OnFailureResponse_6(status);
         };
 
         ReturnErrorOnFailure(chip::Controller::InvokeCommand(mDevices[kIdentityAlpha], this, success, failure, endpoint, request));
         return CHIP_NO_ERROR;
     }
 
-    void OnFailureResponse_2(EmberAfStatus status) { ThrowFailureResponse(); }
+    void OnFailureResponse_6(EmberAfStatus status) { ThrowFailureResponse(); }
 
-    void OnSuccessResponse_2() { NextTest(); }
+    void OnSuccessResponse_6() { NextTest(); }
 
-    CHIP_ERROR Test3aThReadsOperationalStatusAttributeFromDut_3()
+    CHIP_ERROR Test2bDutUpdatesItsAttributes_7()
+    {
+        SetIdentity(kIdentityAlpha);
+        return WaitForMs(100);
+    }
+
+    CHIP_ERROR Test2cIfPaLfThReadsTargetPositionLiftPercent100thsAttributeFromDut_8()
+    {
+        const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
+        chip::Controller::WindowCoveringClusterTest cluster;
+        cluster.Associate(mDevices[kIdentityAlpha], endpoint);
+
+        ReturnErrorOnFailure(
+            cluster.ReadAttribute<chip::app::Clusters::WindowCovering::Attributes::TargetPositionLiftPercent100ths::TypeInfo>(
+                this, OnSuccessCallback_8, OnFailureCallback_8));
+        return CHIP_NO_ERROR;
+    }
+
+    void OnFailureResponse_8(EmberAfStatus status) { ThrowFailureResponse(); }
+
+    void OnSuccessResponse_8(const chip::app::DataModel::Nullable<chip::Percent100ths> & targetPositionLiftPercent100ths)
+    {
+        VerifyOrReturn(CheckValueNonNull("targetPositionLiftPercent100ths", targetPositionLiftPercent100ths));
+        VerifyOrReturn(CheckValue("targetPositionLiftPercent100ths.Value()", targetPositionLiftPercent100ths.Value(), 0U));
+
+        NextTest();
+    }
+
+    CHIP_ERROR Test2eThLeaveTheDeviceMovingFor5Seconds_9()
+    {
+        SetIdentity(kIdentityAlpha);
+        return WaitForMs(5000);
+    }
+
+    CHIP_ERROR TestReport3aVerifyDutReportsOperationalStatusAttributeToThAfterAUpOrOpen_10()
+    {
+        const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
+        chip::Controller::WindowCoveringClusterTest cluster;
+        cluster.Associate(mDevices[kIdentityAlpha], endpoint);
+
+        mTest_Test_TC_WNCV_3_1_OperationalStatus_Reported = OnSuccessCallback_10;
+        return WaitForMs(0);
+    }
+
+    void OnFailureResponse_10(EmberAfStatus status) { ThrowFailureResponse(); }
+
+    void OnSuccessResponse_10(uint8_t operationalStatus)
+    {
+        mReceivedReport_10 = true;
+
+        VerifyOrReturn(CheckConstraintType("operationalStatus", "", "map8"));
+        VerifyOrReturn(CheckConstraintMinValue<uint8_t>("operationalStatus", operationalStatus, 17));
+        VerifyOrReturn(CheckConstraintMaxValue<uint8_t>("operationalStatus", operationalStatus, 21));
+    }
+
+    CHIP_ERROR Test3aVerifyDutReportsOperationalStatusAttributeToThAfterAUpOrOpen_11()
+    {
+        const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
+        chip::Controller::WindowCoveringClusterTest cluster;
+        cluster.Associate(mDevices[kIdentityAlpha], endpoint);
+
+        uint16_t minIntervalArgument;
+        minIntervalArgument = 1U;
+        uint16_t maxIntervalArgument;
+        maxIntervalArgument = 2U;
+
+        ReturnErrorOnFailure(
+            cluster.SubscribeAttribute<chip::app::Clusters::WindowCovering::Attributes::OperationalStatus::TypeInfo>(
+                this, OnSuccessCallback_11, OnFailureCallback_11, minIntervalArgument, maxIntervalArgument,
+                OnSubscriptionEstablished_11));
+        return CHIP_NO_ERROR;
+    }
+
+    void OnFailureResponse_11(EmberAfStatus status) { ThrowFailureResponse(); }
+
+    void OnSuccessResponse_11(uint8_t value)
+    {
+        if (mTest_Test_TC_WNCV_3_1_OperationalStatus_Reported)
+        {
+            auto callback                                     = mTest_Test_TC_WNCV_3_1_OperationalStatus_Reported;
+            mTest_Test_TC_WNCV_3_1_OperationalStatus_Reported = nullptr;
+            callback(this, value);
+        }
+    }
+
+    void OnSubscriptionEstablishedResponse_11()
+    {
+        VerifyOrReturn(mReceivedReport_10, Exit("Initial report not received!"));
+        NextTest();
+    }
+
+    CHIP_ERROR Test3bIfPaLfThReadsCurrentPositionLiftPercent100thsAttributeFromDut_12()
+    {
+        const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
+        chip::Controller::WindowCoveringClusterTest cluster;
+        cluster.Associate(mDevices[kIdentityAlpha], endpoint);
+
+        ReturnErrorOnFailure(
+            cluster.ReadAttribute<chip::app::Clusters::WindowCovering::Attributes::CurrentPositionLiftPercent100ths::TypeInfo>(
+                this, OnSuccessCallback_12, OnFailureCallback_12));
+        return CHIP_NO_ERROR;
+    }
+
+    void OnFailureResponse_12(EmberAfStatus status) { ThrowFailureResponse(); }
+
+    void OnSuccessResponse_12(const chip::app::DataModel::Nullable<chip::Percent100ths> & currentPositionLiftPercent100ths)
+    {
+        VerifyOrReturn(CheckConstraintType("currentPositionLiftPercent100ths", "", "uint16"));
+        VerifyOrReturn(
+            CheckConstraintMinValue<chip::Percent100ths>("currentPositionLiftPercent100ths", currentPositionLiftPercent100ths, 0U));
+        VerifyOrReturn(CheckConstraintMaxValue<chip::Percent100ths>("currentPositionLiftPercent100ths",
+                                                                    currentPositionLiftPercent100ths, 9999U));
+        NextTest();
+    }
+
+    CHIP_ERROR Test3cIfPaLfThReadsCurrentPositionLiftPercentageOptionalAttributeFromDut_13()
+    {
+        const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
+        chip::Controller::WindowCoveringClusterTest cluster;
+        cluster.Associate(mDevices[kIdentityAlpha], endpoint);
+
+        ReturnErrorOnFailure(
+            cluster.ReadAttribute<chip::app::Clusters::WindowCovering::Attributes::CurrentPositionLiftPercentage::TypeInfo>(
+                this, OnSuccessCallback_13, OnFailureCallback_13));
+        return CHIP_NO_ERROR;
+    }
+
+    void OnFailureResponse_13(EmberAfStatus status) { ThrowFailureResponse(); }
+
+    void OnSuccessResponse_13(const chip::app::DataModel::Nullable<chip::Percent> & currentPositionLiftPercentage)
+    {
+        VerifyOrReturn(CheckConstraintType("currentPositionLiftPercentage", "", "uint8"));
+        VerifyOrReturn(CheckConstraintMinValue<chip::Percent>("currentPositionLiftPercentage", currentPositionLiftPercentage, 0));
+        VerifyOrReturn(CheckConstraintMaxValue<chip::Percent>("currentPositionLiftPercentage", currentPositionLiftPercentage, 99));
+        NextTest();
+    }
+
+    CHIP_ERROR Test3dIfPaTlThReadsCurrentPositionTiltPercent100thsAttributeFromDut_14()
+    {
+        const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
+        chip::Controller::WindowCoveringClusterTest cluster;
+        cluster.Associate(mDevices[kIdentityAlpha], endpoint);
+
+        ReturnErrorOnFailure(
+            cluster.ReadAttribute<chip::app::Clusters::WindowCovering::Attributes::CurrentPositionTiltPercent100ths::TypeInfo>(
+                this, OnSuccessCallback_14, OnFailureCallback_14));
+        return CHIP_NO_ERROR;
+    }
+
+    void OnFailureResponse_14(EmberAfStatus status) { ThrowFailureResponse(); }
+
+    void OnSuccessResponse_14(const chip::app::DataModel::Nullable<chip::Percent100ths> & currentPositionTiltPercent100ths)
+    {
+        VerifyOrReturn(CheckConstraintType("currentPositionTiltPercent100ths", "", "uint16"));
+        VerifyOrReturn(
+            CheckConstraintMinValue<chip::Percent100ths>("currentPositionTiltPercent100ths", currentPositionTiltPercent100ths, 0U));
+        VerifyOrReturn(CheckConstraintMaxValue<chip::Percent100ths>("currentPositionTiltPercent100ths",
+                                                                    currentPositionTiltPercent100ths, 9999U));
+        NextTest();
+    }
+
+    CHIP_ERROR Test3eIfPaLfThReadsCurrentPositionTiltPercentageOptionalAttributeFromDut_15()
+    {
+        const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
+        chip::Controller::WindowCoveringClusterTest cluster;
+        cluster.Associate(mDevices[kIdentityAlpha], endpoint);
+
+        ReturnErrorOnFailure(
+            cluster.ReadAttribute<chip::app::Clusters::WindowCovering::Attributes::CurrentPositionTiltPercentage::TypeInfo>(
+                this, OnSuccessCallback_15, OnFailureCallback_15));
+        return CHIP_NO_ERROR;
+    }
+
+    void OnFailureResponse_15(EmberAfStatus status) { ThrowFailureResponse(); }
+
+    void OnSuccessResponse_15(const chip::app::DataModel::Nullable<chip::Percent> & currentPositionTiltPercentage)
+    {
+        VerifyOrReturn(CheckConstraintType("currentPositionTiltPercentage", "", "uint8"));
+        VerifyOrReturn(CheckConstraintMinValue<chip::Percent>("currentPositionTiltPercentage", currentPositionTiltPercentage, 0));
+        VerifyOrReturn(CheckConstraintMaxValue<chip::Percent>("currentPositionTiltPercentage", currentPositionTiltPercentage, 99));
+        NextTest();
+    }
+
+    CHIP_ERROR Test4aThSendsAStopMotionCommandToDut_16()
+    {
+        const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
+        using RequestType               = chip::app::Clusters::WindowCovering::Commands::StopMotion::Type;
+
+        RequestType request;
+
+        auto success = [](void * context, const typename RequestType::ResponseType & data) {
+            (static_cast<Test_TC_WNCV_3_1 *>(context))->OnSuccessResponse_16();
+        };
+
+        auto failure = [](void * context, EmberAfStatus status) {
+            (static_cast<Test_TC_WNCV_3_1 *>(context))->OnFailureResponse_16(status);
+        };
+
+        ReturnErrorOnFailure(chip::Controller::InvokeCommand(mDevices[kIdentityAlpha], this, success, failure, endpoint, request));
+        return CHIP_NO_ERROR;
+    }
+
+    void OnFailureResponse_16(EmberAfStatus status) { ThrowFailureResponse(); }
+
+    void OnSuccessResponse_16() { NextTest(); }
+
+    CHIP_ERROR Test4bThWaitsFor3SecondsTheEndOfInertialMovementsOnTheDevice_17()
+    {
+        SetIdentity(kIdentityAlpha);
+        return WaitForMs(3000);
+    }
+
+    CHIP_ERROR Test4cVerifyDutReportsOperationalStatusAttributeToThAfterAStopMotion_18()
+    {
+        const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
+        chip::Controller::WindowCoveringClusterTest cluster;
+        cluster.Associate(mDevices[kIdentityAlpha], endpoint);
+
+        mTest_Test_TC_WNCV_3_1_OperationalStatus_Reported = OnSuccessCallback_18;
+        return CHIP_NO_ERROR;
+    }
+
+    void OnFailureResponse_18(EmberAfStatus status) { ThrowFailureResponse(); }
+
+    void OnSuccessResponse_18(uint8_t operationalStatus)
+    {
+        mReceivedReport_18 = true;
+
+        VerifyOrReturn(CheckValue("operationalStatus", operationalStatus, 0));
+
+        NextTest();
+    }
+
+    CHIP_ERROR Test5aThWaitsForXSecondsAttributesUpdateOnTheDevice_19()
+    {
+        SetIdentity(kIdentityAlpha);
+        return WaitForMs(1000);
+    }
+
+    CHIP_ERROR Test5bIfPaLfThReadsTargetPositionLiftPercent100thsAttributeFromDut_20()
+    {
+        const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
+        chip::Controller::WindowCoveringClusterTest cluster;
+        cluster.Associate(mDevices[kIdentityAlpha], endpoint);
+
+        ReturnErrorOnFailure(
+            cluster.ReadAttribute<chip::app::Clusters::WindowCovering::Attributes::TargetPositionLiftPercent100ths::TypeInfo>(
+                this, OnSuccessCallback_20, OnFailureCallback_20));
+        return CHIP_NO_ERROR;
+    }
+
+    void OnFailureResponse_20(EmberAfStatus status) { ThrowFailureResponse(); }
+
+    void OnSuccessResponse_20(const chip::app::DataModel::Nullable<chip::Percent100ths> & targetPositionLiftPercent100ths)
+    {
+        VerifyOrReturn(CheckConstraintType("targetPositionLiftPercent100ths", "", "uint16"));
+        VerifyOrReturn(
+            CheckConstraintMinValue<chip::Percent100ths>("targetPositionLiftPercent100ths", targetPositionLiftPercent100ths, 0U));
+        VerifyOrReturn(CheckConstraintMaxValue<chip::Percent100ths>("targetPositionLiftPercent100ths",
+                                                                    targetPositionLiftPercent100ths, 9999U));
+        NextTest();
+    }
+
+    CHIP_ERROR Test5cIfPaTlThReadsTargetPositionTiltPercent100thsAttributeFromDut_21()
+    {
+        const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
+        chip::Controller::WindowCoveringClusterTest cluster;
+        cluster.Associate(mDevices[kIdentityAlpha], endpoint);
+
+        ReturnErrorOnFailure(
+            cluster.ReadAttribute<chip::app::Clusters::WindowCovering::Attributes::TargetPositionTiltPercent100ths::TypeInfo>(
+                this, OnSuccessCallback_21, OnFailureCallback_21));
+        return CHIP_NO_ERROR;
+    }
+
+    void OnFailureResponse_21(EmberAfStatus status) { ThrowFailureResponse(); }
+
+    void OnSuccessResponse_21(const chip::app::DataModel::Nullable<chip::Percent100ths> & targetPositionTiltPercent100ths)
+    {
+        VerifyOrReturn(CheckConstraintType("targetPositionTiltPercent100ths", "", "uint16"));
+        VerifyOrReturn(
+            CheckConstraintMinValue<chip::Percent100ths>("targetPositionTiltPercent100ths", targetPositionTiltPercent100ths, 0U));
+        VerifyOrReturn(CheckConstraintMaxValue<chip::Percent100ths>("targetPositionTiltPercent100ths",
+                                                                    targetPositionTiltPercent100ths, 9999U));
+        NextTest();
+    }
+
+    CHIP_ERROR Test5dThReadsOperationalStatusAttributeFromDutMustBeZero_22()
     {
         const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
         chip::Controller::WindowCoveringClusterTest cluster;
         cluster.Associate(mDevices[kIdentityAlpha], endpoint);
 
         ReturnErrorOnFailure(cluster.ReadAttribute<chip::app::Clusters::WindowCovering::Attributes::OperationalStatus::TypeInfo>(
-            this, OnSuccessCallback_3, OnFailureCallback_3));
+            this, OnSuccessCallback_22, OnFailureCallback_22));
         return CHIP_NO_ERROR;
     }
 
-    void OnFailureResponse_3(EmberAfStatus status) { ThrowFailureResponse(); }
+    void OnFailureResponse_22(EmberAfStatus status) { ThrowFailureResponse(); }
 
-    void OnSuccessResponse_3(uint8_t operationalStatus)
+    void OnSuccessResponse_22(uint8_t operationalStatus)
     {
         VerifyOrReturn(CheckValue("operationalStatus", operationalStatus, 0));
 
@@ -40525,20 +41165,117 @@ public:
         switch (mTestIndex++)
         {
         case 0:
-            ChipLogProgress(chipTool, " ***** Test Step 0 : Wait for the commissioned device to be retrieved\n");
-            err = TestWaitForTheCommissionedDeviceToBeRetrieved_0();
+            ChipLogProgress(
+                chipTool, " ***** Test Step 0 : 1a: TH sends UpOrOpen command to preposition the DUT in the opposite direction\n");
+            err = Test1aThSendsUpOrOpenCommandToPrepositionTheDutInTheOppositeDirection_0();
             break;
         case 1:
-            ChipLogProgress(chipTool, " ***** Test Step 1 : 1a: TH adjusts the the DUT to a non-closed position\n");
-            err = Test1aThAdjustsTheTheDutToANonClosedPosition_1();
+            ChipLogProgress(chipTool, " ***** Test Step 1 : 1b: TH Waits for 10 seconds movement(s) on the device\n");
+            err = Test1bThWaitsFor10SecondsMovementsOnTheDevice_1();
             break;
         case 2:
-            ChipLogProgress(chipTool, " ***** Test Step 2 : 2a: TH sends DownOrClose command to DUT\n");
-            err = Test2aThSendsDownOrCloseCommandToDut_2();
+            ChipLogProgress(chipTool,
+                            " ***** Test Step 2 : 1c: If (PA & LF) TH reads CurrentPositionLiftPercent100ths attribute from DUT\n");
+            err = Test1cIfPaLfThReadsCurrentPositionLiftPercent100thsAttributeFromDut_2();
             break;
         case 3:
-            ChipLogProgress(chipTool, " ***** Test Step 3 : 3a: TH reads OperationalStatus attribute from DUT\n");
-            err = Test3aThReadsOperationalStatusAttributeFromDut_3();
+            ChipLogProgress(
+                chipTool,
+                " ***** Test Step 3 : 1d: If (PA & LF) TH reads CurrentPositionLiftPercentage optional attribute from DUT\n");
+            err = Test1dIfPaLfThReadsCurrentPositionLiftPercentageOptionalAttributeFromDut_3();
+            break;
+        case 4:
+            ChipLogProgress(chipTool,
+                            " ***** Test Step 4 : 1e: If (PA & TL) TH reads CurrentPositionTiltPercent100ths attribute from DUT\n");
+            err = Test1eIfPaTlThReadsCurrentPositionTiltPercent100thsAttributeFromDut_4();
+            break;
+        case 5:
+            ChipLogProgress(
+                chipTool,
+                " ***** Test Step 5 : 1f: If (PA & TL) TH reads CurrentPositionTiltPercentage optional attribute from DUT\n");
+            err = Test1fIfPaTlThReadsCurrentPositionTiltPercentageOptionalAttributeFromDut_5();
+            break;
+        case 6:
+            ChipLogProgress(chipTool, " ***** Test Step 6 : 2a: TH sends DownOrClose command to DUT\n");
+            err = Test2aThSendsDownOrCloseCommandToDut_6();
+            break;
+        case 7:
+            ChipLogProgress(chipTool, " ***** Test Step 7 : 2b: DUT updates its attributes\n");
+            err = Test2bDutUpdatesItsAttributes_7();
+            break;
+        case 8:
+            ChipLogProgress(chipTool,
+                            " ***** Test Step 8 : 2c: If (PA & LF) TH reads TargetPositionLiftPercent100ths attribute from DUT\n");
+            err = Test2cIfPaLfThReadsTargetPositionLiftPercent100thsAttributeFromDut_8();
+            break;
+        case 9:
+            ChipLogProgress(chipTool, " ***** Test Step 9 : 2e: TH leave the device moving for 5 seconds\n");
+            err = Test2eThLeaveTheDeviceMovingFor5Seconds_9();
+            break;
+        case 10:
+            ChipLogProgress(
+                chipTool,
+                " ***** Test Step 10 : Report: 3a: Verify DUT reports OperationalStatus attribute to TH after a DownOrClose\n");
+            err = TestReport3aVerifyDutReportsOperationalStatusAttributeToThAfterADownOrClose_10();
+            break;
+        case 11:
+            ChipLogProgress(chipTool,
+                            " ***** Test Step 11 : 3a: Verify DUT reports OperationalStatus attribute to TH after a DownOrClose\n");
+            err = Test3aVerifyDutReportsOperationalStatusAttributeToThAfterADownOrClose_11();
+            break;
+        case 12:
+            ChipLogProgress(
+                chipTool, " ***** Test Step 12 : 3b: If (PA & LF) TH reads CurrentPositionLiftPercent100ths attribute from DUT\n");
+            err = Test3bIfPaLfThReadsCurrentPositionLiftPercent100thsAttributeFromDut_12();
+            break;
+        case 13:
+            ChipLogProgress(
+                chipTool,
+                " ***** Test Step 13 : 3c: If (PA & LF) TH reads CurrentPositionLiftPercentage optional attribute from DUT\n");
+            err = Test3cIfPaLfThReadsCurrentPositionLiftPercentageOptionalAttributeFromDut_13();
+            break;
+        case 14:
+            ChipLogProgress(
+                chipTool, " ***** Test Step 14 : 3d: If (PA & TL) TH reads CurrentPositionTiltPercent100ths attribute from DUT\n");
+            err = Test3dIfPaTlThReadsCurrentPositionTiltPercent100thsAttributeFromDut_14();
+            break;
+        case 15:
+            ChipLogProgress(
+                chipTool,
+                " ***** Test Step 15 : 3e: If (PA & LF) TH reads CurrentPositionTiltPercentage optional attribute from DUT\n");
+            err = Test3eIfPaLfThReadsCurrentPositionTiltPercentageOptionalAttributeFromDut_15();
+            break;
+        case 16:
+            ChipLogProgress(chipTool, " ***** Test Step 16 : 4a: TH sends a StopMotion command to DUT\n");
+            err = Test4aThSendsAStopMotionCommandToDut_16();
+            break;
+        case 17:
+            ChipLogProgress(chipTool,
+                            " ***** Test Step 17 : 4b: TH waits for 3 seconds the end of inertial movement(s) on the device\n");
+            err = Test4bThWaitsFor3SecondsTheEndOfInertialMovementsOnTheDevice_17();
+            break;
+        case 18:
+            ChipLogProgress(chipTool,
+                            " ***** Test Step 18 : 4c: Verify DUT reports OperationalStatus attribute to TH after a StopMotion\n");
+            err = Test4cVerifyDutReportsOperationalStatusAttributeToThAfterAStopMotion_18();
+            break;
+        case 19:
+            ChipLogProgress(chipTool, " ***** Test Step 19 : 5a: TH waits for x seconds attributes update on the device\n");
+            err = Test5aThWaitsForXSecondsAttributesUpdateOnTheDevice_19();
+            break;
+        case 20:
+            ChipLogProgress(chipTool,
+                            " ***** Test Step 20 : 5b: If (PA & LF) TH reads TargetPositionLiftPercent100ths attribute from DUT\n");
+            err = Test5bIfPaLfThReadsTargetPositionLiftPercent100thsAttributeFromDut_20();
+            break;
+        case 21:
+            ChipLogProgress(chipTool,
+                            " ***** Test Step 21 : 5c: If (PA & TL) TH reads TargetPositionTiltPercent100ths attribute from DUT\n");
+            err = Test5cIfPaTlThReadsTargetPositionTiltPercent100thsAttributeFromDut_21();
+            break;
+        case 22:
+            ChipLogProgress(chipTool, " ***** Test Step 22 : 5d: TH reads OperationalStatus attribute from DUT must be ZERO\n");
+            err = Test5dThReadsOperationalStatusAttributeFromDutMustBeZero_22();
             break;
         }
 
@@ -40551,32 +41288,189 @@ public:
 
 private:
     std::atomic_uint16_t mTestIndex;
-    const uint16_t mTestCount = 4;
+    const uint16_t mTestCount = 23;
 
     chip::Optional<chip::CharSpan> mCluster;
     chip::Optional<chip::EndpointId> mEndpoint;
+
+    typedef void (*Test_Test_TC_WNCV_3_2_OperationalStatus_ReportCallback)(void * context, uint8_t value);
+    Test_Test_TC_WNCV_3_2_OperationalStatus_ReportCallback mTest_Test_TC_WNCV_3_2_OperationalStatus_Reported = nullptr;
+
+    static void OnFailureCallback_2(void * context, EmberAfStatus status)
+    {
+        (static_cast<Test_TC_WNCV_3_2 *>(context))->OnFailureResponse_2(status);
+    }
+
+    static void OnSuccessCallback_2(void * context,
+                                    const chip::app::DataModel::Nullable<chip::Percent100ths> & currentPositionLiftPercent100ths)
+    {
+        (static_cast<Test_TC_WNCV_3_2 *>(context))->OnSuccessResponse_2(currentPositionLiftPercent100ths);
+    }
 
     static void OnFailureCallback_3(void * context, EmberAfStatus status)
     {
         (static_cast<Test_TC_WNCV_3_2 *>(context))->OnFailureResponse_3(status);
     }
 
-    static void OnSuccessCallback_3(void * context, uint8_t operationalStatus)
+    static void OnSuccessCallback_3(void * context,
+                                    const chip::app::DataModel::Nullable<chip::Percent> & currentPositionLiftPercentage)
     {
-        (static_cast<Test_TC_WNCV_3_2 *>(context))->OnSuccessResponse_3(operationalStatus);
+        (static_cast<Test_TC_WNCV_3_2 *>(context))->OnSuccessResponse_3(currentPositionLiftPercentage);
+    }
+
+    static void OnFailureCallback_4(void * context, EmberAfStatus status)
+    {
+        (static_cast<Test_TC_WNCV_3_2 *>(context))->OnFailureResponse_4(status);
+    }
+
+    static void OnSuccessCallback_4(void * context,
+                                    const chip::app::DataModel::Nullable<chip::Percent100ths> & currentPositionTiltPercent100ths)
+    {
+        (static_cast<Test_TC_WNCV_3_2 *>(context))->OnSuccessResponse_4(currentPositionTiltPercent100ths);
+    }
+
+    static void OnFailureCallback_5(void * context, EmberAfStatus status)
+    {
+        (static_cast<Test_TC_WNCV_3_2 *>(context))->OnFailureResponse_5(status);
+    }
+
+    static void OnSuccessCallback_5(void * context,
+                                    const chip::app::DataModel::Nullable<chip::Percent> & currentPositionTiltPercentage)
+    {
+        (static_cast<Test_TC_WNCV_3_2 *>(context))->OnSuccessResponse_5(currentPositionTiltPercentage);
+    }
+
+    static void OnFailureCallback_8(void * context, EmberAfStatus status)
+    {
+        (static_cast<Test_TC_WNCV_3_2 *>(context))->OnFailureResponse_8(status);
+    }
+
+    static void OnSuccessCallback_8(void * context,
+                                    const chip::app::DataModel::Nullable<chip::Percent100ths> & targetPositionLiftPercent100ths)
+    {
+        (static_cast<Test_TC_WNCV_3_2 *>(context))->OnSuccessResponse_8(targetPositionLiftPercent100ths);
+    }
+
+    static void OnFailureCallback_10(void * context, EmberAfStatus status)
+    {
+        (static_cast<Test_TC_WNCV_3_2 *>(context))->OnFailureResponse_10(status);
+    }
+
+    static void OnSuccessCallback_10(void * context, uint8_t operationalStatus)
+    {
+        (static_cast<Test_TC_WNCV_3_2 *>(context))->OnSuccessResponse_10(operationalStatus);
+    }
+
+    bool mReceivedReport_10 = false;
+
+    static void OnFailureCallback_11(void * context, EmberAfStatus status)
+    {
+        (static_cast<Test_TC_WNCV_3_2 *>(context))->OnFailureResponse_11(status);
+    }
+
+    static void OnSuccessCallback_11(void * context, uint8_t operationalStatus)
+    {
+        (static_cast<Test_TC_WNCV_3_2 *>(context))->OnSuccessResponse_11(operationalStatus);
+    }
+
+    static void OnSubscriptionEstablished_11(void * context)
+    {
+        (static_cast<Test_TC_WNCV_3_2 *>(context))->OnSubscriptionEstablishedResponse_11();
+    }
+
+    static void OnFailureCallback_12(void * context, EmberAfStatus status)
+    {
+        (static_cast<Test_TC_WNCV_3_2 *>(context))->OnFailureResponse_12(status);
+    }
+
+    static void OnSuccessCallback_12(void * context,
+                                     const chip::app::DataModel::Nullable<chip::Percent100ths> & currentPositionLiftPercent100ths)
+    {
+        (static_cast<Test_TC_WNCV_3_2 *>(context))->OnSuccessResponse_12(currentPositionLiftPercent100ths);
+    }
+
+    static void OnFailureCallback_13(void * context, EmberAfStatus status)
+    {
+        (static_cast<Test_TC_WNCV_3_2 *>(context))->OnFailureResponse_13(status);
+    }
+
+    static void OnSuccessCallback_13(void * context,
+                                     const chip::app::DataModel::Nullable<chip::Percent> & currentPositionLiftPercentage)
+    {
+        (static_cast<Test_TC_WNCV_3_2 *>(context))->OnSuccessResponse_13(currentPositionLiftPercentage);
+    }
+
+    static void OnFailureCallback_14(void * context, EmberAfStatus status)
+    {
+        (static_cast<Test_TC_WNCV_3_2 *>(context))->OnFailureResponse_14(status);
+    }
+
+    static void OnSuccessCallback_14(void * context,
+                                     const chip::app::DataModel::Nullable<chip::Percent100ths> & currentPositionTiltPercent100ths)
+    {
+        (static_cast<Test_TC_WNCV_3_2 *>(context))->OnSuccessResponse_14(currentPositionTiltPercent100ths);
+    }
+
+    static void OnFailureCallback_15(void * context, EmberAfStatus status)
+    {
+        (static_cast<Test_TC_WNCV_3_2 *>(context))->OnFailureResponse_15(status);
+    }
+
+    static void OnSuccessCallback_15(void * context,
+                                     const chip::app::DataModel::Nullable<chip::Percent> & currentPositionTiltPercentage)
+    {
+        (static_cast<Test_TC_WNCV_3_2 *>(context))->OnSuccessResponse_15(currentPositionTiltPercentage);
+    }
+
+    static void OnFailureCallback_18(void * context, EmberAfStatus status)
+    {
+        (static_cast<Test_TC_WNCV_3_2 *>(context))->OnFailureResponse_18(status);
+    }
+
+    static void OnSuccessCallback_18(void * context, uint8_t operationalStatus)
+    {
+        (static_cast<Test_TC_WNCV_3_2 *>(context))->OnSuccessResponse_18(operationalStatus);
+    }
+
+    bool mReceivedReport_18 = false;
+
+    static void OnFailureCallback_20(void * context, EmberAfStatus status)
+    {
+        (static_cast<Test_TC_WNCV_3_2 *>(context))->OnFailureResponse_20(status);
+    }
+
+    static void OnSuccessCallback_20(void * context,
+                                     const chip::app::DataModel::Nullable<chip::Percent100ths> & targetPositionLiftPercent100ths)
+    {
+        (static_cast<Test_TC_WNCV_3_2 *>(context))->OnSuccessResponse_20(targetPositionLiftPercent100ths);
+    }
+
+    static void OnFailureCallback_21(void * context, EmberAfStatus status)
+    {
+        (static_cast<Test_TC_WNCV_3_2 *>(context))->OnFailureResponse_21(status);
+    }
+
+    static void OnSuccessCallback_21(void * context,
+                                     const chip::app::DataModel::Nullable<chip::Percent100ths> & targetPositionTiltPercent100ths)
+    {
+        (static_cast<Test_TC_WNCV_3_2 *>(context))->OnSuccessResponse_21(targetPositionTiltPercent100ths);
+    }
+
+    static void OnFailureCallback_22(void * context, EmberAfStatus status)
+    {
+        (static_cast<Test_TC_WNCV_3_2 *>(context))->OnFailureResponse_22(status);
+    }
+
+    static void OnSuccessCallback_22(void * context, uint8_t operationalStatus)
+    {
+        (static_cast<Test_TC_WNCV_3_2 *>(context))->OnSuccessResponse_22(operationalStatus);
     }
 
     //
     // Tests methods
     //
 
-    CHIP_ERROR TestWaitForTheCommissionedDeviceToBeRetrieved_0()
-    {
-        SetIdentity(kIdentityAlpha);
-        return WaitForCommissionee();
-    }
-
-    CHIP_ERROR Test1aThAdjustsTheTheDutToANonClosedPosition_1()
+    CHIP_ERROR Test1aThSendsUpOrOpenCommandToPrepositionTheDutInTheOppositeDirection_0()
     {
         const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
         using RequestType               = chip::app::Clusters::WindowCovering::Commands::UpOrOpen::Type;
@@ -40584,22 +41478,120 @@ private:
         RequestType request;
 
         auto success = [](void * context, const typename RequestType::ResponseType & data) {
-            (static_cast<Test_TC_WNCV_3_2 *>(context))->OnSuccessResponse_1();
+            (static_cast<Test_TC_WNCV_3_2 *>(context))->OnSuccessResponse_0();
         };
 
         auto failure = [](void * context, EmberAfStatus status) {
-            (static_cast<Test_TC_WNCV_3_2 *>(context))->OnFailureResponse_1(status);
+            (static_cast<Test_TC_WNCV_3_2 *>(context))->OnFailureResponse_0(status);
         };
 
         ReturnErrorOnFailure(chip::Controller::InvokeCommand(mDevices[kIdentityAlpha], this, success, failure, endpoint, request));
         return CHIP_NO_ERROR;
     }
 
-    void OnFailureResponse_1(EmberAfStatus status) { ThrowFailureResponse(); }
+    void OnFailureResponse_0(EmberAfStatus status) { ThrowFailureResponse(); }
 
-    void OnSuccessResponse_1() { NextTest(); }
+    void OnSuccessResponse_0() { NextTest(); }
 
-    CHIP_ERROR Test2aThSendsDownOrCloseCommandToDut_2()
+    CHIP_ERROR Test1bThWaitsFor10SecondsMovementsOnTheDevice_1()
+    {
+        SetIdentity(kIdentityAlpha);
+        return WaitForMs(10000);
+    }
+
+    CHIP_ERROR Test1cIfPaLfThReadsCurrentPositionLiftPercent100thsAttributeFromDut_2()
+    {
+        const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
+        chip::Controller::WindowCoveringClusterTest cluster;
+        cluster.Associate(mDevices[kIdentityAlpha], endpoint);
+
+        ReturnErrorOnFailure(
+            cluster.ReadAttribute<chip::app::Clusters::WindowCovering::Attributes::CurrentPositionLiftPercent100ths::TypeInfo>(
+                this, OnSuccessCallback_2, OnFailureCallback_2));
+        return CHIP_NO_ERROR;
+    }
+
+    void OnFailureResponse_2(EmberAfStatus status) { ThrowFailureResponse(); }
+
+    void OnSuccessResponse_2(const chip::app::DataModel::Nullable<chip::Percent100ths> & currentPositionLiftPercent100ths)
+    {
+        VerifyOrReturn(CheckConstraintType("currentPositionLiftPercent100ths", "", "uint16"));
+        VerifyOrReturn(
+            CheckConstraintMinValue<chip::Percent100ths>("currentPositionLiftPercent100ths", currentPositionLiftPercent100ths, 0U));
+        VerifyOrReturn(CheckConstraintMaxValue<chip::Percent100ths>("currentPositionLiftPercent100ths",
+                                                                    currentPositionLiftPercent100ths, 9999U));
+        NextTest();
+    }
+
+    CHIP_ERROR Test1dIfPaLfThReadsCurrentPositionLiftPercentageOptionalAttributeFromDut_3()
+    {
+        const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
+        chip::Controller::WindowCoveringClusterTest cluster;
+        cluster.Associate(mDevices[kIdentityAlpha], endpoint);
+
+        ReturnErrorOnFailure(
+            cluster.ReadAttribute<chip::app::Clusters::WindowCovering::Attributes::CurrentPositionLiftPercentage::TypeInfo>(
+                this, OnSuccessCallback_3, OnFailureCallback_3));
+        return CHIP_NO_ERROR;
+    }
+
+    void OnFailureResponse_3(EmberAfStatus status) { ThrowFailureResponse(); }
+
+    void OnSuccessResponse_3(const chip::app::DataModel::Nullable<chip::Percent> & currentPositionLiftPercentage)
+    {
+        VerifyOrReturn(CheckConstraintType("currentPositionLiftPercentage", "", "uint8"));
+        VerifyOrReturn(CheckConstraintMinValue<chip::Percent>("currentPositionLiftPercentage", currentPositionLiftPercentage, 0));
+        VerifyOrReturn(CheckConstraintMaxValue<chip::Percent>("currentPositionLiftPercentage", currentPositionLiftPercentage, 99));
+        NextTest();
+    }
+
+    CHIP_ERROR Test1eIfPaTlThReadsCurrentPositionTiltPercent100thsAttributeFromDut_4()
+    {
+        const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
+        chip::Controller::WindowCoveringClusterTest cluster;
+        cluster.Associate(mDevices[kIdentityAlpha], endpoint);
+
+        ReturnErrorOnFailure(
+            cluster.ReadAttribute<chip::app::Clusters::WindowCovering::Attributes::CurrentPositionTiltPercent100ths::TypeInfo>(
+                this, OnSuccessCallback_4, OnFailureCallback_4));
+        return CHIP_NO_ERROR;
+    }
+
+    void OnFailureResponse_4(EmberAfStatus status) { ThrowFailureResponse(); }
+
+    void OnSuccessResponse_4(const chip::app::DataModel::Nullable<chip::Percent100ths> & currentPositionTiltPercent100ths)
+    {
+        VerifyOrReturn(CheckConstraintType("currentPositionTiltPercent100ths", "", "uint16"));
+        VerifyOrReturn(
+            CheckConstraintMinValue<chip::Percent100ths>("currentPositionTiltPercent100ths", currentPositionTiltPercent100ths, 0U));
+        VerifyOrReturn(CheckConstraintMaxValue<chip::Percent100ths>("currentPositionTiltPercent100ths",
+                                                                    currentPositionTiltPercent100ths, 9999U));
+        NextTest();
+    }
+
+    CHIP_ERROR Test1fIfPaTlThReadsCurrentPositionTiltPercentageOptionalAttributeFromDut_5()
+    {
+        const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
+        chip::Controller::WindowCoveringClusterTest cluster;
+        cluster.Associate(mDevices[kIdentityAlpha], endpoint);
+
+        ReturnErrorOnFailure(
+            cluster.ReadAttribute<chip::app::Clusters::WindowCovering::Attributes::CurrentPositionTiltPercentage::TypeInfo>(
+                this, OnSuccessCallback_5, OnFailureCallback_5));
+        return CHIP_NO_ERROR;
+    }
+
+    void OnFailureResponse_5(EmberAfStatus status) { ThrowFailureResponse(); }
+
+    void OnSuccessResponse_5(const chip::app::DataModel::Nullable<chip::Percent> & currentPositionTiltPercentage)
+    {
+        VerifyOrReturn(CheckConstraintType("currentPositionTiltPercentage", "", "uint8"));
+        VerifyOrReturn(CheckConstraintMinValue<chip::Percent>("currentPositionTiltPercentage", currentPositionTiltPercentage, 0));
+        VerifyOrReturn(CheckConstraintMaxValue<chip::Percent>("currentPositionTiltPercentage", currentPositionTiltPercentage, 99));
+        NextTest();
+    }
+
+    CHIP_ERROR Test2aThSendsDownOrCloseCommandToDut_6()
     {
         const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
         using RequestType               = chip::app::Clusters::WindowCovering::Commands::DownOrClose::Type;
@@ -40607,35 +41599,322 @@ private:
         RequestType request;
 
         auto success = [](void * context, const typename RequestType::ResponseType & data) {
-            (static_cast<Test_TC_WNCV_3_2 *>(context))->OnSuccessResponse_2();
+            (static_cast<Test_TC_WNCV_3_2 *>(context))->OnSuccessResponse_6();
         };
 
         auto failure = [](void * context, EmberAfStatus status) {
-            (static_cast<Test_TC_WNCV_3_2 *>(context))->OnFailureResponse_2(status);
+            (static_cast<Test_TC_WNCV_3_2 *>(context))->OnFailureResponse_6(status);
         };
 
         ReturnErrorOnFailure(chip::Controller::InvokeCommand(mDevices[kIdentityAlpha], this, success, failure, endpoint, request));
         return CHIP_NO_ERROR;
     }
 
-    void OnFailureResponse_2(EmberAfStatus status) { ThrowFailureResponse(); }
+    void OnFailureResponse_6(EmberAfStatus status) { ThrowFailureResponse(); }
 
-    void OnSuccessResponse_2() { NextTest(); }
+    void OnSuccessResponse_6() { NextTest(); }
 
-    CHIP_ERROR Test3aThReadsOperationalStatusAttributeFromDut_3()
+    CHIP_ERROR Test2bDutUpdatesItsAttributes_7()
+    {
+        SetIdentity(kIdentityAlpha);
+        return WaitForMs(100);
+    }
+
+    CHIP_ERROR Test2cIfPaLfThReadsTargetPositionLiftPercent100thsAttributeFromDut_8()
+    {
+        const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
+        chip::Controller::WindowCoveringClusterTest cluster;
+        cluster.Associate(mDevices[kIdentityAlpha], endpoint);
+
+        ReturnErrorOnFailure(
+            cluster.ReadAttribute<chip::app::Clusters::WindowCovering::Attributes::TargetPositionLiftPercent100ths::TypeInfo>(
+                this, OnSuccessCallback_8, OnFailureCallback_8));
+        return CHIP_NO_ERROR;
+    }
+
+    void OnFailureResponse_8(EmberAfStatus status) { ThrowFailureResponse(); }
+
+    void OnSuccessResponse_8(const chip::app::DataModel::Nullable<chip::Percent100ths> & targetPositionLiftPercent100ths)
+    {
+        VerifyOrReturn(CheckValueNonNull("targetPositionLiftPercent100ths", targetPositionLiftPercent100ths));
+        VerifyOrReturn(CheckValue("targetPositionLiftPercent100ths.Value()", targetPositionLiftPercent100ths.Value(), 0U));
+
+        NextTest();
+    }
+
+    CHIP_ERROR Test2eThLeaveTheDeviceMovingFor5Seconds_9()
+    {
+        SetIdentity(kIdentityAlpha);
+        return WaitForMs(5000);
+    }
+
+    CHIP_ERROR TestReport3aVerifyDutReportsOperationalStatusAttributeToThAfterADownOrClose_10()
+    {
+        const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
+        chip::Controller::WindowCoveringClusterTest cluster;
+        cluster.Associate(mDevices[kIdentityAlpha], endpoint);
+
+        mTest_Test_TC_WNCV_3_2_OperationalStatus_Reported = OnSuccessCallback_10;
+        return WaitForMs(0);
+    }
+
+    void OnFailureResponse_10(EmberAfStatus status) { ThrowFailureResponse(); }
+
+    void OnSuccessResponse_10(uint8_t operationalStatus)
+    {
+        mReceivedReport_10 = true;
+
+        VerifyOrReturn(CheckConstraintType("operationalStatus", "", "map8"));
+        VerifyOrReturn(CheckConstraintMinValue<uint8_t>("operationalStatus", operationalStatus, 34));
+        VerifyOrReturn(CheckConstraintMaxValue<uint8_t>("operationalStatus", operationalStatus, 42));
+    }
+
+    CHIP_ERROR Test3aVerifyDutReportsOperationalStatusAttributeToThAfterADownOrClose_11()
+    {
+        const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
+        chip::Controller::WindowCoveringClusterTest cluster;
+        cluster.Associate(mDevices[kIdentityAlpha], endpoint);
+
+        uint16_t minIntervalArgument;
+        minIntervalArgument = 1U;
+        uint16_t maxIntervalArgument;
+        maxIntervalArgument = 2U;
+
+        ReturnErrorOnFailure(
+            cluster.SubscribeAttribute<chip::app::Clusters::WindowCovering::Attributes::OperationalStatus::TypeInfo>(
+                this, OnSuccessCallback_11, OnFailureCallback_11, minIntervalArgument, maxIntervalArgument,
+                OnSubscriptionEstablished_11));
+        return CHIP_NO_ERROR;
+    }
+
+    void OnFailureResponse_11(EmberAfStatus status) { ThrowFailureResponse(); }
+
+    void OnSuccessResponse_11(uint8_t value)
+    {
+        if (mTest_Test_TC_WNCV_3_2_OperationalStatus_Reported)
+        {
+            auto callback                                     = mTest_Test_TC_WNCV_3_2_OperationalStatus_Reported;
+            mTest_Test_TC_WNCV_3_2_OperationalStatus_Reported = nullptr;
+            callback(this, value);
+        }
+    }
+
+    void OnSubscriptionEstablishedResponse_11()
+    {
+        VerifyOrReturn(mReceivedReport_10, Exit("Initial report not received!"));
+        NextTest();
+    }
+
+    CHIP_ERROR Test3bIfPaLfThReadsCurrentPositionLiftPercent100thsAttributeFromDut_12()
+    {
+        const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
+        chip::Controller::WindowCoveringClusterTest cluster;
+        cluster.Associate(mDevices[kIdentityAlpha], endpoint);
+
+        ReturnErrorOnFailure(
+            cluster.ReadAttribute<chip::app::Clusters::WindowCovering::Attributes::CurrentPositionLiftPercent100ths::TypeInfo>(
+                this, OnSuccessCallback_12, OnFailureCallback_12));
+        return CHIP_NO_ERROR;
+    }
+
+    void OnFailureResponse_12(EmberAfStatus status) { ThrowFailureResponse(); }
+
+    void OnSuccessResponse_12(const chip::app::DataModel::Nullable<chip::Percent100ths> & currentPositionLiftPercent100ths)
+    {
+        VerifyOrReturn(CheckConstraintType("currentPositionLiftPercent100ths", "", "uint16"));
+        VerifyOrReturn(
+            CheckConstraintMinValue<chip::Percent100ths>("currentPositionLiftPercent100ths", currentPositionLiftPercent100ths, 1U));
+        VerifyOrReturn(CheckConstraintMaxValue<chip::Percent100ths>("currentPositionLiftPercent100ths",
+                                                                    currentPositionLiftPercent100ths, 10000U));
+        NextTest();
+    }
+
+    CHIP_ERROR Test3cIfPaLfThReadsCurrentPositionLiftPercentageOptionalAttributeFromDut_13()
+    {
+        const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
+        chip::Controller::WindowCoveringClusterTest cluster;
+        cluster.Associate(mDevices[kIdentityAlpha], endpoint);
+
+        ReturnErrorOnFailure(
+            cluster.ReadAttribute<chip::app::Clusters::WindowCovering::Attributes::CurrentPositionLiftPercentage::TypeInfo>(
+                this, OnSuccessCallback_13, OnFailureCallback_13));
+        return CHIP_NO_ERROR;
+    }
+
+    void OnFailureResponse_13(EmberAfStatus status) { ThrowFailureResponse(); }
+
+    void OnSuccessResponse_13(const chip::app::DataModel::Nullable<chip::Percent> & currentPositionLiftPercentage)
+    {
+        VerifyOrReturn(CheckConstraintType("currentPositionLiftPercentage", "", "uint8"));
+        VerifyOrReturn(CheckConstraintMinValue<chip::Percent>("currentPositionLiftPercentage", currentPositionLiftPercentage, 1));
+        VerifyOrReturn(CheckConstraintMaxValue<chip::Percent>("currentPositionLiftPercentage", currentPositionLiftPercentage, 100));
+        NextTest();
+    }
+
+    CHIP_ERROR Test3dIfPaTlThReadsCurrentPositionTiltPercent100thsAttributeFromDut_14()
+    {
+        const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
+        chip::Controller::WindowCoveringClusterTest cluster;
+        cluster.Associate(mDevices[kIdentityAlpha], endpoint);
+
+        ReturnErrorOnFailure(
+            cluster.ReadAttribute<chip::app::Clusters::WindowCovering::Attributes::CurrentPositionTiltPercent100ths::TypeInfo>(
+                this, OnSuccessCallback_14, OnFailureCallback_14));
+        return CHIP_NO_ERROR;
+    }
+
+    void OnFailureResponse_14(EmberAfStatus status) { ThrowFailureResponse(); }
+
+    void OnSuccessResponse_14(const chip::app::DataModel::Nullable<chip::Percent100ths> & currentPositionTiltPercent100ths)
+    {
+        VerifyOrReturn(CheckConstraintType("currentPositionTiltPercent100ths", "", "uint16"));
+        VerifyOrReturn(
+            CheckConstraintMinValue<chip::Percent100ths>("currentPositionTiltPercent100ths", currentPositionTiltPercent100ths, 1U));
+        VerifyOrReturn(CheckConstraintMaxValue<chip::Percent100ths>("currentPositionTiltPercent100ths",
+                                                                    currentPositionTiltPercent100ths, 10000U));
+        NextTest();
+    }
+
+    CHIP_ERROR Test3eIfPaLfThReadsCurrentPositionTiltPercentageOptionalAttributeFromDut_15()
+    {
+        const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
+        chip::Controller::WindowCoveringClusterTest cluster;
+        cluster.Associate(mDevices[kIdentityAlpha], endpoint);
+
+        ReturnErrorOnFailure(
+            cluster.ReadAttribute<chip::app::Clusters::WindowCovering::Attributes::CurrentPositionTiltPercentage::TypeInfo>(
+                this, OnSuccessCallback_15, OnFailureCallback_15));
+        return CHIP_NO_ERROR;
+    }
+
+    void OnFailureResponse_15(EmberAfStatus status) { ThrowFailureResponse(); }
+
+    void OnSuccessResponse_15(const chip::app::DataModel::Nullable<chip::Percent> & currentPositionTiltPercentage)
+    {
+        VerifyOrReturn(CheckConstraintType("currentPositionTiltPercentage", "", "uint8"));
+        VerifyOrReturn(CheckConstraintMinValue<chip::Percent>("currentPositionTiltPercentage", currentPositionTiltPercentage, 1));
+        VerifyOrReturn(CheckConstraintMaxValue<chip::Percent>("currentPositionTiltPercentage", currentPositionTiltPercentage, 100));
+        NextTest();
+    }
+
+    CHIP_ERROR Test4aThSendsAStopMotionCommandToDut_16()
+    {
+        const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
+        using RequestType               = chip::app::Clusters::WindowCovering::Commands::StopMotion::Type;
+
+        RequestType request;
+
+        auto success = [](void * context, const typename RequestType::ResponseType & data) {
+            (static_cast<Test_TC_WNCV_3_2 *>(context))->OnSuccessResponse_16();
+        };
+
+        auto failure = [](void * context, EmberAfStatus status) {
+            (static_cast<Test_TC_WNCV_3_2 *>(context))->OnFailureResponse_16(status);
+        };
+
+        ReturnErrorOnFailure(chip::Controller::InvokeCommand(mDevices[kIdentityAlpha], this, success, failure, endpoint, request));
+        return CHIP_NO_ERROR;
+    }
+
+    void OnFailureResponse_16(EmberAfStatus status) { ThrowFailureResponse(); }
+
+    void OnSuccessResponse_16() { NextTest(); }
+
+    CHIP_ERROR Test4bThWaitsFor3SecondsTheEndOfInertialMovementsOnTheDevice_17()
+    {
+        SetIdentity(kIdentityAlpha);
+        return WaitForMs(3000);
+    }
+
+    CHIP_ERROR Test4cVerifyDutReportsOperationalStatusAttributeToThAfterAStopMotion_18()
+    {
+        const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
+        chip::Controller::WindowCoveringClusterTest cluster;
+        cluster.Associate(mDevices[kIdentityAlpha], endpoint);
+
+        mTest_Test_TC_WNCV_3_2_OperationalStatus_Reported = OnSuccessCallback_18;
+        return CHIP_NO_ERROR;
+    }
+
+    void OnFailureResponse_18(EmberAfStatus status) { ThrowFailureResponse(); }
+
+    void OnSuccessResponse_18(uint8_t operationalStatus)
+    {
+        mReceivedReport_18 = true;
+
+        VerifyOrReturn(CheckValue("operationalStatus", operationalStatus, 0));
+
+        NextTest();
+    }
+
+    CHIP_ERROR Test5aThWaitsForXSecondsAttributesUpdateOnTheDevice_19()
+    {
+        SetIdentity(kIdentityAlpha);
+        return WaitForMs(1000);
+    }
+
+    CHIP_ERROR Test5bIfPaLfThReadsTargetPositionLiftPercent100thsAttributeFromDut_20()
+    {
+        const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
+        chip::Controller::WindowCoveringClusterTest cluster;
+        cluster.Associate(mDevices[kIdentityAlpha], endpoint);
+
+        ReturnErrorOnFailure(
+            cluster.ReadAttribute<chip::app::Clusters::WindowCovering::Attributes::TargetPositionLiftPercent100ths::TypeInfo>(
+                this, OnSuccessCallback_20, OnFailureCallback_20));
+        return CHIP_NO_ERROR;
+    }
+
+    void OnFailureResponse_20(EmberAfStatus status) { ThrowFailureResponse(); }
+
+    void OnSuccessResponse_20(const chip::app::DataModel::Nullable<chip::Percent100ths> & targetPositionLiftPercent100ths)
+    {
+        VerifyOrReturn(CheckConstraintType("targetPositionLiftPercent100ths", "", "uint16"));
+        VerifyOrReturn(
+            CheckConstraintMinValue<chip::Percent100ths>("targetPositionLiftPercent100ths", targetPositionLiftPercent100ths, 1U));
+        VerifyOrReturn(CheckConstraintMaxValue<chip::Percent100ths>("targetPositionLiftPercent100ths",
+                                                                    targetPositionLiftPercent100ths, 10000U));
+        NextTest();
+    }
+
+    CHIP_ERROR Test5cIfPaTlThReadsTargetPositionTiltPercent100thsAttributeFromDut_21()
+    {
+        const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
+        chip::Controller::WindowCoveringClusterTest cluster;
+        cluster.Associate(mDevices[kIdentityAlpha], endpoint);
+
+        ReturnErrorOnFailure(
+            cluster.ReadAttribute<chip::app::Clusters::WindowCovering::Attributes::TargetPositionTiltPercent100ths::TypeInfo>(
+                this, OnSuccessCallback_21, OnFailureCallback_21));
+        return CHIP_NO_ERROR;
+    }
+
+    void OnFailureResponse_21(EmberAfStatus status) { ThrowFailureResponse(); }
+
+    void OnSuccessResponse_21(const chip::app::DataModel::Nullable<chip::Percent100ths> & targetPositionTiltPercent100ths)
+    {
+        VerifyOrReturn(CheckConstraintType("targetPositionTiltPercent100ths", "", "uint16"));
+        VerifyOrReturn(
+            CheckConstraintMinValue<chip::Percent100ths>("targetPositionTiltPercent100ths", targetPositionTiltPercent100ths, 1U));
+        VerifyOrReturn(CheckConstraintMaxValue<chip::Percent100ths>("targetPositionTiltPercent100ths",
+                                                                    targetPositionTiltPercent100ths, 10000U));
+        NextTest();
+    }
+
+    CHIP_ERROR Test5dThReadsOperationalStatusAttributeFromDutMustBeZero_22()
     {
         const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
         chip::Controller::WindowCoveringClusterTest cluster;
         cluster.Associate(mDevices[kIdentityAlpha], endpoint);
 
         ReturnErrorOnFailure(cluster.ReadAttribute<chip::app::Clusters::WindowCovering::Attributes::OperationalStatus::TypeInfo>(
-            this, OnSuccessCallback_3, OnFailureCallback_3));
+            this, OnSuccessCallback_22, OnFailureCallback_22));
         return CHIP_NO_ERROR;
     }
 
-    void OnFailureResponse_3(EmberAfStatus status) { ThrowFailureResponse(); }
+    void OnFailureResponse_22(EmberAfStatus status) { ThrowFailureResponse(); }
 
-    void OnSuccessResponse_3(uint8_t operationalStatus)
+    void OnSuccessResponse_22(uint8_t operationalStatus)
     {
         VerifyOrReturn(CheckValue("operationalStatus", operationalStatus, 0));
 
@@ -40688,12 +41967,16 @@ public:
             err = Test1aThAdjustsTheTheDutToANonOpenPosition_1();
             break;
         case 2:
-            ChipLogProgress(chipTool, " ***** Test Step 2 : 2a: TH sends StopMotion command to DUT\n");
-            err = Test2aThSendsStopMotionCommandToDut_2();
+            ChipLogProgress(chipTool, " ***** Test Step 2 : 1b: Wait for the movement to start and go on for a few seconds\n");
+            err = Test1bWaitForTheMovementToStartAndGoOnForAFewSeconds_2();
             break;
         case 3:
-            ChipLogProgress(chipTool, " ***** Test Step 3 : 2b: TH reads OperationalStatus attribute from DUT\n");
-            err = Test2bThReadsOperationalStatusAttributeFromDut_3();
+            ChipLogProgress(chipTool, " ***** Test Step 3 : 2a: TH sends StopMotion command to DUT\n");
+            err = Test2aThSendsStopMotionCommandToDut_3();
+            break;
+        case 4:
+            ChipLogProgress(chipTool, " ***** Test Step 4 : 2b: TH reads OperationalStatus attribute from DUT\n");
+            err = Test2bThReadsOperationalStatusAttributeFromDut_4();
             break;
         }
 
@@ -40706,19 +41989,19 @@ public:
 
 private:
     std::atomic_uint16_t mTestIndex;
-    const uint16_t mTestCount = 4;
+    const uint16_t mTestCount = 5;
 
     chip::Optional<chip::CharSpan> mCluster;
     chip::Optional<chip::EndpointId> mEndpoint;
 
-    static void OnFailureCallback_3(void * context, EmberAfStatus status)
+    static void OnFailureCallback_4(void * context, EmberAfStatus status)
     {
-        (static_cast<Test_TC_WNCV_3_3 *>(context))->OnFailureResponse_3(status);
+        (static_cast<Test_TC_WNCV_3_3 *>(context))->OnFailureResponse_4(status);
     }
 
-    static void OnSuccessCallback_3(void * context, uint8_t operationalStatus)
+    static void OnSuccessCallback_4(void * context, uint8_t operationalStatus)
     {
-        (static_cast<Test_TC_WNCV_3_3 *>(context))->OnSuccessResponse_3(operationalStatus);
+        (static_cast<Test_TC_WNCV_3_3 *>(context))->OnSuccessResponse_4(operationalStatus);
     }
 
     //
@@ -40754,7 +42037,13 @@ private:
 
     void OnSuccessResponse_1() { NextTest(); }
 
-    CHIP_ERROR Test2aThSendsStopMotionCommandToDut_2()
+    CHIP_ERROR Test1bWaitForTheMovementToStartAndGoOnForAFewSeconds_2()
+    {
+        SetIdentity(kIdentityAlpha);
+        return WaitForMs(100);
+    }
+
+    CHIP_ERROR Test2aThSendsStopMotionCommandToDut_3()
     {
         const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
         using RequestType               = chip::app::Clusters::WindowCovering::Commands::StopMotion::Type;
@@ -40762,35 +42051,35 @@ private:
         RequestType request;
 
         auto success = [](void * context, const typename RequestType::ResponseType & data) {
-            (static_cast<Test_TC_WNCV_3_3 *>(context))->OnSuccessResponse_2();
+            (static_cast<Test_TC_WNCV_3_3 *>(context))->OnSuccessResponse_3();
         };
 
         auto failure = [](void * context, EmberAfStatus status) {
-            (static_cast<Test_TC_WNCV_3_3 *>(context))->OnFailureResponse_2(status);
+            (static_cast<Test_TC_WNCV_3_3 *>(context))->OnFailureResponse_3(status);
         };
 
         ReturnErrorOnFailure(chip::Controller::InvokeCommand(mDevices[kIdentityAlpha], this, success, failure, endpoint, request));
         return CHIP_NO_ERROR;
     }
 
-    void OnFailureResponse_2(EmberAfStatus status) { ThrowFailureResponse(); }
+    void OnFailureResponse_3(EmberAfStatus status) { ThrowFailureResponse(); }
 
-    void OnSuccessResponse_2() { NextTest(); }
+    void OnSuccessResponse_3() { NextTest(); }
 
-    CHIP_ERROR Test2bThReadsOperationalStatusAttributeFromDut_3()
+    CHIP_ERROR Test2bThReadsOperationalStatusAttributeFromDut_4()
     {
         const chip::EndpointId endpoint = mEndpoint.HasValue() ? mEndpoint.Value() : 1;
         chip::Controller::WindowCoveringClusterTest cluster;
         cluster.Associate(mDevices[kIdentityAlpha], endpoint);
 
         ReturnErrorOnFailure(cluster.ReadAttribute<chip::app::Clusters::WindowCovering::Attributes::OperationalStatus::TypeInfo>(
-            this, OnSuccessCallback_3, OnFailureCallback_3));
+            this, OnSuccessCallback_4, OnFailureCallback_4));
         return CHIP_NO_ERROR;
     }
 
-    void OnFailureResponse_3(EmberAfStatus status) { ThrowFailureResponse(); }
+    void OnFailureResponse_4(EmberAfStatus status) { ThrowFailureResponse(); }
 
-    void OnSuccessResponse_3(uint8_t operationalStatus)
+    void OnSuccessResponse_4(uint8_t operationalStatus)
     {
         VerifyOrReturn(CheckValue("operationalStatus", operationalStatus, 0));
 
