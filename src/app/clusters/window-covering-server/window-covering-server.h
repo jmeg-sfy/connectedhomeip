@@ -28,15 +28,17 @@
 
 #include <app/data-model/Nullable.h>
 
-#define WC_PERCENT100THS_MIN_OPEN   0
+#define WC_PERCENT100THS_MIN_OPEN 0
 #define WC_PERCENT100THS_MAX_CLOSED 10000
-
 
 namespace chip {
 namespace app {
 namespace Clusters {
 namespace WindowCovering {
 
+typedef DataModel::Nullable<Percent> NPercent;
+typedef DataModel::Nullable<Percent100ths> NPercent100ths;
+typedef DataModel::Nullable<uint16_t> NAbsolute;
 
 static const std::map<WcFeature, const char *> mFeatureId = {
     { WcFeature::kLift             , "Lift"   },
@@ -104,12 +106,12 @@ static_assert(sizeof(SafetyStatus) == sizeof(uint16_t), "SafetyStatus Size is no
 // Declare Position Limit Status
 enum class LimitStatus : uint8_t
 {
-    Intermediate      = 0x00, //
-    IsUpOrOpen        = 0x01, //
-    IsDownOrClose     = 0x02, //
-    Inverted          = 0x03, //
-    IsOverUpOrOpen    = 0x04, //
-    IsOverDownOrClose = 0x05, //
+    Intermediate      = 0x00,
+    IsUpOrOpen        = 0x01,
+    IsDownOrClose     = 0x02,
+    Inverted          = 0x03,
+    IsPostUpOrOpen    = 0x04,
+    IsPostDownOrClose = 0x05,
 };
 static_assert(sizeof(LimitStatus) == sizeof(uint8_t), "LimitStatus Size is not correct");
 
@@ -220,9 +222,12 @@ EmberAfWcType TypeGet(chip::EndpointId endpoint);
 void ConfigStatusSet(chip::EndpointId endpoint, const ConfigStatus & status);
 const ConfigStatus ConfigStatusGet(chip::EndpointId endpoint);
 
-void OperationalStatusSetWithGlobalUpdated(chip::EndpointId endpoint, OperationalStatus & status);
 void OperationalStatusSet(chip::EndpointId endpoint, const OperationalStatus & status);
+void OperationalStatusSetWithGlobalUpdated(chip::EndpointId endpoint, OperationalStatus & status);
 const OperationalStatus OperationalStatusGet(chip::EndpointId endpoint);
+
+OperationalState ComputeOperationalState(uint16_t target, uint16_t current);
+OperationalState ComputeOperationalState(NPercent100ths target, NPercent100ths current);
 
 void EndProductTypeSet(chip::EndpointId endpoint, EmberAfWcEndProductType type);
 EmberAfWcEndProductType EndProductTypeGet(chip::EndpointId endpoint);
@@ -235,8 +240,8 @@ const SafetyStatus SafetyStatusGet(chip::EndpointId endpoint);
 
 LimitStatus CheckLimitState(uint16_t position, AbsoluteLimits limits);
 
-OperationalState ComputeOperationalState(uint16_t target, uint16_t current);
-OperationalState ComputeOperationalState(NPercent100ths target, NPercent100ths current);
+bool IsPercent100thsValid(Percent100ths percent100ths);
+bool IsPercent100thsValid(NPercent100ths npercent100ths);
 
 void PostAttributeChange(chip::EndpointId endpoint, chip::AttributeId attributeId);
 

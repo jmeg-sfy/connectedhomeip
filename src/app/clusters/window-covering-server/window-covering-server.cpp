@@ -42,9 +42,17 @@ using namespace chip::app::Clusters::WindowCovering;
 
 
 #define CHECK_BOUNDS_INVALID(MIN, VAL, MAX) ((VAL < MIN) || (VAL > MAX))
-#define CHECK_BOUNDS_VALID(MIN, VAL, MAX)   (!CHECK_BOUNDS_INVALID(MIN, VAL, MAX))
+#define CHECK_BOUNDS_VALID(MIN, VAL, MAX) (!CHECK_BOUNDS_INVALID(MIN, VAL, MAX))
 
-static uint16_t ConvertValue(uint16_t inputLowValue, uint16_t inputHighValue, uint16_t outputLowValue, uint16_t outputHighValue, uint16_t value, bool offset)
+/*
+ * ConvertValue: Permits to convert values from one range to another
+ * Range In  -> from  inputLowValue to   inputHighValue
+ * Range Out -> from outputLowValue to outputtHighValue
+ * offset true  -> allows to take into account the minimum of each range in the conversion
+ * offset false -> applies only the basic "rule of three" for the conversion
+ */
+static uint16_t ConvertValue(uint16_t inputLowValue, uint16_t inputHighValue, uint16_t outputLowValue, uint16_t outputHighValue,
+                             uint16_t value, bool offset)
 {
     uint16_t inputMin = inputLowValue, inputMax = inputHighValue, inputRange = UINT16_MAX;
     uint16_t outputMin = outputLowValue, outputMax = outputHighValue, outputRange = UINT16_MAX;
@@ -61,7 +69,7 @@ static uint16_t ConvertValue(uint16_t inputLowValue, uint16_t inputHighValue, ui
         outputMax = outputLowValue;
     }
 
-    inputRange = static_cast<uint16_t>(inputMax - inputMin);
+    inputRange  = static_cast<uint16_t>(inputMax - inputMin);
     outputRange = static_cast<uint16_t>(outputMax - outputMin);
 
     emberAfWindowCoveringClusterPrint("ValueIn=%u", value);
@@ -96,7 +104,6 @@ static uint16_t ConvertValue(uint16_t inputLowValue, uint16_t inputHighValue, ui
     }
 
     return outputMax;
-
 }
 
 static Percent100ths ValueToPercent100ths(AbsoluteLimits limits, uint16_t absolute)
@@ -108,24 +115,6 @@ static uint16_t Percent100thsToValue(AbsoluteLimits limits, Percent100ths relati
 {
     emberAfWindowCoveringClusterPrint("Percent100thsToValue");
     return ConvertValue(WC_PERCENT100THS_MIN_OPEN, WC_PERCENT100THS_MAX_CLOSED, limits.open, limits.closed, relative, true);
-}
-
-static bool IsPercent100thsValid(Percent100ths percent100ths)
-{
-    if (CHECK_BOUNDS_VALID(WC_PERCENT100THS_MIN_OPEN, percent100ths, WC_PERCENT100THS_MAX_CLOSED))
-        return true;
-
-    return false;
-}
-
-static bool IsPercent100thsValid(NPercent100ths percent100ths)
-{
-    if (!percent100ths.IsNull())
-    {
-        return IsPercent100thsValid(percent100ths.Value());
-    }
-
-    return true;
 }
 
 static OperationalState ValueToOperationalState(uint8_t value)
@@ -277,13 +266,15 @@ const ConfigStatus ConfigStatusGet(chip::EndpointId endpoint)
     return status;
 }
 
-
 void OperationalStatusSetWithGlobalUpdated(chip::EndpointId endpoint, OperationalStatus & status)
 {
     /* Global Always follow Lift by priority and then fallback to Tilt */
-    if (OperationalState::Stall != status.lift) {
+    if (OperationalState::Stall != status.lift)
+    {
         status.global = status.lift;
-    } else {
+    }
+    else
+    {
         status.global = status.tilt;
     }
 
@@ -295,7 +286,6 @@ void OperationalStatusSet(chip::EndpointId endpoint, const OperationalStatus & s
     uint8_t global = OperationalStateToValue(status.global);
     uint8_t lift   = OperationalStateToValue(status.lift);
     uint8_t tilt   = OperationalStateToValue(status.tilt);
-
     uint8_t value  = (global & 0x03) | static_cast<uint8_t>((lift & 0x03) << 2) | static_cast<uint8_t>((tilt & 0x03) << 4);
     emberAfWindowCoveringClusterPrint("OperationalStatusSet %u 0x%02X global=0x%02X lift=0x%02X tilt=0x%02X", value, value, global, lift, tilt);
     Attributes::OperationalStatus::Set(endpoint, value);
@@ -381,6 +371,45 @@ const SafetyStatus SafetyStatusGet(chip::EndpointId endpoint)
     status.hardwareFailure     = (value & 0x0200) ? 1 : 0;
     status.manualOperation     = (value & 0x0400) ? 1 : 0;
     return status;
+}
+
+LimitStatus CheckLimitState(uint16_t position, AbsoluteLimits limits)
+{
+
+    if (limits.open > limits.closed)
+        return LimitStatus::Inverted;
+
+    if (position == limits.open)
+        return LimitStatus::IsUpOrOpen;
+
+    if (position == limits.closed)
+        return LimitStatus::IsDownOrClose;
+
+    if ((limits.open > 0) && (position < limits.open))
+        return LimitStatus::IsPostUpOrOpen;
+
+    if ((limits.closed > 0) && (position > limits.closed))
+        return LimitStatus::IsPostDownOrClose;
+
+    return LimitStatus::Intermediate;
+}
+
+bool IsPercent100thsValid(Percent100ths percent100ths)
+{
+    if (CHECK_BOUNDS_VALID(WC_PERCENT100THS_MIN_OPEN, percent100ths, WC_PERCENT100THS_MAX_CLOSED))
+        return true;
+
+    return false;
+}
+
+bool IsPercent100thsValid(NPercent100ths percent100ths)
+{
+    if (!percent100ths.IsNull())
+    {
+        return IsPercent100thsValid(percent100ths.Value());
+    }
+
+    return true;
 }
 
 EmberAfStatus ActuatorAccessors::PositionAccessors::SetAttributeRelativePosition(chip::EndpointId endpoint, const NPercent100ths& relPercent100ths)
@@ -871,27 +900,6 @@ bool ActuatorAccessors::IsPositionAware(chip::EndpointId endpoint)
     }
 
     return isPositionAware;
-}
-
-LimitStatus CheckLimitState(uint16_t position, AbsoluteLimits limits)
-{
-
-    if (limits.open > limits.closed)
-        return LimitStatus::Inverted;
-
-    if (position == limits.open)
-        return LimitStatus::IsUpOrOpen;
-
-    if (position == limits.closed)
-        return LimitStatus::IsDownOrClose;
-
-    if ((limits.open   > 0) && (position < limits.open  ))
-        return LimitStatus::IsOverUpOrOpen;
-
-    if ((limits.closed > 0) && (position > limits.closed))
-        return LimitStatus::IsOverDownOrClose;
-
-    return LimitStatus::Intermediate;
 }
 
 /* PostAttributeChange is used in all-cluster-app simulation and CI testing : otherwise it is bounded to manufacturer specific implementation */
