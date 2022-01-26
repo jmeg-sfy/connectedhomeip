@@ -45,7 +45,7 @@ using namespace chip::app::Clusters::WindowCovering;
 #define CHECK_BOUNDS_VALID(MIN, VAL, MAX) (!CHECK_BOUNDS_INVALID(MIN, VAL, MAX))
 
 /*
- * ConvertValue: Permits to convert values from one range to another
+ * ConvertValue: Converts values from one range to another
  * Range In  -> from  inputLowValue to   inputHighValue
  * Range Out -> from outputLowValue to outputtHighValue
  * offset true  -> allows to take into account the minimum of each range in the conversion
@@ -386,10 +386,10 @@ LimitStatus CheckLimitState(uint16_t position, AbsoluteLimits limits)
         return LimitStatus::IsDownOrClose;
 
     if ((limits.open > 0) && (position < limits.open))
-        return LimitStatus::IsPostUpOrOpen;
+        return LimitStatus::IsPastUpOrOpen;
 
     if ((limits.closed > 0) && (position > limits.closed))
-        return LimitStatus::IsPostDownOrClose;
+        return LimitStatus::IsPastDownOrClose;
 
     return LimitStatus::Intermediate;
 }

@@ -63,9 +63,7 @@ protected:
     WindowApp::Button * CreateButton(WindowApp::Button::Id id, const char * name) override;
     void OnButtonChange(const sl_button_t * handle);
     void ProcessEvents();
-
     void DispatchEvent(const WindowApp::Event & event) override;
-
     void UpdateLEDs();
     void UpdateLCD();
     void OnMainLoop() override;

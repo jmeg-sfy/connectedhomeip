@@ -360,11 +360,6 @@ void WindowAppImpl::DispatchEvent(const WindowApp::Event & event)
 
     switch (event.mId)
     {
-    case EventId::WinkOn:
-    case EventId::WinkOff:
-        mState.isWinking = (EventId::WinkOn == event.mId);
-        UpdateLEDs();
-        break;
     case EventId::AttributeChange:
         DispatchEventAttributeChange(event.mEndpoint, event.mAttributeId);
         break;
@@ -381,6 +376,12 @@ void WindowAppImpl::DispatchEvent(const WindowApp::Event & event)
     case EventId::ProvisionedStateChanged:
         UpdateLEDs();
         UpdateLCD();
+        break;
+
+    case EventId::WinkOn:
+    case EventId::WinkOff:
+        mState.isWinking = (EventId::WinkOn == event.mId);
+        UpdateLEDs();
         break;
     case EventId::ConnectivityStateChanged:
     case EventId::BLEConnectionsChanged:
@@ -490,7 +491,10 @@ void WindowAppImpl::UpdateLCD()
     }
     else
     {
-        LCDWriteQRCode((uint8_t *) mQRCode.c_str());
+        if (GetQRCode(mQRCode, chip::RendezvousInformationFlags(chip::RendezvousInformationFlag::kBLE)) == CHIP_NO_ERROR)
+        {
+            LCDWriteQRCode((uint8_t *) mQRCode.c_str());
+        }
     }
 #endif
 }

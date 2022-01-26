@@ -84,12 +84,12 @@ public:
         BtnCycleEndpoint,
         BtnCycleActuator,
 
-        // Cover Attribute update events
-        AttributeChange,
-
         // Actuator Update Change
         ActuatorUpdateLift,
         ActuatorUpdateTilt,
+
+        // Cover Attribute update events
+        AttributeChange,
 
         // Provisioning events
         ProvisionedStateChanged,

@@ -34,10 +34,10 @@ extern "C" {
 #define LCD_COVER_SIZE (LCD_SIZE - 2 * LCD_FRAME_SIZE)
 #define LIFT_OPEN_LIMIT 0
 #define LIFT_CLOSED_LIMIT (LCD_COVER_SIZE - 1)
-#define LIFT_DELTA 3 // 10%
+#define LIFT_DELTA 1000 // 10%
 #define TILT_OPEN_LIMIT 1
 #define TILT_CLOSED_LIMIT (LCD_COVER_SIZE / 10 - 1)
-#define TILT_DELTA 2 // 10%
+#define TILT_DELTA 1000 // 10%
 
 #define WINDOW_COVER_COUNT 2
 
