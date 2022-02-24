@@ -1312,3 +1312,4 @@ zephyrproject
 Zigbee
 zigbeealliance
 zigbeethread
+libshell
