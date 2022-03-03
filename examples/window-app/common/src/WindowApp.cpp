@@ -323,7 +323,9 @@ void WindowApp::DispatchEventAttributeChange(chip::EndpointId endpoint, chip::At
         break;
     /* RO OperationalStatus */
     case Attributes::OperationalStatus::Id:
+        chip::DeviceLayer::PlatformMgr().LockChipStack();
         emberAfWindowCoveringClusterPrint("Global OpState: %02X\n", (unsigned int) OperationalStatusGet(endpoint).global);
+        chip::DeviceLayer::PlatformMgr().UnlockChipStack();
         break;
     /* RW Mode */
     case Attributes::Mode::Id:
@@ -618,7 +620,11 @@ void WindowApp::Cover::TiltUpdate(bool newTarget)
     else /* CURRENT reached TARGET or crossed it */
     {
         /* Actuator finalize the movement AND CURRENT Must be equal to TARGET at the end */
+
+        chip::DeviceLayer::PlatformMgr().LockChipStack();
         Attributes::CurrentPositionTiltPercent100ths::Set(mEndpoint, target);
+        chip::DeviceLayer::PlatformMgr().UnlockChipStack();
+
         mTiltOpState = OperationalState::Stall;
     }
 
