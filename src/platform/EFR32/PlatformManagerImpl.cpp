@@ -87,6 +87,17 @@ CHIP_ERROR PlatformManagerImpl::_Shutdown()
 
     return Internal::GenericPlatformManagerImpl_FreeRTOS<PlatformManagerImpl>::_Shutdown();
 }
+
+CHIP_ERROR
+PlatformManagerImpl::_GetSupportedLocales(AttributeList<chip::CharSpan, kMaxLanguageTags> & supportedLocales)
+{
+    // return following hardcoded list of Strings that are valid values for the ActiveLocale.
+    supportedLocales.add(CharSpan::fromCharString("en-US"));
+    supportedLocales.add(CharSpan::fromCharString("en-GB"));
+
+    return CHIP_NO_ERROR;
+}
+
 #if CHIP_DEVICE_CONFIG_ENABLE_WIFI_STATION
 void PlatformManagerImpl::HandleWFXSystemEvent(wfx_event_base_t eventBase, sl_wfx_generic_message_t * eventData)
 {

@@ -61,6 +61,7 @@ private:
     CHIP_ERROR _InitChipStack(void);
     CHIP_ERROR _Shutdown(void);
 
+    CHIP_ERROR _GetSupportedLocales(AttributeList<chip::CharSpan, kMaxLanguageTags> & supportedLocales);
     // ===== Members for internal use by the following friends.
 
     friend PlatformManager & PlatformMgr(void);
