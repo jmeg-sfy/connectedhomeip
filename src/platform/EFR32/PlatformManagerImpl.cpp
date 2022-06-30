@@ -25,6 +25,7 @@
 #include <platform/internal/CHIPDeviceLayerInternal.h>
 
 #include <platform/EFR32/DiagnosticDataProviderImpl.h>
+#include <platform/EFR32/DeviceInfoProviderImpl.h>
 #include <platform/FreeRTOS/SystemTimeSupport.h>
 #include <platform/KeyValueStoreManager.h>
 #include <platform/PlatformManager.h>
@@ -52,7 +53,7 @@ CHIP_ERROR PlatformManagerImpl::_InitChipStack(void)
 
     SetConfigurationMgr(&ConfigurationManagerImpl::GetDefaultInstance());
     SetDiagnosticDataProvider(&DiagnosticDataProviderImpl::GetDefaultInstance());
-
+   // SetDeviceInfoProvider(&DeviceInfoProviderImpl::GetDefaultInstance());
 #if CHIP_SYSTEM_CONFIG_USE_LWIP
     // Initialize LwIP.
     tcpip_init(NULL, NULL);
