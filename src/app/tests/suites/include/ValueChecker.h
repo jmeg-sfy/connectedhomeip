@@ -201,3 +201,47 @@ protected:
         return false;
     }
 };
+
+template <typename T>
+chip::app::DataModel::Nullable<T> operator+(const chip::app::DataModel::Nullable<T> & nullable, int value)
+{
+    if (nullable.IsNull())
+    {
+        return chip::app::DataModel::Nullable<T>();
+    }
+
+    return chip::app::DataModel::Nullable<T>(nullable.Value() + static_cast<T>(value));
+}
+
+template <typename T>
+chip::app::DataModel::Nullable<T> operator-(const chip::app::DataModel::Nullable<T> & nullable, int value)
+{
+    if (nullable.IsNull())
+    {
+        return chip::app::DataModel::Nullable<T>();
+    }
+
+    return chip::app::DataModel::Nullable<T>(nullable.Value() - static_cast<T>(value));
+}
+
+template <typename T>
+chip::app::DataModel::Nullable<T> operator*(const chip::app::DataModel::Nullable<T> & nullable, int value)
+{
+    if (nullable.IsNull())
+    {
+        return chip::app::DataModel::Nullable<T>();
+    }
+
+    return chip::app::DataModel::Nullable<T>(nullable.Value() * static_cast<T>(value));
+}
+
+template <typename T>
+chip::app::DataModel::Nullable<T> operator/(const chip::app::DataModel::Nullable<T> & nullable, int value)
+{
+    if (nullable.IsNull())
+    {
+        return chip::app::DataModel::Nullable<T>();
+    }
+
+    return chip::app::DataModel::Nullable<T>(nullable.Value() / static_cast<T>(value));
+}
