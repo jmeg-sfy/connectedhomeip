@@ -33,6 +33,7 @@
         "content-launch-cluster.xml",
         "content-app-observer-cluster.xml",
         "content-control-cluster.xml",
+        "closure-dimension-cluster-datatype.xml",
         "descriptor-cluster.xml",
         "device-energy-management-cluster.xml",
         "device-energy-management-mode-cluster.xml",

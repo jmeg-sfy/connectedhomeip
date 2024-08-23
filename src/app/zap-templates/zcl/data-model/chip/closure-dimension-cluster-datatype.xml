@@ -1,0 +1,154 @@
+<?xml version="1.0"?>
+<!--
+Copyright (c) 2021 Project CHIP Authors
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<configurator>
+  <domain name="CHIP"/>
+   <!--
+   The generic enum values for the StatusCode and ModeTag enums are defined within the ModeBase namespace
+   in the mode-base-server source code. See mode-base-cluster-objects.h.
+   This is because zap does not currently support generating code for clusters that do not have a cluster ID.
+   -->
+  <enum name="LatchingEnum" type="enum8">
+    <cluster code="0x0CD1"/> <!-- Closure 1st Dimension -->
+    <cluster code="0x0CD2"/> <!-- Closure 2nd Dimension -->
+    <cluster code="0x0CD3"/> <!-- Closure 3rd Dimension -->
+    <cluster code="0x0CD4"/> <!-- Closure 4th Dimension -->
+    <cluster code="0x0CD5"/> <!-- Closure 5th Dimension -->
+    <cluster code="0x0CD6"/> <!-- Closure 6th Dimension -->
+    <cluster code="0x0CD7"/> <!-- Closure 7th Dimension -->
+    <cluster code="0x0CD8"/> <!-- Closure 8th Dimension -->
+    <item value="0x00" name="NotApplicable"/>
+    <item value="0x01" name="NotLatched"/>
+    <item value="0x02" name="PartiallyLatched"/>
+    <item value="0x03" name="FullyLatched"/>
+  </enum>
+
+  <enum name="TranslationDirectionEnum" type="enum8">
+    <cluster code="0x0CD1"/> <!-- Closure 1st Dimension -->
+    <cluster code="0x0CD2"/> <!-- Closure 2nd Dimension -->
+    <cluster code="0x0CD3"/> <!-- Closure 3rd Dimension -->
+    <cluster code="0x0CD4"/> <!-- Closure 4th Dimension -->
+    <cluster code="0x0CD5"/> <!-- Closure 5th Dimension -->
+    <cluster code="0x0CD6"/> <!-- Closure 6th Dimension -->
+    <cluster code="0x0CD7"/> <!-- Closure 7th Dimension -->
+    <cluster code="0x0CD8"/> <!-- Closure 8th Dimension -->
+    <item value="0x00" name="Downward"/>
+    <item value="0x01" name="Upward"/>
+    <item value="0x02" name="VerticalMask"/>
+    <item value="0x03" name="VerticalSymmetry"/>
+    <item value="0x04" name="Leftward"/>
+    <item value="0x05" name="Rightward"/>
+    <item value="0x06" name="HorizontalMask"/>
+    <item value="0x07" name="HorizontalSymmetry"/>
+    <item value="0x08" name="Forward"/>
+    <item value="0x09" name="Backward"/>
+    <item value="0x0A" name="DepthMask"/>
+    <item value="0x0B" name="DepthSymmetry"/>
+    <item value="0x0C" name="CeilingSimple"/>
+    <item value="0x0D" name="CeilingSymmetry"/>
+  </enum>
+
+  <enum name="RotationAxisEnum" type="enum8">
+    <cluster code="0x0CD1"/> <!-- Closure 1st Dimension -->
+    <cluster code="0x0CD2"/> <!-- Closure 2nd Dimension -->
+    <cluster code="0x0CD3"/> <!-- Closure 3rd Dimension -->
+    <cluster code="0x0CD4"/> <!-- Closure 4th Dimension -->
+    <cluster code="0x0CD5"/> <!-- Closure 5th Dimension -->
+    <cluster code="0x0CD6"/> <!-- Closure 6th Dimension -->
+    <cluster code="0x0CD7"/> <!-- Closure 7th Dimension -->
+    <cluster code="0x0CD8"/> <!-- Closure 8th Dimension -->
+    <item value="0x00" name="Left"/>
+    <item value="0x01" name="CenteredVertical"/>
+    <item value="0x02" name="Right"/>
+    <item value="0x03" name="Top"/>
+    <item value="0x04" name="CenteredHorizontal"/>
+    <item value="0x05" name="Bottom"/>
+    <item value="0x06" name="LeftBarrier"/>
+    <item value="0x07" name="SymmetricBarriers"/>
+    <item value="0x08" name="RightBarrier"/>
+  </enum>
+
+  <enum name="OverFlowEnum" type="enum8">
+    <cluster code="0x0CD1"/> <!-- Closure 1st Dimension -->
+    <cluster code="0x0CD2"/> <!-- Closure 2nd Dimension -->
+    <cluster code="0x0CD3"/> <!-- Closure 3rd Dimension -->
+    <cluster code="0x0CD4"/> <!-- Closure 4th Dimension -->
+    <cluster code="0x0CD5"/> <!-- Closure 5th Dimension -->
+    <cluster code="0x0CD6"/> <!-- Closure 6th Dimension -->
+    <cluster code="0x0CD7"/> <!-- Closure 7th Dimension -->
+    <cluster code="0x0CD8"/> <!-- Closure 8th Dimension -->
+    <item value="0x00" name="NoOverFlow"/>
+    <item value="0x01" name="Inside"/>
+    <item value="0x02" name="Outside"/>
+    <item value="0x03" name="TopInside"/>
+    <item value="0x04" name="TopOutside"/>
+    <item value="0x05" name="BottomInside"/>
+    <item value="0x06" name="BottomOutside"/>
+    <item value="0x07" name="LeftInside"/>
+    <item value="0x08" name="LeftOutside"/>
+    <item value="0x09" name="RightInside"/>
+    <item value="0x0A" name="RightOutside"/>
+  </enum>
+
+  <enum name="ModulationTypeEnum" type="enum8">
+    <cluster code="0x0CD1"/> <!-- Closure 1st Dimension -->
+    <cluster code="0x0CD2"/> <!-- Closure 2nd Dimension -->
+    <cluster code="0x0CD3"/> <!-- Closure 3rd Dimension -->
+    <cluster code="0x0CD4"/> <!-- Closure 4th Dimension -->
+    <cluster code="0x0CD5"/> <!-- Closure 5th Dimension -->
+    <cluster code="0x0CD6"/> <!-- Closure 6th Dimension -->
+    <cluster code="0x0CD7"/> <!-- Closure 7th Dimension -->
+    <cluster code="0x0CD8"/> <!-- Closure 8th Dimension -->
+    <item value="0x00" name="SlatsOrientation"/>
+    <item value="0x01" name="SlatsOpenwork"/>
+    <item value="0x02" name="StripsAlignment"/>
+    <item value="0x03" name="Opacity"/>
+    <item value="0x04" name="AirFlow"/>
+  </enum>
+
+  <enum name="LatchingAxisEnum" type="enum8">
+    <cluster code="0x0CD1"/> <!-- Closure 1st Dimension -->
+    <cluster code="0x0CD2"/> <!-- Closure 2nd Dimension -->
+    <cluster code="0x0CD3"/> <!-- Closure 3rd Dimension -->
+    <cluster code="0x0CD4"/> <!-- Closure 4th Dimension -->
+    <cluster code="0x0CD5"/> <!-- Closure 5th Dimension -->
+    <cluster code="0x0CD6"/> <!-- Closure 6th Dimension -->
+    <cluster code="0x0CD7"/> <!-- Closure 7th Dimension -->
+    <cluster code="0x0CD8"/> <!-- Closure 8th Dimension -->
+    <item value="0x00" name="VerticalTranslation"/>
+    <item value="0x01" name="HorizontalTranslation"/>
+    <item value="0x02" name="DepthTranslation"/>
+    <item value="0x03" name="VerticalRotation"/>
+    <item value="0x04" name="HorizontalRotation"/>
+    <item value="0x05" name="DepthRotation"/>
+  </enum>
+
+  <struct name="DemoStruct">
+    <cluster code="0x0CD1"/> <!-- Closure 1st Dimension -->
+    <cluster code="0x0CD2"/> <!-- Closure 2nd Dimension -->
+    <cluster code="0x0CD3"/> <!-- Closure 3rd Dimension -->
+    <cluster code="0x0CD4"/> <!-- Closure 4th Dimension -->
+    <cluster code="0x0CD5"/> <!-- Closure 5th Dimension -->
+    <cluster code="0x0CD6"/> <!-- Closure 6th Dimension -->
+    <cluster code="0x0CD7"/> <!-- Closure 7th Dimension -->
+    <cluster code="0x0CD8"/> <!-- Closure 8th Dimension -->
+    <item name="Label"    type="char_string"                length="64" optional="false"/>
+    <item name="Mode"     type="int8u"                                  optional="false"/>
+    <item name="ModeTags" type="ModeTagStruct" array="true" length="8"  optional="false"/>
+  </struct>
+
+</configurator>
