@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+<!--
+Copyright (c) 2023 Project CHIP Authors
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<configurator>
+  <domain name="CHIP"/>
+
+  <cluster>
+    <name>Closure 1st Dimension</name>
+    <domain>Closures</domain>
+    <description>Description of the 1st Closure's element</description>
+    <code>0x0CD1</code>
+    <define>CLOSURE_1ST_DIMENSION_CLUSTER</define>
+
+    <client tick="false" init="false">true</client>
+    <server tick="false" init="false">true</server>
+
+    <globalAttribute side="either" code="0xFFFD" value="1"/>
+
+    <features>
+      <feature bit="0" code="PS" name="Positioning" summary="Supports Positioning">
+      </feature>
+    </features>
+
+    <attribute side="server" code="0x0000" define="CURRENT_POSITIONING"   optional="true" writable="false" type="single" isNullable="true">CurrentPositioning</attribute>
+    <attribute side="server" code="0x0001" define="TARGET_POSITIONING"    optional="true" writable="false" type="single" isNullable="true">TargetPositioning</attribute>
+    <attribute side="server" code="0x0002" define="RESOLUTION"            optional="true" writable="false" type="percent100ths">Resolution</attribute>
+    <attribute side="server" code="0x0003" define="STEP_VALUE"            optional="true" writable="false" type="percent100ths">StepValue</attribute>
+
+    <attribute side="server" code="0x0007" define="TRANSLATION_DIRECTION" optional="true" writable="false" default="0x0" type="TranslationDirectionEnum">TranslationDirection</attribute>
+    <attribute side="server" code="0x0008" define="ROTATION_AXIS"         optional="true" writable="false" default="0x0" type="RotationAxisEnum">RotationAxis</attribute>
+    <attribute side="server" code="0x0009" define="OVERFLOW"              optional="true" writable="false" default="0x0" type="OverFlowEnum">OverFlow</attribute>
+    <attribute side="server" code="0x0009" define="MODULATION_TYPE"       optional="true" writable="false" default="0x0" type="ModulationTypeEnum">ModulationType</attribute>
+
+    <attribute side="server" code="0x000B" define="CURRENT_LATCHING"      optional="true" writable="false" type="LatchingEnum" isNullable="true">CurrentLatching</attribute>
+    <attribute side="server" code="0x000C" define="TARGET_LATCHING"       optional="true" writable="false" type="LatchingEnum" isNullable="true">TargetLatching</attribute>
+
+    <command source="client" code="0x00" name="Latch" optional="true">
+      <description>Latch (secure) a Closure's element.</description>
+    </command>
+    <command source="client" code="0x01" name="UnLatch" optional="true">
+      <description>UnLatch (unsecure) a Closure's element.</description>
+    </command>
+  </cluster>
+
+  <cluster>
+    <name>Closure 2nd Dimension</name>
+    <domain>Closures</domain>
+    <description>Description of the 2nd Closure's element</description>
+    <code>0x0CD2</code>
+    <define>CLOSURE_2ND_DIMENSION_CLUSTER</define>
+
+    <client tick="false" init="false">true</client>
+    <server tick="false" init="false">true</server>
+
+    <globalAttribute side="either" code="0xFFFD" value="1"/>
+
+    <features>
+      <feature bit="0" code="PS" name="Positioning" summary="Supports Positioning">
+      </feature>
+    </features>
+
+    <attribute side="server" code="0x0000" define="CURRENT_POSITIONING" type="single" writable="false" optional="true">CurrentPositioning</attribute>
+    <attribute side="server" code="0x0001" define="TARGET_POSITIONING"  type="single" writable="false" optional="true">TargetPositioning</attribute>
+    <attribute side="server" code="0x0007" define="TRANSLATION_DIRECTION" type="TranslationDirectionEnum" default="0x0" writable="false" optional="true">TranslationDirection</attribute>
+
+    <command source="client" code="0x00" name="Latch" optional="true">
+      <description>Latch (secure) a Closure's element.</description>
+    </command>
+    <command source="client" code="0x01" name="UnLatch" optional="true">
+      <description>UnLatch (unsecure) a Closure's element.</description>
+    </command>
+  </cluster>
+
+  <cluster>
+    <name>Closure 3rd Dimension</name>
+    <domain>Closures</domain>
+    <description>Description of the 3rd Closure's element</description>
+    <code>0x0CD3</code>
+    <define>CLOSURE_3RD_DIMENSION_CLUSTER</define>
+
+    <client tick="false" init="false">true</client>
+    <server tick="false" init="false">true</server>
+
+    <globalAttribute side="either" code="0xFFFD" value="1"/>
+
+    <features>
+      <feature bit="0" code="PS" name="Positioning" summary="Supports Positioning">
+      </feature>
+    </features>
+
+    <attribute side="server" code="0x0000" define="CURRENT_POSITIONING" type="single" writable="false" optional="true">CurrentPositioning</attribute>
+    <attribute side="server" code="0x0001" define="TARGET_POSITIONING"  type="single" writable="false" optional="true">TargetPositioning</attribute>
+    <attribute side="server" code="0x0007" define="TRANSLATION_DIRECTION" type="TranslationDirectionEnum" default="0x0" writable="false" optional="true">TranslationDirection</attribute>
+
+    <command source="client" code="0x00" name="Latch" optional="true">
+      <description>Latch (secure) a Closure's element.</description>
+    </command>
+    <command source="client" code="0x01" name="UnLatch" optional="true">
+      <description>UnLatch (unsecure) a Closure's element.</description>
+    </command>
+  </cluster>
+</configurator>
