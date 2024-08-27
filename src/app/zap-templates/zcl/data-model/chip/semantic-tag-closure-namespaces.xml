@@ -44,8 +44,8 @@ limitations under the License.
     <item value="0x01" name="RollerShutter"/>
     <item value="0x02" name="RoofRollerShutter"/>
     <item value="0x03" name="AdjustableSlatsRollerShutter"/>
-    <item value="0x04" name="WithProjectionRollerShutter"/>
-    <item value="0x05" name="WithSecuredVentilationRollerShutter"/>
+    <item value="0x04" name="RollerShutterWithProjection"/>
+    <item value="0x05" name="RollerShutterWithSecuredVentilation"/>
     <item value="0x06" name="LeftHingedSwingingShutter"/>
     <item value="0x07" name="RightHingedSwingingShutter"/>
     <item value="0x08" name="DoubleWingSwingingShutter"/>
@@ -99,7 +99,7 @@ limitations under the License.
     <item value="0x04" name="ConvervatoryAwning"/>
     <item value="0x05" name="VerticalAwning"/>
     <item value="0x06" name="VerticalAwningWithManualLock"/>
-    <item value="0x07" name="VerticalAwnignWintAutomaticLock"/>
+    <item value="0x07" name="VerticalAwnignWithAutomaticLock"/>
     <item value="0x08" name="ValanceAwning"/>
     <item value="0x09" name="LateralArmAwning"/>
   </enum>
