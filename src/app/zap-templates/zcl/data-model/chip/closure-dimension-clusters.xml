@@ -46,8 +46,8 @@ limitations under the License.
     <attribute side="server" code="0x0002" define="RESOLUTION"            optional="true" writable="false" type="percent100ths">Resolution</attribute>
     <attribute side="server" code="0x0003" define="STEP_VALUE"            optional="true" writable="false" type="percent100ths">StepValue</attribute>
     <attribute side="server" code="0x0004" define="UNIT"                  optional="true" writable="false" type="UnitEnum">Unit</attribute>
-    <attribute side="server" code="0x0005" define="RANGE"                 optional="true" writable="false" type="SignedValuesRangeStruct">Range</attribute>
-    <attribute side="server" code="0x0006" define="LIMIT_RANGE"           optional="true" writable="false" type="RangePercent100thsStruct" isNullable="true">LimitRange</attribute>
+    <!-- <attribute side="server" code="0x0005" define="RANGE"                 optional="true" writable="false" type="SignedValuesRangeStruct">Range</attribute>
+    <attribute side="server" code="0x0006" define="LIMIT_RANGE"           optional="true" writable="false" type="RangePercent100thsStruct" isNullable="true">LimitRange</attribute> -->
     <attribute side="server" code="0x0007" define="TRANSLATION_DIRECTION" optional="true" writable="false" type="TranslationDirectionEnum">TranslationDirection</attribute>
     <attribute side="server" code="0x0008" define="ROTATION_AXIS"         optional="true" writable="false" type="RotationAxisEnum">RotationAxis</attribute>
     <attribute side="server" code="0x0009" define="OVERFLOW"              optional="true" writable="false" type="OverFlowEnum">OverFlow</attribute>
@@ -92,8 +92,8 @@ limitations under the License.
     <attribute side="server" code="0x0002" define="RESOLUTION"            optional="true" writable="false" type="percent100ths">Resolution</attribute>
     <attribute side="server" code="0x0003" define="STEP_VALUE"            optional="true" writable="false" type="percent100ths">StepValue</attribute>
     <attribute side="server" code="0x0004" define="UNIT"                  optional="true" writable="false" type="UnitEnum">Unit</attribute>
-    <attribute side="server" code="0x0005" define="RANGE"                 optional="true" writable="false" type="SignedValuesRangeStruct">Range</attribute>
-    <attribute side="server" code="0x0006" define="LIMIT_RANGE"           optional="true" writable="false" type="RangePercent100thsStruct" isNullable="true">LimitRange</attribute>
+    <!-- <attribute side="server" code="0x0005" define="RANGE"                 optional="true" writable="false" type="SignedValuesRangeStruct">Range</attribute>
+    <attribute side="server" code="0x0006" define="LIMIT_RANGE"           optional="true" writable="false" type="RangePercent100thsStruct" isNullable="true">LimitRange</attribute> -->
     <attribute side="server" code="0x0007" define="TRANSLATION_DIRECTION" optional="true" writable="false" type="TranslationDirectionEnum">TranslationDirection</attribute>
     <attribute side="server" code="0x0008" define="ROTATION_AXIS"         optional="true" writable="false" type="RotationAxisEnum">RotationAxis</attribute>
     <attribute side="server" code="0x0009" define="OVERFLOW"              optional="true" writable="false" type="OverFlowEnum">OverFlow</attribute>
@@ -138,8 +138,8 @@ limitations under the License.
     <attribute side="server" code="0x0002" define="RESOLUTION"            optional="true" writable="false" type="percent100ths">Resolution</attribute>
     <attribute side="server" code="0x0003" define="STEP_VALUE"            optional="true" writable="false" type="percent100ths">StepValue</attribute>
     <attribute side="server" code="0x0004" define="UNIT"                  optional="true" writable="false" type="UnitEnum">Unit</attribute>
-    <attribute side="server" code="0x0005" define="RANGE"                 optional="true" writable="false" type="SignedValuesRangeStruct">Range</attribute>
-    <attribute side="server" code="0x0006" define="LIMIT_RANGE"           optional="true" writable="false" type="RangePercent100thsStruct" isNullable="true">LimitRange</attribute>
+    <!-- <attribute side="server" code="0x0005" define="RANGE"                 optional="true" writable="false" type="SignedValuesRangeStruct">Range</attribute>
+    <attribute side="server" code="0x0006" define="LIMIT_RANGE"           optional="true" writable="false" type="RangePercent100thsStruct" isNullable="true">LimitRange</attribute> -->
     <attribute side="server" code="0x0007" define="TRANSLATION_DIRECTION" optional="true" writable="false" type="TranslationDirectionEnum">TranslationDirection</attribute>
     <attribute side="server" code="0x0008" define="ROTATION_AXIS"         optional="true" writable="false" type="RotationAxisEnum">RotationAxis</attribute>
     <attribute side="server" code="0x0009" define="OVERFLOW"              optional="true" writable="false" type="OverFlowEnum">OverFlow</attribute>
