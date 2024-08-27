@@ -43,14 +43,14 @@ limitations under the License.
     <attribute side="server" code="0x0004" writable="false" define="OPERATIONAL_STATE"      type="enum8"                                               optional="false">OperationalState</attribute>
     <attribute side="server" code="0x0005" writable="false" define="OPERATIONAL_ERROR"      type="ErrorStateStruct"                                    optional="false">OperationalError</attribute>
     <!-- This Derived Cluster's Attributes -->
-    <attribute side="server" code="0x4000" writable="false" define="OVERALL_STATE" type="OverallStateBitmap" default="0">OverallState</attribute>
-    <attribute side="server" code="0x4001" writable="false" define="PROTECTIVE_STATE" type="ProtectiveStateEnum" default="0" optional="true">ProtectiveState</attribute>
-    <attribute side="server" code="0x4002" writable="true" default="0" optional="true" define="AUTO_BEHAVIOR" type="AutoBehaviorEnum">
+    <attribute side="server" code="0x4000" writable="false" define="OVERALL_STATE"          type="OverallStateBitmap"  default="0" optional="false">OverallState</attribute>
+    <attribute side="server" code="0x4001" writable="false" define="PROTECTIVE_STATE"       type="ProtectiveStateEnum" default="0" optional="true">ProtectiveState</attribute>
+    <attribute side="server" code="0x4002" writable="true"  define="AUTO_BEHAVIOR"          type="AutoBehaviorEnum"    default="0" optional="true">
       <description>AutoBehavior</description>
       <access op="read" privilege="view"/>
       <access op="write" privilege="operate"/>
     </attribute>
-    <attribute side="server" code="0x4003" writable="true" default="0" optional="true" define="AUTO_TIMER" min="0" max="259200" type="elapsed_s">
+    <attribute side="server" code="0x4003" writable="true"  define="AUTO_TIMER"             type="elapsed_s" min="0" max="259200" default="0" optional="true">
       <description>AutoTimer</description>
       <access op="read" privilege="view"/>
       <access op="write" privilege="operate"/>
