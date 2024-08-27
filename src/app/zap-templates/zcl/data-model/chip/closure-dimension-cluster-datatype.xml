@@ -22,6 +22,20 @@ limitations under the License.
    in the mode-base-server source code. See mode-base-cluster-objects.h.
    This is because zap does not currently support generating code for clusters that do not have a cluster ID.
    -->
+
+  <bitmap name="PositioningBitmap" type="bitmap16">
+    <cluster code="0x0CD1"/> <!-- Closure 1st Dimension -->
+    <cluster code="0x0CD2"/> <!-- Closure 2nd Dimension -->
+    <cluster code="0x0CD3"/> <!-- Closure 3rd Dimension -->
+    <cluster code="0x0CD4"/> <!-- Closure 4th Dimension -->
+    <cluster code="0x0CD5"/> <!-- Closure 5th Dimension -->
+    <cluster code="0x0CD6"/> <!-- Closure 6th Dimension -->
+    <cluster code="0x0CD7"/> <!-- Closure 7th Dimension -->
+    <cluster code="0x0CD8"/> <!-- Closure 8th Dimension -->
+    <field mask="0x3F" name="Position"/>
+    <field mask="0xC0" name="Speed"/>
+  </bitmap>
+
   <enum name="LatchingEnum" type="enum8">
     <cluster code="0x0CD1"/> <!-- Closure 1st Dimension -->
     <cluster code="0x0CD2"/> <!-- Closure 2nd Dimension -->
@@ -137,7 +151,7 @@ limitations under the License.
     <item value="0x05" name="DepthRotation"/>
   </enum>
 
-  <struct name="DemoStruct">
+  <enum name="UnitEnum" type="enum8">
     <cluster code="0x0CD1"/> <!-- Closure 1st Dimension -->
     <cluster code="0x0CD2"/> <!-- Closure 2nd Dimension -->
     <cluster code="0x0CD3"/> <!-- Closure 3rd Dimension -->
@@ -146,9 +160,34 @@ limitations under the License.
     <cluster code="0x0CD6"/> <!-- Closure 6th Dimension -->
     <cluster code="0x0CD7"/> <!-- Closure 7th Dimension -->
     <cluster code="0x0CD8"/> <!-- Closure 8th Dimension -->
-    <item name="Label"    type="char_string"                length="64" optional="false"/>
-    <item name="Mode"     type="int8u"                                  optional="false"/>
-    <item name="ModeTags" type="ModeTagStruct" array="true" length="8"  optional="false"/>
+    <item value="0x00" name="Millimeter"/>
+    <item value="0x01" name="Degree"/>
+  </enum>
+
+  <struct name="SignedValuesRangeStruct">
+    <cluster code="0x0CD1"/> <!-- Closure 1st Dimension -->
+    <cluster code="0x0CD2"/> <!-- Closure 2nd Dimension -->
+    <cluster code="0x0CD3"/> <!-- Closure 3rd Dimension -->
+    <cluster code="0x0CD4"/> <!-- Closure 4th Dimension -->
+    <cluster code="0x0CD5"/> <!-- Closure 5th Dimension -->
+    <cluster code="0x0CD6"/> <!-- Closure 6th Dimension -->
+    <cluster code="0x0CD7"/> <!-- Closure 7th Dimension -->
+    <cluster code="0x0CD8"/> <!-- Closure 8th Dimension -->
+    <item name="Min" type="int16u" optional="false"/>
+    <item name="Max" type="int16u" optional="false"/>
+  </struct>
+
+  <struct name="RangePercent100thsStruct">
+    <cluster code="0x0CD1"/> <!-- Closure 1st Dimension -->
+    <cluster code="0x0CD2"/> <!-- Closure 2nd Dimension -->
+    <cluster code="0x0CD3"/> <!-- Closure 3rd Dimension -->
+    <cluster code="0x0CD4"/> <!-- Closure 4th Dimension -->
+    <cluster code="0x0CD5"/> <!-- Closure 5th Dimension -->
+    <cluster code="0x0CD6"/> <!-- Closure 6th Dimension -->
+    <cluster code="0x0CD7"/> <!-- Closure 7th Dimension -->
+    <cluster code="0x0CD8"/> <!-- Closure 8th Dimension -->
+    <item name="Min" type="percent100ths" optional="false"/>
+    <item name="Max" type="percent100ths" optional="false"/>
   </struct>
 
 </configurator>
