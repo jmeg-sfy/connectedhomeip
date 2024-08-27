@@ -1,0 +1,168 @@
+<?xml version="1.0"?>
+<!--
+Copyright (c) 2024 Project CHIP Authors
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+
+<configurator>
+
+  <enum name="WindowClosureTag" type="enum8">
+    <item value="0x00" name="GenericWindow"/>
+    <item value="0x01" name="RoofWindow"/>
+    <item value="0x02" name="LeftHingedWindow"/>
+    <item value="0x03" name="MiddleHingedWindow"/>
+    <item value="0x04" name="RightHingedWindow"/>
+    <item value="0x05" name="TopHingedWindow"/>
+    <item value="0x06" name="BottomHingedWindow"/>
+    <item value="0x07" name="ParallelHingedWindow"/>
+    <item value="0x08" name="DoubleWingWindow"/>
+    <item value="0x09" name="SingleSlidingWindow"/>
+    <item value="0x0A" name="DoubleSlidingWindow"/>
+    <item value="0x0B" name="ThreePanelsSlidingWindow"/>
+    <item value="0x0C" name="SlideAndFoldWindow"/>
+    <item value="0x0D" name="ParallelSlideAndTiltWindow"/>
+    <item value="0x0E" name="SingleWingTiltAndTurnWindow"/>
+    <item value="0x0F" name="DoubleWingTiltAndTurnWindow"/>
+    <item value="0x10" name="FixedWindow"/>
+    <item value="0x11" name="PrivacyGlassWindow"/>
+  </enum>
+
+  <enum name="ShutterClosureTag" type="enum8">
+    <item value="0x00" name="GenericShutter"/>
+    <item value="0x01" name="RollerShutter"/>
+    <item value="0x02" name="RoofRollerShutter"/>
+    <item value="0x03" name="AdjustableSlatsRollerShutter"/>
+    <item value="0x04" name="WithProjectionRollerShutter"/>
+    <item value="0x05" name="WithSecuredVentilationRollerShutter"/>
+    <item value="0x06" name="LeftHingedSwingingShutter"/>
+    <item value="0x07" name="RightHingedSwingingShutter"/>
+    <item value="0x08" name="DoubleWingSwingingShutter"/>
+    <item value="0x09" name="TwoSynchronizedPanelSwingingShutter"/>
+    <item value="0x0A" name="TwoIndependantPanelsSwingingShutter"/>
+    <item value="0x0B" name="SlidingShutter"/>
+    <item value="0x0C" name="DoubleWingSlidingShutter"/>
+  </enum>
+
+  <enum name="ShadeClosureTag" type="enum8">
+    <item value="0x00" name="GenericShade"/>
+    <item value="0x01" name="RollerShade"/>
+    <item value="0x02" name="RomanShade"/>
+    <item value="0x03" name="BallonShade"/>
+    <item value="0x04" name="WovenShade"/>
+    <item value="0x05" name="PleatedShade"/>
+    <item value="0x06" name="CellularShade"/>
+    <item value="0x07" name="LayeredShade"/>
+    <item value="0x08" name="SheerShade"/>
+    <item value="0x09" name="TopDownBottomUpShade"/>
+  </enum>
+
+  <enum name="CurtainClosureTag" type="enum8">
+    <item value="0x00" name="GenericCurtain"/>
+    <item value="0x01" name="SlidingPanelsCurtain"/>
+    <item value="0x02" name="LeftSideLateralCurtain"/>
+    <item value="0x03" name="RightSideLateralCurtain"/>
+    <item value="0x04" name="CentralCurtain"/>
+  </enum>
+
+  <enum name="BlindClosureTag" type="enum8">
+    <item value="0x00" name="GenericBlind"/>
+    <item value="0x01" name="VenetianBlind"/>
+    <item value="0x02" name="TiltOnlyVenetianBlind"/>
+    <item value="0x03" name="LeftSideLouverBlind"/>
+    <item value="0x04" name="RigthSideLouverBlind"/>
+    <item value="0x05" name="CentralLouverBlind"/>
+  </enum>
+
+  <enum name="ScreenClosureTag" type="enum8">
+    <item value="0x00" name="GenericScreen"/>
+    <item value="0x01" name="WindowScreen"/>
+    <item value="0x02" name="ProjectionScreen"/>
+  </enum>
+
+  <enum name="AwningClosureTag" type="enum8">
+    <item value="0x00" name="GenericAwning"/>
+    <item value="0x01" name="PatioAwning"/>
+    <item value="0x02" name="BalconyAwning"/>
+    <item value="0x03" name="FreeStandingAwning"/>
+    <item value="0x04" name="ConvervatoryAwning"/>
+    <item value="0x05" name="VerticalAwning"/>
+    <item value="0x06" name="VerticalAwningWithManualLock"/>
+    <item value="0x07" name="VerticalAwnignWintAutomaticLock"/>
+    <item value="0x08" name="ValanceAwning"/>
+    <item value="0x09" name="LateralArmAwning"/>
+  </enum>
+
+  <enum name="PergolaClosureTag" type="enum8">
+    <item value="0x00" name="GenericPergola"/>
+    <item value="0x01" name="RetractableCanopyPergola"/>
+    <item value="0x02" name="BioClimaticPergola"/>
+    <item value="0x03" name="RetractableBioClimaticPergola"/>
+  </enum>
+
+  <enum name="DoorClosureTag" type="enum8">
+    <item value="0x00" name="GenericDoor"/>
+    <item value="0x01" name="DoorLatch"/>
+    <item value="0x02" name="LeftHingedDoor"/>
+    <item value="0x03" name="RightHingedDoor"/>
+    <item value="0x04" name="ParallelHingedDoor"/>
+    <item value="0x05" name="SlidingDoor"/>
+    <item value="0x06" name="DoubleWingSlidingDoor"/>
+    <item value="0x07" name="RollingGrille"/>
+    <item value="0x08" name="RevolvingDoor"/>
+  </enum>
+
+  <enum name="GarageDoorClosureTag" type="enum8">
+    <item value="0x00" name="GenericGarageDoor"/>
+    <item value="0x01" name="SectionalGarageDoor"/>
+    <item value="0x02" name="UpAndOverGarageDoor"/>
+    <item value="0x03" name="SideHingedGarageDoor"/>
+    <item value="0x04" name="ParallelHingedGarageDoor"/>
+    <item value="0x05" name="SlidingGarageDoor"/>
+    <item value="0x06" name="DoubleWingSlidingGarageDoor"/>
+    <item value="0x07" name="SlidingAndFoldingGarageDoor"/>
+    <item value="0x08" name="RoundTheCornerGarageDoor"/>
+    <item value="0x09" name="RollUpGarageDoor"/>
+    <item value="0x0A" name="SectionalGarageDoorWithWicket"/>
+  </enum>
+
+  <enum name="GateClosureTag" type="enum8">
+    <item value="0x00" name="GenericGate"/>
+    <item value="0x01" name="SwingGate"/>
+    <item value="0x02" name="TwoPanelSwingGate"/>
+    <item value="0x03" name="SlidingGate"/>
+    <item value="0x04" name="SlidingAndFoldingGate"/>
+    <item value="0x05" name="VerticalLiftGate"/>
+    <item value="0x06" name="Wicket"/>
+  </enum>
+
+  <enum name="BarrierClosureTag" type="enum8">
+    <item value="0x00" name="GenericBarrier"/>
+    <item value="0x01" name="SingleBoomBarrier"/>
+    <item value="0x02" name="DoubleBoomBarrier"/>
+    <item value="0x03" name="FlapBarrier"/>
+    <item value="0x04" name="TurnstileBarrier"/>
+    <item value="0x05" name="ChainBarrier"/>
+    <item value="0x06" name="RetractableBollard"/>
+  </enum>
+
+  <enum name="FurnitureClosureTag" type="enum8">
+    <item value="0x00" name="GenericFurniture"/>
+    <item value="0x01" name="LockerCabinet"/>
+    <item value="0x02" name="Locker"/>
+    <item value="0x03" name="Drawer"/>
+  </enum>
+
+
+</configurator>
