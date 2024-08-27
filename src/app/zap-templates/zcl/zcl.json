@@ -85,6 +85,8 @@
         "onoff-cluster.xml",
         "operational-credentials-cluster.xml",
         "operational-state-cluster.xml",
+        "operational-state-closure-cluster-datatype.xml",
+        "operational-state-closure-cluster.xml",
         "operational-state-oven-cluster.xml",
         "operational-state-rvc-cluster.xml",
         "oven-mode-cluster.xml",

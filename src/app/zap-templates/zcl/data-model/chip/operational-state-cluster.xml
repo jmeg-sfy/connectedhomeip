@@ -37,6 +37,7 @@ limitations under the License.
     <cluster code="0x0060"/>
     <cluster code="0x0061"/>
     <cluster code="0x0048"/>
+    <cluster code="0x0CD0"/>
     <item name="OperationalStateID"    type="enum8" optional="false"/>
     <item name="OperationalStateLabel" type="char_string" optional="true" length="64"/>
   </struct>
@@ -45,6 +46,7 @@ limitations under the License.
     <cluster code="0x0060"/>
     <cluster code="0x0061"/>
     <cluster code="0x0048"/>
+    <cluster code="0x0CD0"/>
     <item name="ErrorStateID" type="enum8" optional="false" />
     <item name="ErrorStateLabel" type="char_string" optional="true" length="64" />
     <item name="ErrorStateDetails" type="char_string" optional="true" length="64" />
