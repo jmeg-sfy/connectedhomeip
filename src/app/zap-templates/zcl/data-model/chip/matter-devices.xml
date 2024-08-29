@@ -2805,4 +2805,284 @@ limitations under the License.
             </include>
         </clusters>
     </deviceType>
+    <deviceType>
+        <name>MA-closure-generic</name>
+        <domain>CHIP</domain>
+        <typeName>Matter Closure Generic</typeName>
+        <profileId editable="false">0x0103</profileId>
+        <deviceId editable="true">0x0CC0</deviceId>
+        <class>Simple</class>
+        <scope>Endpoint</scope>
+        <clusters lockOthers="true">
+            <include cluster="Identify"                  client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Descriptor"                client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Groups"                    client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Closure Operational State" client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Closure 1st Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 2nd Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 3rd Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 4th Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 5th Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+        </clusters>
+    </deviceType>
+    <deviceType>
+        <name>MA-closure-window</name>
+        <domain>CHIP</domain>
+        <typeName>Matter Closure Window</typeName>
+        <profileId editable="false">0x0103</profileId>
+        <deviceId editable="true">0x0CC1</deviceId>
+        <class>Simple</class>
+        <scope>Endpoint</scope>
+        <clusters lockOthers="true">
+            <include cluster="Identify"                  client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Descriptor"                client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Groups"                    client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Closure Operational State" client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Closure 1st Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 2nd Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 3rd Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 4th Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 5th Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+        </clusters>
+    </deviceType>
+    <deviceType>
+        <name>MA-closure-shutter</name>
+        <domain>CHIP</domain>
+        <typeName>Matter Closure Shutter</typeName>
+        <profileId editable="false">0x0103</profileId>
+        <deviceId editable="true">0x0CC2</deviceId>
+        <class>Simple</class>
+        <scope>Endpoint</scope>
+        <clusters lockOthers="true">
+            <include cluster="Identify"                  client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Descriptor"                client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Groups"                    client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Closure Operational State" client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Closure 1st Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 2nd Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 3rd Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 4th Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 5th Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+        </clusters>
+    </deviceType>
+    <deviceType>
+        <name>MA-closure-shade</name>
+        <domain>CHIP</domain>
+        <typeName>Matter Closure Shade</typeName>
+        <profileId editable="false">0x0103</profileId>
+        <deviceId editable="true">0x0CC3</deviceId>
+        <class>Simple</class>
+        <scope>Endpoint</scope>
+        <clusters lockOthers="true">
+            <include cluster="Identify"                  client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Descriptor"                client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Groups"                    client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Closure Operational State" client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Closure 1st Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 2nd Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 3rd Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 4th Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 5th Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+        </clusters>
+    </deviceType>
+    <deviceType>
+        <name>MA-closure-curtain</name>
+        <domain>CHIP</domain>
+        <typeName>Matter Closure Curtain</typeName>
+        <profileId editable="false">0x0103</profileId>
+        <deviceId editable="true">0x0CC4</deviceId>
+        <class>Simple</class>
+        <scope>Endpoint</scope>
+        <clusters lockOthers="true">
+            <include cluster="Identify"                  client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Descriptor"                client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Groups"                    client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Closure Operational State" client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Closure 1st Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 2nd Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 3rd Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 4th Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 5th Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+        </clusters>
+    </deviceType>
+    <deviceType>
+        <name>MA-closure-blind</name>
+        <domain>CHIP</domain>
+        <typeName>Matter Closure Blind</typeName>
+        <profileId editable="false">0x0103</profileId>
+        <deviceId editable="true">0x0CC5</deviceId>
+        <class>Simple</class>
+        <scope>Endpoint</scope>
+        <clusters lockOthers="true">
+            <include cluster="Identify"                  client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Descriptor"                client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Groups"                    client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Closure Operational State" client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Closure 1st Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 2nd Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 3rd Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 4th Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 5th Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+        </clusters>
+    </deviceType>
+    <deviceType>
+        <name>MA-closure-screen</name>
+        <domain>CHIP</domain>
+        <typeName>Matter Closure Screen</typeName>
+        <profileId editable="false">0x0103</profileId>
+        <deviceId editable="true">0x0CC6</deviceId>
+        <class>Simple</class>
+        <scope>Endpoint</scope>
+        <clusters lockOthers="true">
+            <include cluster="Identify"                  client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Descriptor"                client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Groups"                    client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Closure Operational State" client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Closure 1st Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 2nd Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 3rd Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 4th Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 5th Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+        </clusters>
+    </deviceType>
+    <deviceType>
+        <name>MA-closure-awning</name>
+        <domain>CHIP</domain>
+        <typeName>Matter Closure Awning</typeName>
+        <profileId editable="false">0x0103</profileId>
+        <deviceId editable="true">0x0CC7</deviceId>
+        <class>Simple</class>
+        <scope>Endpoint</scope>
+        <clusters lockOthers="true">
+            <include cluster="Identify"                  client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Descriptor"                client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Groups"                    client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Closure Operational State" client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Closure 1st Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 2nd Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 3rd Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 4th Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 5th Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+        </clusters>
+    </deviceType>
+    <deviceType>
+        <name>MA-closure-pergola</name>
+        <domain>CHIP</domain>
+        <typeName>Matter Closure Pergola</typeName>
+        <profileId editable="false">0x0103</profileId>
+        <deviceId editable="true">0x0CC8</deviceId>
+        <class>Simple</class>
+        <scope>Endpoint</scope>
+        <clusters lockOthers="true">
+            <include cluster="Identify"                  client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Descriptor"                client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Groups"                    client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Closure Operational State" client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Closure 1st Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 2nd Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 3rd Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 4th Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 5th Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+        </clusters>
+    </deviceType>
+    <deviceType>
+        <name>MA-closure-door</name>
+        <domain>CHIP</domain>
+        <typeName>Matter Closure Door</typeName>
+        <profileId editable="false">0x0103</profileId>
+        <deviceId editable="true">0x0CC9</deviceId>
+        <class>Simple</class>
+        <scope>Endpoint</scope>
+        <clusters lockOthers="true">
+            <include cluster="Identify"                  client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Descriptor"                client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Groups"                    client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Closure Operational State" client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Closure 1st Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 2nd Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 3rd Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 4th Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 5th Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+        </clusters>
+    </deviceType>
+    <deviceType>
+        <name>MA-closure-garage-door</name>
+        <domain>CHIP</domain>
+        <typeName>Matter Closure Garage Door</typeName>
+        <profileId editable="false">0x0103</profileId>
+        <deviceId editable="true">0x0CCA</deviceId>
+        <class>Simple</class>
+        <scope>Endpoint</scope>
+        <clusters lockOthers="true">
+            <include cluster="Identify"                  client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Descriptor"                client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Groups"                    client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Closure Operational State" client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Closure 1st Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 2nd Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 3rd Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 4th Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 5th Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+        </clusters>
+    </deviceType>
+    <deviceType>
+        <name>MA-closure-gate</name>
+        <domain>CHIP</domain>
+        <typeName>Matter Closure Gate</typeName>
+        <profileId editable="false">0x0103</profileId>
+        <deviceId editable="true">0x0CCB</deviceId>
+        <class>Simple</class>
+        <scope>Endpoint</scope>
+        <clusters lockOthers="true">
+            <include cluster="Identify"                  client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Descriptor"                client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Groups"                    client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Closure Operational State" client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Closure 1st Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 2nd Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 3rd Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 4th Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 5th Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+        </clusters>
+    </deviceType>
+    <deviceType>
+        <name>MA-closure-barrier</name>
+        <domain>CHIP</domain>
+        <typeName>Matter Closure Barrier</typeName>
+        <profileId editable="false">0x0103</profileId>
+        <deviceId editable="true">0x0x0CCC</deviceId>
+        <class>Simple</class>
+        <scope>Endpoint</scope>
+        <clusters lockOthers="true">
+            <include cluster="Identify"                  client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Descriptor"                client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Groups"                    client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Closure Operational State" client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Closure 1st Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 2nd Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 3rd Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 4th Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 5th Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+        </clusters>
+    </deviceType>
+    <deviceType>
+        <name>MA-closure-furniture</name>
+        <domain>CHIP</domain>
+        <typeName>Matter Closure Furniture</typeName>
+        <profileId editable="false">0x0103</profileId>
+        <deviceId editable="true">0x0CCD</deviceId>
+        <class>Simple</class>
+        <scope>Endpoint</scope>
+        <clusters lockOthers="true">
+            <include cluster="Identify"                  client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Descriptor"                client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Groups"                    client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Closure Operational State" client="false" server="true" clientLocked="true" serverLocked="true"/>
+            <include cluster="Closure 1st Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 2nd Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 3rd Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 4th Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+            <include cluster="Closure 5th Dimension"     client="false" server="true" clientLocked="true" serverLocked="false"/>
+        </clusters>
+    </deviceType>
 </configurator>
