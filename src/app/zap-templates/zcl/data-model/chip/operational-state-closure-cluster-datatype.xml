@@ -85,4 +85,19 @@ limitations under the License.
     <item value="0x43" name="IntegratedElement"/>
   </enum>
 
+  <enum name="ThreeLevelAutoEnum" type="enum8">
+    <cluster code="0x0CD0"/> <!-- Closure Operational State -->
+    <cluster code="0x0CD1"/> <!-- Closure 1st Dimension -->
+    <cluster code="0x0CD2"/> <!-- Closure 2nd Dimension -->
+    <cluster code="0x0CD3"/> <!-- Closure 3rd Dimension -->
+    <cluster code="0x0CD4"/> <!-- Closure 4th Dimension -->
+    <cluster code="0x0CD5"/> <!-- Closure 5th Dimension -->
+    <cluster code="0x0CD6"/> <!-- Closure 6th Dimension -->
+    <cluster code="0x0CD7"/> <!-- Closure 7th Dimension -->
+    <cluster code="0x0CD8"/> <!-- Closure 8th Dimension -->
+    <item value="0x0" name="Auto"/>
+    <item value="0x1" name="Low"/>
+    <item value="0x2" name="Medium"/>
+    <item value="0x3" name="High"/>
+  </enum>
 </configurator>
