@@ -18,12 +18,12 @@ limitations under the License.
   <domain name="CHIP"/>
 
   <cluster>
-    <name>Closure 1st Dimension</name>
+    <name>Closure 2nd Dimension</name>
     <domain>Closures</domain>
-    <description>Description of the 1st Closure's element</description>
-    <code>0x0CD1</code>
+    <description>Description of the 2nd Closure's element</description>
+    <code>0x0CD2</code>
 
-    <define>CLOSURE_1ST_DIMENSION_CLUSTER</define>
+    <define>CLOSURE_2ND_DIMENSION_CLUSTER</define>
 
     <client tick="false" init="false">true</client>
     <server tick="false" init="false">true</server>
