@@ -34,7 +34,7 @@
         "content-app-observer-cluster.xml",
         "content-control-cluster.xml",
         "closure-dimension-cluster-datatype.xml",
-        "closure-dimension-clusters.xml",
+        "closure-1st-dimension-cluster.xml",
         "descriptor-cluster.xml",
         "device-energy-management-cluster.xml",
         "device-energy-management-mode-cluster.xml",
@@ -453,6 +453,29 @@
             "OperationalError",
             "CurrentPhase",
             "CountdownTime"
+        ],
+        "Closure Operational State": [
+            "OperationalState",
+            "OperationalError",
+            "CurrentPhase",
+            "CountdownTime"
+        ],
+        "Closure 1st Dimension": [
+            "CurrentPositioning",
+            "TargetPositioning",
+            "Resolution",
+            "StepValue",
+            "Unit",
+            "Range",
+            "LimitRange",
+            "TranslationDirection",
+            "RotationAxis",
+            "OverFlow",
+            "ModulationType",
+            "CurrentLatching",
+            "TargetLatching",
+            "LatchingAxis",
+            "FeatureMap"
         ],
         "Oven Cavity Operational State": [
             "OperationalState",
