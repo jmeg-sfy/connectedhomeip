@@ -16,7 +16,6 @@ limitations under the License.
 -->
 <configurator>
   <domain name="CHIP"/>
-
   <cluster>
     <name>Closure Operational State</name>
     <domain>Closures</domain>
@@ -41,7 +40,7 @@ limitations under the License.
     <attribute side="server" code="0x0003" writable="false" define="OPERATIONAL_STATE_LIST" type="array"     entryType="OperationalStateStruct"        optional="false">OperationalStateList</attribute>
      <!-- Type of this attribute in the spec is OperationalStateEnum, uses ENUM8 for the type, so it allows Base+Derived Clusters values -->
     <attribute side="server" code="0x0004" writable="false" define="OPERATIONAL_STATE"      type="enum8"                                               optional="false">OperationalState</attribute>
-    <!-- <attribute side="server" code="0x0005" writable="false" define="OPERATIONAL_ERROR"      type="ErrorStateStruct"                                    optional="false">OperationalError</attribute> -->
+    <attribute side="server" code="0x0005" writable="false" define="OPERATIONAL_ERROR"      type="ErrorStateStruct"                                    optional="false">OperationalError</attribute>
     <!-- This Derived Cluster's Attributes -->
     <attribute side="server" code="0x4000" writable="false" define="OVERALL_STATE"          type="OverallStateBitmap"  default="0" optional="false">OverallState</attribute>
     <attribute side="server" code="0x4001" writable="false" define="PROTECTIVE_STATE"       type="ProtectiveStateEnum" default="0" optional="true">ProtectiveState</attribute>
@@ -57,9 +56,17 @@ limitations under the License.
     </attribute>
 
     <!-- Base Cluster's Commands -->
+    <command source="client" code="0x01" name="Stop" optional="false"/>
     <!-- This Derived Cluster's Commands -->
-    <command source="client" code="0x40" name="MoveToTag" optional="false"/>
+    <command source="client" code="0x40" name="MoveTo" optional="false">
+      <arg optional="true" name="Tag"   type="TagEnum"/>
+      <arg optional="true" name="Latch" type="boolean"/>
+      <arg optional="true" name="Speed" type="ThreeLevelAutoEnum"/>
+    </command>
     <command source="client" code="0x41" name="Calibrate" optional="true"/>
+    <command source="client" code="0x42" name="SetMultipleAttrs" optional="false"/>
+    <command source="client" code="0x43" name="GetMultipleAttrs" optional="false"/>
+    <command source="server" code="0x44" name="GetMultipleAttrsResponse" optional="false" disableDefaultResponse="true"/>
   </cluster>
 
 </configurator>
