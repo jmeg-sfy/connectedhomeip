@@ -128,17 +128,25 @@ declare -A CLUSTER
 # Each CLUSTER_TYPE gives a CD w/ allowing the bundle of PIDs
 
 
-CLUSTER=([cluster_id]="0x0CD1" [cluster_short_lower]="1st" [cluster_short_upper]="1ST" )
+CLUSTER=([cluster_id]="0x0CD1" [cluster_short_lower]="1st")
 holder=$(declare -p CLUSTER)
 CLUSTERS["1"]=${holder}
 
-CLUSTER=([cluster_id]="0x0CD2" [cluster_short_lower]="2nd" [cluster_short_upper]="2ND" )
+CLUSTER=([cluster_id]="0x0CD2" [cluster_short_lower]="2nd")
 holder=$(declare -p CLUSTER)
 CLUSTERS["2"]=${holder}
 
-CLUSTER=([cluster_id]="0x0CD3" [cluster_short_lower]="3rd" [cluster_short_upper]="3RD" )
+CLUSTER=([cluster_id]="0x0CD3" [cluster_short_lower]="3rd")
 holder=$(declare -p CLUSTER)
 CLUSTERS["3"]=${holder}
+
+CLUSTER=([cluster_id]="0x0CD4" [cluster_short_lower]="4th")
+holder=$(declare -p CLUSTER)
+CLUSTERS["4"]=${holder}
+
+CLUSTER=([cluster_id]="0x0CD5" [cluster_short_lower]="5th")
+holder=$(declare -p CLUSTER)
+CLUSTERS["5"]=${holder}
 
 
 echo -e "${On_Cyan}===> Step: Generate DACs & CDs:${Nc} per CLUSTER_TYPE"
@@ -153,9 +161,9 @@ echo -e "${On_Cyan}===> Step: Generate DACs & CDs:${Nc} per CLUSTER_TYPE"
 		# Use read to bash split pids_list into array
 		#read -ra pid_pids <<< "$pids_list"
 		cluster_short_lower=${CLUSTER[cluster_short_lower]}
-		cluster_short_upper=${CLUSTER[cluster_short_upper]}
+		cluster_short_upper=${cluster_short_lower^^}
 		cluster_id=${CLUSTER[cluster_id]}
-		echo "CLUSTER_TYPE=${cluster_short_id} is composed of ${cluster_short_upper} ${cluster_short_lower}"
+		echo "CLUSTER_TYPE=${cluster_short_id} is composed of ${cluster_short_upper}/${cluster_short_lower}"
 
 		file_name="closure-${cluster_short_lower}-dimension-cluster.xml"
 		output_file="zcl/data-model/chip/${file_name}"
