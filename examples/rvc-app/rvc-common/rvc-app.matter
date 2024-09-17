@@ -105,6 +105,58 @@ enum AtomicRequestTypeEnum : enum8 {
   kRollbackWrite = 2;
 }
 
+enum AwningClosureTag : enum8 {
+  kGenericAwning = 0;
+  kPatioAwning = 1;
+  kBalconyAwning = 2;
+  kFreeStandingAwning = 3;
+  kConvervatoryAwning = 4;
+  kVerticalAwning = 5;
+  kVerticalAwningWithManualLock = 6;
+  kVerticalAwnignWithAutomaticLock = 7;
+  kValanceAwning = 8;
+  kLateralArmAwning = 9;
+}
+
+enum BarrierClosureTag : enum8 {
+  kGenericBarrier = 0;
+  kSingleBoomBarrier = 1;
+  kDoubleBoomBarrier = 2;
+  kFlapBarrier = 3;
+  kTurnstileBarrier = 4;
+  kChainBarrier = 5;
+  kRetractableBollard = 6;
+}
+
+enum BlindClosureTag : enum8 {
+  kGenericBlind = 0;
+  kVenetianBlind = 1;
+  kTiltOnlyVenetianBlind = 2;
+  kLeftSideLouverBlind = 3;
+  kRigthSideLouverBlind = 4;
+  kCentralLouverBlind = 5;
+}
+
+enum CurtainClosureTag : enum8 {
+  kGenericCurtain = 0;
+  kSlidingPanelsCurtain = 1;
+  kLeftSideLateralCurtain = 2;
+  kRightSideLateralCurtain = 3;
+  kCentralCurtain = 4;
+}
+
+enum DoorClosureTag : enum8 {
+  kGenericDoor = 0;
+  kDoorLatch = 1;
+  kLeftHingedDoor = 2;
+  kRightHingedDoor = 3;
+  kParallelHingedDoor = 4;
+  kSlidingDoor = 5;
+  kDoubleWingSlidingDoor = 6;
+  kRollingGrille = 7;
+  kRevolvingDoor = 8;
+}
+
 enum FloorSurfaceTag : enum8 {
   kCarpet = 0;
   kCeramic = 1;
@@ -130,6 +182,37 @@ enum FloorSurfaceTag : enum8 {
   kTerrazzo = 21;
   kTile = 22;
   kVinyl = 23;
+}
+
+enum FurnitureClosureTag : enum8 {
+  kGenericFurniture = 0;
+  kLockerCabinet = 1;
+  kLocker = 2;
+  kDrawer = 3;
+}
+
+enum GarageDoorClosureTag : enum8 {
+  kGenericGarageDoor = 0;
+  kSectionalGarageDoor = 1;
+  kUpAndOverGarageDoor = 2;
+  kSideHingedGarageDoor = 3;
+  kParallelHingedGarageDoor = 4;
+  kSlidingGarageDoor = 5;
+  kDoubleWingSlidingGarageDoor = 6;
+  kSlidingAndFoldingGarageDoor = 7;
+  kRoundTheCornerGarageDoor = 8;
+  kRollUpGarageDoor = 9;
+  kSectionalGarageDoorWithWicket = 10;
+}
+
+enum GateClosureTag : enum8 {
+  kGenericGate = 0;
+  kSwingGate = 1;
+  kTwoPanelSwingGate = 2;
+  kSlidingGate = 3;
+  kSlidingAndFoldingGate = 4;
+  kVerticalLiftGate = 5;
+  kWicket = 6;
 }
 
 enum LandmarkTag : enum8 {
@@ -186,6 +269,13 @@ enum LandmarkTag : enum8 {
   kWineCooler = 50;
 }
 
+enum PergolaClosureTag : enum8 {
+  kGenericPergola = 0;
+  kRetractableCanopyPergola = 1;
+  kBioClimaticPergola = 2;
+  kRetractableBioClimaticPergola = 3;
+}
+
 enum PositionTag : enum8 {
   kLeft = 0;
   kRight = 1;
@@ -206,17 +296,66 @@ enum RelativePositionTag : enum8 {
   kBehind = 6;
 }
 
+enum ScreenClosureTag : enum8 {
+  kGenericScreen = 0;
+  kWindowScreen = 1;
+  kProjectionScreen = 2;
+}
+
+enum ShadeClosureTag : enum8 {
+  kGenericShade = 0;
+  kRollerShade = 1;
+  kRomanShade = 2;
+  kBallonShade = 3;
+  kWovenShade = 4;
+  kPleatedShade = 5;
+  kCellularShade = 6;
+  kLayeredShade = 7;
+  kSheerShade = 8;
+  kTopDownBottomUpShade = 9;
+}
+
+enum ShutterClosureTag : enum8 {
+  kGenericShutter = 0;
+  kRollerShutter = 1;
+  kRoofRollerShutter = 2;
+  kAdjustableSlatsRollerShutter = 3;
+  kRollerShutterWithProjection = 4;
+  kRollerShutterWithSecuredVentilation = 5;
+  kLeftHingedSwingingShutter = 6;
+  kRightHingedSwingingShutter = 7;
+  kDoubleWingSwingingShutter = 8;
+  kTwoSynchronizedPanelSwingingShutter = 9;
+  kTwoIndependantPanelsSwingingShutter = 10;
+  kSlidingShutter = 11;
+  kDoubleWingSlidingShutter = 12;
+}
+
 enum TestGlobalEnum : enum8 {
   kSomeValue = 0;
   kSomeOtherValue = 1;
   kFinalValue = 2;
 }
-
-enum ThreeLevelAutoEnum : enum8 {
-  kLow = 0;
-  kMedium = 1;
-  kHigh = 2;
-  kAutomatic = 3;
+  
+enum WindowClosureTag : enum8 {
+  kGenericWindow = 0;
+  kRoofWindow = 1;
+  kLeftHingedWindow = 2;
+  kMiddleHingedWindow = 3;
+  kRightHingedWindow = 4;
+  kTopHingedWindow = 5;
+  kBottomHingedWindow = 6;
+  kParallelHingedWindow = 7;
+  kDoubleWingWindow = 8;
+  kSingleSlidingWindow = 9;
+  kDoubleSlidingWindow = 10;
+  kThreePanelsSlidingWindow = 11;
+  kSlideAndFoldWindow = 12;
+  kParallelSlideAndTiltWindow = 13;
+  kSingleWingTiltAndTurnWindow = 14;
+  kDoubleWingTiltAndTurnWindow = 15;
+  kFixedWindow = 16;
+  kPrivacyGlassWindow = 17;
 }
 
 bitmap TestGlobalBitmap : bitmap32 {
@@ -1552,6 +1691,125 @@ provisional cluster ServiceArea = 336 {
   command SkipArea(SkipAreaRequest): SkipAreaResponse = 2;
 }
 
+/** Attributes and commands for driving Closures. */
+cluster ClosureOperationalState = 3280 {
+  revision 1;
+
+  enum AutoBehaviorEnum : enum8 {
+    kWait = 0;
+    kReturnToFullyOpened = 1;
+    kReturnToFullyClosed = 2;
+  }
+
+  enum ErrorStateEnum : enum8 {
+    kBlocked = 64;
+    kThermalProtected = 65;
+    kInvalidSetup = 66;
+    kIntegratedElement = 67;
+  }
+
+  enum OperationalStateEnum : enum8 {
+    kCalibrating = 64;
+    kProtected = 65;
+    kDisengaded = 66;
+    kSetupRequired = 67;
+  }
+
+  enum OverallLatchingEnum : enum8 {
+    kNotApplicable = 0;
+    kNotLatched = 1;
+    kPartiallyLatched = 2;
+    kFullyLatched = 3;
+  }
+
+  enum OverallPositioningEnum : enum8 {
+    kNotApplicable = 0;
+    kFullyOpened = 1;
+    kPartiallyOpened = 2;
+    kQuarterOpened = 3;
+    kHalflyOpened = 4;
+    kQuarterClosed = 5;
+    kFullyClosed = 6;
+  }
+
+  enum ProtectiveStateEnum : enum8 {
+    kDropped = 0;
+    kRaised = 1;
+  }
+
+  enum TagEnum : enum8 {
+    kOpenInFull = 0;
+    kCloseOneQuarter = 1;
+    kOpenInHalf = 2;
+    kOpenOneQuarter = 3;
+    kCloseInFull = 4;
+    kPedestrian = 5;
+    kVentilation = 6;
+    kSignature = 7;
+    kSequenceNextStep = 8;
+  }
+
+  enum ThreeLevelAutoEnum : enum8 {
+    kAuto = 0;
+    kLow = 1;
+    kMedium = 2;
+    kHigh = 3;
+  }
+
+  bitmap Feature : bitmap32 {
+    kSpeed = 0x1;
+    kCalibration = 0x2;
+    kProtection = 0x4;
+    kManuallyOperable = 0x8;
+    kAutomaticBehavior = 0x10;
+  }
+
+  bitmap OverallStateBitmap : bitmap8 {
+    kPosition = 0xF;
+    kLatching = 0xF0;
+  }
+
+  struct ErrorStateStruct {
+    enum8 errorStateID = 0;
+    optional char_string<64> errorStateLabel = 1;
+    optional char_string<64> errorStateDetails = 2;
+  }
+
+  struct OperationalStateStruct {
+    enum8 operationalStateID = 0;
+    optional char_string<64> operationalStateLabel = 1;
+  }
+
+  readonly attribute nullable char_string phaseList[] = 0;
+  readonly attribute nullable int8u currentPhase = 1;
+  readonly attribute optional nullable elapsed_s countdownTime = 2;
+  readonly attribute OperationalStateStruct operationalStateList[] = 3;
+  readonly attribute enum8 operationalState = 4;
+  readonly attribute ErrorStateStruct operationalError = 5;
+  readonly attribute OverallStateBitmap overallState = 16384;
+  readonly attribute optional ProtectiveStateEnum protectiveState = 16385;
+  attribute optional AutoBehaviorEnum autoBehavior = 16386;
+  attribute optional elapsed_s autoTimer = 16387;
+  readonly attribute command_id generatedCommandList[] = 65528;
+  readonly attribute command_id acceptedCommandList[] = 65529;
+  readonly attribute event_id eventList[] = 65530;
+  readonly attribute attrib_id attributeList[] = 65531;
+  readonly attribute bitmap32 featureMap = 65532;
+  readonly attribute int16u clusterRevision = 65533;
+
+  request struct MoveToRequest {
+    optional TagEnum tag = 0;
+    optional boolean latch = 1;
+    optional ThreeLevelAutoEnum speed = 2;
+  }
+
+  command Stop(): DefaultSuccess = 1;
+  command MoveTo(MoveToRequest): DefaultSuccess = 64;
+  command Calibrate(): DefaultSuccess = 65;
+  command SetMultipleAttrs(): DefaultSuccess = 66;
+  command GetMultipleAttrs(): DefaultSuccess = 67;
+}
+
 endpoint 0 {
   device type ma_rootdevice = 22, version 1;
 
@@ -1820,6 +2078,20 @@ endpoint 1 {
     handle command SkipArea;
     handle command SkipAreaResponse;
   }
+
+  server cluster ClosureOperationalState {
+    callback attribute phaseList;
+    callback attribute currentPhase;
+    callback attribute operationalStateList;
+    callback attribute operationalState;
+    callback attribute operationalError;
+    callback attribute generatedCommandList;
+    callback attribute acceptedCommandList;
+    callback attribute eventList;
+    callback attribute attributeList;
+    callback attribute featureMap;
+    ram      attribute clusterRevision default = 1;
+
+    handle command Stop;
+  }
 }
-
-

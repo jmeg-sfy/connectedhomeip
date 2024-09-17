@@ -31,30 +31,36 @@ class RvcDevice;
 
 typedef void (RvcDevice::*HandleOpStateCommand)(Clusters::OperationalState::GenericOperationalError & err);
 
-namespace RvcOperationalState {
+namespace ClosureOperationalState {
 
 // This is an application level delegate to handle operational state commands according to the specific business logic.
-class RvcOperationalStateDelegate : public RvcOperationalState::Delegate
+class ClosureOperationalStateDelegate : public ClosureOperationalState::Delegate
 {
 private:
-    const Clusters::OperationalState::GenericOperationalState mOperationalStateList[7] = {
+    const Clusters::OperationalState::GenericOperationalState mOperationalStateList[8] = {
         OperationalState::GenericOperationalState(to_underlying(OperationalState::OperationalStateEnum::kStopped)),
         OperationalState::GenericOperationalState(to_underlying(OperationalState::OperationalStateEnum::kRunning)),
         OperationalState::GenericOperationalState(to_underlying(OperationalState::OperationalStateEnum::kPaused)),
         OperationalState::GenericOperationalState(to_underlying(OperationalState::OperationalStateEnum::kError)),
-        OperationalState::GenericOperationalState(
-            to_underlying(Clusters::RvcOperationalState::OperationalStateEnum::kSeekingCharger)),
-        OperationalState::GenericOperationalState(to_underlying(Clusters::RvcOperationalState::OperationalStateEnum::kCharging)),
-        OperationalState::GenericOperationalState(to_underlying(Clusters::RvcOperationalState::OperationalStateEnum::kDocked)),
+        OperationalState::GenericOperationalState(to_underlying(ClosureOperationalState::OperationalStateEnum::kCalibrating)),
+        OperationalState::GenericOperationalState(to_underlying(ClosureOperationalState::OperationalStateEnum::kProtected)),
+        OperationalState::GenericOperationalState(to_underlying(ClosureOperationalState::OperationalStateEnum::kDisengaded)),
+        OperationalState::GenericOperationalState(to_underlying(ClosureOperationalState::OperationalStateEnum::kSetupRequired)),
     };
     const Span<const CharSpan> mOperationalPhaseList;
 
+    // Base OperationalState Callbacks
     RvcDevice * mPauseRvcDeviceInstance;
     HandleOpStateCommand mPauseCallback;
+    RvcDevice * mStopRvcDeviceInstance;
+    HandleOpStateCommand mStopCallback;
     RvcDevice * mResumeRvcDeviceInstance;
     HandleOpStateCommand mResumeCallback;
-    RvcDevice * mGoHomeRvcDeviceInstance;
-    HandleOpStateCommand mGoHomeCallback;
+    // Derived ClosureOperationalState Callbacks
+    RvcDevice * mCalibrateRvcDeviceInstance;
+    HandleOpStateCommand mCalibrateCallback;
+    RvcDevice * mMoveToRvcDeviceInstance;
+    HandleOpStateCommand mMoveToCallback;
 
 public:
     /**
@@ -95,22 +101,35 @@ public:
      */
     void HandlePauseStateCallback(Clusters::OperationalState::GenericOperationalError & err) override;
 
+    // command callback
     /**
-     * Handle Command Callback in application: Resume
+     * Handle Command Callback in application: Stop
      * @param[out] get operational error after callback.
      */
-    void HandleResumeStateCallback(Clusters::OperationalState::GenericOperationalError & err) override;
+    void HandleStopStateCallback(Clusters::OperationalState::GenericOperationalError & err) override;
+
+    // /**
+    //  * Handle Command Callback in application: Resume
+    //  * @param[out] get operational error after callback.
+    //  */
+    // void HandleResumeStateCallback(Clusters::OperationalState::GenericOperationalError & err) override;
 
     /**
-     * Handle Command Callback in application: GoHome
+     * Handle Command Callback in application: Calibrate
      * @param[out] get operational error after callback.
      */
-    void HandleGoHomeCommandCallback(Clusters::OperationalState::GenericOperationalError & err) override;
+    void HandleCalibrateCommandCallback(Clusters::OperationalState::GenericOperationalError & err) override;
 
     void SetPauseCallback(HandleOpStateCommand aCallback, RvcDevice * aInstance)
     {
         mPauseCallback          = aCallback;
         mPauseRvcDeviceInstance = aInstance;
+    };
+
+    void SetStopCallback(HandleOpStateCommand aCallback, RvcDevice * aInstance)
+    {
+        mStopCallback          = aCallback;
+        mStopRvcDeviceInstance = aInstance;
     };
 
     void SetResumeCallback(HandleOpStateCommand aCallback, RvcDevice * aInstance)
@@ -119,16 +138,22 @@ public:
         mResumeRvcDeviceInstance = aInstance;
     };
 
-    void SetGoHomeCallback(HandleOpStateCommand aCallback, RvcDevice * aInstance)
+    void SetCalibrateCallback(HandleOpStateCommand aCallback, RvcDevice * aInstance)
     {
-        mGoHomeCallback          = aCallback;
-        mGoHomeRvcDeviceInstance = aInstance;
+        mCalibrateCallback          = aCallback;
+        mCalibrateRvcDeviceInstance = aInstance;
+    };
+
+    void SetMoveToCallback(HandleOpStateCommand aCallback, RvcDevice * aInstance)
+    {
+        mMoveToCallback          = aCallback;
+        mMoveToRvcDeviceInstance = aInstance;
     };
 };
 
 void Shutdown();
 
-} // namespace RvcOperationalState
+} // namespace ClosureOperationalState
 } // namespace Clusters
 } // namespace app
 } // namespace chip

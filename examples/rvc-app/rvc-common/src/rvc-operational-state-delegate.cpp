@@ -20,9 +20,9 @@
 using namespace chip;
 using namespace chip::app;
 using namespace chip::app::Clusters;
-using namespace chip::app::Clusters::RvcOperationalState;
+using namespace chip::app::Clusters::ClosureOperationalState;
 
-CHIP_ERROR RvcOperationalStateDelegate::GetOperationalStateAtIndex(size_t index,
+CHIP_ERROR ClosureOperationalStateDelegate::GetOperationalStateAtIndex(size_t index,
                                                                    OperationalState::GenericOperationalState & operationalState)
 {
     if (index >= ArraySize(mOperationalStateList))
@@ -33,7 +33,7 @@ CHIP_ERROR RvcOperationalStateDelegate::GetOperationalStateAtIndex(size_t index,
     return CHIP_NO_ERROR;
 }
 
-CHIP_ERROR RvcOperationalStateDelegate::GetOperationalPhaseAtIndex(size_t index, MutableCharSpan & operationalPhase)
+CHIP_ERROR ClosureOperationalStateDelegate::GetOperationalPhaseAtIndex(size_t index, MutableCharSpan & operationalPhase)
 {
     if (index >= mOperationalPhaseList.size())
     {
@@ -42,17 +42,25 @@ CHIP_ERROR RvcOperationalStateDelegate::GetOperationalPhaseAtIndex(size_t index,
     return CopyCharSpanToMutableCharSpan(mOperationalPhaseList[index], operationalPhase);
 }
 
-void RvcOperationalStateDelegate::HandlePauseStateCallback(OperationalState::GenericOperationalError & err)
+void ClosureOperationalStateDelegate::HandlePauseStateCallback(OperationalState::GenericOperationalError & err)
 {
+    ChipLogDetail(Zcl, "ClosureOperationalStateDelegate HandlePauseStateCallback forward");
     (mPauseRvcDeviceInstance->*mPauseCallback)(err);
 }
 
-void RvcOperationalStateDelegate::HandleResumeStateCallback(OperationalState::GenericOperationalError & err)
+void ClosureOperationalStateDelegate::HandleStopStateCallback(OperationalState::GenericOperationalError & err)
 {
-    (mResumeRvcDeviceInstance->*mResumeCallback)(err);
+    ChipLogDetail(Zcl, "ClosureOperationalStateDelegate HandleStopStateCallback forward");
+    (mStopRvcDeviceInstance->*mStopCallback)(err);
 }
 
-void RvcOperationalStateDelegate::HandleGoHomeCommandCallback(OperationalState::GenericOperationalError & err)
+// void ClosureOperationalStateDelegate::HandleResumeStateCallback(OperationalState::GenericOperationalError & err)
+// {
+//     (mResumeRvcDeviceInstance->*mResumeCallback)(err);
+// }
+
+void ClosureOperationalStateDelegate::HandleCalibrateCommandCallback(OperationalState::GenericOperationalError & err)
 {
-    (mGoHomeRvcDeviceInstance->*mGoHomeCallback)(err);
+    ChipLogDetail(Zcl, "ClosureOperationalStateDelegate HandleCalibrateCommandCallback forward");
+    (mCalibrateRvcDeviceInstance->*mCalibrateCallback)(err);
 }
