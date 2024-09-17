@@ -77,7 +77,7 @@ public:
      * @return Returns an error if the given endpoint and cluster ID have not been enabled in zap or if the
      * CommandHandler or AttributeHandler registration fails, else returns CHIP_NO_ERROR.
      */
-    CHIP_ERROR Init();
+    CHIP_ERROR InitCBD();
 
     // Attribute setters
     /**
@@ -176,19 +176,40 @@ protected:
      */
     Instance(Delegate * aDelegate, EndpointId aEndpointId, ClusterId aClusterId);
 
+    // /**
+    //  * Handle Command: Stop.
+    //  */
+    virtual void HandleStopState(HandlerContext & ctx, const Commands::Stop::DecodableType & req);
+
     /**
      * Given a state in the derived cluster number-space (from 0x40 to 0x7f), this method checks if the state is pause-compatible.
      * Note: if a state outside the derived cluster number-space is given, this method returns false.
      * @param aState The state to check.
      * @return true if aState is pause-compatible, false otherwise.
      */
-    virtual bool IsDerivedClusterStatePauseCompatible(uint8_t aState) { return false; };
+    virtual bool IsDerivedClusterStatePauseCompatible(uint8_t aState) { return false; }
+
+    /**
+     * Given a state in the derived cluster number-space (from 0x40 to 0x7f), this method checks if the state is stop-compatible.
+     * Note: if a state outside the derived cluster number-space is given, this method returns false.
+     * @param aState The state to check.
+     * @return true if aState is stop-compatible, false otherwise.
+     */
+    virtual bool IsDerivedClusterStateStopCompatible(uint8_t aState) { return false; };
+
+    /**
+     * Given a state in the derived cluster number-space (from 0x40 to 0x7f), this method checks if the state is start-compatible.
+     * Note: if a state outside the derived cluster number-space is given, this method returns false.
+     * @param aState The state to check.
+     * @return true if aState is start-compatible, false otherwise.
+     */
+    virtual bool IsDerivedClusterStateStartCompatible(uint8_t aState) { return false; };
 
     /**
      * Given a state in the derived cluster number-space (from 0x40 to 0x7f), this method checks if the state is resume-compatible.
      * Note: if a state outside the derived cluster number-space is given, this method returns false.
      * @param aState The state to check.
-     * @return true if aState is pause-compatible, false otherwise.
+     * @return true if aState is resume-compatible, false otherwise.
      */
     virtual bool IsDerivedClusterStateResumeCompatible(uint8_t aState) { return false; };
 
@@ -199,6 +220,17 @@ protected:
      * @param handlerContext The command handler context containing information about the received command.
      */
     virtual void InvokeDerivedClusterCommand(HandlerContext & handlerContext) { return; };
+
+    /**
+     * Handles the reading of derived cluster commands.
+     * If a derived cluster defines its own attributes, this method SHALL be implemented by the derived cluster's class
+     * to handle the derived cluster's specific attributes read.
+     * @param aPath The constant path indicating the attributId.
+     * @param aEncoder Encoder to copy the Attribute value.
+     * IM-level implementation of read
+     * @return appropriately mapped CHIP_ERROR if applicable (may return CHIP_IM_GLOBAL_STATUS errors)
+     */
+    virtual CHIP_ERROR ReadDerivedClusterAttribute(const ConcreteReadAttributePath & aPath, AttributeValueEncoder & aEncoder) { return CHIP_NO_ERROR; };
 
     /**
      * Causes reporting/udpating of CountdownTime attribute from driver if sufficient changes have
@@ -221,7 +253,7 @@ private:
 
     // Attribute Data Store
     app::DataModel::Nullable<uint8_t> mCurrentPhase;
-    uint8_t mOperationalState                 = 0; // assume 0 for now.
+    uint8_t mOperationalState                 = to_underlying(OperationalStateEnum::kStopped);
     GenericOperationalError mOperationalError = to_underlying(ErrorStateEnum::kNoError);
     app::QuieterReportingAttribute<uint32_t> mCountdownTime{ DataModel::NullNullable };
 
@@ -252,10 +284,7 @@ private:
      */
     void HandlePauseState(HandlerContext & ctx, const Commands::Pause::DecodableType & req);
 
-    /**
-     * Handle Command: Stop.
-     */
-    void HandleStopState(HandlerContext & ctx, const Commands::Stop::DecodableType & req);
+
 
     /**
      * Handle Command: Start.
@@ -358,35 +387,60 @@ protected:
 
 } // namespace OperationalState
 
-namespace RvcOperationalState {
+// #############################################################################################
+
+namespace ClosureOperationalState {
 
 class Delegate : public OperationalState::Delegate
 {
 public:
     /**
-     * Handle Command Callback in application: GoHome
+     * Handle Command Callback in application: Calibrate
      * @param[out] err operational error after callback.
      */
-    virtual void HandleGoHomeCommandCallback(OperationalState::GenericOperationalError & err)
+    virtual void HandleCalibrateCommandCallback(OperationalState::GenericOperationalError & err)
     {
+        ChipLogDetail(Zcl, "ClosureOperationalState:Delegate HandleCalibrateCommandCallback dummy");
         err.Set(to_underlying(OperationalState::ErrorStateEnum::kUnknownEnumValue));
     };
 
     /**
-     * The start command is not supported by the RvcOperationalState cluster hence this method should never be called.
+     * Handle Command Callback in application: MoveTo
+     * @param[out] err operational error after callback.
+     */
+    virtual void HandleMoveToCommandCallback(OperationalState::GenericOperationalError & err)
+    {
+        ChipLogDetail(Zcl, "ClosureOperationalState:Delegate HandleMoveToCommandCallback dummy");
+        err.Set(to_underlying(OperationalState::ErrorStateEnum::kUnknownEnumValue));
+    };
+
+    /**
+     * The start command is not supported by the ClosureOperationalState cluster hence this method should never be called.
      * This is a dummy implementation of the handler method so the consumer of this class does not need to define it.
      */
     void HandleStartStateCallback(OperationalState::GenericOperationalError & err) override
     {
+        ChipLogDetail(Zcl, "ClosureOperationalState:Delegate HandleStartStateCallback dummy");
         err.Set(to_underlying(OperationalState::ErrorStateEnum::kUnknownEnumValue));
     };
 
     /**
-     * The stop command is not supported by the RvcOperationalState cluster hence this method should never be called.
+     * The stop command is not supported by the ClosureOperationalState cluster hence this method should never be called.
+     * This is a dummy implementation of the handler method so the consumer of this class does not need to define it.
+     */
+    void HandleResumeStateCallback(OperationalState::GenericOperationalError & err) override
+    {
+        ChipLogDetail(Zcl, "ClosureOperationalState:Delegate HandleResumeStateCallback dummy");
+        err.Set(to_underlying(OperationalState::ErrorStateEnum::kUnknownEnumValue));
+    };
+
+    /**
+     * The stop command is not supported by the ClosureOperationalState cluster hence this method should never be called.
      * This is a dummy implementation of the handler method so the consumer of this class does not need to define it.
      */
     void HandleStopStateCallback(OperationalState::GenericOperationalError & err) override
     {
+        ChipLogDetail(Zcl, "ClosureOperationalState:Delegate HandleStopStateCallback dummy");
         err.Set(to_underlying(OperationalState::ErrorStateEnum::kUnknownEnumValue));
     };
 };
@@ -403,11 +457,28 @@ public:
      * Note: the caller must ensure that the delegate lives throughout the instance's lifetime.
      * @param aEndpointId The endpoint on which this cluster exists. This must match the zap configuration.
      */
+    // TODO : Note Cluster ID is passed here
     Instance(Delegate * aDelegate, EndpointId aEndpointId) :
         OperationalState::Instance(aDelegate, aEndpointId, Id), mDelegate(aDelegate)
-    {}
+    {
+        mOverallState.SetField(OverallStateBitmap::kPosition, static_cast<uint8_t>(OverallPositioningEnum::kFullyClosed));
+        mOverallState.SetField(OverallStateBitmap::kLatching, static_cast<uint8_t>(OverallLatchingEnum::kFullyLatched));
+    }
+
+    ~Instance() override;
+
+    /**
+     * Get the current operational state.
+     * @return The current operational state value.
+     */
+    uint8_t GetCurrentOverallState() const;
 
 protected:
+    /**
+     * Handle Command: Stop.
+     */
+    void HandleStopState(HandlerContext & ctx, const OperationalState::Commands::Stop::DecodableType & req) override;
+
     /**
      * Given a state in the derived cluster number-space (from 0x40 to 0x7f), this method checks if the state is pause-compatible.
      * Note: if a state outside the derived cluster number-space is given, this method returns false.
@@ -425,21 +496,55 @@ protected:
     bool IsDerivedClusterStateResumeCompatible(uint8_t aState) override;
 
     /**
-     * Handles the invocation of RvcOperationalState specific commands
+     * Handles the invocation of ClosureOperationalState specific commands
      * @param handlerContext The command handler context containing information about the received command.
      */
     void InvokeDerivedClusterCommand(HandlerContext & handlerContext) override;
 
+    /**
+     * Handles the reading of derived cluster commands.
+     * If a derived cluster defines its own attributes, this method SHALL be implemented by the derived cluster's class
+     * to handle the derived cluster's specific attributes read.
+     * @param aPath The constant path indicating the attributId.
+     * @param aEncoder Encoder to copy the Attribute value.
+     * IM-level implementation of read
+     * @return appropriately mapped CHIP_ERROR if applicable (may return CHIP_IM_GLOBAL_STATUS errors)
+     */
+    CHIP_ERROR ReadDerivedClusterAttribute(const ConcreteReadAttributePath & aPath, AttributeValueEncoder & aEncoder) override;
+
 private:
     Delegate * mDelegate;
 
+    // Attribute Data Store
+    chip::BitMask<OverallStateBitmap> mOverallState;
+    // app::DataModel::Nullable<uint8_t> mCurrentPhase;
+    // uint8_t mOperationalState                 = 0; // assume 0 for now.
+    // GenericOperationalError mOperationalError = to_underlying(ErrorStateEnum::kNoError);
+    // app::QuieterReportingAttribute<uint32_t> mCountdownTime{ DataModel::NullNullable };
+
+    // <!-- This Derived Cluster's Attributes -->
+    // <attribute side="server" code="0x4000" writable="false" define="OVERALL_STATE"          type="OverallStateBitmap"  default="0" optional="false">OverallState</attribute>
+    // <attribute side="server" code="0x4001" writable="false" define="PROTECTIVE_STATE"       type="ProtectiveStateEnum" default="0" optional="true">ProtectiveState</attribute>
+    // <attribute side="server" code="0x4002" writable="true"  define="AUTO_BEHAVIOR"          type="AutoBehaviorEnum"    default="0" optional="true">
+    //   <description>AutoBehavior</description>
+    //   <access op="read" privilege="view"/>
+    //   <access op="write" privilege="operate"/>
+    // </attribute>
+    // <attribute side="server" code="0x4003" writable="true"  define="AUTO_TIMER"             type="elapsed_s" min="0" max="259200" default="0" optional="true">
+
+
     /**
-     * Handle Command: GoHome
+     * Handle Command: Calibrate
      */
-    void HandleGoHomeCommand(HandlerContext & ctx, const Commands::GoHome::DecodableType & req);
+    void HandleCalibrateCommand(HandlerContext & ctx, const Commands::Calibrate::DecodableType & req);
+
+    /**
+     * Handle Command: MoveTo
+     */
+    void HandleMoveToCommand(HandlerContext & ctx, const Commands::MoveTo::DecodableType & req);
 };
 
-} // namespace RvcOperationalState
+} // namespace ClosureOperationalState
 
 namespace OvenCavityOperationalState {
 

@@ -43,6 +43,7 @@ Instance::Instance(Delegate * aDelegate, EndpointId aEndpointId, ClusterId aClus
     CommandHandlerInterface(MakeOptional(aEndpointId), aClusterId), AttributeAccessInterface(MakeOptional(aEndpointId), aClusterId),
     mDelegate(aDelegate), mEndpointId(aEndpointId), mClusterId(aClusterId)
 {
+    ChipLogDetail(Zcl, "OperationalStateServer Instance.Constructor(): ID=0x%02lX EP=%u", long(mClusterId), mEndpointId);
     mDelegate->SetInstance(this);
     mCountdownTime.policy()
         .Set(QuieterReportingPolicyEnum::kMarkDirtyOnIncrement)
@@ -53,17 +54,21 @@ Instance::Instance(Delegate * aDelegate, EndpointId aEndpointId) : Instance(aDel
 
 Instance::~Instance()
 {
+    ChipLogDetail(Zcl, "OperationalStateServer Instance.Destructor(): ID=0x%02lX EP=%u", long(mClusterId), mEndpointId);
     CommandHandlerInterfaceRegistry::Instance().UnregisterCommandHandler(this);
     AttributeAccessInterfaceRegistry::Instance().Unregister(this);
 }
 
-CHIP_ERROR Instance::Init()
+CHIP_ERROR Instance::InitCBD()
 {
     // Check if the cluster has been selected in zap
+	ChipLogDetail(Zcl, "OperationalStateServer Instance.Init(): !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
     if (!emberAfContainsServer(mEndpointId, mClusterId))
     {
-        ChipLogError(Zcl, "Operational State: The cluster with ID %lu was not enabled in zap.", long(mClusterId));
+        ChipLogError(Zcl, "Operational State: The cluster with ID 0x%02lX, %lu was not enabled in zap.", long(mClusterId), long(mClusterId));
         return CHIP_ERROR_INVALID_ARGUMENT;
+    } else {
+        ChipLogDetail(Zcl, "OperationalStateServer: ID=0x%02lX EP=%u", long(mClusterId), mEndpointId);
     }
 
     ReturnErrorOnFailure(CommandHandlerInterfaceRegistry::Instance().RegisterCommandHandler(this));
@@ -95,6 +100,7 @@ CHIP_ERROR Instance::SetCurrentPhase(const DataModel::Nullable<uint8_t> & aPhase
 
 CHIP_ERROR Instance::SetOperationalState(uint8_t aOpState)
 {
+
     // Error is only allowed to be set by OnOperationalErrorDetected.
     if (aOpState == to_underlying(OperationalStateEnum::kError) || !IsSupportedOperationalState(aOpState))
     {
@@ -102,6 +108,7 @@ CHIP_ERROR Instance::SetOperationalState(uint8_t aOpState)
     }
 
     bool countdownTimeUpdateNeeded = false;
+    // Always clear Error when changing state
     if (mOperationalError.errorStateID != to_underlying(ErrorStateEnum::kNoError))
     {
         mOperationalError.Set(to_underlying(ErrorStateEnum::kNoError));
@@ -111,12 +118,14 @@ CHIP_ERROR Instance::SetOperationalState(uint8_t aOpState)
 
     uint8_t oldState  = mOperationalState;
     mOperationalState = aOpState;
+    ChipLogDetail(Zcl, "OperationalStateServer SetOperationalState(): old=%u -> new=%u !!", oldState, aOpState);
     if (mOperationalState != oldState)
     {
-        MatterReportingAttributeChangeCallback(mEndpointId, mClusterId, Attributes::OperationalState::Id);
         countdownTimeUpdateNeeded = true;
+        MatterReportingAttributeChangeCallback(mEndpointId, mClusterId, Attributes::OperationalState::Id);
     }
 
+    // If either OpError or OpState is changed then update CountdownTime
     if (countdownTimeUpdateNeeded)
     {
         UpdateCountdownTimeFromClusterLogic();
@@ -317,16 +326,65 @@ void Instance::InvokeCommand(HandlerContext & handlerContext)
     case Commands::Stop::Id:
         ChipLogDetail(Zcl, "OperationalState: Entering handling Stop state");
 
-        HandleCommand<Commands::Stop::DecodableType>(handlerContext,
-                                                     [this](HandlerContext & ctx, const auto & req) { HandleStopState(ctx, req); });
+        HandleCommand<Commands::Stop::DecodableType>(
+            handlerContext, [this](HandlerContext & ctx, const auto & req) { HandleStopState(ctx, req); });
         break;
     default:
         ChipLogDetail(Zcl, "OperationalState: Entering handling derived cluster commands");
-
         InvokeDerivedClusterCommand(handlerContext);
         break;
     }
 }
+
+// // Sets up data for writing
+// struct TestWriteRequest
+// {
+//     DataModel::WriteAttributeRequest request;
+//     uint8_t tlvBuffer[128] = { 0 };
+//     TLV::TLVReader
+//         tlvReader; /// tlv reader used for the returned AttributeValueDecoder (since attributeValueDecoder uses references)
+
+//     TestWriteRequest(const Access::SubjectDescriptor & subject, const ConcreteDataAttributePath & path)
+//     {
+//         request.subjectDescriptor = subject;
+//         request.path              = path;
+//     }
+
+//     template <typename T>
+//     TLV::TLVReader ReadEncodedValue(const T & value)
+//     {
+//         TLV::TLVWriter writer;
+//         writer.Init(tlvBuffer);
+
+//         // Encoding is within a structure:
+//         //   - BEGIN_STRUCT
+//         //     - 1: .....
+//         //   - END_STRUCT
+//         TLV::TLVType outerContainerType;
+//         VerifyOrDie(writer.StartContainer(TLV::AnonymousTag(), TLV::kTLVType_Structure, outerContainerType) == CHIP_NO_ERROR);
+//         VerifyOrDie(chip::app::DataModel::Encode(writer, TLV::ContextTag(1), value) == CHIP_NO_ERROR);
+//         VerifyOrDie(writer.EndContainer(outerContainerType) == CHIP_NO_ERROR);
+//         VerifyOrDie(writer.Finalize() == CHIP_NO_ERROR);
+
+//         TLV::TLVReader reader;
+//         reader.Init(tlvBuffer);
+
+//         // position the reader inside the buffer, on the encoded value
+//         VerifyOrDie(reader.Next() == CHIP_NO_ERROR);
+//         VerifyOrDie(reader.EnterContainer(outerContainerType) == CHIP_NO_ERROR);
+//         VerifyOrDie(reader.Next() == CHIP_NO_ERROR);
+
+//         return reader;
+//     }
+
+//     template <class T>
+//     AttributeValueDecoder DecoderFor(const T & value)
+//     {
+//         tlvReader = ReadEncodedValue(value);
+//         return AttributeValueDecoder(tlvReader, request.subjectDescriptor.value_or(kDenySubjectDescriptor));
+//     }
+// };
+
 
 CHIP_ERROR Instance::Read(const ConcreteReadAttributePath & aPath, AttributeValueEncoder & aEncoder)
 {
@@ -400,6 +458,16 @@ CHIP_ERROR Instance::Read(const ConcreteReadAttributePath & aPath, AttributeValu
         ReturnErrorOnFailure(aEncoder.Encode(mDelegate->GetCountdownTime()));
         break;
     }
+    default: {
+        ChipLogDetail(Zcl, "OperationalState: Entering handling derived cluster attributes");
+        //         TLV::TLVReader reader;
+        // reader.Init(tlvBuffer);
+
+		// tlvReader = ReadEncodedValue(value);AttributeValueEncoder & aEncoder
+		//    DataModelLogger::LogAttribute(aPath, )
+        return ReadDerivedClusterAttribute(aPath, aEncoder);
+        break;
+    }
     }
     return CHIP_NO_ERROR;
 }
@@ -449,6 +517,10 @@ void Instance::HandleStopState(HandlerContext & ctx, const Commands::Stop::Decod
     if (opState != to_underlying(OperationalStateEnum::kStopped))
     {
         mDelegate->HandleStopStateCallback(err);
+    }
+    else
+    {
+        ChipLogDetail(Zcl, "OperationalState: HandleStopState ALREADY Stopped");
     }
 
     Commands::OperationalCommandResponse::Type response;
@@ -510,54 +582,207 @@ void Instance::HandleResumeState(HandlerContext & ctx, const Commands::Resume::D
     ctx.mCommandHandler.AddResponse(ctx.mRequestPath, response);
 }
 
-// RvcOperationalState
+// ###################################################
 
-bool RvcOperationalState::Instance::IsDerivedClusterStatePauseCompatible(uint8_t aState)
+// ClosureOperationalState
+
+ClosureOperationalState::Instance::~Instance()
 {
-    return aState == to_underlying(RvcOperationalState::OperationalStateEnum::kSeekingCharger);
+    ChipLogDetail(Zcl, "ClosureOperationalStateServer Instance.Destructor()");
 }
 
-bool RvcOperationalState::Instance::IsDerivedClusterStateResumeCompatible(uint8_t aState)
+uint8_t ClosureOperationalState::Instance::GetCurrentOverallState() const
 {
-    return (aState == to_underlying(RvcOperationalState::OperationalStateEnum::kCharging) ||
-            aState == to_underlying(RvcOperationalState::OperationalStateEnum::kDocked));
+    return mOverallState.Raw();
+}
+
+bool ClosureOperationalState::Instance::IsDerivedClusterStatePauseCompatible(uint8_t aState)
+{
+    return aState == to_underlying(ClosureOperationalState::OperationalStateEnum::kDisengaded);
+}
+
+bool ClosureOperationalState::Instance::IsDerivedClusterStateResumeCompatible(uint8_t aState)
+{
+    return (aState == to_underlying(ClosureOperationalState::OperationalStateEnum::kProtected) ||
+            aState == to_underlying(ClosureOperationalState::OperationalStateEnum::kSetupRequired));
+}
+
+void ClosureOperationalState::Instance::HandleStopState(HandlerContext & ctx, const OperationalState::Commands::Stop::DecodableType & req)
+{
+    ChipLogDetail(Zcl, "ClosureOperationalState: HandleStopState");
+
+    GenericOperationalError err(to_underlying(OperationalState::ErrorStateEnum::kNoError));
+    uint8_t opState = GetCurrentOperationalState();
+
+    if (opState != to_underlying(OperationalState::OperationalStateEnum::kStopped))
+    {
+        mDelegate->HandleStopStateCallback(err);
+    }
+    else
+    {
+        ChipLogDetail(Zcl, "ClosureOperationalState: HandleStopState ALREADY Stopped");
+    }
+
+    /* NOTE: Compare to the Base::Stop Method -> ClosureOperationalState::Stop Method doesn't answer with a InvokeResponse but with a regular Status */
+    ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::InvalidInState);
 }
 
 // This function is called by the base operational state cluster when a command in the derived cluster number-space is received.
-void RvcOperationalState::Instance::InvokeDerivedClusterCommand(chip::app::CommandHandlerInterface::HandlerContext & handlerContext)
+void ClosureOperationalState::Instance::InvokeDerivedClusterCommand(chip::app::CommandHandlerInterface::HandlerContext & handlerContext)
 {
-    ChipLogDetail(Zcl, "RvcOperationalState: InvokeDerivedClusterCommand");
-    switch (handlerContext.mRequestPath.mCommandId)
+    ChipLogDetail(Zcl, "ClosureOperationalState: InvokeDerivedClusterCommand");
+    auto commandId = handlerContext.mRequestPath.mCommandId;
+    switch (commandId)
     {
-    case RvcOperationalState::Commands::GoHome::Id:
-        ChipLogDetail(Zcl, "RvcOperationalState: Entering handling GoHome command");
+    case ClosureOperationalState::Commands::Calibrate::Id:
+        ChipLogDetail(Zcl, "ClosureOperationalState: Entering handling Calibrate command");
 
-        CommandHandlerInterface::HandleCommand<Commands::GoHome::DecodableType>(
-            handlerContext, [this](HandlerContext & ctx, const auto & req) { HandleGoHomeCommand(ctx, req); });
+        CommandHandlerInterface::HandleCommand<Commands::Calibrate::DecodableType>(
+            handlerContext, [this](HandlerContext & ctx, const auto & req) { HandleCalibrateCommand(ctx, req); });
         break;
+    case ClosureOperationalState::Commands::MoveTo::Id:
+        ChipLogDetail(Zcl, "ClosureOperationalState: Entering handling MoveTo command");
+
+        CommandHandlerInterface::HandleCommand<Commands::MoveTo::DecodableType>(
+            handlerContext, [this](HandlerContext & ctx, const auto & req) { HandleMoveToCommand(ctx, req); });
+        break;
+    default:
+        ChipLogProgress(Zcl, "ClosureOperationalState: WARNING CommandId=0x%02X Invoke is not handled !", commandId);
     }
 }
 
-void RvcOperationalState::Instance::HandleGoHomeCommand(HandlerContext & ctx, const Commands::GoHome::DecodableType & req)
+// This function is called by the base operational state cluster when a command in the derived cluster number-space is received.
+CHIP_ERROR ClosureOperationalState::Instance::ReadDerivedClusterAttribute(const ConcreteReadAttributePath & aPath, AttributeValueEncoder & aEncoder)
 {
-    ChipLogDetail(Zcl, "RvcOperationalState: HandleGoHomeCommand");
+    ChipLogDetail(Zcl, "ClosureOperationalState: ReadDerivedClusterAttribute");
+
+    switch (aPath.mAttributeId)
+    {
+    case ClosureOperationalState::Attributes::OverallState::Id: {
+        ChipLogDetail(Zcl, "ClosureOperationalState: Reading OverallState 0x%02X, Positioning 0x%02X, Latching 0x%02X",
+            mOverallState.Raw(),
+            mOverallState.GetField(OverallStateBitmap::kPosition),
+            mOverallState.GetField(OverallStateBitmap::kLatching));
+        ReturnErrorOnFailure(aEncoder.Encode(GetCurrentOverallState()));
+        break;
+    }
+
+    case ClosureOperationalState::Attributes::ProtectiveState::Id: {
+        ChipLogDetail(Zcl, "ClosureOperationalState: Reading ProtectiveState");
+        ReturnErrorOnFailure(aEncoder.Encode(GetCurrentPhase()));
+        break;
+    }
+
+    case ClosureOperationalState::Attributes::AutoTimer::Id: {
+        ChipLogDetail(Zcl, "ClosureOperationalState: Reading AutoTimer");
+        // Read through to get value closest to reality.
+        ReturnErrorOnFailure(aEncoder.Encode(mDelegate->GetCountdownTime()));
+        break;
+    }
+
+    case ClosureOperationalState::Attributes::AutoBehavior::Id: {
+        ChipLogDetail(Zcl, "ClosureOperationalState: Reading AutoBehavior");
+        // Read through to get value closest to reality.
+        ReturnErrorOnFailure(aEncoder.Encode(mDelegate->GetCountdownTime()));
+        break;
+    }
+
+    default: {
+        ChipLogProgress(Zcl, "ClosureOperationalState: WARNING Attribute=0x%02X Read is not handled !", aPath.mAttributeId);
+    }
+    }
+    return CHIP_NO_ERROR;
+}
+
+void ClosureOperationalState::Instance::HandleCalibrateCommand(HandlerContext & ctx, const Commands::Calibrate::DecodableType & req)
+{
+    ChipLogDetail(Zcl, "ClosureOperationalState: HandleCalibrateCommand");
 
     GenericOperationalError err(to_underlying(OperationalState::ErrorStateEnum::kNoError));
     uint8_t opState = GetCurrentOperationalState();
 
     // Handle the case of the device being in an invalid state
-    if (opState == to_underlying(OperationalStateEnum::kCharging) || opState == to_underlying(OperationalStateEnum::kDocked))
+    if (opState == to_underlying(OperationalStateEnum::kCalibrating) || opState == to_underlying(OperationalStateEnum::kDisengaded))
     {
         err.Set(to_underlying(OperationalState::ErrorStateEnum::kCommandInvalidInState));
     }
 
-    if (err.errorStateID == 0 && opState != to_underlying(OperationalStateEnum::kSeekingCharger))
+    if (err.errorStateID == 0 && opState != to_underlying(OperationalStateEnum::kProtected))
     {
-        mDelegate->HandleGoHomeCommandCallback(err);
+        mDelegate->HandleCalibrateCommandCallback(err);
     }
 
-    Commands::OperationalCommandResponse::Type response;
-    response.commandResponseState = err;
+    //Commands::OperationalCommandResponse::Type response;
+    //response.commandResponseState = err;
 
-    ctx.mCommandHandler.AddResponse(ctx.mRequestPath, response);
+    //ctx.mCommandHandler.AddResponse(ctx.mRequestPath, response);
+
+    ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::InvalidInState);
+}
+
+void ClosureOperationalState::Instance::HandleMoveToCommand(HandlerContext & ctx, const Commands::MoveTo::DecodableType & req)
+{
+    ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand");
+
+    GenericOperationalError err(to_underlying(OperationalState::ErrorStateEnum::kNoError));
+    uint8_t opState = GetCurrentOperationalState();
+
+    //auto & tag   = req.tag;
+    // auto & latch = req.latch;
+    // auto & speed = req.speed;
+
+    if (req.tag.HasValue())
+    {
+        ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand Arg Tag 0x%02u", to_underlying(req.tag.Value()));
+    }
+    else
+    {
+        ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand Arg Tag ABSENT");
+    }
+
+    if (req.latch.HasValue())
+    {
+        ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand Arg Latch 0x%02u", req.latch.Value());
+    }
+    else
+    {
+        ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand Arg Latch ABSENT");
+    }
+
+    if (req.speed.HasValue())
+    {
+        ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand Arg Speed 0x%02u", to_underlying(req.speed.Value()));
+    }
+    else
+    {
+        ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand Arg Speed ABSENT");
+    }
+// OperationalState ComputeOperationalState(NPercent100ths target, NPercent100ths current)
+// {
+//     if (!current.IsNull() && !target.IsNull())
+//     {
+//         return ComputeOperationalState(target.Value(), current.Value());
+//     }
+//     return OperationalState::Stall;
+// }
+
+//     ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand Args: %u %u %u", tag.GetValue(), latch, speed);
+
+    // Handle the case of the device being in an invalid state
+    if (opState == to_underlying(OperationalStateEnum::kCalibrating) || opState == to_underlying(OperationalStateEnum::kDisengaded))
+    {
+        err.Set(to_underlying(OperationalState::ErrorStateEnum::kCommandInvalidInState));
+    }
+
+    if (err.errorStateID == 0 && opState != to_underlying(OperationalStateEnum::kProtected))
+    {
+        mDelegate->HandleMoveToCommandCallback(err);
+    }
+
+    //Commands::OperationalCommandResponse::Type response;
+    //response.commandResponseState = err;
+
+    //ctx.mCommandHandler.AddResponse(ctx.mRequestPath, response);
+
+    ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::InvalidInState);
 }
