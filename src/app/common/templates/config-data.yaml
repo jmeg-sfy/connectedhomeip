@@ -12,6 +12,8 @@ EnumsNotUsedAsTypeInXML:
     - "RvcCleanMode::StatusCode"
     - "RvcOperationalState::OperationalStateEnum"
     - "RvcOperationalState::ErrorStateEnum"
+    - "ClosureOperationalState::OperationalStateEnum"
+    - "ClosureOperationalState::ErrorStateEnum"
     - "EnergyEvseMode::ModeTag"
     - "WaterHeaterMode::ModeTag"
     - "DeviceEnergyManagementMode::ModeTag"
@@ -34,6 +36,7 @@ CommandHandlerInterfaceOnlyClusters:
     - Activated Carbon Filter Monitoring
     - HEPA Filter Monitoring
     - RVC Operational State
+    - Closure Operational State
     - Sample MEI
     - Microwave Oven Control
     - Chime
