@@ -72,6 +72,7 @@ limitations under the License.
     <type id="0xD0" description="System Time Microseconds" name="systime_us"        size="8"  analog="true"   />
     <type id="0xD1" description="System Time Milliseconds" name="systime_ms"        size="8"  analog="true"   />
     <type id="0xD2" description="Elapsed Time Seconds"     name="elapsed_s"         size="4"  analog="true"   />
+    <type id="0xD3" description="Duration Time Seconds"    name="duration_s"        size="2"  analog="true"   />
 
     <type id="0xD8" description="Temperature"              name="temperature"       size="2"  analog="true"     signed="true" />
 

@@ -52,6 +52,7 @@ EmberAfAttributeType AttributeBaseType(EmberAfAttributeType type)
     case ZCL_VENDOR_ID_ATTRIBUTE_TYPE:     // Vendor Id
     case ZCL_ENUM16_ATTRIBUTE_TYPE:        // 16-bit enumeration
     case ZCL_BITMAP16_ATTRIBUTE_TYPE:      // 16-bit bitmap
+    case ZCL_DURATION_S_ATTRIBUTE_TYPE:    // Duration Seconds
     case ZCL_PERCENT100THS_ATTRIBUTE_TYPE: // 100ths of a percent
         static_assert(std::is_same<chip::EndpointId, uint16_t>::value,
                       "chip::EndpointId is expected to be uint16_t, change this when necessary");

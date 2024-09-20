@@ -90,6 +90,8 @@ function atomicType(arg)
     return 'uint32_t';
   case 'temperature':
     return 'int16_t';
+  case 'duration_s':
+    return 'uint16_t';
   default:
     throw 'not overriding';
   }

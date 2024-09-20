@@ -195,6 +195,7 @@ __CHIP_SIZED_TYPES__ = {
     "data_ver": BasicInteger(idl_name="data_ver", byte_count=4, is_signed=False),
     "date": BasicInteger(idl_name="date", byte_count=4, is_signed=False),
     "devtype_id": BasicInteger(idl_name="devtype_id", byte_count=4, is_signed=False),
+    "duration_s": BasicInteger(idl_name="duration_s", byte_count=2, is_signed=False),
     "elapsed_s": BasicInteger(idl_name="elapsed_s", byte_count=4, is_signed=False),
     "endpoint_no": BasicInteger(idl_name="endpoint_no", byte_count=2, is_signed=False),
     "energy_mwh":  BasicInteger(idl_name="energy_mwh", byte_count=8, is_signed=True),
