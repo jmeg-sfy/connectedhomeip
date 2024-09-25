@@ -20,21 +20,24 @@ limitations under the License.
 
   <enum name="OverallPositioningEnum" type="enum8">
     <cluster code="0x0CD0"/>
-    <item value="0x00" name="NotApplicable"/>
-    <item value="0x01" name="FullyOpened"/>
-    <item value="0x02" name="PartiallyOpened"/>
-    <item value="0x03" name="QuarterOpened"/>
-    <item value="0x04" name="HalflyOpened"/>
-    <item value="0x05" name="QuarterClosed"/>
-    <item value="0x06" name="FullyClosed"/>
+    <item value="0x00" name="FullyClosed"/>
+    <item value="0x01" name="NotSupported"/>
+    <item value="0x02" name="FullyOpened"/>
+    <item value="0x03" name="PartiallyOpened"/>
+    <item value="0x04" name="QuarterOpened"/>
+    <item value="0x05" name="HalfOpened"/>
+    <item value="0x06" name="ThreeQuarterOpened"/>
+    <item value="0x07" name="OpenedForPedestrian"/>
+    <item value="0x08" name="OpenedForVentilation"/>
+    <item value="0x09" name="OpenedAtSignature"/>
   </enum>
 
   <enum name="OverallLatchingEnum" type="enum8">
     <cluster code="0x0CD0"/>
-    <item value="0x00" name="NotApplicable"/>
-    <item value="0x01" name="NotLatched"/>
-    <item value="0x02" name="PartiallyLatched"/>
-    <item value="0x03" name="FullyLatched"/>
+    <item value="0x00" name="LatchedAndSecured"/>
+    <item value="0x01" name="NotSupported"/>
+    <item value="0x02" name="LatchedButNotSecured"/>
+    <item value="0x03" name="NotLatched"/>
   </enum>
 
   <bitmap name="OverallStateBitmap" type="bitmap8">
@@ -49,11 +52,27 @@ limitations under the License.
     <item value="0x01" name="Raised"/>
   </enum>
 
-  <enum name="AutoBehaviorEnum" type="enum8">
+  <enum name="RestingProcedureEnum" type="enum8">
     <cluster code="0x0CD0"/>
-    <item value="0x00" name="Wait"/>
+    <item value="0x00" name="DoNothing"/>
     <item value="0x01" name="ReturnToFullyOpened"/>
     <item value="0x02" name="ReturnToFullyClosed"/>
+  </enum>
+
+  <enum name="TriggerPositionEnum" type="enum8">
+    <cluster code="0x0CD0"/>
+    <item value="0x00" name="AtFullyClosed"/>
+    <item value="0x01" name="AtFullyOpened"/>
+    <item value="0x02" name="AtPartiallyOpened"/>
+    <item value="0x03" name="AtVentilation"/>
+    <item value="0x04" name="AtPedestrian"/>
+  </enum>
+
+  <enum name="TriggerConditionEnum" type="enum8">
+    <cluster code="0x0CD0"/>
+    <item value="0x00" name="AfterDelay"/>
+    <item value="0x01" name="AfterApplicativeTrigger"/>
+    <item value="0x02" name="DelayOrApplicativeTrigger"/>
   </enum>
 
   <enum name="TagEnum" type="enum8">
@@ -75,6 +94,7 @@ limitations under the License.
     <item value="0x41" name="Protected"/>
     <item value="0x42" name="Disengaded"/>
     <item value="0x43" name="SetupRequired"/>
+    <item value="0x44" name="PendingFallback"/>
   </enum>
 
   <enum name="ErrorStateEnum" type="enum8">
