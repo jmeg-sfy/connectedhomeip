@@ -26,11 +26,19 @@ limitations under the License.
 
     <features>
       <!-- Check with Base Cluster the scope of Features offset for the Base vs Derived -->
-      <feature bit="0" code="SP" name="Speed" summary="Supports the speed feature."/>
-      <feature bit="1" code="CL" name="Calibration" summary="Supports the calibration feature."/>
-      <feature bit="2" code="PT" name="Protection" summary="Supports the protection feature."/>
-      <feature bit="3" code="MO" name="ManuallyOperable" summary="Supports the manual operation feature."/>
-      <feature bit="4" code="FB" name="Fallback" summary="Supports the fallback feature."/>
+      <!-- Base Cluster Features start @ bit #0 -->
+      <!-- No Feature Declared -->
+      <!-- Derived Cluster Features start @ bit #8 -->
+      <feature bit="8"  code="PS" name="Positioning"             summary="Supports the Positioning feature."/>
+      <feature bit="9"  code="LT" name="Latching"                summary="Supports the Latching feature."/>
+      <feature bit="10" code="IP" name="IntermediatePositioning" summary="Supports the IntermediatePositioning feature."/>
+      <feature bit="11" code="SP" name="Speed"                   summary="Supports the Speed feature."/>
+      <feature bit="12" code="VT" name="Ventilation"             summary="Supports the Ventilation feature."/>
+      <feature bit="13" code="PD" name="Pedestrian"              summary="Supports the Pedestrian feature."/>
+      <feature bit="14" code="CL" name="Calibration"             summary="Supports the Calibration feature."/>
+      <feature bit="15" code="PT" name="Protection"              summary="Supports the Protection feature."/>
+      <feature bit="16" code="MO" name="ManuallyOperable"        summary="Supports the manual operation feature."/>
+      <feature bit="17" code="FB" name="Fallback"                summary="Supports the Fallback feature."/>
     </features>
 
     <!-- Base Cluster's Attributes -->
