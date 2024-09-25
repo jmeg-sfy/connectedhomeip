@@ -77,7 +77,7 @@ public:
      * @return Returns an error if the given endpoint and cluster ID have not been enabled in zap or if the
      * CommandHandler or AttributeHandler registration fails, else returns CHIP_NO_ERROR.
      */
-    CHIP_ERROR InitCBD();
+    CHIP_ERROR Init();
 
     // Attribute setters
     /**

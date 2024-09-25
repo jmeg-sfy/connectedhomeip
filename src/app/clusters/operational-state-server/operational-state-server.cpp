@@ -59,7 +59,7 @@ Instance::~Instance()
     AttributeAccessInterfaceRegistry::Instance().Unregister(this);
 }
 
-CHIP_ERROR Instance::InitCBD()
+CHIP_ERROR Instance::Init()
 {
     // Check if the cluster has been selected in zap
 	ChipLogDetail(Zcl, "OperationalStateServer Instance.Init(): !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");

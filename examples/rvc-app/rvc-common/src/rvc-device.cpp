@@ -9,7 +9,7 @@ void RvcDevice::Init()
     mServiceAreaInstance.Init();
     //mRunModeInstance.Init();
    // mCleanModeInstance.Init();
-    mOperationalStateInstance.InitCBD();
+    mOperationalStateInstance.Init();
 }
 
 void RvcDevice::SetDeviceToIdleState()
