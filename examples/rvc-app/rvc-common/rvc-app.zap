@@ -2675,6 +2675,14 @@
               "isEnabled": 1
             },
             {
+              "name": "ConfigureFallback",
+              "code": 66,
+              "mfgCode": null,
+              "source": "client",
+              "isIncoming": 1,
+              "isEnabled": 1
+            },
+            {
               "name": "OperationalCommandResponse",
               "code": 4,
               "mfgCode": null,
@@ -2770,22 +2778,6 @@
               "mfgCode": null,
               "side": "server",
               "type": "bitmap8",
-              "included": 1,
-              "storageOption": "External",
-              "singleton": 0,
-              "bounded": 0,
-              "defaultValue": null,
-              "reportable": 1,
-              "minInterval": 1,
-              "maxInterval": 65534,
-              "reportableChange": 0
-            },
-            {
-              "name": "ProtectiveState",
-              "code": 16385,
-              "mfgCode": null,
-              "side": "server",
-              "type": "enum8",
               "included": 1,
               "storageOption": "External",
               "singleton": 0,

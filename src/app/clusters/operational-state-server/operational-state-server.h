@@ -570,7 +570,7 @@ public:
         OperationalState::Instance(aDelegate, aEndpointId, Id), mDelegate(aDelegate)
     {
         mOverallState.SetField(OverallStateBitmap::kPosition, static_cast<uint8_t>(OverallPositioningEnum::kFullyClosed));
-        mOverallState.SetField(OverallStateBitmap::kLatching, static_cast<uint8_t>(OverallLatchingEnum::kFullyLatched));
+        mOverallState.SetField(OverallStateBitmap::kLatching, static_cast<uint8_t>(OverallLatchingEnum::kLatchedAndSecured));
     }
 
     ~Instance() override;
@@ -640,6 +640,10 @@ private:
     // </attribute>
     // <attribute side="server" code="0x4003" writable="true"  define="AUTO_TIMER"             type="elapsed_s" min="0" max="259200" default="0" optional="true">
 
+    /**
+     * Handle Command: MoveTo
+     */
+    void HandleMoveToCommand(HandlerContext & ctx, const Commands::MoveTo::DecodableType & req);
 
     /**
      * Handle Command: Calibrate
@@ -647,33 +651,13 @@ private:
     void HandleCalibrateCommand(HandlerContext & ctx, const Commands::Calibrate::DecodableType & req);
 
     /**
-     * Handle Command: MoveTo
+     * Handle Command: ConfigureFallback
      */
-    void HandleMoveToCommand(HandlerContext & ctx, const Commands::MoveTo::DecodableType & req);
+    void HandleConfigureFallbackCommand(HandlerContext & ctx, const Commands::ConfigureFallback::DecodableType & req);
+
 };
 
 } // namespace ClosureOperationalState
-
-namespace OvenCavityOperationalState {
-
-class Instance : public OperationalState::Instance
-{
-public:
-    /**
-     * Creates an oven cavity operational state cluster instance.
-     * The Init() function needs to be called for this instance to be registered and called by the
-     * interaction model at the appropriate times.
-     * It is possible to set the CurrentPhase and OperationalState via the Set... methods before calling Init().
-     * @param aDelegate A pointer to the delegate to be used by this server.
-     * Note: the caller must ensure that the delegate lives throughout the instance's lifetime.
-     * @param aEndpointId The endpoint on which this cluster exists. This must match the zap configuration.
-     */
-    Instance(OperationalState::Delegate * aDelegate, EndpointId aEndpointId) :
-        OperationalState::Instance(aDelegate, aEndpointId, Id)
-    {}
-};
-
-} // namespace OvenCavityOperationalState
 
 } // namespace Clusters
 } // namespace app

@@ -719,21 +719,34 @@ CHIP_ERROR ClosureOperationalState::Instance::ReadDerivedClusterAttribute(const 
         break;
     }
 
-    case ClosureOperationalState::Attributes::ProtectiveState::Id: {
-        ChipLogDetail(Zcl, "ClosureOperationalState: Reading ProtectiveState");
-        ReturnErrorOnFailure(aEncoder.Encode(GetCurrentPhase()));
-        break;
-    }
-
-    case ClosureOperationalState::Attributes::AutoTimer::Id: {
-        ChipLogDetail(Zcl, "ClosureOperationalState: Reading AutoTimer");
+    case ClosureOperationalState::Attributes::RestingProcedure::Id: {
+        ChipLogDetail(Zcl, "ClosureOperationalState: Reading RestingProcedure");
         // Read through to get value closest to reality.
         ReturnErrorOnFailure(aEncoder.Encode(mDelegate->GetCountdownTime()));
         break;
     }
 
-    case ClosureOperationalState::Attributes::AutoBehavior::Id: {
-        ChipLogDetail(Zcl, "ClosureOperationalState: Reading AutoBehavior");
+    case ClosureOperationalState::Attributes::TriggerPosition::Id: {
+        ChipLogDetail(Zcl, "ClosureOperationalState: Reading TriggerPosition");
+        ReturnErrorOnFailure(aEncoder.Encode(GetCurrentPhase()));
+        break;
+    }
+
+    case ClosureOperationalState::Attributes::TriggerCondition::Id: {
+        ChipLogDetail(Zcl, "ClosureOperationalState: Reading TriggerCondition");
+        ReturnErrorOnFailure(aEncoder.Encode(GetCurrentPhase()));
+        break;
+    }
+
+    case ClosureOperationalState::Attributes::WaitingDelay::Id: {
+        ChipLogDetail(Zcl, "ClosureOperationalState: Reading WaitingDelay");
+        // Read through to get value closest to reality.
+        ReturnErrorOnFailure(aEncoder.Encode(mDelegate->GetCountdownTime()));
+        break;
+    }
+
+    case ClosureOperationalState::Attributes::KickoffTimer::Id: {
+        ChipLogDetail(Zcl, "ClosureOperationalState: Reading KickoffTimer");
         // Read through to get value closest to reality.
         ReturnErrorOnFailure(aEncoder.Encode(mDelegate->GetCountdownTime()));
         break;
@@ -772,6 +785,20 @@ void ClosureOperationalState::Instance::HandleCalibrateCommand(HandlerContext & 
     ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::InvalidInState);
 }
 
+
+template <class U>
+void ChipLogOptionalValue(const chip::Optional<U> & item, const char * message, const char * name) //const Optional<U> & other)
+{
+    if (item.HasValue())
+    {
+        ChipLogDetail(Zcl, "%s %s 0x%02u", message, name, static_cast<uint8_t>(item.Value()));
+    }
+    else
+    {
+        ChipLogDetail(Zcl, "%s %s NotPresent", message, name);
+    }
+}
+
 void ClosureOperationalState::Instance::HandleMoveToCommand(HandlerContext & ctx, const Commands::MoveTo::DecodableType & req)
 {
     ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand");
@@ -783,42 +810,42 @@ void ClosureOperationalState::Instance::HandleMoveToCommand(HandlerContext & ctx
     // auto & latch = req.latch;
     // auto & speed = req.speed;
 
-    if (req.tag.HasValue())
+    ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand Arg:");
+    ChipLogOptionalValue(req.tag, "    -", "Tag");
+    ChipLogOptionalValue(req.latch, "    -", "Latch");
+    ChipLogOptionalValue(req.speed, "    -", "Speed");
+
+    // Handle the case of the device being in an invalid state
+    if (opState == to_underlying(OperationalStateEnum::kCalibrating) || opState == to_underlying(OperationalStateEnum::kDisengaded))
     {
-        ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand Arg Tag 0x%02u", to_underlying(req.tag.Value()));
-    }
-    else
-    {
-        ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand Arg Tag ABSENT");
+        err.Set(to_underlying(OperationalState::ErrorStateEnum::kCommandInvalidInState));
     }
 
-    if (req.latch.HasValue())
+    if (err.errorStateID == 0 && opState != to_underlying(OperationalStateEnum::kProtected))
     {
-        ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand Arg Latch 0x%02u", req.latch.Value());
-    }
-    else
-    {
-        ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand Arg Latch ABSENT");
+        mDelegate->HandleMoveToCommandCallback(err);
     }
 
-    if (req.speed.HasValue())
-    {
-        ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand Arg Speed 0x%02u", to_underlying(req.speed.Value()));
-    }
-    else
-    {
-        ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand Arg Speed ABSENT");
-    }
-// OperationalState ComputeOperationalState(NPercent100ths target, NPercent100ths current)
-// {
-//     if (!current.IsNull() && !target.IsNull())
-//     {
-//         return ComputeOperationalState(target.Value(), current.Value());
-//     }
-//     return OperationalState::Stall;
-// }
+    //Commands::OperationalCommandResponse::Type response;
+    //response.commandResponseState = err;
 
-//     ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand Args: %u %u %u", tag.GetValue(), latch, speed);
+    //ctx.mCommandHandler.AddResponse(ctx.mRequestPath, response);
+
+    ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::InvalidInState);
+}
+
+void ClosureOperationalState::Instance::HandleConfigureFallbackCommand(HandlerContext & ctx, const Commands::ConfigureFallback::DecodableType & req)
+{
+    ChipLogDetail(Zcl, "ClosureOperationalState: HandleConfigureFallbackCommand");
+
+    GenericOperationalError err(to_underlying(OperationalState::ErrorStateEnum::kNoError));
+    uint8_t opState = GetCurrentOperationalState();
+
+    //auto & tag   = req.tag;
+    // auto & latch = req.latch;
+    // auto & speed = req.speed;
+
+    ChipLogDetail(Zcl, "ClosureOperationalState: HandleConfigureFallbackCommand Arg:");
 
     // Handle the case of the device being in an invalid state
     if (opState == to_underlying(OperationalStateEnum::kCalibrating) || opState == to_underlying(OperationalStateEnum::kDisengaded))
