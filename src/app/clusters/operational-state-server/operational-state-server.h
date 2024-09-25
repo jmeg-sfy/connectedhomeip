@@ -389,6 +389,114 @@ protected:
 
 // #############################################################################################
 
+namespace RvcOperationalState {
+
+class Delegate : public OperationalState::Delegate
+{
+public:
+    /**
+     * Handle Command Callback in application: GoHome
+     * @param[out] err operational error after callback.
+     */
+    virtual void HandleGoHomeCommandCallback(OperationalState::GenericOperationalError & err)
+    {
+        err.Set(to_underlying(OperationalState::ErrorStateEnum::kUnknownEnumValue));
+    };
+
+    /**
+     * The start command is not supported by the RvcOperationalState cluster hence this method should never be called.
+     * This is a dummy implementation of the handler method so the consumer of this class does not need to define it.
+     */
+    void HandleStartStateCallback(OperationalState::GenericOperationalError & err) override
+    {
+        err.Set(to_underlying(OperationalState::ErrorStateEnum::kUnknownEnumValue));
+    };
+
+    /**
+     * The stop command is not supported by the RvcOperationalState cluster hence this method should never be called.
+     * This is a dummy implementation of the handler method so the consumer of this class does not need to define it.
+     */
+    void HandleStopStateCallback(OperationalState::GenericOperationalError & err) override
+    {
+        err.Set(to_underlying(OperationalState::ErrorStateEnum::kUnknownEnumValue));
+    };
+};
+
+class Instance : public OperationalState::Instance
+{
+public:
+    /**
+     * Creates an RVC operational state cluster instance.
+     * The Init() function needs to be called for this instance to be registered and called by the
+     * interaction model at the appropriate times.
+     * It is possible to set the CurrentPhase and OperationalState via the Set... methods before calling Init().
+     * @param aDelegate A pointer to the delegate to be used by this server.
+     * Note: the caller must ensure that the delegate lives throughout the instance's lifetime.
+     * @param aEndpointId The endpoint on which this cluster exists. This must match the zap configuration.
+     */
+    Instance(Delegate * aDelegate, EndpointId aEndpointId) :
+        OperationalState::Instance(aDelegate, aEndpointId, Id), mDelegate(aDelegate)
+    {}
+
+protected:
+    /**
+     * Given a state in the derived cluster number-space (from 0x40 to 0x7f), this method checks if the state is pause-compatible.
+     * Note: if a state outside the derived cluster number-space is given, this method returns false.
+     * @param aState The state to check.
+     * @return true if aState is pause-compatible, false otherwise.
+     */
+    bool IsDerivedClusterStatePauseCompatible(uint8_t aState) override;
+
+    /**
+     * Given a state in the derived cluster number-space (from 0x40 to 0x7f), this method checks if the state is resume-compatible.
+     * Note: if a state outside the derived cluster number-space is given, this method returns false.
+     * @param aState The state to check.
+     * @return true if aState is pause-compatible, false otherwise.
+     */
+    bool IsDerivedClusterStateResumeCompatible(uint8_t aState) override;
+
+    /**
+     * Handles the invocation of RvcOperationalState specific commands
+     * @param handlerContext The command handler context containing information about the received command.
+     */
+    void InvokeDerivedClusterCommand(HandlerContext & handlerContext) override;
+
+private:
+    Delegate * mDelegate;
+
+    /**
+     * Handle Command: GoHome
+     */
+    void HandleGoHomeCommand(HandlerContext & ctx, const Commands::GoHome::DecodableType & req);
+};
+
+} // namespace RvcOperationalState
+
+// #############################################################################################
+
+namespace OvenCavityOperationalState {
+
+class Instance : public OperationalState::Instance
+{
+public:
+    /**
+     * Creates an oven cavity operational state cluster instance.
+     * The Init() function needs to be called for this instance to be registered and called by the
+     * interaction model at the appropriate times.
+     * It is possible to set the CurrentPhase and OperationalState via the Set... methods before calling Init().
+     * @param aDelegate A pointer to the delegate to be used by this server.
+     * Note: the caller must ensure that the delegate lives throughout the instance's lifetime.
+     * @param aEndpointId The endpoint on which this cluster exists. This must match the zap configuration.
+     */
+    Instance(OperationalState::Delegate * aDelegate, EndpointId aEndpointId) :
+        OperationalState::Instance(aDelegate, aEndpointId, Id)
+    {}
+};
+
+} // namespace OvenCavityOperationalState
+
+// #############################################################################################
+
 namespace ClosureOperationalState {
 
 class Delegate : public OperationalState::Delegate
