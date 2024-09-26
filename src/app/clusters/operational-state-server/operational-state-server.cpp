@@ -41,9 +41,10 @@ using Status = Protocols::InteractionModel::Status;
 
 
 /* ANSI Colored escape code */
-#define CL_CLEAR "\x1b[0m"
-#define CL_RED   "\x1b[2;37;41m"
-#define CL_GREEN "\x1b[2;37;42m"
+#define CL_CLEAR  "\x1b[0m"
+#define CL_RED    "\x1b[2;37;41m"
+#define CL_GREEN  "\x1b[2;37;42m"
+#define CL_YELLOW "\x1b[2;37;43m"
 
 static constexpr char strLogY[] = CL_GREEN "Y" CL_CLEAR;
 static constexpr char strLogN[] = CL_RED "N" CL_CLEAR;
@@ -795,9 +796,7 @@ void ClosureOperationalState::Instance::ChipLogFeatureMap(const uint32_t & featu
     using Feature = ClosureOperationalState::Feature;
     const chip::BitMask<Feature> value = featureMap;
 
-    ChipLogDetail(Zcl, "ClosureOperationalState::FeatureMap");
-
-    ChipLogDetail(NotSpecified, "FeatureMap 0x%08X", value.Raw());
+    ChipLogDetail(NotSpecified, "ClosureOperationalState::FeatureMap=0x%08X (%u)", value.Raw(), value.Raw());
 
     ChipLogDetail(NotSpecified, "Positioning      [%s], Latching         [%s]",
         IsYN(value.Has(Feature::kPositioning))            , IsYN(value.Has(Feature::kLatching)));
@@ -847,7 +846,7 @@ void ChipLogOptionalValue(const chip::Optional<U> & item, const char * message, 
     }
     else
     {
-        ChipLogDetail(Zcl, "%s %s NotPresent", message, name);
+        ChipLogDetail(Zcl, "%s %s " CL_YELLOW "NotPresent" CL_CLEAR, message, name);
     }
 }
 
@@ -863,7 +862,7 @@ void ClosureOperationalState::Instance::HandleMoveToCommand(HandlerContext & ctx
     // auto & speed = req.speed;
 
     ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand Arg:");
-    ChipLogOptionalValue(req.tag, "    -", "Tag");
+    ChipLogOptionalValue(req.tag  , "    -", "Tag");
     ChipLogOptionalValue(req.latch, "    -", "Latch");
     ChipLogOptionalValue(req.speed, "    -", "Speed");
 
