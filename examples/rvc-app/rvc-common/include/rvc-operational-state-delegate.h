@@ -61,6 +61,8 @@ private:
     HandleOpStateCommand mCalibrateCallback;
     RvcDevice * mMoveToRvcDeviceInstance;
     HandleOpStateCommand mMoveToCallback;
+    RvcDevice * mConfigureFallbackRvcDeviceInstance;
+    HandleOpStateCommand mConfigureFallbackCallback;
 
 public:
     /**
@@ -120,6 +122,18 @@ public:
      */
     void HandleCalibrateCommandCallback(Clusters::OperationalState::GenericOperationalError & err) override;
 
+    /**
+     * Handle Command Callback in application: MoveTo
+     * @param[out] get operational error after callback.
+     */
+    void HandleMoveToCommandCallback(Clusters::OperationalState::GenericOperationalError & err) override;
+
+    /**
+     * Handle Command Callback in application: ConfigureFallback
+     * @param[out] get operational error after callback.
+     */
+    void HandleConfigureFallbackCommandCallback(Clusters::OperationalState::GenericOperationalError & err) override;
+
     void SetPauseCallback(HandleOpStateCommand aCallback, RvcDevice * aInstance)
     {
         mPauseCallback          = aCallback;
@@ -148,6 +162,12 @@ public:
     {
         mMoveToCallback          = aCallback;
         mMoveToRvcDeviceInstance = aInstance;
+    };
+
+    void SetConfigureFallbackCallback(HandleOpStateCommand aCallback, RvcDevice * aInstance)
+    {
+        mConfigureFallbackCallback          = aCallback;
+        mConfigureFallbackRvcDeviceInstance = aInstance;
     };
 };
 

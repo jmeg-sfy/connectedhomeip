@@ -64,3 +64,15 @@ void ClosureOperationalStateDelegate::HandleCalibrateCommandCallback(Operational
     ChipLogDetail(Zcl, "ClosureOperationalStateDelegate HandleCalibrateCommandCallback forward");
     (mCalibrateRvcDeviceInstance->*mCalibrateCallback)(err);
 }
+
+void ClosureOperationalStateDelegate::HandleMoveToCommandCallback(OperationalState::GenericOperationalError & err)
+{
+    ChipLogDetail(Zcl, "ClosureOperationalStateDelegate HandleMoveToCommandCallback forward");
+    (mMoveToRvcDeviceInstance->*mMoveToCallback)(err);
+}
+
+void ClosureOperationalStateDelegate::HandleConfigureFallbackCommandCallback(OperationalState::GenericOperationalError & err)
+{
+    ChipLogDetail(Zcl, "ClosureOperationalStateDelegate HandleConfigureFallbackCommandCallback forward");
+    (mConfigureFallbackRvcDeviceInstance->*mConfigureFallbackCallback)(err);
+}

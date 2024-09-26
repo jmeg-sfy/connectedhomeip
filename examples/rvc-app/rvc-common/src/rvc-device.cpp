@@ -148,6 +148,7 @@ void RvcDevice::HandleOpStateStopCallback(Clusters::OperationalState::GenericOpe
 
 void RvcDevice::HandleOpStateCalibrateCallback(Clusters::OperationalState::GenericOperationalError & err)
 {
+    ChipLogDetail(Zcl, "RvcDevice HandleOpStateCalibrateCallback()");
     switch (mOperationalStateInstance.GetCurrentOperationalState())
     {
     case to_underlying(OperationalState::OperationalStateEnum::kStopped): {
@@ -168,6 +169,16 @@ void RvcDevice::HandleOpStateCalibrateCallback(Clusters::OperationalState::Gener
         err.Set(to_underlying(OperationalState::ErrorStateEnum::kCommandInvalidInState));
         return;
     }
+}
+
+void RvcDevice::HandleOpStateMoveToCallback(Clusters::OperationalState::GenericOperationalError & err)
+{
+    ChipLogDetail(Zcl, "RvcDevice HandleOpStateMoveToCallback()");
+}
+
+void RvcDevice::HandleOpStateConfigureFallbackCallback(Clusters::OperationalState::GenericOperationalError & err)
+{
+    ChipLogDetail(Zcl, "RvcDevice HandleOpStateConfigureFallbackCallback()");
 }
 
 bool RvcDevice::SaIsSetSelectedAreasAllowed(MutableCharSpan & statusText)

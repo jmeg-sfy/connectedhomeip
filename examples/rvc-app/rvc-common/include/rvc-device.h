@@ -64,6 +64,8 @@ public:
 
         /* Derived ClosureOperationalState */
         mOperationalStateDelegate.SetCalibrateCallback(&RvcDevice::HandleOpStateCalibrateCallback, this);
+        mOperationalStateDelegate.SetMoveToCallback(&RvcDevice::HandleOpStateMoveToCallback, this);
+        mOperationalStateDelegate.SetConfigureFallbackCallback(&RvcDevice::HandleOpStateConfigureFallbackCallback, this);
 
         mServiceAreaDelegate.SetIsSetSelectedAreasAllowedCallback(&RvcDevice::SaIsSetSelectedAreasAllowed, this);
         mServiceAreaDelegate.SetHandleSkipAreaCallback(&RvcDevice::SaHandleSkipArea, this);
@@ -111,6 +113,16 @@ public:
      * Handles the ClosureOperationalState Calibrate command.
      */
     void HandleOpStateCalibrateCallback(Clusters::OperationalState::GenericOperationalError & err);
+
+    /**
+     * Handles the ClosureOperationalState MoveTo command.
+     */
+    void HandleOpStateMoveToCallback(Clusters::OperationalState::GenericOperationalError & err);
+
+    /**
+     * Handles the ClosureOperationalState ConfigureFallback command.
+     */
+    void HandleOpStateConfigureFallbackCallback(Clusters::OperationalState::GenericOperationalError & err);
 
     bool SaIsSetSelectedAreasAllowed(MutableCharSpan & statusText);
 

@@ -723,6 +723,12 @@ void ClosureOperationalState::Instance::InvokeDerivedClusterCommand(chip::app::C
         CommandHandlerInterface::HandleCommand<Commands::MoveTo::DecodableType>(
             handlerContext, [this](HandlerContext & ctx, const auto & req) { HandleMoveToCommand(ctx, req); });
         break;
+    case ClosureOperationalState::Commands::ConfigureFallback::Id:
+        ChipLogDetail(Zcl, "ClosureOperationalState: Entering handling ConfigureFallback command");
+
+        CommandHandlerInterface::HandleCommand<Commands::ConfigureFallback::DecodableType>(
+            handlerContext, [this](HandlerContext & ctx, const auto & req) { HandleConfigureFallbackCommand(ctx, req); });
+        break;
     default:
         ChipLogProgress(Zcl, "ClosureOperationalState: WARNING CommandId=0x%02X Invoke is not handled !", commandId);
     }
@@ -887,11 +893,11 @@ void ClosureOperationalState::Instance::HandleConfigureFallbackCommand(HandlerCo
     GenericOperationalError err(to_underlying(OperationalState::ErrorStateEnum::kNoError));
     uint8_t opState = GetCurrentOperationalState();
 
-    //auto & tag   = req.tag;
-    // auto & latch = req.latch;
-    // auto & speed = req.speed;
-
     ChipLogDetail(Zcl, "ClosureOperationalState: HandleConfigureFallbackCommand Arg:");
+    ChipLogOptionalValue(req.restingProcedure, "    -", "RestingProcedure");
+    ChipLogOptionalValue(req.triggerPosition , "    -", "TriggerPosition");
+    ChipLogOptionalValue(req.triggerCondition, "    -", "TriggerCondition");
+    ChipLogOptionalValue(req.waitingDelay    , "    -", "WaitingDelay");
 
     // Handle the case of the device being in an invalid state
     if (opState == to_underlying(OperationalStateEnum::kCalibrating) || opState == to_underlying(OperationalStateEnum::kDisengaded))
@@ -901,13 +907,9 @@ void ClosureOperationalState::Instance::HandleConfigureFallbackCommand(HandlerCo
 
     if (err.errorStateID == 0 && opState != to_underlying(OperationalStateEnum::kProtected))
     {
-        mDelegate->HandleMoveToCommandCallback(err);
+        mDelegate->HandleConfigureFallbackCommandCallback(err);
     }
-
-    //Commands::OperationalCommandResponse::Type response;
-    //response.commandResponseState = err;
-
-    //ctx.mCommandHandler.AddResponse(ctx.mRequestPath, response);
-
-    ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::InvalidInState);
+    // TODO
+    mDelegate->HandleConfigureFallbackCommandCallback(err);
+    ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::Failure);
 }
