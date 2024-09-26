@@ -66,7 +66,12 @@ limitations under the License.
       <arg optional="true" name="Speed" type="ThreeLevelAutoEnum"/>
     </command>
     <command source="client" code="0x41" name="Calibrate" optional="true"/>
-    <command source="client" code="0x42" name="ConfigureFallback" optional="true"/>
+    <command source="client" code="0x42" name="ConfigureFallback" optional="true">
+      <arg optional="true" name="RestingProcedure" type="RestingProcedureEnum"/>
+      <arg optional="true" name="TriggerPosition"  type="TriggerPositionEnum"/>
+      <arg optional="true" name="TriggerCondition" type="TriggerConditionEnum"/>
+      <arg optional="true" name="WaitingDelay"     type="duration_s"/>
+    </command>
     <command source="client" code="0x43" name="SetMultipleAttrs" optional="false"/>
     <command source="client" code="0x44" name="GetMultipleAttrs" optional="false"/>
     <command source="server" code="0x45" name="GetMultipleAttrsResponse" optional="false" disableDefaultResponse="true"/>
