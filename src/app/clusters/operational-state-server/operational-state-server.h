@@ -232,6 +232,8 @@ protected:
      */
     virtual CHIP_ERROR ReadDerivedClusterAttribute(const ConcreteReadAttributePath & aPath, AttributeValueEncoder & aEncoder) { return CHIP_NO_ERROR; };
 
+    virtual void ChipLogFeatureMap(const uint32_t & featureMap) { ChipLogDetail(Zcl, "OperationalState::FeatureMap=0x%08X", featureMap); };
+
     /**
      * Causes reporting/udpating of CountdownTime attribute from driver if sufficient changes have
      * occurred (based on Q quality definition for operational state). Calls the Delegate::GetCountdownTime() method.
@@ -619,6 +621,8 @@ protected:
      * @return appropriately mapped CHIP_ERROR if applicable (may return CHIP_IM_GLOBAL_STATUS errors)
      */
     CHIP_ERROR ReadDerivedClusterAttribute(const ConcreteReadAttributePath & aPath, AttributeValueEncoder & aEncoder) override;
+
+    void ChipLogFeatureMap(const uint32_t & featureMap) override;
 
 private:
     Delegate * mDelegate;

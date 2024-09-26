@@ -39,6 +39,23 @@ using namespace chip::app::Clusters::OperationalState::Attributes;
 
 using Status = Protocols::InteractionModel::Status;
 
+
+/* ANSI Colored escape code */
+#define CL_CLEAR "\x1b[0m"
+#define CL_RED   "\x1b[2;37;41m"
+#define CL_GREEN "\x1b[2;37;42m"
+
+static constexpr char strLogY[] = CL_GREEN "Y" CL_CLEAR;
+static constexpr char strLogN[] = CL_RED "N" CL_CLEAR;
+
+const char * StrYN(bool isTrue)
+{
+    return isTrue ? strLogY : strLogN;
+}
+
+#define IsYN(TEST)  StrYN(TEST)
+
+
 Instance::Instance(Delegate * aDelegate, EndpointId aEndpointId, ClusterId aClusterId) :
     CommandHandlerInterface(MakeOptional(aEndpointId), aClusterId), AttributeAccessInterface(MakeOptional(aEndpointId), aClusterId),
     mDelegate(aDelegate), mEndpointId(aEndpointId), mClusterId(aClusterId)
@@ -391,6 +408,14 @@ CHIP_ERROR Instance::Read(const ConcreteReadAttributePath & aPath, AttributeValu
     ChipLogError(Zcl, "OperationalState: Reading");
     switch (aPath.mAttributeId)
     {
+
+    case OperationalState::Attributes::FeatureMap::Id: {
+        uint32_t feature = 0xAA00; // TODO featureMap handling
+        ChipLogFeatureMap(feature);
+        ReturnErrorOnFailure(aEncoder.Encode(feature));
+        break;
+    }
+
     case OperationalState::Attributes::OperationalStateList::Id: {
         return aEncoder.EncodeList([delegate = mDelegate](const auto & encoder) -> CHIP_ERROR {
             GenericOperationalState opState;
@@ -757,6 +782,27 @@ CHIP_ERROR ClosureOperationalState::Instance::ReadDerivedClusterAttribute(const 
     }
     }
     return CHIP_NO_ERROR;
+}
+
+void ClosureOperationalState::Instance::ChipLogFeatureMap(const uint32_t & featureMap)
+{
+    using Feature = ClosureOperationalState::Feature;
+    const chip::BitMask<Feature> value = featureMap;
+
+    ChipLogDetail(Zcl, "ClosureOperationalState::FeatureMap");
+
+    ChipLogDetail(NotSpecified, "FeatureMap 0x%08X", value.Raw());
+
+    ChipLogDetail(NotSpecified, "Positioning      [%s], Latching         [%s]",
+        IsYN(value.Has(Feature::kPositioning))            , IsYN(value.Has(Feature::kLatching)));
+    ChipLogDetail(NotSpecified, "Intermediate     [%s], Speed            [%s]",
+        IsYN(value.Has(Feature::kIntermediatePositioning)), IsYN(value.Has(Feature::kSpeed)));
+    ChipLogDetail(NotSpecified, "Ventilation      [%s], Pedestrian       [%s]",
+        IsYN(value.Has(Feature::kVentilation))            , IsYN(value.Has(Feature::kPedestrian)));
+    ChipLogDetail(NotSpecified, "Protection       [%s], Calibration      [%s]",
+        IsYN(value.Has(Feature::kProtection))             , IsYN(value.Has(Feature::kManuallyOperable)));
+    ChipLogDetail(NotSpecified, "ManuallyOperable [%s], Fallback         [%s]",
+        IsYN(value.Has(Feature::kManuallyOperable))       , IsYN(value.Has(Feature::kFallback)));
 }
 
 void ClosureOperationalState::Instance::HandleCalibrateCommand(HandlerContext & ctx, const Commands::Calibrate::DecodableType & req)
