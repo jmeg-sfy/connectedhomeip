@@ -62,7 +62,7 @@ limitations under the License.
     <!-- This Derived Cluster's Commands -->
     <command source="client" code="0x40" name="MoveTo" optional="false">
       <arg optional="true" name="Tag"   type="TagEnum"/>
-      <arg optional="true" name="Latch" type="boolean"/>
+      <arg optional="true" name="Latch" type="LatchingEnum"/>
       <arg optional="true" name="Speed" type="ThreeLevelAutoEnum"/>
     </command>
     <command source="client" code="0x41" name="Calibrate" optional="true"/>

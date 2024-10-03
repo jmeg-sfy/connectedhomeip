@@ -101,7 +101,7 @@ limitations under the License.
     <cluster code="0x0CD0"/>
     <item value="0x40" name="Blocked"/>
     <item value="0x41" name="ThermalProtected"/>
-    <item value="0x42" name="InvalidSetup"/>
+    <item value="0x42" name="MaintenanceRequired"/>
     <item value="0x43" name="IntegratedElement"/>
   </enum>
 

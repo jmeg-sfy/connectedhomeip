@@ -51,6 +51,7 @@ limitations under the License.
   </bitmap>
 
   <enum name="LatchingEnum" type="enum8">
+    <cluster code="0x0CD0"/> <!-- Closure Operational State -->
     <cluster code="0x0CD1"/> <!-- Closure 1st Dimension -->
     <cluster code="0x0CD2"/> <!-- Closure 2nd Dimension -->
     <cluster code="0x0CD3"/> <!-- Closure 3rd Dimension -->
@@ -59,10 +60,9 @@ limitations under the License.
     <cluster code="0x0CD6"/> <!-- Closure 6th Dimension -->
     <cluster code="0x0CD7"/> <!-- Closure 7th Dimension -->
     <cluster code="0x0CD8"/> <!-- Closure 8th Dimension -->
-    <item value="0x00" name="NotApplicable"/>
-    <item value="0x01" name="NotLatched"/>
-    <item value="0x02" name="PartiallyLatched"/>
-    <item value="0x03" name="FullyLatched"/>
+    <item value="0x00" name="LatchedAndSecured"/>
+    <item value="0x01" name="LatchedButNotSecured"/>
+    <item value="0x02" name="NotLatched"/>
   </enum>
 
   <enum name="TranslationDirectionEnum" type="enum8">
