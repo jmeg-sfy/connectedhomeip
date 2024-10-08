@@ -1,0 +1,263 @@
+# Copyright (c) 2024 Project CHIP Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: 312.1.1. [TC-CLOPSTATE-1.1] Global attributes with DUT as Server
+
+PICS:
+    - CLOPSTATE.S
+
+config:
+    nodeId: 0x12344321
+    cluster: "Closure Operational State"
+    endpoint: 1
+
+tests:
+    - label: "Step 1: Wait for the commissioned device to be retrieved"
+      cluster: "DelayCommands"
+      command: "WaitForCommissionee"
+      arguments:
+          values:
+              - name: "nodeId"
+                value: nodeId
+
+    - label: "Step 2: TH reads the ClusterRevision from DUT"
+      command: "readAttribute"
+      attribute: "ClusterRevision"
+      response:
+          value: 1
+          constraints:
+              type: int16u
+
+    - label:
+          "Step 3a: Given CLOPSTATE.S.F00(PS) ensure featuremap has the correct
+          bit set"
+      PICS: CLOPSTATE.S.F00
+      command: "readAttribute"
+      attribute: "FeatureMap"
+      response:
+          constraints:
+              type: bitmap32
+              hasMasksSet: [0x80]
+
+    - label:
+          "Step 3b: Given CLOPSTATE.S.F01(LT) ensure featuremap has the correct
+          bit set"
+      PICS: CLOPSTATE.S.F01
+      command: "readAttribute"
+      attribute: "FeatureMap"
+      response:
+          constraints:
+              type: bitmap32
+              hasMasksSet: [0x100]
+
+    - label:
+          "Step 3c: Given CLOPSTATE.S.F02(IP) ensure featuremap has the correct bit
+          set"
+      PICS: CLOPSTATE.S.F02
+      command: "readAttribute"
+      attribute: "FeatureMap"
+      response:
+          constraints:
+              type: bitmap32
+              hasMasksSet: [0x200]
+
+    - label:
+          "Step 3d: Given CLOPSTATE.S.F03(SP) ensure featuremap has
+          the correct bit set"
+      PICS: CLOPSTATE.S.F03
+      command: "readAttribute"
+      attribute: "FeatureMap"
+      response:
+          constraints:
+              type: bitmap32
+              hasMasksSet: [0x400]
+
+    - label:
+          "Step 3e: Given CLOPSTATE.S.F04(VT) ensure featuremap has the correct
+          bit set"
+      PICS: CLOPSTATE.S.F04
+      command: "readAttribute"
+      attribute: "FeatureMap"
+      response:
+          constraints:
+              type: bitmap32
+              hasMasksSet: [0x800]
+
+    - label:
+          "Step 3f: Given CLOPSTATE.S.F05(PD) ensure featuremap has the correct
+          bit set"
+      PICS: CLOPSTATE.S.F05
+      command: "readAttribute"
+      attribute: "FeatureMap"
+      response:
+          constraints:
+              type: bitmap32
+              hasMasksSet: [0x1000]
+
+    - label:
+          "Step 3g: Given CLOPSTATE.S.F06(CL) ensure featuremap has the correct bit
+          set"
+      PICS: CLOPSTATE.S.F06
+      command: "readAttribute"
+      attribute: "FeatureMap"
+      response:
+          constraints:
+              type: bitmap32
+              hasMasksSet: [0x2000]
+
+    - label:
+          "Step 3h: Given CLOPSTATE.S.F07(PT) ensure featuremap has
+          the correct bit set"
+      PICS: CLOPSTATE.S.F07
+      command: "readAttribute"
+      attribute: "FeatureMap"
+      response:
+          constraints:
+              type: bitmap32
+              hasMasksSet: [0x2000]
+
+    - label:
+          "Step 3i: Given CLOPSTATE.S.F08(MO) ensure featuremap has the correct bit
+          set"
+      PICS: CLOPSTATE.S.F08
+      command: "readAttribute"
+      attribute: "FeatureMap"
+      response:
+          constraints:
+              type: bitmap32
+              hasMasksSet: [0x4000]
+
+    - label:
+          "Step 3j: Given CLOPSTATE.S.F09(FB) ensure featuremap has
+          the correct bit set"
+      PICS: CLOPSTATE.S.F09
+      command: "readAttribute"
+      attribute: "FeatureMap"
+      response:
+          constraints:
+              type: bitmap32
+              hasMasksSet: [0x8000]
+
+    - label: "Step 4a: TH reads AttributeList from DUT"
+      PICS: "!CLOPSTATE.S.F09"
+      command: "readAttribute"
+      attribute: "AttributeList"
+      response:
+          constraints:
+              type: list
+              contains: [0x4000]
+
+    - label:
+          "Step 4b: TH reads feature dependent attribute(RestingProcedure)
+          AttributeList from DUT"
+      PICS: "CLOPSTATE.S.F09"
+      command: "readAttribute"
+      attribute: "AttributeList"
+      response:
+          constraints:
+              type: list
+              contains: [0x4001]
+
+    - label:
+          "Step 4c: TH reads feature dependent attribute(TriggerCondition)
+          AttributeList from DUT"
+      PICS: "CLOPSTATE.S.F09"
+      command: "readAttribute"
+      attribute: "AttributeList"
+      response:
+          constraints:
+              type: list
+              contains: [0x4002]
+
+    - label:
+          "Step 4d: TH reads feature dependent attribute(TriggerPosition)
+          AttributeList from DUT"
+      PICS: "CLOPSTATE.S.F09"
+      command: "readAttribute"
+      attribute: "AttributeList"
+      response:
+          constraints:
+              type: list
+              contains: [0x4003]
+
+    - label:
+          "Step 4e: TH reads feature dependent attribute(WaitingDelay)
+          AttributeList from DUT"
+      PICS: "CLOPSTATE.S.F09"
+      command: "readAttribute"
+      attribute: "AttributeList"
+      response:
+          constraints:
+              type: list
+              contains: [0x4004]
+
+    - label:
+          "Step 4f: TH reads feature dependent attribute(KickoffTimer)
+          AttributeList from DUT"
+      PICS: "CLOPSTATE.S.F09"
+      command: "readAttribute"
+      attribute: "AttributeList"
+      response:
+          constraints:
+              type: list
+              contains: [0x4005]
+
+    - label: "Step 5*: TH reads EventList attribute from DUT"
+      PICS: PICS_EVENT_LIST_ENABLED
+      command: "readAttribute"
+      attribute: "EventList"
+      response:
+          value: []
+          constraints:
+              type: list
+
+    - label: "Step 6: TH reads the AcceptedCommandList attribute from the DUT"
+      command: "readAttribute"
+      attribute: "AcceptedCommandList"
+      response:
+          value: []
+          constraints:
+              type: list
+
+    - label: "Step 7a: TH reads the GeneratedCommandList attribute from the DUT"
+      PICS: "!CLOPSTATE.S.F09 && !CLOPSTATE.S.F06"
+      command: "readAttribute"
+      attribute: "GeneratedCommandList"
+      response:
+          value: []
+          constraints:
+              type: list
+              contains: [0x1, 0x40]
+
+    - label:
+          "Step 7b: TH reads Feature dependent(LOPSTATE.S.F06(CL)) commands in
+          GeneratedCommandList"
+      PICS: LOPSTATE.S.F06
+      command: "readAttribute"
+      attribute: "GeneratedCommandList"
+      response:
+          constraints:
+              type: list
+              contains: [0x41]
+
+    - label:
+          "Step 7b: TH reads Feature dependent(LOPSTATE.S.F09(FB)) commands in
+          GeneratedCommandList"
+      PICS: LOPSTATE.S.F09
+      command: "readAttribute"
+      attribute: "GeneratedCommandList"
+      response:
+          constraints:
+              type: list
+              contains: [0x42]
