@@ -59,12 +59,12 @@ limitations under the License.
     <command source="client" code="0x00" name="SetPositioning" optional="false">
       <arg optional="true" name="Target"         type="PositioningBitmap"/>
       <arg optional="true" name="Position"       type="percent100ths"/>
-      <arg optional="true" name="Speed"          type="ThreeLevelAutoEnum"/>
+      <arg optional="true" name="Speed"          type="ThreeLevelAutoClosureEnum"/>
     </command>
     <command source="client" code="0x01" name="Steps" optional="false">
       <arg optional="false" name="Direction"     type="StepDirectionEnum"/>
       <arg optional="false" name="NumberOfSteps" type="int16u"/>
-      <arg optional="true"  name="Speed"         type="ThreeLevelAutoEnum"/>
+      <arg optional="true"  name="Speed"         type="ThreeLevelAutoClosureEnum"/>
     </command>
     <command source="client" code="0x02" name="Latch" optional="true">
       <description>Latch (secure) a Closure's element.</description>

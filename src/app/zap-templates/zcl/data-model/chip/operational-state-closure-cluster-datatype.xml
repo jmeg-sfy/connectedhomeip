@@ -105,7 +105,7 @@ limitations under the License.
     <item value="0x43" name="IntegratedElement"/>
   </enum>
 
-  <enum name="ThreeLevelAutoEnum" type="enum8">
+  <enum name="ThreeLevelAutoClosureEnum" type="enum8">
     <cluster code="0x0CD0"/> <!-- Closure Operational State -->
     <cluster code="0x0CD1"/> <!-- Closure 1st Dimension -->
     <cluster code="0x0CD2"/> <!-- Closure 2nd Dimension -->
