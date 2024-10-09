@@ -18,33 +18,25 @@ limitations under the License.
 <configurator>
   <domain name="CHIP"/>
 
-  <enum name="OverallPositioningEnum" type="enum8">
-    <cluster code="0x0CD0"/>
+  <enum name="PositioningEnum" type="enum8">
+    <cluster code="0x0CD0"/> <!-- Closure Operational State -->
     <item value="0x00" name="FullyClosed"/>
-    <item value="0x01" name="NotSupported"/>
-    <item value="0x02" name="FullyOpened"/>
-    <item value="0x03" name="PartiallyOpened"/>
-    <item value="0x04" name="QuarterOpened"/>
-    <item value="0x05" name="HalfOpened"/>
-    <item value="0x06" name="ThreeQuarterOpened"/>
-    <item value="0x07" name="OpenedForPedestrian"/>
-    <item value="0x08" name="OpenedForVentilation"/>
-    <item value="0x09" name="OpenedAtSignature"/>
+    <item value="0x01" name="FullyOpened"/>
+    <item value="0x02" name="PartiallyOpened"/>
+    <item value="0x03" name="QuarterOpened"/>
+    <item value="0x04" name="HalfOpened"/>
+    <item value="0x05" name="ThreeQuarterOpened"/>
+    <item value="0x06" name="OpenedForPedestrian"/>
+    <item value="0x07" name="OpenedForVentilation"/>
+    <item value="0x08" name="OpenedAtSignature"/>
   </enum>
 
-  <enum name="OverallLatchingEnum" type="enum8">
-    <cluster code="0x0CD0"/>
-    <item value="0x00" name="LatchedAndSecured"/>
-    <item value="0x01" name="NotSupported"/>
-    <item value="0x02" name="LatchedButNotSecured"/>
-    <item value="0x03" name="NotLatched"/>
-  </enum>
-
-  <bitmap name="OverallStateBitmap" type="bitmap8">
-    <cluster code="0x0CD0"/>
-    <field mask="0x0F" name="Position"/>
-    <field mask="0xF0" name="Latching"/>
-  </bitmap>
+  <struct name="OverallStateStruct">
+    <cluster code="0x0CD0"/> <!-- Closure Operational State -->
+    <item name="Positioning" type="PositioningEnum" optional="true"/>
+    <item name="Latching"    type="LatchingEnum" optional="true"/>
+    <item name="Speed"       type="ThreeLevelAutoEnum" optional="true"/>
+  </struct>
 
   <enum name="ProtectiveStateEnum" type="enum8">
     <cluster code="0x0CD0"/>
@@ -105,19 +97,4 @@ limitations under the License.
     <item value="0x43" name="IntegratedElement"/>
   </enum>
 
-  <enum name="ThreeLevelAutoClosureEnum" type="enum8">
-    <cluster code="0x0CD0"/> <!-- Closure Operational State -->
-    <cluster code="0x0CD1"/> <!-- Closure 1st Dimension -->
-    <cluster code="0x0CD2"/> <!-- Closure 2nd Dimension -->
-    <cluster code="0x0CD3"/> <!-- Closure 3rd Dimension -->
-    <cluster code="0x0CD4"/> <!-- Closure 4th Dimension -->
-    <cluster code="0x0CD5"/> <!-- Closure 5th Dimension -->
-    <cluster code="0x0CD6"/> <!-- Closure 6th Dimension -->
-    <cluster code="0x0CD7"/> <!-- Closure 7th Dimension -->
-    <cluster code="0x0CD8"/> <!-- Closure 8th Dimension -->
-    <item value="0x0" name="Auto"/>
-    <item value="0x1" name="Low"/>
-    <item value="0x2" name="Medium"/>
-    <item value="0x3" name="High"/>
-  </enum>
 </configurator>

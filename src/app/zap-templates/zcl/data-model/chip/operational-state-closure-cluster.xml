@@ -50,7 +50,7 @@ limitations under the License.
     <attribute side="server" code="0x0004" writable="false" define="OPERATIONAL_STATE"      type="enum8"                                               optional="false">OperationalState</attribute>
     <attribute side="server" code="0x0005" writable="false" define="OPERATIONAL_ERROR"      type="ErrorStateStruct"                                    optional="false">OperationalError</attribute>
     <!-- This Derived Cluster's Attributes -->
-    <attribute side="server" code="0x4000" writable="false" define="OVERALL_STATE"          type="OverallStateBitmap"   default="0" optional="false">OverallState</attribute>
+    <attribute side="server" code="0x4000" writable="false" define="OVERALL_STATE"          type="OverallStateStruct"   default="0" optional="false">OverallState</attribute>
     <attribute side="server" code="0x4001" writable="false" define="RESTING_PROCEDURE"      type="RestingProcedureEnum" default="0" optional="true">RestingProcedure</attribute>
     <attribute side="server" code="0x4002" writable="false" define="TRIGGER_POSITION"       type="TriggerPositionEnum"  default="0" optional="true">TriggerPosition</attribute>
     <attribute side="server" code="0x4003" writable="false" define="TRIGGER_CONDITION"      type="TriggerConditionEnum" default="0" optional="true">TriggerCondition</attribute>

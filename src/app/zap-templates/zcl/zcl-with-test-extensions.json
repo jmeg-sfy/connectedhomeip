@@ -469,7 +469,13 @@
             "OperationalError",
             "CurrentPhase",
             "CountdownTime",
-            "FeatureMap"
+            "RestingProcedure",
+            "TriggerPosition",
+            "TriggerCondition",
+            "WaitingDelay",
+            "KickoffTimer",
+            "FeatureMap",
+            "OverallState"
         ],
         "Closure 1st Dimension": [
             "CurrentPositioning",
