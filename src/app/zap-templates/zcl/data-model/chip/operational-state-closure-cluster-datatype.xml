@@ -23,7 +23,7 @@ limitations under the License.
     <item value="0x00" name="FullyClosed"/>
     <item value="0x01" name="FullyOpened"/>
     <item value="0x02" name="PartiallyOpened"/>
-    <item value="0x03" name="QuarterOpened"/>
+    <item value="0x03" name="OneQuarterOpened"/>
     <item value="0x04" name="HalfOpened"/>
     <item value="0x05" name="ThreeQuarterOpened"/>
     <item value="0x06" name="OpenedForPedestrian"/>
@@ -33,8 +33,8 @@ limitations under the License.
 
   <struct name="OverallStateStruct">
     <cluster code="0x0CD0"/> <!-- Closure Operational State -->
-    <item name="Positioning" type="PositioningEnum" optional="true"/>
-    <item name="Latching"    type="LatchingEnum" optional="true"/>
+    <item name="Positioning" type="PositioningEnum"    optional="true"/>
+    <item name="Latching"    type="LatchingEnum"       optional="true"/>
     <item name="Speed"       type="ThreeLevelAutoEnum" optional="true"/>
   </struct>
 
@@ -64,20 +64,21 @@ limitations under the License.
     <cluster code="0x0CD0"/>
     <item value="0x00" name="AfterDelay"/>
     <item value="0x01" name="AfterApplicativeTrigger"/>
-    <item value="0x02" name="DelayOrApplicativeTrigger"/>
+    <item value="0x02" name="AfterDelayOrApplicativeTrigger"/>
   </enum>
 
   <enum name="TagEnum" type="enum8">
     <cluster code="0x0CD0"/>
-    <item value="0x00" name="OpenInFull"/>
-    <item value="0x01" name="CloseOneQuarter"/>
-    <item value="0x02" name="OpenInHalf"/>
-    <item value="0x03" name="OpenOneQuarter"/>
-    <item value="0x04" name="CloseInFull"/>
+    <item value="0x00" name="CloseInFull"/>
+    <item value="0x01" name="OpenInFull"/>
+    <item value="0x02" name="OpenOneQuarter"/>
+    <item value="0x03" name="OpenInHalf"/>
+    <item value="0x04" name="OpenThreeQuarter"/>
     <item value="0x05" name="Pedestrian"/>
     <item value="0x06" name="Ventilation"/>
     <item value="0x07" name="Signature"/>
     <item value="0x08" name="SequenceNextStep"/>
+    <item value="0x09" name="PedestrianNextStep"/>
   </enum>
 
   <enum name="OperationalStateEnum" type="enum8">
