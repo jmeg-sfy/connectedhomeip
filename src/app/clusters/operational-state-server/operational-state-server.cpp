@@ -56,6 +56,34 @@ const char * StrYN(bool isTrue)
 
 #define IsYN(TEST)  StrYN(TEST)
 
+//Protocols::InteractionModel::Status;
+template <class U>
+Status VerifyOptionalEnumRange(const chip::Optional<U> & item, const char * name) //const Optional<U> & other)
+{
+    if (item.HasValue())
+    {
+        //NOTE Could be replaced with EnsureKnownEnumValue(ClosureOperationalState::MyEnum val) w/o logging
+        if (item.Value() >= U::kUnknownEnumValue)
+        {
+            ChipLogDetail(Zcl, "%s enum " CL_RED "overflowed" CL_CLEAR " >= 0x%02u", name, static_cast<uint8_t>(U::kUnknownEnumValue));
+            return Status::ConstraintError;
+        }
+    }
+    return Status::Success;
+}
+
+template <class U>
+void ChipLogOptionalValue(const chip::Optional<U> & item, const char * message, const char * name) //const Optional<U> & other)
+{
+    if (item.HasValue())
+    {
+        ChipLogDetail(Zcl, "%s %s 0x%02u", message, name, static_cast<uint16_t>(item.Value()));
+    }
+    else
+    {
+        ChipLogDetail(Zcl, "%s %s " CL_YELLOW "NotPresent" CL_CLEAR, message, name);
+    }
+}
 
 Instance::Instance(Delegate * aDelegate, EndpointId aEndpointId, ClusterId aClusterId) :
     CommandHandlerInterface(MakeOptional(aEndpointId), aClusterId), AttributeAccessInterface(MakeOptional(aEndpointId), aClusterId),
@@ -837,16 +865,12 @@ void ClosureOperationalState::Instance::HandleCalibrateCommand(HandlerContext & 
 }
 
 
-template <class U>
-void ChipLogOptionalValue(const chip::Optional<U> & item, const char * message, const char * name) //const Optional<U> & other)
 {
     if (item.HasValue())
     {
-        ChipLogDetail(Zcl, "%s %s 0x%02u", message, name, static_cast<uint8_t>(item.Value()));
     }
     else
     {
-        ChipLogDetail(Zcl, "%s %s " CL_YELLOW "NotPresent" CL_CLEAR, message, name);
     }
 }
 
