@@ -819,52 +819,93 @@ CHIP_ERROR ClosureOperationalState::Instance::ReadDerivedClusterAttribute(const 
     return CHIP_NO_ERROR;
 }
 
-void ClosureOperationalState::Instance::ChipLogFeatureMap(const uint32_t & featureMap)
+
+Status ClosureOperationalState::VerifyFieldTag(const chip::Optional<TagEnum> & item, const uint32_t & featureMap)
 {
     using Feature = ClosureOperationalState::Feature;
-    const chip::BitMask<Feature> value = featureMap;
+    using TagEnum = chip::app::Clusters::ClosureOperationalState::TagEnum;
+    const chip::BitMask<Feature> featureBitMask = featureMap;
 
-    ChipLogDetail(NotSpecified, "ClosureOperationalState::FeatureMap=0x%08X (%u)", value.Raw(), value.Raw());
+    Status status;
+    if ((status = VerifyOptionalEnumRange(item, "Tag")) != Status::Success)
+    {
+        return status;
+    }
 
-    ChipLogDetail(NotSpecified, "Positioning      [%s], Latching         [%s]",
-        IsYN(value.Has(Feature::kPositioning))            , IsYN(value.Has(Feature::kLatching)));
-    ChipLogDetail(NotSpecified, "Intermediate     [%s], Speed            [%s]",
-        IsYN(value.Has(Feature::kIntermediatePositioning)), IsYN(value.Has(Feature::kSpeed)));
-    ChipLogDetail(NotSpecified, "Ventilation      [%s], Pedestrian       [%s]",
-        IsYN(value.Has(Feature::kVentilation))            , IsYN(value.Has(Feature::kPedestrian)));
-    ChipLogDetail(NotSpecified, "Protection       [%s], Calibration      [%s]",
-        IsYN(value.Has(Feature::kProtection))             , IsYN(value.Has(Feature::kManuallyOperable)));
-    ChipLogDetail(NotSpecified, "ManuallyOperable [%s], Fallback         [%s]",
-        IsYN(value.Has(Feature::kManuallyOperable))       , IsYN(value.Has(Feature::kFallback)));
+    if (item.HasValue())
+    {
+        if (!featureBitMask.Has(Feature::kIntermediatePositioning))
+        {
+            if (item.Value() == TagEnum::kOpenOneQuarter ||
+                item.Value() == TagEnum::kOpenInHalf ||
+                item.Value() == TagEnum::kOpenThreeQuarter)
+            {
+                LogIsFeatureSupported(featureBitMask.Raw(), Feature::kIntermediatePositioning);
+                return Status::NotFound;
+            }
+        }
+
+        if (!featureBitMask.Has(Feature::kPedestrian))
+        {
+            if (item.Value() == TagEnum::kPedestrian || item.Value() == TagEnum::kPedestrianNextStep)
+            {
+                LogIsFeatureSupported(featureBitMask.Raw(), Feature::kPedestrian);
+                return Status::NotFound;
+            }
+        }
+
+        if (!featureBitMask.Has(Feature::kVentilation))
+        {
+            if (item.Value() == TagEnum::kVentilation)
+            {
+                LogIsFeatureSupported(featureBitMask.Raw(), Feature::kVentilation);
+                return Status::NotFound;
+            }
+        }
+    }
+
+    return Status::Success;
 }
 
-void ClosureOperationalState::Instance::HandleCalibrateCommand(HandlerContext & ctx, const Commands::Calibrate::DecodableType & req)
+Status ClosureOperationalState::VerifyFieldLatch(const chip::Optional<LatchingEnum> & item)
 {
-    ChipLogDetail(Zcl, "ClosureOperationalState: HandleCalibrateCommand");
+    using LatchingEnum = chip::app::Clusters::ClosureOperationalState::LatchingEnum;
 
-    GenericOperationalError err(to_underlying(OperationalState::ErrorStateEnum::kNoError));
-    uint8_t opState = GetCurrentOperationalState();
+    Status status;
 
-    // Handle the case of the device being in an invalid state
-    if (opState == to_underlying(OperationalStateEnum::kCalibrating) || opState == to_underlying(OperationalStateEnum::kDisengaded))
+    if ((status = VerifyOptionalEnumRange(item, "Latch")) != Status::Success)
     {
-        err.Set(to_underlying(OperationalState::ErrorStateEnum::kCommandInvalidInState));
+        return status;
     }
 
-    if (err.errorStateID == 0 && opState != to_underlying(OperationalStateEnum::kProtected))
+    if (item.HasValue())
     {
-        mDelegate->HandleCalibrateCommandCallback(err);
+        if (item.Value() == LatchingEnum::kLatchedButNotSecured)
+        {
+            ChipLogDetail(NotSpecified, "LatchedButNotSecured " CL_RED "disallowed" CL_CLEAR);
+            return Status::ConstraintError;
+        }
     }
 
-    //Commands::OperationalCommandResponse::Type response;
-    //response.commandResponseState = err;
+    return Status::Success;
+}
 
-    //ctx.mCommandHandler.AddResponse(ctx.mRequestPath, response);
+Status ClosureOperationalState::VerifyFieldSpeed(const chip::Optional<chip::app::Clusters::Globals::ThreeLevelAutoEnum> & item)
+{
+    Status status;
+
+    if ((status = VerifyOptionalEnumRange(item, "Speed")) != Status::Success)
+    {
+        return status;
+    }
+
+    return Status::Success;
+}
+
 Status ClosureOperationalState::VerifyFieldRestingProcedure(const chip::Optional<RestingProcedureEnum>  & item)
 {
     Status status;
 
-    ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::InvalidInState);
     if ((status = VerifyOptionalEnumRange(item, "RestingProcedure")) != Status::Success)
     {
         return status;

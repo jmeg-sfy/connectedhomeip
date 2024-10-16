@@ -508,6 +508,10 @@ bool IsMoveToInvalidInState(const uint8_t & aOpState);
 bool IsCalibrateInvalidInState(const uint8_t & aOpState);
 bool IsStopInvalidInState(const uint8_t & aOpState);
 
+// MoveTo Command fields verification
+Status VerifyFieldLatch(const chip::Optional<LatchingEnum> & item);
+Status VerifyFieldTag(const chip::Optional<TagEnum> & item, const uint32_t & featureMap);
+Status VerifyFieldSpeed(const chip::Optional<chip::app::Clusters::Globals::ThreeLevelAutoEnum> & item);
 
 // ConfigureFallback Command fields verification
 Status VerifyFieldTriggerCondition(const chip::Optional<TriggerConditionEnum> & item);
