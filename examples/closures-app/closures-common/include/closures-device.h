@@ -10,7 +10,7 @@ namespace chip {
 namespace app {
 namespace Clusters {
 
-class ClosuresDevice
+class ClosuresDevice : public OperationalState::Observer 
 {
 private:
 
@@ -21,8 +21,12 @@ private:
     bool mProtected = false;
     bool mDisengaged = false;
     bool mNotOperational = false;
+    bool mStopped = false;
+    bool mRunning = false;
 
     uint8_t mStateBeforePause = 0;
+
+    const char* GetStateString(ClosureOperationalState::OperationalStateEnum state) const;
 
 public:
     /**
@@ -43,10 +47,16 @@ public:
         mOperationalStateDelegate.SetMoveToCallback(&ClosuresDevice::HandleOpStateMoveToCallback, this);
     }
 
+    // Add a public method to allow adding observers
+    void AddOperationalStateObserver(OperationalState::Observer * observer);
+
     /**
      * Init all the clusters used by this device.
      */
     void Init();
+
+    // Call to observer to be notified of a state change
+    void OnStateChanged(ClosureOperationalState::OperationalStateEnum state);
 
     /**
      * 
@@ -103,6 +113,12 @@ public:
      * Handles the ProtectionDropped command.
      */
     void HandleProtectionDroppedMessage();
+
+    void HandleMoveToStimuli();
+
+    void HandleStopStimuli();
+
+    void HandleDownCloseMessage();
 
     void HandleMovementCompleteEvent();
 

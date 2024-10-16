@@ -84,7 +84,7 @@ class TC_CLOPSTATE_2_3(MatterBaseTest):
         self.endpoint = self.matter_test_config.endpoint
         asserts.assert_false(self.endpoint is None, "--endpoint <endpoint> must be included on the command line in.")
         self.is_ci = self.check_pics("PICS_SDK_CI_ONLY")
-
+        self.is_ci = True
         if self.is_ci:
             app_pid = self.matter_test_config.app_pid
             if app_pid == 0:
@@ -98,10 +98,10 @@ class TC_CLOPSTATE_2_3(MatterBaseTest):
         self.step(2)
         if self.is_ci:
             # CI call to trigger unoccupied.
-            self.print_step("step number 2", "Send command to pipe")
-            self.write_to_app_pipe({"Name": "UpOpen"})
+            self.print_step("step number 2", "Send MoveTo command to pipe")
+            self.write_to_app_pipe({"Name": "MoveTo"})
         else:
-            self.print_step("step number 2", "Send UpOpen command")
+            self.print_step("step number 2", "Send MoveTo command")
             tag = Clusters.Objects.ClosureOperationalState.Enums.TagEnum.kCloseInFull
             try:
                 await self.send_single_cmd(cmd=Clusters.Objects.ClosureOperationalState.Commands.MoveTo(tag), endpoint=self.endpoint)

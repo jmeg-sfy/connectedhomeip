@@ -39,6 +39,9 @@ void ApplicationInit()
 {
     std::string path = kChipEventFifoPathPrefix + std::to_string(getpid());
 
+    ChipLogDetail(NotSpecified, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! PIPE PID: %d", getpid());
+
+
     if (sChipNamedPipeCommands.Start(path, &sClosuresAppCommandDelegate) != CHIP_NO_ERROR)
     {
         ChipLogError(NotSpecified, "Failed to start CHIP NamedPipeCommands");
@@ -49,6 +52,9 @@ void ApplicationInit()
     gClosuresDevice->Init();
 
     sClosuresAppCommandDelegate.SetClosuresDevice(gClosuresDevice);
+    // Register the device as an observer
+    gClosuresDevice->AddOperationalStateObserver(gClosuresDevice);  
+
 }
 
 void ApplicationShutdown()

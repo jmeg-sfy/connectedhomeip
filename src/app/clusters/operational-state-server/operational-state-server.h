@@ -45,6 +45,7 @@ private:
 };
 
 class Delegate;
+class Observer;
 
 /**
  * Instance is a class that represents an instance of a derivation of the operational state cluster.
@@ -183,11 +184,6 @@ protected:
      */
     Instance(Delegate * aDelegate, EndpointId aEndpointId, ClusterId aClusterId);
 
-    // /**
-    //  * Handle Command: Stop.
-    //  */
-    virtual void HandleStopState(HandlerContext & ctx, const Commands::Stop::DecodableType & req);
-
     /**
      * Given a state in the derived cluster number-space (from 0x40 to 0x7f), this method checks if the state is pause-compatible.
      * Note: if a state outside the derived cluster number-space is given, this method returns false.
@@ -291,7 +287,15 @@ private:
      */
     void HandlePauseState(HandlerContext & ctx, const Commands::Pause::DecodableType & req);
 
+    /**
+     * Handle Command: Stop.
+    **/
+    virtual void HandleStopState(HandlerContext & ctx, const Commands::Stop::DecodableType & req);
 
+    /**
+    * Handle Command: Stop.
+    **/
+    virtual void HandleStopState();
 
     /**
      * Handle Command: Start.
@@ -390,6 +394,17 @@ private:
 
 protected:
     Instance * GetInstance() const { return mInstance; }
+};
+
+class Observer
+{
+public:
+    Observer() = default;
+    virtual ~Observer() = default;
+
+    // Called when the server changes its Operational state
+    virtual void OnStateChanged(ClosureOperationalState::OperationalStateEnum state) = 0;
+    virtual void OnErrorOccurred(const std::string & error) {};
 };
 
 } // namespace OperationalState
@@ -504,6 +519,10 @@ public:
 
 // #############################################################################################
 
+
+// #############################################################################################
+// ClosureOperationalState
+
 namespace ClosureOperationalState {
 
 const uint16_t kMaxDurationS = 64800;
@@ -537,6 +556,9 @@ void LogIsFeatureSupported(const uint32_t & featureMap, Feature aFeature);
 class Delegate : public OperationalState::Delegate
 {
 public:
+
+	Delegate() {};
+
     /**
      * Get the KickoffTimer time. This will get called on many edges such as
      * commands to change operational state, or when the delegate deals with
@@ -625,7 +647,7 @@ class Instance : public OperationalState::Instance
 {
 public:
     /**
-     * Creates an RVC operational state cluster instance.
+     * Creates an Closure operational state cluster instance.
      * The Init() function needs to be called for this instance to be registered and called by the
      * interaction model at the appropriate times.
      * It is possible to set the CurrentPhase and OperationalState via the Set... methods before calling Init().
@@ -635,14 +657,49 @@ public:
      */
     // TODO : Note Cluster ID is passed here
     Instance(Delegate * aDelegate, EndpointId aEndpointId) :
-        OperationalState::Instance(aDelegate, aEndpointId, Id), mDelegate(aDelegate)
+        OperationalState::Instance(aDelegate, aEndpointId, Id), mDelegate(aDelegate), mCurrentState(ClosureOperationalState::OperationalStateEnum::kCalibrating)
     {
         mOverallState.positioning.SetValue(PositioningEnum::kPartiallyOpened);
         mWaitingDelay = 20;
     }
 
+    void AddObserver(OperationalState::Observer* observer);
+    void RemoveObserver(OperationalState::Observer* observer);
+
     ~Instance() override;
 
+    // Method to check if it's possible to change the state to Running
+    bool CanTransitionToRunning() const {
+
+        switch (GetCurrentOperationalState())
+        {
+            case to_underlying(chip::app::Clusters::OperationalState::OperationalStateEnum::kStopped):
+            case to_underlying(chip::app::Clusters::OperationalState::OperationalStateEnum::kRunning):
+            case to_underlying(chip::app::Clusters::OperationalState::OperationalStateEnum::kPaused):
+            case to_underlying(chip::app::Clusters::OperationalState::OperationalStateEnum::kError):
+            case to_underlying(OperationalStateEnum::kPendingFallback):
+            return true;
+            break;
+        default:
+            break;
+        }
+
+        return false;
+    }
+
+    void MoveToStimuli();
+	
+	// // Method to transition to Running state
+    // void TransitionToStopped() {
+    //     if (CanTransitionToStopped()) {
+    //         // Change the state to Running
+    //         SetOperationalState(to_underlying(OperationalState::OperationalStateEnum::kStopped));
+    //         //SetState(ClosureOperationalState::OperationalStateEnum::kRunning);
+    //     } else {
+    //         ChipLogDetail(Zcl, "State transition to Running is not allowed.");
+    //     }
+    // }
+	
     CHIP_ERROR UpdateActionState(void);
     /**
      * Get the current operational state.
@@ -652,13 +709,20 @@ public:
     chip::DurationS GetCurrentWaitingDelay() const;
 
     const char * GetDerivedClusterOperationalStateString(const uint8_t & aState) override;
+	
+	void SetState(ClosureOperationalState::OperationalStateEnum newState);
+
+    /**
+    * Handle Command: Stop.
+    */
+    void HandleStopState() override;
+
+        /**
+    * Handle Command: Stop.
+    */
+    void HandleMoveToCommand(/*const Commands::MoveTo::DecodableType & req*/);
 
 protected:
-    /**
-     * Handle Command: Stop.
-     */
-    void HandleStopState(HandlerContext & ctx, const OperationalState::Commands::Stop::DecodableType & req) override;
-
     /**
      * Given a state in the derived cluster number-space (from 0x40 to 0x7f), this method checks if the state is pause-compatible.
      * Note: if a state outside the derived cluster number-space is given, this method returns false.
@@ -693,37 +757,36 @@ protected:
     CHIP_ERROR ReadDerivedClusterAttribute(const ConcreteReadAttributePath & aPath, AttributeValueEncoder & aEncoder) override;
 
     /**
+     * Handle Command: Stop.
+     */
+    void HandleStopState(HandlerContext & ctx, const OperationalState::Commands::Stop::DecodableType & req) override;
+
+    /**
      * Log the feature map of the derived cluster.
      * @param featureMap The feature map to log.
      */
     void LogDerivedClusterFeatureMap(const uint32_t & featureMap) override;
+	
+	void NotifyObservers();
 
 private:
     Delegate * mDelegate;
+    ClosureOperationalState::OperationalStateEnum mCurrentState;
+    std::vector<OperationalState::Observer*> mObservers;
 
     // Attribute Data Store
     Structs::OverallStateStruct::Type mOverallState;
     chip::DurationS mWaitingDelay;
 
-    // app::DataModel::Nullable<uint8_t> mCurrentPhase;
-    // uint8_t mOperationalState                 = 0; // assume 0 for now.
-    // GenericOperationalError mOperationalError = to_underlying(ErrorStateEnum::kNoError);
-    // app::QuieterReportingAttribute<uint32_t> mCountdownTime{ DataModel::NullNullable };
-
-    // <!-- This Derived Cluster's Attributes -->
-    // <attribute side="server" code="0x4000" writable="false" define="OVERALL_STATE"          type="OverallStateBitmap"  default="0" optional="false">OverallState</attribute>
-    // <attribute side="server" code="0x4001" writable="false" define="PROTECTIVE_STATE"       type="ProtectiveStateEnum" default="0" optional="true">ProtectiveState</attribute>
-    // <attribute side="server" code="0x4002" writable="true"  define="AUTO_BEHAVIOR"          type="AutoBehaviorEnum"    default="0" optional="true">
-    //   <description>AutoBehavior</description>
-    //   <access op="read" privilege="view"/>
-    //   <access op="write" privilege="operate"/>
-    // </attribute>
-    // <attribute side="server" code="0x4003" writable="true"  define="AUTO_TIMER"             type="elapsed_s" min="0" max="259200" default="0" optional="true">
-
     /**
      * Handle Command: MoveTo
      */
     void HandleMoveToCommand(HandlerContext & ctx, const Commands::MoveTo::DecodableType & req);
+	
+	/**
+     * Handle Command: Stop
+     */
+    void HandleStopCommand(HandlerContext & ctx, const Commands::MoveTo::DecodableType & req);
 
     /**
      * Handle Command: Calibrate

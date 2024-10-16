@@ -146,7 +146,6 @@ CHIP_ERROR Instance::SetCurrentPhase(const DataModel::Nullable<uint8_t> & aPhase
 
 CHIP_ERROR Instance::SetOperationalState(uint8_t aOpState)
 {
-
     // Error is only allowed to be set by OnOperationalErrorDetected.
     if (aOpState == to_underlying(OperationalStateEnum::kError) || !IsSupportedOperationalState(aOpState))
     {
@@ -164,9 +163,7 @@ CHIP_ERROR Instance::SetOperationalState(uint8_t aOpState)
 
     uint8_t oldState  = mOperationalState;
     mOperationalState = aOpState;
-
-    ChipLogDetail(Zcl, "OperationalStateServer SetOperationalState(): old=%s(%u) -> new=%s(%u) !!", GetOperationalStateString(oldState), oldState, GetOperationalStateString(aOpState), aOpState);
-
+    
     if (mOperationalState != oldState)
     {
         countdownTimeUpdateNeeded = true;
@@ -178,6 +175,9 @@ CHIP_ERROR Instance::SetOperationalState(uint8_t aOpState)
     {
         UpdateCountdownTimeFromClusterLogic();
     }
+    
+    ChipLogDetail(Zcl, CL_GREEN "OperationalStateServer SetOperationalState(): old=%s(%u) -> new=%s(%u) !!" CL_CLEAR, GetOperationalStateString(oldState), oldState, GetOperationalStateString(aOpState), aOpState);
+
     return CHIP_NO_ERROR;
 }
 
@@ -384,55 +384,6 @@ void Instance::InvokeCommand(HandlerContext & handlerContext)
     }
 }
 
-// // Sets up data for writing
-// struct TestWriteRequest
-// {
-//     DataModel::WriteAttributeRequest request;
-//     uint8_t tlvBuffer[128] = { 0 };
-//     TLV::TLVReader
-//         tlvReader; /// tlv reader used for the returned AttributeValueDecoder (since attributeValueDecoder uses references)
-
-//     TestWriteRequest(const Access::SubjectDescriptor & subject, const ConcreteDataAttributePath & path)
-//     {
-//         request.subjectDescriptor = subject;
-//         request.path              = path;
-//     }
-
-//     template <typename T>
-//     TLV::TLVReader ReadEncodedValue(const T & value)
-//     {
-//         TLV::TLVWriter writer;
-//         writer.Init(tlvBuffer);
-
-//         // Encoding is within a structure:
-//         //   - BEGIN_STRUCT
-//         //     - 1: .....
-//         //   - END_STRUCT
-//         TLV::TLVType outerContainerType;
-//         VerifyOrDie(writer.StartContainer(TLV::AnonymousTag(), TLV::kTLVType_Structure, outerContainerType) == CHIP_NO_ERROR);
-//         VerifyOrDie(chip::app::DataModel::Encode(writer, TLV::ContextTag(1), value) == CHIP_NO_ERROR);
-//         VerifyOrDie(writer.EndContainer(outerContainerType) == CHIP_NO_ERROR);
-//         VerifyOrDie(writer.Finalize() == CHIP_NO_ERROR);
-
-//         TLV::TLVReader reader;
-//         reader.Init(tlvBuffer);
-
-//         // position the reader inside the buffer, on the encoded value
-//         VerifyOrDie(reader.Next() == CHIP_NO_ERROR);
-//         VerifyOrDie(reader.EnterContainer(outerContainerType) == CHIP_NO_ERROR);
-//         VerifyOrDie(reader.Next() == CHIP_NO_ERROR);
-
-//         return reader;
-//     }
-
-//     template <class T>
-//     AttributeValueDecoder DecoderFor(const T & value)
-//     {
-//         tlvReader = ReadEncodedValue(value);
-//         return AttributeValueDecoder(tlvReader, request.subjectDescriptor.value_or(kDenySubjectDescriptor));
-//     }
-// };
-
 const char * Instance::GetOperationalStateString(const uint8_t & aState)
 {
     switch (aState)
@@ -561,6 +512,33 @@ CHIP_ERROR Instance::Read(const ConcreteReadAttributePath & aPath, AttributeValu
     return CHIP_NO_ERROR;
 }
 
+
+// Notify all registered observers about the state change
+void ClosureOperationalState::Instance::NotifyObservers()
+{
+    for (OperationalState::Observer* observer : mObservers)
+    {
+        if (observer)
+        {
+            observer->OnStateChanged(mCurrentState);
+        }
+    }
+}
+
+// Private method to set state and notify all observers
+void ClosureOperationalState::Instance::SetState(ClosureOperationalState::OperationalStateEnum newState)
+{
+    if (mCurrentState != newState)
+    {
+        mCurrentState = newState;
+        //SetOperationalState(to_underlying(newState));
+
+        // Notify all registered observers
+        NotifyObservers();
+    }
+}
+
+
 void Instance::LogFeatureMap(const uint32_t & featureMap)
 {
     LogDerivedClusterFeatureMap(featureMap);
@@ -612,15 +590,16 @@ void Instance::HandleStopState(HandlerContext & ctx, const Commands::Stop::Decod
     {
         mDelegate->HandleStopStateCallback(err);
     }
-    else
-    {
-        ChipLogDetail(Zcl, "OperationalState: HandleStopState ALREADY Stopped");
-    }
 
     Commands::OperationalCommandResponse::Type response;
     response.commandResponseState = err;
 
     ctx.mCommandHandler.AddResponse(ctx.mRequestPath, response);
+}
+
+void Instance::HandleStopState()
+{
+    ChipLogDetail(Zcl, "OperationalState: HandleStopState");
 }
 
 void Instance::HandleStartState(HandlerContext & ctx, const Commands::Start::DecodableType & req)
@@ -771,8 +750,6 @@ bool ClosureOperationalState::Instance::IsDerivedClusterStateResumeCompatible(ui
             aState == to_underlying(ClosureOperationalState::OperationalStateEnum::kSetupRequired));
 }
 
-
-
 // This function is called by the base operational state cluster when a command in the derived cluster number-space is received.
 void ClosureOperationalState::Instance::InvokeDerivedClusterCommand(chip::app::CommandHandlerInterface::HandlerContext & handlerContext)
 {
@@ -803,8 +780,6 @@ void ClosureOperationalState::Instance::InvokeDerivedClusterCommand(chip::app::C
         handlerContext.mCommandHandler.AddStatus(handlerContext.mRequestPath, Status::InvalidCommand);
     }
 }
-
-
 
 void ClosureOperationalState::LogOverallStateStruct(const Structs::OverallStateStruct::Type & aOverallState)
 {
@@ -1184,6 +1159,7 @@ void ClosureOperationalState::Instance::HandleStopState(HandlerContext & ctx, co
     ChipLogDetail(Zcl, "ClosureOperationalState: HandleStopState");
 
     GenericOperationalError err(to_underlying(OperationalState::ErrorStateEnum::kNoError));
+    uint8_t newState = to_underlying(OperationalState::OperationalStateEnum::kStopped);
 
     /* NOTE: Compare to the Base::Stop Method -> ClosureOperationalState::Stop Method doesn't answer with a InvokeResponse but with a regular Status */
     // Handle the case of the device being in an invalid state
@@ -1194,6 +1170,7 @@ void ClosureOperationalState::Instance::HandleStopState(HandlerContext & ctx, co
         return;
     }
 
+    SetOperationalState(newState);
     // Command is Sane for delegation
     mDelegate->HandleStopStateCallback(err);
     if (err.errorStateID == to_underlying(OperationalState::ErrorStateEnum::kNoError))
@@ -1204,11 +1181,36 @@ void ClosureOperationalState::Instance::HandleStopState(HandlerContext & ctx, co
     ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::Success);
 }
 
+void ClosureOperationalState::Instance::HandleStopState() 
+{
+    ChipLogDetail(Zcl, "ClosureOperationalState: HandleStopState");
+
+    GenericOperationalError err(to_underlying(OperationalState::ErrorStateEnum::kNoError));
+    uint8_t newState = to_underlying(OperationalState::OperationalStateEnum::kStopped);
+
+    /* NOTE: Compare to the Base::Stop Method -> ClosureOperationalState::Stop Method doesn't answer with a InvokeResponse but with a regular Status */
+    // Handle the case of the device being in an invalid state
+    if (IsStopInvalidInState(GetCurrentOperationalState()))
+    {
+        err.Set(to_underlying(OperationalState::ErrorStateEnum::kCommandInvalidInState));
+        return;
+    }
+
+    SetOperationalState(newState);
+    // Command is Sane for delegation
+    mDelegate->HandleStopStateCallback(err);
+    if (err.errorStateID == to_underlying(OperationalState::ErrorStateEnum::kNoError))
+    {
+        ChipLogDetail(Zcl, "OnStop");
+    }
+}
+
 void ClosureOperationalState::Instance::HandleCalibrateCommand(HandlerContext & ctx, const Commands::Calibrate::DecodableType & req)
 {
     ChipLogDetail(Zcl, "ClosureOperationalState: HandleCalibrateCommand");
 
     GenericOperationalError err(to_underlying(OperationalState::ErrorStateEnum::kNoError));
+    uint8_t newState = to_underlying(ClosureOperationalState::OperationalStateEnum::kCalibrating);
 
     // Handle the case of the device being in an invalid state
     if (IsCalibrateInvalidInState(GetCurrentOperationalState()))
@@ -1222,6 +1224,7 @@ void ClosureOperationalState::Instance::HandleCalibrateCommand(HandlerContext & 
     // Feature is Enable use the Delegate Callback to update the front-attributes
     if (fakeFeature.Has(Feature::kCalibration))
     {
+		SetOperationalState(newState);
         // Command is Sane for delegation
         mDelegate->HandleCalibrateCommandCallback(err);
         if (err.errorStateID == to_underlying(OperationalState::ErrorStateEnum::kNoError))
@@ -1241,6 +1244,7 @@ void ClosureOperationalState::Instance::HandleMoveToCommand(HandlerContext & ctx
     ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand");
 
     GenericOperationalError err(to_underlying(OperationalState::ErrorStateEnum::kNoError));
+    uint8_t newState = to_underlying(OperationalState::OperationalStateEnum::kRunning);
 
     ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand Fields:");
     LogMoveToRequest(req);
@@ -1279,8 +1283,10 @@ void ClosureOperationalState::Instance::HandleMoveToCommand(HandlerContext & ctx
         return;
     }
 
+    SetOperationalState(newState);
     // Command is Sane for delegation
     mDelegate->HandleMoveToCommandCallback(err);
+
     if (err.errorStateID == to_underlying(OperationalState::ErrorStateEnum::kNoError))
     {
         ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::Success);
@@ -1290,11 +1296,58 @@ void ClosureOperationalState::Instance::HandleMoveToCommand(HandlerContext & ctx
     }
 }
 
+
+void ClosureOperationalState::Instance::HandleMoveToCommand(/*const Commands::MoveTo::DecodableType & req*/)
+{
+    ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand");
+
+    GenericOperationalError err(to_underlying(OperationalState::ErrorStateEnum::kNoError));
+    uint8_t newState = to_underlying(OperationalState::OperationalStateEnum::kRunning);
+
+    ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand Fields:");
+    // LogMoveToRequest(req);
+
+    // Status status;
+    // if ((status = VerifyFieldTag(req.tag, 0x0000)) != Status::Success)
+    // {
+    //     return;
+    // }
+
+    // if ((status = VerifyFieldLatch(req.latch)) != Status::Success)
+    // {
+    //     return;
+    // }
+
+    // if ((status = VerifyFieldSpeed(req.speed)) != Status::Success)
+    // {
+    //     return;
+    // }
+
+    // // At least one field SHALL be available
+    // if (!(req.tag.HasValue() || req.latch.HasValue() || req.speed.HasValue()))
+    // {
+    //     return;
+    // }
+
+    // Handle the case of the device being in an invalid state
+    if (IsMoveToInvalidInState(GetCurrentOperationalState()))
+    {
+        err.Set(to_underlying(OperationalState::ErrorStateEnum::kCommandInvalidInState));
+        return;
+    }
+
+    SetOperationalState(newState);
+    // Command is Sane for delegation
+    mDelegate->HandleMoveToCommandCallback(err);
+}
+
+
 void ClosureOperationalState::Instance::HandleConfigureFallbackCommand(HandlerContext & ctx, const Commands::ConfigureFallback::DecodableType & req)
 {
     ChipLogDetail(Zcl, "ClosureOperationalState: HandleConfigureFallbackCommand");
 
     GenericOperationalError err(to_underlying(OperationalState::ErrorStateEnum::kNoError));
+    uint8_t newState = to_underlying(ClosureOperationalState::OperationalStateEnum::kPendingFallback);
 
     ChipLogDetail(Zcl, "ClosureOperationalState: HandleConfigureFallbackCommand Fields:");
     LogConfigureFallbackRequest(req);
@@ -1343,6 +1396,7 @@ void ClosureOperationalState::Instance::HandleConfigureFallbackCommand(HandlerCo
     // Feature is Enable use the Delegate Callback to update the front-attributes
     if (value.Has(Feature::kFallback))
     {
+        SetOperationalState(newState);
         // Command is Sane for delegation
         mDelegate->HandleConfigureFallbackCommandCallback(err);
         if (err.errorStateID == to_underlying(OperationalState::ErrorStateEnum::kNoError))
@@ -1355,4 +1409,28 @@ void ClosureOperationalState::Instance::HandleConfigureFallbackCommand(HandlerCo
         ChipLogDetail(NotSpecified, "Fallback feature " CL_YELLOW "NOT SUPPORTED " CL_CLEAR " ConfigureFallback ignored");
     }
     ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::Success);
+}
+
+// Add an observer to the list
+void ClosureOperationalState::Instance::AddObserver(OperationalState::Observer* observer)
+{
+    mObservers.push_back(observer);
+}
+
+// Remove an observer from the list
+void ClosureOperationalState::Instance::RemoveObserver(OperationalState::Observer* observer)
+{
+    mObservers.erase(std::remove(mObservers.begin(), mObservers.end(), observer), mObservers.end());
+}
+
+// Method to transition to Running state
+void MoveToStimuli() {
+
+    // if (IsMoveToInvalidInState(GetCurrentOperationalState())) {
+    //     // Change the state to Running
+    //     SetOperationalState(to_underlying(OperationalState::OperationalStateEnum::kRunning));
+    //     //SetState(ClosureOperationalState::OperationalStateEnum::kRunning);
+    // } else {
+    //     ChipLogDetail(Zcl, "State transition to Running is not allowed.");
+    // }
 }

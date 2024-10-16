@@ -4,9 +4,19 @@
 
 using namespace chip::app::Clusters;
 
+/* ANSI Colored escape code */
+#define CL_CLEAR  "\x1b[0m"
+#define CL_RED    "\u001b[31m"
+#define CL_GREEN  "\u001b[32m"
+#define CL_YELLOW "\u001b[33m"
+
+static constexpr char strLogY[] = CL_GREEN "Y" CL_CLEAR;
+static constexpr char strLogN[] = CL_RED "N" CL_CLEAR;
+
 void ClosuresDevice::Init()
 {
     mOperationalStateInstance.Init();
+    ChipLogDetail(NotSpecified, CL_YELLOW "!!!!! CLOSURE DEVICE INIT!!!!!!!!!" CL_CLEAR);
 }
 
 void ClosuresDevice::SetDeviceToStoppedState()
@@ -21,75 +31,48 @@ void ClosuresDevice::SetDeviceToStoppedState()
     }
 }
 
+void ClosuresDevice::AddOperationalStateObserver(OperationalState::Observer * observer) {
+        mOperationalStateInstance.AddObserver(observer);
+}
+
+const char* ClosuresDevice::GetStateString(ClosureOperationalState::OperationalStateEnum state) const
+{
+    switch (state)
+    {
+    case ClosureOperationalState::OperationalStateEnum::kCalibrating:
+        return "Running";
+    case ClosureOperationalState::OperationalStateEnum::kDisengaded:
+        return "Stopped";
+    case ClosureOperationalState::OperationalStateEnum::kPendingFallback:
+        return "Protected";
+    case ClosureOperationalState::OperationalStateEnum::kProtected:
+        return "Paused";
+    default:
+        return "Unknown";
+    }
+}
+
+// Called when the state changes, updating the state in closure device
+void ClosuresDevice::OnStateChanged(ClosureOperationalState::OperationalStateEnum state)
+{
+    const char* state_string = GetStateString(state);
+    ChipLogDetail(NotSpecified, CL_YELLOW "The new Closure Operational State value: %s" CL_CLEAR, state_string);
+}
 
 void ClosuresDevice::HandleOpStatePauseCallback(Clusters::OperationalState::GenericOperationalError & err)
 {
-    // This method is only called if the device is in a Pause-compatible state, i.e. `Running` or `PendingFallback`.
-    mStateBeforePause = mOperationalStateInstance.GetCurrentOperationalState();
-    auto error = mOperationalStateInstance.SetOperationalState(to_underlying(OperationalState::OperationalStateEnum::kPaused));
-    err.Set((error == CHIP_NO_ERROR) ? to_underlying(OperationalState::ErrorStateEnum::kNoError)
-                                     : to_underlying(OperationalState::ErrorStateEnum::kUnableToCompleteOperation));
 }
 
 void ClosuresDevice::HandleOpStateResumeCallback(Clusters::OperationalState::GenericOperationalError & err)
 {
-    if (mOperationalStateInstance.GetCurrentOperationalState() == to_underlying(OperationalState::OperationalStateEnum::kPaused))
-    {
-        auto error = mOperationalStateInstance.SetOperationalState(to_underlying(OperationalState::OperationalStateEnum::kPaused));
-        err.Set((error == CHIP_NO_ERROR) ? to_underlying(OperationalState::ErrorStateEnum::kNoError)
-                                     : to_underlying(OperationalState::ErrorStateEnum::kUnableToCompleteOperation));
-    }
-    else {
-        // This method is only called if the device is in a resume-compatible state, i.e. 
-        // `Paused`. 
-        err.Set(to_underlying(OperationalState::ErrorStateEnum::kCommandInvalidInState));
-    }    
 }
 
 void ClosuresDevice::HandleOpStateStopCallback(Clusters::OperationalState::GenericOperationalError & err)
 {
-    switch (mOperationalStateInstance.GetCurrentOperationalState())
-    {
-    case to_underlying(OperationalState::OperationalStateEnum::kPaused): 
-    case to_underlying(OperationalState::OperationalStateEnum::kRunning):
-    case to_underlying(OperationalState::OperationalStateEnum::kError):
-    case to_underlying(ClosureOperationalState::OperationalStateEnum::kCalibrating): 
-    case to_underlying(ClosureOperationalState::OperationalStateEnum::kProtected): 
-    case to_underlying(ClosureOperationalState::OperationalStateEnum::kDisengaded):
-    case to_underlying(ClosureOperationalState::OperationalStateEnum::kPendingFallback): {
-
-        auto error = mOperationalStateInstance.SetOperationalState(
-            to_underlying(OperationalState::OperationalStateEnum::kStopped));
-
-        err.Set((error == CHIP_NO_ERROR) ? to_underlying(OperationalState::ErrorStateEnum::kNoError)
-                                         : to_underlying(OperationalState::ErrorStateEnum::kUnableToCompleteOperation));
-    }
-    break;
-    default:
-        err.Set(to_underlying(OperationalState::ErrorStateEnum::kCommandInvalidInState));
-        return;
-    }   
 }
 
 void ClosuresDevice::HandleOpStateMoveToCallback(Clusters::OperationalState::GenericOperationalError & err)
 {
-    switch (mOperationalStateInstance.GetCurrentOperationalState())
-    {
-    case to_underlying(OperationalState::OperationalStateEnum::kPaused): 
-    case to_underlying(OperationalState::OperationalStateEnum::kStopped):
-    case to_underlying(ClosureOperationalState::OperationalStateEnum::kPendingFallback): {
-
-        auto error = mOperationalStateInstance.SetOperationalState(
-            to_underlying(OperationalState::OperationalStateEnum::kRunning));
-
-        err.Set((error == CHIP_NO_ERROR) ? to_underlying(OperationalState::ErrorStateEnum::kNoError)
-                                         : to_underlying(OperationalState::ErrorStateEnum::kUnableToCompleteOperation));
-    }
-    break;
-    default:
-        err.Set(to_underlying(OperationalState::ErrorStateEnum::kCommandInvalidInState));
-        return;
-    }  
 }
 
 void ClosuresDevice::HandleCalibrationEndedMessage()
@@ -162,6 +145,29 @@ void ClosuresDevice::HandleProtectionDroppedMessage()
 
     mCalibrating = true;
     mOperationalStateInstance.SetOperationalState(to_underlying(OperationalState::OperationalStateEnum::kStopped));
+}
+
+void ClosuresDevice::HandleMoveToStimuli()
+{
+    ChipLogDetail(Zcl, CL_GREEN "ClosuresDevice: MoveTo Stimuli..." CL_CLEAR);
+    mOperationalStateInstance.HandleMoveToCommand();
+}
+
+void ClosuresDevice::HandleStopStimuli()
+{
+    ChipLogDetail(Zcl, CL_GREEN "ClosuresDevice: Stop Stimuli.." CL_CLEAR);
+    mOperationalStateInstance.HandleStopState();
+}
+
+void ClosuresDevice::HandleDownCloseMessage()
+{
+    if (mOperationalStateInstance.GetCurrentOperationalState() != to_underlying(OperationalState::OperationalStateEnum::kStopped))
+    {
+        ChipLogError(NotSpecified,
+                     "Closures App: The 'DownClose' command is only accepted when the device is in the 'Running' state.");
+        return;
+    }
+    mOperationalStateInstance.SetOperationalState(to_underlying(OperationalState::OperationalStateEnum::kRunning));
 }
 
 void ClosuresDevice::HandleMovementCompleteEvent()

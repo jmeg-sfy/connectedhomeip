@@ -25,6 +25,10 @@
 
 #include <string>
 
+namespace chip {
+namespace app {
+namespace Clusters {
+
 class ClosuresAppCommandHandler
 {
 public:
@@ -38,7 +42,7 @@ public:
 
 private:
     Json::Value mJsonValue;
-    chip::app::Clusters::ClosuresDevice * mClosuresDevice;
+    ClosuresDevice * mClosuresDevice;
 
     /**
      * Should be called to notify that the device has finished calibration.
@@ -55,6 +59,12 @@ private:
 
     void OnMovementCompleteHandler();
 
+    void GoRunningStimuli();
+
+    void GoStoppedStimuli();
+
+    void OnDownCloseHandler();
+
     void OnErrorEventHandler(const std::string & error);
 
     void OnClearErrorHandler();
@@ -65,9 +75,13 @@ private:
 class ClosuresAppCommandDelegate : public NamedPipeCommandDelegate
 {
 private:
-    chip::app::Clusters::ClosuresDevice * mClosuresDevice;
+    ClosuresDevice * mClosuresDevice;
 
 public:
-    void SetClosuresDevice(chip::app::Clusters::ClosuresDevice * aClosuresDevice);
+    void SetClosuresDevice(ClosuresDevice * aClosuresDevice);
     void OnEventCommandReceived(const char * json) override;
 };
+
+} // namespace Clusters
+} // namespace app
+} // namespace chip
