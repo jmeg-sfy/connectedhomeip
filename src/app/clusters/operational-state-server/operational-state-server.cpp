@@ -800,6 +800,33 @@ void ClosureOperationalState::Instance::InvokeDerivedClusterCommand(chip::app::C
         break;
     default:
         ChipLogProgress(Zcl, "ClosureOperationalState: WARNING CommandId=0x%02X Invoke is not handled !", commandId);
+        handlerContext.mCommandHandler.AddStatus(handlerContext.mRequestPath, Status::InvalidCommand);
+    }
+}
+
+
+
+void ClosureOperationalState::LogOverallStateStruct(const Structs::OverallStateStruct::Type & aOverallState)
+{
+    ChipLogOptionalValue(aOverallState.positioning, "    -", "Positioning");
+    ChipLogOptionalValue(aOverallState.speed      , "    -", "Speed");
+    ChipLogOptionalValue(aOverallState.latching   , "    -", "Latching");
+}
+
+void ClosureOperationalState::LogMoveToRequest(const Commands::MoveTo::DecodableType & req)
+{
+    ChipLogOptionalValue(req.tag  , "    -", "Tag");
+    ChipLogOptionalValue(req.latch, "    -", "Latch");
+    ChipLogOptionalValue(req.speed, "    -", "Speed");
+}
+
+void ClosureOperationalState::LogConfigureFallbackRequest(const Commands::ConfigureFallback::DecodableType & req)
+{
+    ChipLogOptionalValue(req.restingProcedure, "    -", "RestingProcedure");
+    ChipLogOptionalValue(req.triggerPosition , "    -", "TriggerPosition");
+    ChipLogOptionalValue(req.triggerCondition, "    -", "TriggerCondition");
+    ChipLogOptionalValue(req.waitingDelay    , "    -", "WaitingDelay");
+}
 
 void ClosureOperationalState::Instance::LogDerivedClusterFeatureMap(const uint32_t & featureMap)
 {

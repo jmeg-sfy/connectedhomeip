@@ -527,6 +527,9 @@ Status VerifyFieldTriggerPosition(const chip::Optional<TriggerPositionEnum> & it
 Status VerifyFieldRestingProcedure(const chip::Optional<RestingProcedureEnum>  & item);
 Status VerifyFieldWaitingDelay(const chip::Optional<chip::DurationS> & item);
 
+void LogOverallStateStruct(const Structs::OverallStateStruct::Type & aOverallState);
+void LogMoveToRequest(const Commands::MoveTo::DecodableType & req);
+void LogConfigureFallbackRequest(const Commands::ConfigureFallback::DecodableType & req);
 
 const char * GetFeatureMapString(Feature aFeature);
 void LogIsFeatureSupported(const uint32_t & featureMap, Feature aFeature);
