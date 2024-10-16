@@ -96,6 +96,10 @@ public:
      */
     CHIP_ERROR SetOperationalState(uint8_t aOpState);
 
+    void LogOperationalState(const uint8_t & aState);
+    const char * GetOperationalStateString(const uint8_t & aState);
+    virtual const char * GetDerivedClusterOperationalStateString(const uint8_t & aState) { return nullptr; };
+
     // Attribute getters
     /**
      * Get current phase.
@@ -610,6 +614,8 @@ public:
      * @return The current operational state value.
      */
     uint8_t GetCurrentOverallState() const;
+
+    const char * GetDerivedClusterOperationalStateString(const uint8_t & aState) override;
 
 protected:
     /**

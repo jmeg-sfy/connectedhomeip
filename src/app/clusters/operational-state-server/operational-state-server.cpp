@@ -164,7 +164,9 @@ CHIP_ERROR Instance::SetOperationalState(uint8_t aOpState)
 
     uint8_t oldState  = mOperationalState;
     mOperationalState = aOpState;
-    ChipLogDetail(Zcl, "OperationalStateServer SetOperationalState(): old=%u -> new=%u !!", oldState, aOpState);
+
+    ChipLogDetail(Zcl, "OperationalStateServer SetOperationalState(): old=%s(%u) -> new=%s(%u) !!", GetOperationalStateString(oldState), oldState, GetOperationalStateString(aOpState), aOpState);
+
     if (mOperationalState != oldState)
     {
         countdownTimeUpdateNeeded = true;
@@ -431,6 +433,37 @@ void Instance::InvokeCommand(HandlerContext & handlerContext)
 //     }
 // };
 
+const char * Instance::GetOperationalStateString(const uint8_t & aState)
+{
+    switch (aState)
+    {
+    case to_underlying(OperationalState::OperationalStateEnum::kError): {
+        return "Error";
+    }
+
+    case to_underlying(OperationalState::OperationalStateEnum::kPaused): {
+        return "Paused";
+    }
+
+    case to_underlying(OperationalState::OperationalStateEnum::kRunning): {
+        return "Running";
+    }
+
+    case to_underlying(OperationalState::OperationalStateEnum::kStopped): {
+        return "Stopped";
+    }
+
+    default: {
+        return GetDerivedClusterOperationalStateString(aState);
+    }
+    }
+}
+
+void Instance::LogOperationalState(const uint8_t & aState)
+{
+    ChipLogDetail(Zcl, "OperationalState: %s", GetOperationalStateString(aState));
+}
+
 
 CHIP_ERROR Instance::Read(const ConcreteReadAttributePath & aPath, AttributeValueEncoder & aEncoder)
 {
@@ -465,7 +498,9 @@ CHIP_ERROR Instance::Read(const ConcreteReadAttributePath & aPath, AttributeValu
     }
 
     case OperationalState::Attributes::OperationalState::Id: {
-        ReturnErrorOnFailure(aEncoder.Encode(GetCurrentOperationalState()));
+        uint8_t opState = GetCurrentOperationalState();
+        LogOperationalState(opState);
+        ReturnErrorOnFailure(aEncoder.Encode(opState));
         break;
     }
 
@@ -760,6 +795,33 @@ void ClosureOperationalState::Instance::InvokeDerivedClusterCommand(chip::app::C
         break;
     default:
         ChipLogProgress(Zcl, "ClosureOperationalState: WARNING CommandId=0x%02X Invoke is not handled !", commandId);
+const char * ClosureOperationalState::Instance::GetDerivedClusterOperationalStateString(const uint8_t & aState)
+{
+    switch (aState)
+    {
+    case to_underlying(ClosureOperationalState::OperationalStateEnum::kCalibrating): {
+        return "Calibrating";
+    }
+
+    case to_underlying(ClosureOperationalState::OperationalStateEnum::kDisengaded): {
+        return "Disengaded";
+    }
+
+    case to_underlying(ClosureOperationalState::OperationalStateEnum::kPendingFallback): {
+        return "PendingFallback";
+    }
+
+    case to_underlying(ClosureOperationalState::OperationalStateEnum::kProtected): {
+        return "Protected";
+    }
+
+    case to_underlying(ClosureOperationalState::OperationalStateEnum::kSetupRequired): {
+        return "SetupRequired";
+    }
+
+    default: {
+        return "Unknown";
+    }
     }
 }
 
