@@ -100,6 +100,9 @@ public:
     const char * GetOperationalStateString(const uint8_t & aState);
     virtual const char * GetDerivedClusterOperationalStateString(const uint8_t & aState) { return nullptr; };
 
+    void LogFeatureMap(const uint32_t & featureMap);
+    virtual void LogDerivedClusterFeatureMap(const uint32_t & featureMap) { ChipLogDetail(Zcl, "OperationalState::FeatureMap=0x%08X", featureMap); };
+
     // Attribute getters
     /**
      * Get current phase.
@@ -235,8 +238,6 @@ protected:
      * @return appropriately mapped CHIP_ERROR if applicable (may return CHIP_IM_GLOBAL_STATUS errors)
      */
     virtual CHIP_ERROR ReadDerivedClusterAttribute(const ConcreteReadAttributePath & aPath, AttributeValueEncoder & aEncoder) { return CHIP_NO_ERROR; };
-
-    virtual void ChipLogFeatureMap(const uint32_t & featureMap) { ChipLogDetail(Zcl, "OperationalState::FeatureMap=0x%08X", featureMap); };
 
     /**
      * Causes reporting/udpating of CountdownTime attribute from driver if sufficient changes have
@@ -505,6 +506,9 @@ public:
 
 namespace ClosureOperationalState {
 
+const uint16_t kMaxDurationS = 64800;
+
+using Status = Protocols::InteractionModel::Status;
 
 // Commands in state verification
 bool IsConfigureFallbackInvalidInState(const uint8_t & aOpState);
@@ -522,6 +526,10 @@ Status VerifyFieldTriggerCondition(const chip::Optional<TriggerConditionEnum> & 
 Status VerifyFieldTriggerPosition(const chip::Optional<TriggerPositionEnum> & item);
 Status VerifyFieldRestingProcedure(const chip::Optional<RestingProcedureEnum>  & item);
 Status VerifyFieldWaitingDelay(const chip::Optional<chip::DurationS> & item);
+
+
+const char * GetFeatureMapString(Feature aFeature);
+void LogIsFeatureSupported(const uint32_t & featureMap, Feature aFeature);
 
 class Delegate : public OperationalState::Delegate
 {
@@ -656,7 +664,11 @@ protected:
      */
     CHIP_ERROR ReadDerivedClusterAttribute(const ConcreteReadAttributePath & aPath, AttributeValueEncoder & aEncoder) override;
 
-    void ChipLogFeatureMap(const uint32_t & featureMap) override;
+    /**
+     * Log the feature map of the derived cluster.
+     * @param featureMap The feature map to log.
+     */
+    void LogDerivedClusterFeatureMap(const uint32_t & featureMap) override;
 
 private:
     Delegate * mDelegate;

@@ -473,7 +473,7 @@ CHIP_ERROR Instance::Read(const ConcreteReadAttributePath & aPath, AttributeValu
 
     case OperationalState::Attributes::FeatureMap::Id: {
         uint32_t feature = 0xAA00; // TODO featureMap handling
-        ChipLogFeatureMap(feature);
+        LogFeatureMap(feature);
         ReturnErrorOnFailure(aEncoder.Encode(feature));
         break;
     }
@@ -559,6 +559,11 @@ CHIP_ERROR Instance::Read(const ConcreteReadAttributePath & aPath, AttributeValu
     }
     }
     return CHIP_NO_ERROR;
+}
+
+void Instance::LogFeatureMap(const uint32_t & featureMap)
+{
+    LogDerivedClusterFeatureMap(featureMap);
 }
 
 void Instance::HandlePauseState(HandlerContext & ctx, const Commands::Pause::DecodableType & req)
@@ -795,6 +800,61 @@ void ClosureOperationalState::Instance::InvokeDerivedClusterCommand(chip::app::C
         break;
     default:
         ChipLogProgress(Zcl, "ClosureOperationalState: WARNING CommandId=0x%02X Invoke is not handled !", commandId);
+
+void ClosureOperationalState::Instance::LogDerivedClusterFeatureMap(const uint32_t & featureMap)
+{
+    using Feature = ClosureOperationalState::Feature;
+    const chip::BitMask<Feature> value = featureMap;
+
+    ChipLogDetail(NotSpecified, "ClosureOperationalState::FeatureMap=0x%08X (%u)", value.Raw(), value.Raw());
+
+    LogIsFeatureSupported(featureMap, Feature::kPositioning);
+    LogIsFeatureSupported(featureMap, Feature::kLatching);
+    LogIsFeatureSupported(featureMap, Feature::kIntermediatePositioning);
+    LogIsFeatureSupported(featureMap, Feature::kSpeed);
+    LogIsFeatureSupported(featureMap, Feature::kVentilation);
+    LogIsFeatureSupported(featureMap, Feature::kPedestrian);
+    LogIsFeatureSupported(featureMap, Feature::kCalibration);
+    LogIsFeatureSupported(featureMap, Feature::kProtection);
+    LogIsFeatureSupported(featureMap, Feature::kManuallyOperable);
+    LogIsFeatureSupported(featureMap, Feature::kFallback);
+}
+
+inline void ClosureOperationalState::LogIsFeatureSupported(const uint32_t & featureMap, Feature aFeature)
+{
+    const chip::BitMask<Feature> value = featureMap;
+    ChipLogDetail(NotSpecified, " %-20s [%s]", GetFeatureMapString(aFeature), IsYN(value.Has(aFeature)));
+}
+
+const char * ClosureOperationalState::GetFeatureMapString(Feature aFeature)
+{
+    switch (aFeature)
+    {
+    case Feature::kPositioning:
+        return "Positioning";
+    case Feature::kLatching:
+        return "Latching";
+    case Feature::kIntermediatePositioning:
+        return "IntermediatePos";
+    case Feature::kSpeed:
+        return "Speed";
+    case Feature::kVentilation:
+        return "Ventilation";
+    case Feature::kPedestrian:
+        return "Pedestrian";
+    case Feature::kCalibration:
+        return "Calibration";
+    case Feature::kProtection:
+        return "Protection";
+    case Feature::kManuallyOperable:
+        return "ManuallyOperable";
+    case Feature::kFallback:
+        return "Fallback";
+    default:
+        return "Unknown";
+    }
+}
+
 const char * ClosureOperationalState::Instance::GetDerivedClusterOperationalStateString(const uint8_t & aState)
 {
     switch (aState)
