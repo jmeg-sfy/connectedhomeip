@@ -564,6 +564,16 @@ public:
      * Handle Command Callback in application: MoveTo
      * @param[out] err operational error after callback.
      */
+    virtual bool IsReadyToRunCallback(void)
+    {
+        ChipLogDetail(Zcl, "ClosureOperationalState:Delegate IsReadyToRunCallback dummy");
+        return true;
+    };
+
+    /**
+     * Handle Command Callback in application: MoveTo
+     * @param[out] err operational error after callback.
+     */
     virtual void HandleMoveToCommandCallback(OperationalState::GenericOperationalError & err)
     {
         ChipLogDetail(Zcl, "ClosureOperationalState:Delegate HandleMoveToCommandCallback dummy");
@@ -627,18 +637,18 @@ public:
     Instance(Delegate * aDelegate, EndpointId aEndpointId) :
         OperationalState::Instance(aDelegate, aEndpointId, Id), mDelegate(aDelegate)
     {
-        mOverallState.SetField(OverallStateBitmap::kPosition, static_cast<uint8_t>(OverallPositioningEnum::kFullyClosed));
-        mOverallState.SetField(OverallStateBitmap::kLatching, static_cast<uint8_t>(OverallLatchingEnum::kLatchedAndSecured));
+        mOverallState.positioning.SetValue(PositioningEnum::kPartiallyOpened);
         mWaitingDelay = 20;
     }
 
     ~Instance() override;
 
+    CHIP_ERROR UpdateActionState(void);
     /**
      * Get the current operational state.
      * @return The current operational state value.
      */
-    uint8_t GetCurrentOverallState() const;
+    Structs::OverallStateStruct::Type GetCurrentOverallState() const;
     chip::DurationS GetCurrentWaitingDelay() const;
 
     const char * GetDerivedClusterOperationalStateString(const uint8_t & aState) override;
@@ -692,7 +702,7 @@ private:
     Delegate * mDelegate;
 
     // Attribute Data Store
-    chip::BitMask<OverallStateBitmap> mOverallState;
+    Structs::OverallStateStruct::Type mOverallState;
     chip::DurationS mWaitingDelay;
 
     // app::DataModel::Nullable<uint8_t> mCurrentPhase;

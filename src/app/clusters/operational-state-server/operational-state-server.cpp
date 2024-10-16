@@ -737,9 +737,27 @@ ClosureOperationalState::Instance::~Instance()
     ChipLogDetail(Zcl, "ClosureOperationalStateServer Instance.Destructor()");
 }
 
-uint8_t ClosureOperationalState::Instance::GetCurrentOverallState() const
+CHIP_ERROR ClosureOperationalState::Instance::UpdateActionState(void)
 {
-    return mOverallState.Raw();
+    if (mDelegate->IsReadyToRunCallback())
+    {
+        SetOperationalState(to_underlying(OperationalState::OperationalStateEnum::kRunning));
+    }
+    else
+    {
+        SetOperationalState(to_underlying(OperationalState::OperationalStateEnum::kPaused));
+    }
+    return CHIP_NO_ERROR;
+}
+
+ClosureOperationalState::Structs::OverallStateStruct::Type ClosureOperationalState::Instance::GetCurrentOverallState() const
+{
+    return mOverallState;
+}
+
+chip::DurationS ClosureOperationalState::Instance::GetCurrentWaitingDelay() const
+{
+    return mWaitingDelay;
 }
 
 bool ClosureOperationalState::Instance::IsDerivedClusterStatePauseCompatible(uint8_t aState)
@@ -753,25 +771,7 @@ bool ClosureOperationalState::Instance::IsDerivedClusterStateResumeCompatible(ui
             aState == to_underlying(ClosureOperationalState::OperationalStateEnum::kSetupRequired));
 }
 
-void ClosureOperationalState::Instance::HandleStopState(HandlerContext & ctx, const OperationalState::Commands::Stop::DecodableType & req)
-{
-    ChipLogDetail(Zcl, "ClosureOperationalState: HandleStopState");
 
-    GenericOperationalError err(to_underlying(OperationalState::ErrorStateEnum::kNoError));
-    uint8_t opState = GetCurrentOperationalState();
-
-    if (opState != to_underlying(OperationalState::OperationalStateEnum::kStopped))
-    {
-        mDelegate->HandleStopStateCallback(err);
-    }
-    else
-    {
-        ChipLogDetail(Zcl, "ClosureOperationalState: HandleStopState ALREADY Stopped");
-    }
-
-    /* NOTE: Compare to the Base::Stop Method -> ClosureOperationalState::Stop Method doesn't answer with a InvokeResponse but with a regular Status */
-    ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::InvalidInState);
-}
 
 // This function is called by the base operational state cluster when a command in the derived cluster number-space is received.
 void ClosureOperationalState::Instance::InvokeDerivedClusterCommand(chip::app::CommandHandlerInterface::HandlerContext & handlerContext)
@@ -920,10 +920,7 @@ CHIP_ERROR ClosureOperationalState::Instance::ReadDerivedClusterAttribute(const 
     switch (aPath.mAttributeId)
     {
     case ClosureOperationalState::Attributes::OverallState::Id: {
-        ChipLogDetail(Zcl, "ClosureOperationalState: Reading OverallState 0x%02X, Positioning 0x%02X, Latching 0x%02X",
-            mOverallState.Raw(),
-            mOverallState.GetField(OverallStateBitmap::kPosition),
-            mOverallState.GetField(OverallStateBitmap::kLatching));
+        LogOverallStateStruct(GetCurrentOverallState());
         ReturnErrorOnFailure(aEncoder.Encode(GetCurrentOverallState()));
         break;
     }
@@ -1182,10 +1179,61 @@ bool ClosureOperationalState::IsConfigureFallbackInvalidInState(const uint8_t & 
     return true;
 }
 
+void ClosureOperationalState::Instance::HandleStopState(HandlerContext & ctx, const OperationalState::Commands::Stop::DecodableType & req)
+{
+    ChipLogDetail(Zcl, "ClosureOperationalState: HandleStopState");
+
+    GenericOperationalError err(to_underlying(OperationalState::ErrorStateEnum::kNoError));
+
+    /* NOTE: Compare to the Base::Stop Method -> ClosureOperationalState::Stop Method doesn't answer with a InvokeResponse but with a regular Status */
+    // Handle the case of the device being in an invalid state
+    if (IsStopInvalidInState(GetCurrentOperationalState()))
+    {
+        err.Set(to_underlying(OperationalState::ErrorStateEnum::kCommandInvalidInState));
+        ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::InvalidInState);
+        return;
+    }
+
+    // Command is Sane for delegation
+    mDelegate->HandleStopStateCallback(err);
+    if (err.errorStateID == to_underlying(OperationalState::ErrorStateEnum::kNoError))
+    {
+        ChipLogDetail(Zcl, "OnStop");
+    }
+
+    ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::Success);
+}
+
+void ClosureOperationalState::Instance::HandleCalibrateCommand(HandlerContext & ctx, const Commands::Calibrate::DecodableType & req)
+{
+    ChipLogDetail(Zcl, "ClosureOperationalState: HandleCalibrateCommand");
+
+    GenericOperationalError err(to_underlying(OperationalState::ErrorStateEnum::kNoError));
+
+    // Handle the case of the device being in an invalid state
+    if (IsCalibrateInvalidInState(GetCurrentOperationalState()))
+    {
+        err.Set(to_underlying(OperationalState::ErrorStateEnum::kCommandInvalidInState));
+        ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::InvalidInState);
+        return;
+    }
+
+    const chip::BitMask<Feature> fakeFeature = 0x12AB34EF;
+    // Feature is Enable use the Delegate Callback to update the front-attributes
+    if (fakeFeature.Has(Feature::kCalibration))
+    {
+        // Command is Sane for delegation
+        mDelegate->HandleCalibrateCommandCallback(err);
+        if (err.errorStateID == to_underlying(OperationalState::ErrorStateEnum::kNoError))
+        {
+            ChipLogDetail(Zcl, "NEED TO IMPLEMENT attribute update");
+        }
     }
     else
     {
+        LogIsFeatureSupported(fakeFeature.Raw(), Feature::kCalibration);
     }
+    ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::Success);
 }
 
 void ClosureOperationalState::Instance::HandleMoveToCommand(HandlerContext & ctx, const Commands::MoveTo::DecodableType & req)
@@ -1193,34 +1241,53 @@ void ClosureOperationalState::Instance::HandleMoveToCommand(HandlerContext & ctx
     ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand");
 
     GenericOperationalError err(to_underlying(OperationalState::ErrorStateEnum::kNoError));
-    uint8_t opState = GetCurrentOperationalState();
 
-    //auto & tag   = req.tag;
-    // auto & latch = req.latch;
-    // auto & speed = req.speed;
+    ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand Fields:");
+    LogMoveToRequest(req);
 
-    ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand Arg:");
-    ChipLogOptionalValue(req.tag  , "    -", "Tag");
-    ChipLogOptionalValue(req.latch, "    -", "Latch");
-    ChipLogOptionalValue(req.speed, "    -", "Speed");
+    Status status;
+    if ((status = VerifyFieldTag(req.tag, 0x0000)) != Status::Success)
+    {
+        ctx.mCommandHandler.AddStatus(ctx.mRequestPath, status);
+        return;
+    }
+
+    if ((status = VerifyFieldLatch(req.latch)) != Status::Success)
+    {
+        ctx.mCommandHandler.AddStatus(ctx.mRequestPath, status);
+        return;
+    }
+
+    if ((status = VerifyFieldSpeed(req.speed)) != Status::Success)
+    {
+        ctx.mCommandHandler.AddStatus(ctx.mRequestPath, status);
+        return;
+    }
+
+    // At least one field SHALL be available
+    if (!(req.tag.HasValue() || req.latch.HasValue() || req.speed.HasValue()))
+    {
+        ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::InvalidCommand);
+        return;
+    }
 
     // Handle the case of the device being in an invalid state
-    if (opState == to_underlying(OperationalStateEnum::kCalibrating) || opState == to_underlying(OperationalStateEnum::kDisengaded))
+    if (IsMoveToInvalidInState(GetCurrentOperationalState()))
     {
         err.Set(to_underlying(OperationalState::ErrorStateEnum::kCommandInvalidInState));
+        ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::InvalidInState);
+        return;
     }
 
-    if (err.errorStateID == 0 && opState != to_underlying(OperationalStateEnum::kProtected))
+    // Command is Sane for delegation
+    mDelegate->HandleMoveToCommandCallback(err);
+    if (err.errorStateID == to_underlying(OperationalState::ErrorStateEnum::kNoError))
     {
-        mDelegate->HandleMoveToCommandCallback(err);
+        ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::Success);
+    } else {
+        ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand Error NO ANSWER %u", err.errorStateID);
+        ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::Success);
     }
-
-    //Commands::OperationalCommandResponse::Type response;
-    //response.commandResponseState = err;
-
-    //ctx.mCommandHandler.AddResponse(ctx.mRequestPath, response);
-
-    ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::InvalidInState);
 }
 
 void ClosureOperationalState::Instance::HandleConfigureFallbackCommand(HandlerContext & ctx, const Commands::ConfigureFallback::DecodableType & req)
@@ -1228,25 +1295,64 @@ void ClosureOperationalState::Instance::HandleConfigureFallbackCommand(HandlerCo
     ChipLogDetail(Zcl, "ClosureOperationalState: HandleConfigureFallbackCommand");
 
     GenericOperationalError err(to_underlying(OperationalState::ErrorStateEnum::kNoError));
-    uint8_t opState = GetCurrentOperationalState();
 
-    ChipLogDetail(Zcl, "ClosureOperationalState: HandleConfigureFallbackCommand Arg:");
-    ChipLogOptionalValue(req.restingProcedure, "    -", "RestingProcedure");
-    ChipLogOptionalValue(req.triggerPosition , "    -", "TriggerPosition");
-    ChipLogOptionalValue(req.triggerCondition, "    -", "TriggerCondition");
-    ChipLogOptionalValue(req.waitingDelay    , "    -", "WaitingDelay");
+    ChipLogDetail(Zcl, "ClosureOperationalState: HandleConfigureFallbackCommand Fields:");
+    LogConfigureFallbackRequest(req);
+
+    Status status;
+    if ((status = VerifyFieldRestingProcedure(req.restingProcedure)) != Status::Success)
+    {
+        ctx.mCommandHandler.AddStatus(ctx.mRequestPath, status);
+        return;
+    }
+
+    if ((status = VerifyFieldTriggerPosition(req.triggerPosition)) != Status::Success)
+    {
+        ctx.mCommandHandler.AddStatus(ctx.mRequestPath, status);
+        return;
+    }
+
+    if ((status = VerifyFieldTriggerCondition(req.triggerCondition)) != Status::Success)
+    {
+        ctx.mCommandHandler.AddStatus(ctx.mRequestPath, status);
+        return;
+    }
+
+    if ((status = VerifyFieldWaitingDelay(req.waitingDelay)) != Status::Success)
+    {
+        ctx.mCommandHandler.AddStatus(ctx.mRequestPath, status);
+        return;
+    }
+
+    // At least one field SHALL be available
+    if (!(req.restingProcedure.HasValue() || req.triggerPosition.HasValue() || req.triggerCondition.HasValue() || req.waitingDelay.HasValue()))
+    {
+        ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::InvalidCommand);
+        return;
+    }
 
     // Handle the case of the device being in an invalid state
-    if (opState == to_underlying(OperationalStateEnum::kCalibrating) || opState == to_underlying(OperationalStateEnum::kDisengaded))
+    if (IsConfigureFallbackInvalidInState(GetCurrentOperationalState()))
     {
         err.Set(to_underlying(OperationalState::ErrorStateEnum::kCommandInvalidInState));
+        ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::InvalidInState);
+        return;
     }
 
-    if (err.errorStateID == 0 && opState != to_underlying(OperationalStateEnum::kProtected))
+    const chip::BitMask<Feature> value = 0x12AB34EF;
+    // Feature is Enable use the Delegate Callback to update the front-attributes
+    if (value.Has(Feature::kFallback))
     {
+        // Command is Sane for delegation
         mDelegate->HandleConfigureFallbackCommandCallback(err);
+        if (err.errorStateID == to_underlying(OperationalState::ErrorStateEnum::kNoError))
+        {
+            ChipLogDetail(Zcl, "NEED TO IMPLEMENT attribute update");
+        }
     }
-    // TODO
-    mDelegate->HandleConfigureFallbackCommandCallback(err);
-    ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::Failure);
+    else
+    {
+        ChipLogDetail(NotSpecified, "Fallback feature " CL_YELLOW "NOT SUPPORTED " CL_CLEAR " ConfigureFallback ignored");
+    }
+    ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::Success);
 }
