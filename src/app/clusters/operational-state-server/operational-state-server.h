@@ -508,6 +508,13 @@ bool IsMoveToInvalidInState(const uint8_t & aOpState);
 bool IsCalibrateInvalidInState(const uint8_t & aOpState);
 bool IsStopInvalidInState(const uint8_t & aOpState);
 
+
+// ConfigureFallback Command fields verification
+Status VerifyFieldTriggerCondition(const chip::Optional<TriggerConditionEnum> & item);
+Status VerifyFieldTriggerPosition(const chip::Optional<TriggerPositionEnum> & item);
+Status VerifyFieldRestingProcedure(const chip::Optional<RestingProcedureEnum>  & item);
+Status VerifyFieldWaitingDelay(const chip::Optional<chip::DurationS> & item);
+
 class Delegate : public OperationalState::Delegate
 {
 public:

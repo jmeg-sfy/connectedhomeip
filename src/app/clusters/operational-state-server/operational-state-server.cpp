@@ -860,14 +860,56 @@ void ClosureOperationalState::Instance::HandleCalibrateCommand(HandlerContext & 
     //response.commandResponseState = err;
 
     //ctx.mCommandHandler.AddResponse(ctx.mRequestPath, response);
+Status ClosureOperationalState::VerifyFieldRestingProcedure(const chip::Optional<RestingProcedureEnum>  & item)
+{
+    Status status;
 
     ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::InvalidInState);
+    if ((status = VerifyOptionalEnumRange(item, "RestingProcedure")) != Status::Success)
+    {
+        return status;
+    }
+
+    return Status::Success;
 }
 
+Status ClosureOperationalState::VerifyFieldTriggerPosition(const chip::Optional<TriggerPositionEnum> & item)
+{
+    Status status;
 
+    if ((status = VerifyOptionalEnumRange(item, "TriggerPosition")) != Status::Success)
+    {
+        return status;
+    }
+
+    return Status::Success;
+}
+
+Status ClosureOperationalState::VerifyFieldTriggerCondition(const chip::Optional<TriggerConditionEnum> & item)
+{
+    Status status;
+
+    if ((status = VerifyOptionalEnumRange(item, "TriggerCondition")) != Status::Success)
+    {
+        return status;
+    }
+
+    return Status::Success;
+}
+
+Status ClosureOperationalState::VerifyFieldWaitingDelay(const chip::Optional<chip::DurationS> & item)
 {
     if (item.HasValue())
     {
+        if (item.Value() > kMaxDurationS)
+        {
+            ChipLogDetail(NotSpecified, "WaitingDelay " CL_RED "> %u" CL_CLEAR, kMaxDurationS);
+            return Status::ConstraintError;
+        }
+    }
+
+    return Status::Success;
+}
 
 bool ClosureOperationalState::IsStopInvalidInState(const uint8_t & aOpState)
 {
