@@ -868,6 +868,79 @@ void ClosureOperationalState::Instance::HandleCalibrateCommand(HandlerContext & 
 {
     if (item.HasValue())
     {
+
+bool ClosureOperationalState::IsStopInvalidInState(const uint8_t & aOpState)
+{
+    switch (aOpState)
+    {
+        case to_underlying(chip::app::Clusters::OperationalState::OperationalStateEnum::kStopped):
+        case to_underlying(chip::app::Clusters::OperationalState::OperationalStateEnum::kPaused):
+        case to_underlying(chip::app::Clusters::OperationalState::OperationalStateEnum::kRunning):
+        case to_underlying(chip::app::Clusters::OperationalState::OperationalStateEnum::kError):
+        case to_underlying(OperationalStateEnum::kCalibrating):
+        case to_underlying(OperationalStateEnum::kPendingFallback):
+        return false;
+        break;
+    default:
+        break;
+    }
+
+    return true;
+}
+
+bool ClosureOperationalState::IsCalibrateInvalidInState(const uint8_t & aOpState)
+{
+    switch (aOpState)
+    {
+        case to_underlying(chip::app::Clusters::OperationalState::OperationalStateEnum::kStopped):
+        case to_underlying(OperationalStateEnum::kCalibrating):
+        return false;
+        break;
+    default:
+        break;
+    }
+
+    return true;
+}
+
+bool ClosureOperationalState::IsMoveToInvalidInState(const uint8_t & aOpState)
+{
+    switch (aOpState)
+    {
+        case to_underlying(chip::app::Clusters::OperationalState::OperationalStateEnum::kStopped):
+        case to_underlying(chip::app::Clusters::OperationalState::OperationalStateEnum::kRunning):
+        case to_underlying(chip::app::Clusters::OperationalState::OperationalStateEnum::kPaused):
+        case to_underlying(chip::app::Clusters::OperationalState::OperationalStateEnum::kError):
+        case to_underlying(OperationalStateEnum::kPendingFallback):
+        return false;
+        break;
+    default:
+        break;
+    }
+
+    return true;
+}
+
+bool ClosureOperationalState::IsConfigureFallbackInvalidInState(const uint8_t & aOpState)
+{
+    switch (aOpState)
+    {
+        case to_underlying(chip::app::Clusters::OperationalState::OperationalStateEnum::kStopped):
+        case to_underlying(chip::app::Clusters::OperationalState::OperationalStateEnum::kRunning):
+        case to_underlying(chip::app::Clusters::OperationalState::OperationalStateEnum::kPaused):
+        case to_underlying(chip::app::Clusters::OperationalState::OperationalStateEnum::kError):
+        case to_underlying(OperationalStateEnum::kCalibrating):
+        case to_underlying(OperationalStateEnum::kProtected):
+        case to_underlying(OperationalStateEnum::kDisengaded):
+        return false;
+        break;
+    default:
+        break;
+    }
+
+    return true;
+}
+
     }
     else
     {

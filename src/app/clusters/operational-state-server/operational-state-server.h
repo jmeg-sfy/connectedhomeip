@@ -501,6 +501,13 @@ public:
 
 namespace ClosureOperationalState {
 
+
+// Commands in state verification
+bool IsConfigureFallbackInvalidInState(const uint8_t & aOpState);
+bool IsMoveToInvalidInState(const uint8_t & aOpState);
+bool IsCalibrateInvalidInState(const uint8_t & aOpState);
+bool IsStopInvalidInState(const uint8_t & aOpState);
+
 class Delegate : public OperationalState::Delegate
 {
 public:
