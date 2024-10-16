@@ -42,9 +42,9 @@ using Status = Protocols::InteractionModel::Status;
 
 /* ANSI Colored escape code */
 #define CL_CLEAR  "\x1b[0m"
-#define CL_RED    "\x1b[2;37;41m"
-#define CL_GREEN  "\x1b[2;37;42m"
-#define CL_YELLOW "\x1b[2;37;43m"
+#define CL_RED    "\u001b[31m"
+#define CL_GREEN  "\u001b[32m"
+#define CL_YELLOW "\u001b[33m"
 
 static constexpr char strLogY[] = CL_GREEN "Y" CL_CLEAR;
 static constexpr char strLogN[] = CL_RED "N" CL_CLEAR;
