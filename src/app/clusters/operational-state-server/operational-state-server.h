@@ -538,6 +538,19 @@ class Delegate : public OperationalState::Delegate
 {
 public:
     /**
+     * Get the KickoffTimer time. This will get called on many edges such as
+     * commands to change operational state, or when the delegate deals with
+     * changes.
+     *
+     * @return The current kickoff timer value.
+     */
+    virtual DurationS GetKickoffTimer()
+    {
+        ChipLogDetail(Zcl, "ClosureOperationalState:Delegate GetKickoffTimer dummy");
+        return 0;
+    };
+
+    /**
      * Handle Command Callback in application: Calibrate
      * @param[out] err operational error after callback.
      */
@@ -616,6 +629,7 @@ public:
     {
         mOverallState.SetField(OverallStateBitmap::kPosition, static_cast<uint8_t>(OverallPositioningEnum::kFullyClosed));
         mOverallState.SetField(OverallStateBitmap::kLatching, static_cast<uint8_t>(OverallLatchingEnum::kLatchedAndSecured));
+        mWaitingDelay = 20;
     }
 
     ~Instance() override;
@@ -625,6 +639,7 @@ public:
      * @return The current operational state value.
      */
     uint8_t GetCurrentOverallState() const;
+    chip::DurationS GetCurrentWaitingDelay() const;
 
     const char * GetDerivedClusterOperationalStateString(const uint8_t & aState) override;
 
@@ -678,6 +693,8 @@ private:
 
     // Attribute Data Store
     chip::BitMask<OverallStateBitmap> mOverallState;
+    chip::DurationS mWaitingDelay;
+
     // app::DataModel::Nullable<uint8_t> mCurrentPhase;
     // uint8_t mOperationalState                 = 0; // assume 0 for now.
     // GenericOperationalError mOperationalError = to_underlying(ErrorStateEnum::kNoError);

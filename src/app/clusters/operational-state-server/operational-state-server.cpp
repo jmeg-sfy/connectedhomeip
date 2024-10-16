@@ -950,14 +950,23 @@ CHIP_ERROR ClosureOperationalState::Instance::ReadDerivedClusterAttribute(const 
     case ClosureOperationalState::Attributes::WaitingDelay::Id: {
         ChipLogDetail(Zcl, "ClosureOperationalState: Reading WaitingDelay");
         // Read through to get value closest to reality.
-        ReturnErrorOnFailure(aEncoder.Encode(mDelegate->GetCountdownTime()));
+        const chip::BitMask<Feature> value = 0;
+        // Feature is Enable use the Delegate Callback to update the front-attributes
+        if (value.Has(Feature::kFallback))
+        {
+            ReturnErrorOnFailure(aEncoder.Encode(GetCurrentWaitingDelay()));
+        }
+        else
+        {
+            return CHIP_IM_GLOBAL_STATUS(UnsupportedAttribute);
+        }
         break;
     }
 
     case ClosureOperationalState::Attributes::KickoffTimer::Id: {
         ChipLogDetail(Zcl, "ClosureOperationalState: Reading KickoffTimer");
         // Read through to get value closest to reality.
-        ReturnErrorOnFailure(aEncoder.Encode(mDelegate->GetCountdownTime()));
+        ReturnErrorOnFailure(aEncoder.Encode(mDelegate->GetKickoffTimer()));
         break;
     }
 
