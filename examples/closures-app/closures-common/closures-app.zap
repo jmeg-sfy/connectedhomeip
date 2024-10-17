@@ -2659,8 +2659,16 @@
               "isEnabled": 1
             },
             {
+              "name": "OperationalCommandResponse",
+              "code": 4,
+              "mfgCode": null,
+              "source": "server",
+              "isIncoming": 0,
+              "isEnabled": 0
+            },
+            {
               "name": "MoveTo",
-              "code": 64,
+              "code": 128,
               "mfgCode": null,
               "source": "client",
               "isIncoming": 1,
@@ -2668,7 +2676,7 @@
             },
             {
               "name": "Calibrate",
-              "code": 65,
+              "code": 129,
               "mfgCode": null,
               "source": "client",
               "isIncoming": 1,
@@ -2676,18 +2684,10 @@
             },
             {
               "name": "ConfigureFallback",
-              "code": 66,
+              "code": 130,
               "mfgCode": null,
               "source": "client",
               "isIncoming": 1,
-              "isEnabled": 1
-            },
-            {
-              "name": "OperationalCommandResponse",
-              "code": 4,
-              "mfgCode": null,
-              "source": "server",
-              "isIncoming": 0,
               "isEnabled": 1
             }
           ],
@@ -2774,7 +2774,7 @@
             },
             {
               "name": "OverallState",
-              "code": 16384,
+              "code": 128,
               "mfgCode": null,
               "side": "server",
               "type": "bitmap8",
@@ -2790,7 +2790,7 @@
             },
             {
               "name": "RestingProcedure",
-              "code": 16385,
+              "code": 129,
               "mfgCode": null,
               "side": "server",
               "type": "enum8",
@@ -2806,7 +2806,7 @@
             },
             {
               "name": "TriggerPosition",
-              "code": 16386,
+              "code": 130,
               "mfgCode": null,
               "side": "server",
               "type": "enum8",
@@ -2822,7 +2822,7 @@
             },
             {
               "name": "TriggerCondition",
-              "code": 16387,
+              "code": 131,
               "mfgCode": null,
               "side": "server",
               "type": "enum8",
@@ -2838,7 +2838,7 @@
             },
             {
               "name": "WaitingDelay",
-              "code": 16388,
+              "code": 132,
               "mfgCode": null,
               "side": "server",
               "type": "duration_s",
@@ -2854,7 +2854,7 @@
             },
             {
               "name": "KickoffTimer",
-              "code": 16389,
+              "code": 133,
               "mfgCode": null,
               "side": "server",
               "type": "duration_s",
@@ -2939,10 +2939,10 @@
               "side": "server",
               "type": "bitmap32",
               "included": 1,
-              "storageOption": "RAM",
+              "storageOption": "External",
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "0",
+              "defaultValue": null,
               "reportable": 1,
               "minInterval": 1,
               "maxInterval": 65534,
@@ -2958,7 +2958,7 @@
               "storageOption": "RAM",
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "1",
+              "defaultValue": "45",
               "reportable": 1,
               "minInterval": 1,
               "maxInterval": 65534,
