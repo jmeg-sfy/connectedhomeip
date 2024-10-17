@@ -73,6 +73,11 @@ void ClosuresDevice::HandleOpStateStopCallback(Clusters::OperationalState::Gener
 
 void ClosuresDevice::HandleOpStateMoveToCallback(Clusters::OperationalState::GenericOperationalError & err)
 {
+
+void ClosuresDevice::HandleMoveToMessage(const std::string & arg)
+{
+    ChipLogDetail(NotSpecified, "Closures Device: message MoveTo arg: %s", arg.c_str());
+
 }
 
 void ClosuresDevice::HandleCalibrationEndedMessage()

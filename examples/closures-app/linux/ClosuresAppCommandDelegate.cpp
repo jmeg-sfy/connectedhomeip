@@ -77,6 +77,11 @@ void ClosuresAppCommandHandler::HandleCommand(intptr_t context)
     {
         self->OnCalibrationEndedHandler();
     }
+    else if (name == "MoveTo")
+    {
+        std::string tag = self->mJsonValue["Tag"].asString();
+        self->OnMoveToHandler(tag);
+    }
     else if (name == "Engaged")
     {
         self->OnEngagedHandler();
@@ -132,6 +137,11 @@ void ClosuresAppCommandDelegate::SetClosuresDevice(chip::app::Clusters::Closures
 void ClosuresAppCommandHandler::OnCalibrationEndedHandler()
 {
     mClosuresDevice->HandleCalibrationEndedMessage();
+}
+
+void ClosuresAppCommandHandler::OnMoveToHandler(const std::string & arg)
+{
+    mClosuresDevice->HandleMoveToMessage(arg);
 }
 
 void ClosuresAppCommandHandler::OnEngagedHandler()

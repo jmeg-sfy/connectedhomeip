@@ -49,6 +49,8 @@ private:
      */
     void OnCalibrationEndedHandler();
 
+    void OnMoveToHandler(const std::string & arg);
+
     void OnEngagedHandler();
 
     void OnDisengagedHandler();

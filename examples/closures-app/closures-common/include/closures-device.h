@@ -98,6 +98,11 @@ public:
     void HandleCalibrationEndedMessage();
 
     /**
+     * Handles the MoveTo command.
+     */
+    void HandleMoveToMessage(const std::string & arg);
+
+    /**
      * Handles the Calibrate command.
      */
     void HandleCalibratingMessage();
