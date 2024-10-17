@@ -114,7 +114,8 @@ void emberAfClosureOperationalStateClusterInitCallback(chip::EndpointId endpoint
 
     gClosureOperationalStateDelegate        = new ClosureOperationalStateDelegate;
     EndpointId operationalStateEndpoint = 0x01;
-    gClosureOperationalStateInstance        = new ClosureOperationalState::Instance(gClosureOperationalStateDelegate, operationalStateEndpoint);
+    gClosureOperationalStateInstance        = new ClosureOperationalState::Instance(gClosureOperationalStateDelegate, operationalStateEndpoint,
+        BitMask<ClosureOperationalState::Feature>(ClosureOperationalState::Feature::kFallback));
 
     gClosureOperationalStateInstance->SetOperationalState(to_underlying(OperationalState::OperationalStateEnum::kStopped));
 
