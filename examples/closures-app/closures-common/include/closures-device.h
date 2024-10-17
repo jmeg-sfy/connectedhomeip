@@ -34,8 +34,16 @@ public:
      * the specific "business logic". See the state machine diagram.
      * @param aClosuresClustersEndpoint The endpoint ID where all the Closures clusters exist.
      */
+    using Feature = ClosureOperationalState::Feature;
     explicit ClosuresDevice(EndpointId aClosuresClustersEndpoint) :
-        mOperationalStateInstance(&mOperationalStateDelegate, aClosuresClustersEndpoint)
+        mOperationalStateInstance(&mOperationalStateDelegate, aClosuresClustersEndpoint,
+              BitMask<Feature>(
+                Feature::kPositioning,
+                Feature::kIntermediatePositioning,
+                Feature::kSpeed,
+                Feature::kVentilation,
+                Feature::kManuallyOperable,
+                Feature::kFallback))
     {
 
         SetDeviceToStoppedState();

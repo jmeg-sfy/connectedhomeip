@@ -28,17 +28,17 @@ limitations under the License.
       <!-- Check with Base Cluster the scope of Features offset for the Base vs Derived -->
       <!-- Base Cluster Features start @ bit #0 -->
       <!-- No Feature Declared -->
-      <!-- Derived Cluster Features start @ bit #8 -->
-      <feature bit="8"  code="PS" name="Positioning"             summary="Supports the Positioning feature."/>
-      <feature bit="9"  code="LT" name="Latching"                summary="Supports the Latching feature."/>
-      <feature bit="10" code="IP" name="IntermediatePositioning" summary="Supports the IntermediatePositioning feature."/>
-      <feature bit="11" code="SP" name="Speed"                   summary="Supports the Speed feature."/>
-      <feature bit="12" code="VT" name="Ventilation"             summary="Supports the Ventilation feature."/>
-      <feature bit="13" code="PD" name="Pedestrian"              summary="Supports the Pedestrian feature."/>
-      <feature bit="14" code="CL" name="Calibration"             summary="Supports the Calibration feature."/>
-      <feature bit="15" code="PT" name="Protection"              summary="Supports the Protection feature."/>
-      <feature bit="16" code="MO" name="ManuallyOperable"        summary="Supports the manual operation feature."/>
-      <feature bit="17" code="FB" name="Fallback"                summary="Supports the Fallback feature."/>
+      <!-- Derived Cluster Features start @ bit #20 -->
+      <feature bit="20" code="PS" name="Positioning"             summary="Supports the Positioning feature."/>
+      <feature bit="21" code="LT" name="Latching"                summary="Supports the Latching feature."/>
+      <feature bit="22" code="IP" name="IntermediatePositioning" summary="Supports the IntermediatePositioning feature."/>
+      <feature bit="23" code="SP" name="Speed"                   summary="Supports the Speed feature."/>
+      <feature bit="24" code="VT" name="Ventilation"             summary="Supports the Ventilation feature."/>
+      <feature bit="25" code="PD" name="Pedestrian"              summary="Supports the Pedestrian feature."/>
+      <feature bit="26" code="CL" name="Calibration"             summary="Supports the Calibration feature."/>
+      <feature bit="27" code="PT" name="Protection"              summary="Supports the Protection feature."/>
+      <feature bit="28" code="MO" name="ManuallyOperable"        summary="Supports the manual operation feature."/>
+      <feature bit="29" code="FB" name="Fallback"                summary="Supports the Fallback feature."/>
     </features>
 
     <!-- Base Cluster's Attributes -->
@@ -72,9 +72,10 @@ limitations under the License.
       <arg optional="true" name="TriggerCondition" type="TriggerConditionEnum"/>
       <arg optional="true" name="WaitingDelay"     type="duration_s"/>
     </command>
-    <command source="client" code="0x83" name="SetMultipleAttrs" optional="false"/>
-    <command source="client" code="0x84" name="GetMultipleAttrs" optional="false"/>
-    <command source="server" code="0x85" name="GetMultipleAttrsResponse" optional="false" disableDefaultResponse="true"/>
+    <command source="client" code="0x83" name="CancelFallback" optional="true"/>
+    <command source="client" code="0x84" name="SetMultipleAttrs" optional="false"/>
+    <command source="client" code="0x85" name="GetMultipleAttrs" optional="false"/>
+    <command source="server" code="0x86" name="GetMultipleAttrsResponse" optional="false" disableDefaultResponse="true"/>
   </cluster>
 
 </configurator>

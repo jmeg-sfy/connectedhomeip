@@ -195,6 +195,7 @@ protected:
      * @param aEndpointId The endpoint on which this cluster exists. This must match the zap configuration.
      * @param aClusterId The ID of the operational state derived cluster to be instantiated.
      */
+    Instance(Delegate * aDelegate, EndpointId aEndpointId, ClusterId aClusterId, uint32_t aFeature);
     Instance(Delegate * aDelegate, EndpointId aEndpointId, ClusterId aClusterId);
 
     /**
@@ -673,11 +674,38 @@ public:
      * @param aEndpointId The endpoint on which this cluster exists. This must match the zap configuration.
      */
     // TODO : Note Cluster ID is passed here
-    Instance(Delegate * aDelegate, EndpointId aEndpointId) :
-        OperationalState::Instance(aDelegate, aEndpointId, Id), mDelegate(aDelegate), mCurrentState(ClosureOperationalState::OperationalStateEnum::kCalibrating)
+    Instance(Delegate * aDelegate, EndpointId aEndpointId, BitMask<Feature> aFeatureBitMask) :
+        OperationalState::Instance(aDelegate, aEndpointId, Id, aFeatureBitMask.Raw()), mDelegate(aDelegate)
     {
-        mOverallState.positioning.SetValue(PositioningEnum::kPartiallyOpened);
-        mWaitingDelay = 20;
+        // Preset OverallState
+        if (HasFeature(to_underlying(Feature::kPositioning)))
+        {
+            mOverallState.positioning.SetValue(PositioningEnum::kPartiallyOpened);
+        }
+        else
+        {
+            mOverallState.positioning.ClearValue();
+        }
+
+        if (HasFeature(to_underlying(Feature::kLatching)))
+        {
+            mOverallState.latching.SetValue(LatchingEnum::kLatchedButNotSecured);
+        }
+        else
+        {
+            mOverallState.latching.ClearValue();
+        }
+
+        if (HasFeature(to_underlying(Feature::kSpeed)))
+        {
+            mOverallState.speed.SetValue(Globals::ThreeLevelAutoEnum::kAutomatic);
+        }
+        else
+        {
+            mOverallState.speed.ClearValue();
+        }
+        mWaitingDelay = kDefaultDurationS;
+        LogFeatureMap(GetFeatureMap());
     }
 
     void AddObserver(OperationalState::Observer* observer);

@@ -89,14 +89,30 @@ Instance::Instance(Delegate * aDelegate, EndpointId aEndpointId, ClusterId aClus
     CommandHandlerInterface(MakeOptional(aEndpointId), aClusterId), AttributeAccessInterface(MakeOptional(aEndpointId), aClusterId),
     mDelegate(aDelegate), mEndpointId(aEndpointId), mClusterId(aClusterId)
 {
-    ChipLogDetail(Zcl, "OperationalStateServer Instance.Constructor(): ID=0x%02lX EP=%u", long(mClusterId), mEndpointId);
+    ChipLogDetail(Zcl, "OperationalStateServer Instance.Constructor() w/o Features: ID=0x%02lX EP=%u", long(mClusterId), mEndpointId);
+    mFeatureMap = kNoFeatures;
+    LogFeatureMap(mFeatureMap);
+
     mDelegate->SetInstance(this);
     mCountdownTime.policy()
         .Set(QuieterReportingPolicyEnum::kMarkDirtyOnIncrement)
         .Set(QuieterReportingPolicyEnum::kMarkDirtyOnChangeToFromZero);
 }
 
-Instance::Instance(Delegate * aDelegate, EndpointId aEndpointId) : Instance(aDelegate, aEndpointId, OperationalState::Id) {}
+Instance::Instance(Delegate * aDelegate, EndpointId aEndpointId, ClusterId aClusterId, uint32_t aFeatureMap) :
+    CommandHandlerInterface(MakeOptional(aEndpointId), aClusterId), AttributeAccessInterface(MakeOptional(aEndpointId), aClusterId),
+    mDelegate(aDelegate), mEndpointId(aEndpointId), mClusterId(aClusterId), mFeatureMap(aFeatureMap)
+{
+    ChipLogDetail(Zcl, "OperationalStateServer Instance.Constructor() w Features: ID=0x%02lX EP=%u", long(mClusterId), mEndpointId);
+    LogFeatureMap(mFeatureMap);
+
+    mDelegate->SetInstance(this);
+    mCountdownTime.policy()
+        .Set(QuieterReportingPolicyEnum::kMarkDirtyOnIncrement)
+        .Set(QuieterReportingPolicyEnum::kMarkDirtyOnChangeToFromZero);
+}
+
+Instance::Instance(Delegate * aDelegate, EndpointId aEndpointId) : Instance(aDelegate, aEndpointId, OperationalState::Id, kAllFeatures) {}
 
 Instance::~Instance()
 {
