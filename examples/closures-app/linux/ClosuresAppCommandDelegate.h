@@ -59,9 +59,9 @@ private:
 
     void OnMovementCompleteHandler();
 
-    void GoRunningStimuli();
+    void MoveToStimuli();
 
-    void GoStoppedStimuli();
+    void StopStimuli();
 
     void OnDownCloseHandler();
 

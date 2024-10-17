@@ -61,13 +61,13 @@ void ClosuresAppCommandHandler::HandleCommand(intptr_t context)
 
     VerifyOrExit(!self->mJsonValue.empty(), ChipLogError(NotSpecified, "Invalid JSON event command received"));
 
-    if (name == "GoRunning")
+    if (name == "MoveTo")
     {
-        self->GoRunningStimuli();
+        self->MoveToStimuli();
     }
-    if (name == "GoStopped")
+    if (name == "Stop")
     {
-        self->GoStoppedStimuli();
+        self->StopStimuli();
     }
     if (name == "DownClose")
     {
@@ -154,14 +154,14 @@ void ClosuresAppCommandHandler::OnProtectionDroppedHandler()
     mClosuresDevice->HandleProtectionDroppedMessage();
 }
 
-void ClosuresAppCommandHandler::GoRunningStimuli()
+void ClosuresAppCommandHandler::MoveToStimuli()
 {
-    mClosuresDevice->HandleGoRunning();
+    mClosuresDevice->HandleMoveToStimuli();
 }
 
-void ClosuresAppCommandHandler::GoStoppedStimuli()
+void ClosuresAppCommandHandler::StopStimuli()
 {
-    mClosuresDevice->HandleGoStopped();
+    mClosuresDevice->HandleStopStimuli();
 }
 
 void ClosuresAppCommandHandler::OnDownCloseHandler()
