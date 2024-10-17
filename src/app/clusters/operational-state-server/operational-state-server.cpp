@@ -181,6 +181,22 @@ CHIP_ERROR Instance::SetOperationalState(uint8_t aOpState)
     return CHIP_NO_ERROR;
 }
 
+uint32_t Instance::GetFeatureMap() const
+{
+    return mFeatureMap;
+}
+
+bool Instance::HasFeature(uint32_t feature)
+{
+    const chip::BitMask<Feature> value = GetFeatureMap();
+    if (value.Has(static_cast<Feature>(feature)))
+    {
+        return true;
+    }
+
+    return HasFeatureDerivedCluster(feature);
+}
+
 DataModel::Nullable<uint8_t> Instance::GetCurrentPhase() const
 {
     return mCurrentPhase;
@@ -423,9 +439,8 @@ CHIP_ERROR Instance::Read(const ConcreteReadAttributePath & aPath, AttributeValu
     {
 
     case OperationalState::Attributes::FeatureMap::Id: {
-        uint32_t feature = 0xAA00; // TODO featureMap handling
-        LogFeatureMap(feature);
-        ReturnErrorOnFailure(aEncoder.Encode(feature));
+        LogFeatureMap(GetFeatureMap());
+        ReturnErrorOnFailure(aEncoder.Encode(GetFeatureMap()));
         break;
     }
 
@@ -887,6 +902,12 @@ const char * ClosureOperationalState::Instance::GetDerivedClusterOperationalStat
     }
 }
 
+bool ClosureOperationalState::Instance::HasFeatureDerivedCluster(uint32_t feature)
+{
+    const chip::BitMask<Feature> value = GetFeatureMap();
+    return value.Has(static_cast<Feature>(feature));
+}
+
 // This function is called by the base operational state cluster when a command in the derived cluster number-space is received.
 CHIP_ERROR ClosureOperationalState::Instance::ReadDerivedClusterAttribute(const ConcreteReadAttributePath & aPath, AttributeValueEncoder & aEncoder)
 {
@@ -921,10 +942,8 @@ CHIP_ERROR ClosureOperationalState::Instance::ReadDerivedClusterAttribute(const 
 
     case ClosureOperationalState::Attributes::WaitingDelay::Id: {
         ChipLogDetail(Zcl, "ClosureOperationalState: Reading WaitingDelay");
-        // Read through to get value closest to reality.
-        const chip::BitMask<Feature> value = 0;
         // Feature is Enable use the Delegate Callback to update the front-attributes
-        if (value.Has(Feature::kFallback))
+        if (HasFeature(to_underlying(Feature::kFallback)))
         {
             ReturnErrorOnFailure(aEncoder.Encode(GetCurrentWaitingDelay()));
         }
@@ -1220,9 +1239,9 @@ void ClosureOperationalState::Instance::HandleCalibrateCommand(HandlerContext & 
         return;
     }
 
-    const chip::BitMask<Feature> fakeFeature = 0x12AB34EF;
+
     // Feature is Enable use the Delegate Callback to update the front-attributes
-    if (fakeFeature.Has(Feature::kCalibration))
+    if (HasFeature(to_underlying(Feature::kCalibration)))
     {
 		SetOperationalState(newState);
         // Command is Sane for delegation
@@ -1250,7 +1269,7 @@ void ClosureOperationalState::Instance::HandleMoveToCommand(HandlerContext & ctx
     LogMoveToRequest(req);
 
     Status status;
-    if ((status = VerifyFieldTag(req.tag, 0x0000)) != Status::Success)
+    if ((status = VerifyFieldTag(req.tag, GetFeatureMap())) != Status::Success)
     {
         ctx.mCommandHandler.AddStatus(ctx.mRequestPath, status);
         return;
@@ -1392,9 +1411,8 @@ void ClosureOperationalState::Instance::HandleConfigureFallbackCommand(HandlerCo
         return;
     }
 
-    const chip::BitMask<Feature> value = 0x12AB34EF;
     // Feature is Enable use the Delegate Callback to update the front-attributes
-    if (value.Has(Feature::kFallback))
+    if (HasFeature(to_underlying(Feature::kFallback)))
     {
         SetOperationalState(newState);
         // Command is Sane for delegation

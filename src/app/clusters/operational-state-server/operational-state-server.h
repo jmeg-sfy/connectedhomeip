@@ -32,6 +32,8 @@ namespace OperationalState {
 
 const uint8_t DerivedClusterNumberSpaceStart = 0x40;
 const uint8_t VendorNumberSpaceStart         = 0x80;
+const uint32_t kNoFeatures                   = 0x00000000;
+const uint32_t kAllFeatures                  = 0xFFFFFFFF;
 
 class Uncopyable
 {
@@ -105,6 +107,17 @@ public:
     virtual void LogDerivedClusterFeatureMap(const uint32_t & featureMap) { ChipLogDetail(Zcl, "OperationalState::FeatureMap=0x%08X", featureMap); };
 
     // Attribute getters
+    /**
+     * Get the feature map.
+     * @return The feature map.
+     */
+    uint32_t GetFeatureMap() const;
+
+    /**
+     * Has feature
+     */
+    bool HasFeature(uint32_t feature);
+
     /**
      * Get current phase.
      * @return The current phase.
@@ -235,6 +248,8 @@ protected:
      */
     virtual CHIP_ERROR ReadDerivedClusterAttribute(const ConcreteReadAttributePath & aPath, AttributeValueEncoder & aEncoder) { return CHIP_NO_ERROR; };
 
+
+    virtual bool HasFeatureDerivedCluster(uint32_t feature) { return false; };
     /**
      * Causes reporting/udpating of CountdownTime attribute from driver if sufficient changes have
      * occurred (based on Q quality definition for operational state). Calls the Delegate::GetCountdownTime() method.
@@ -259,6 +274,7 @@ private:
     uint8_t mOperationalState                 = to_underlying(OperationalStateEnum::kStopped);
     GenericOperationalError mOperationalError = to_underlying(ErrorStateEnum::kNoError);
     app::QuieterReportingAttribute<uint32_t> mCountdownTime{ DataModel::NullNullable };
+    uint32_t mFeatureMap;
 
     /**
      * This method is inherited from CommandHandlerInterface.
@@ -525,7 +541,8 @@ public:
 
 namespace ClosureOperationalState {
 
-const uint16_t kMaxDurationS = 64800;
+const chip::DurationS kMaxDurationS = 64800;
+const chip::DurationS kDefaultDurationS = 30;
 
 using Status = Protocols::InteractionModel::Status;
 
@@ -766,6 +783,13 @@ protected:
      * @param featureMap The feature map to log.
      */
     void LogDerivedClusterFeatureMap(const uint32_t & featureMap) override;
+
+    /**
+     * Derived feature verifier against Cluster FeatureMap
+     * @param aFeature
+     */
+    bool HasFeatureDerivedCluster(uint32_t feature) override;
+
 	
 	void NotifyObservers();
 
