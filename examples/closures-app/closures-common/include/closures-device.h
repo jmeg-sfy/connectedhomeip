@@ -147,6 +147,58 @@ public:
 
 };
 
+
+class MockCommandHandler : public chip::app::CommandHandler {
+public:
+    MockCommandHandler() : chip::app::CommandHandler() {}
+
+    // Implement any pure virtual methods here
+    void AddStatus(const ConcreteCommandPath & aRequestCommandPath,
+                           const Protocols::InteractionModel::ClusterStatusCode & aStatus, const char * context = nullptr) override 
+    {
+            ChipLogDetail(Zcl, "ClosuresDevice: ADD STATUS.");
+    }
+
+    FabricIndex GetAccessingFabricIndex() const override
+    {
+        FabricIndex test = 1;
+        return test;
+    }
+
+    bool IsTimedInvoke() const override 
+    {
+        bool test = true;
+        return test;
+    }
+
+    virtual void FlushAcksRightAwayOnSlowCommand() override {}
+    Access::SubjectDescriptor GetSubjectDescriptor() const override 
+    {
+        Access::SubjectDescriptor test;
+        return test;
+    }
+
+    virtual CHIP_ERROR FallibleAddStatus(const ConcreteCommandPath & aRequestCommandPath,
+                                         const Protocols::InteractionModel::ClusterStatusCode & aStatus,
+                                         const char * context = nullptr) override 
+                                         {
+                                            return CHIP_NO_ERROR;
+                                         }
+
+    CHIP_ERROR AddResponseData(const ConcreteCommandPath & aRequestCommandPath, CommandId aResponseCommandId,
+                                       const DataModel::EncodableToTLV & aEncodable) override
+                                       {
+                                        return CHIP_NO_ERROR;
+                                       }
+    void AddResponse(const ConcreteCommandPath & aRequestCommandPath, CommandId aResponseCommandId,
+                             const DataModel::EncodableToTLV & aEncodable) override {}
+
+    Messaging::ExchangeContext * GetExchangeContext() const override
+    {
+        return nullptr;
+    }
+};
+
 } // namespace Clusters
 } // namespace app
 } // namespace chip
