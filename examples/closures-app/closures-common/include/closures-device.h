@@ -102,6 +102,27 @@ public:
     void HandleStopStimuli();
 
     /**
+     * Handles the Calibrate command stimuli from app.
+     */
+    void HandleCalibrateStimuli();
+
+    /**
+     * Handles the ConfigureFallback command stimuli from app.
+     */
+    void HandleConfigureFallbackStimuli(std::optional<uint8_t> restingProcedure, std::optional<uint8_t> triggerCondition, 
+                                        std::optional<uint8_t> triggerPosition, std::optional<uint16_t> waitingDelay);
+
+    /**
+     * Handles the Protected stimuli from app.
+     */
+    void HandleProtectedStimuli();
+
+    /**
+     * Handles the Unprotected stimuli from app.
+     */
+    void HandleUnprotectedStimuli();
+
+    /**
      * Sets the device to an error state with the error state ID matching the error name given.
      * @param error The error name. 
      */

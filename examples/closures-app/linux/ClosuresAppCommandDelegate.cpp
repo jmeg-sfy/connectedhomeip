@@ -68,10 +68,8 @@ void ClosuresAppCommandHandler::HandleCommand(intptr_t context)
     {
         std::optional<uint8_t> tag = self->mJsonValue.isMember("Tag") ? 
                                     std::make_optional(static_cast<uint8_t>(self->mJsonValue["Tag"].asUInt())) : std::nullopt;
-
         std::optional<uint8_t> speed = self->mJsonValue.isMember("Speed") ? 
                                     std::make_optional(static_cast<uint8_t>(self->mJsonValue["Speed"].asUInt())) : std::nullopt;
-
         std::optional<uint8_t> latch = self->mJsonValue.isMember("Latch") ? 
                                     std::make_optional(static_cast<uint8_t>(self->mJsonValue["Latch"].asUInt())) : std::nullopt;
 
@@ -80,6 +78,31 @@ void ClosuresAppCommandHandler::HandleCommand(intptr_t context)
     if (name == "Stop")
     {
         self->StopStimuli();
+    }
+    if (name == "Calibrate")
+    {
+        self->CalibrateStimuli();
+    }
+    if (name == "ConfigureFallback")
+    {
+        std::optional<uint8_t> restingProcedure = self->mJsonValue.isMember("RestingProcedure") ? 
+                                    std::make_optional(static_cast<uint8_t>(self->mJsonValue["RestingProcedure"].asUInt())) : std::nullopt;
+        std::optional<uint8_t> triggerCondition = self->mJsonValue.isMember("TriggerCondition") ? 
+                                    std::make_optional(static_cast<uint8_t>(self->mJsonValue["TriggerCondition"].asUInt())) : std::nullopt;
+        std::optional<uint8_t> triggerPosition = self->mJsonValue.isMember("TriggerPosition") ? 
+                                    std::make_optional(static_cast<uint8_t>(self->mJsonValue["TriggerPosition"].asUInt())) : std::nullopt;
+        std::optional<uint16_t> waitingDelay = self->mJsonValue.isMember("WaitingDelay") ? 
+                                    std::make_optional(static_cast<uint8_t>(self->mJsonValue["WaitingDelay"].asUInt())) : std::nullopt;
+
+        self->ConfigureFallbackStimuli(restingProcedure, triggerCondition, triggerPosition, waitingDelay);
+    }
+    if (name == "Protected")
+    {
+        self->ProtectedStimuli();
+    }
+    if (name == "UnProtected")
+    {
+        self->UnprotectedStimuli();
     }
     else if (name == "ErrorEvent")
     {
@@ -122,6 +145,26 @@ void ClosuresAppCommandHandler::MoveToStimuli(std::optional<uint8_t> tag,
 void ClosuresAppCommandHandler::StopStimuli()
 {
     mClosuresDevice->HandleStopStimuli();
+}
+
+void ClosuresAppCommandHandler::CalibrateStimuli()
+{
+    mClosuresDevice->HandleCalibrateStimuli();
+}
+
+void ClosuresAppCommandHandler::ConfigureFallbackStimuli(std::optional<uint8_t> restingProcedure, std::optional<uint8_t> triggerCondition, std::optional<uint8_t> triggerPosition, std::optional<uint16_t> waitingDelay)
+{
+    mClosuresDevice->HandleConfigureFallbackStimuli(restingProcedure, triggerCondition, triggerPosition, waitingDelay);
+}
+
+void ClosuresAppCommandHandler::ProtectedStimuli()
+{
+    mClosuresDevice->HandleProtectedStimuli();
+}
+
+void ClosuresAppCommandHandler::UnprotectedStimuli()
+{
+    mClosuresDevice->HandleUnprotectedStimuli();
 }
 
 void ClosuresAppCommandHandler::OnErrorEventHandler(const std::string & error)

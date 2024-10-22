@@ -45,13 +45,14 @@ private:
     ClosuresDevice * mClosuresDevice;
 
     void MoveToStimuli(std::optional<uint8_t> tag, std::optional<uint8_t> speed, std::optional<uint8_t> latch);
-
     void StopStimuli();
-
+    void CalibrateStimuli();
+    void ConfigureFallbackStimuli(std::optional<uint8_t> restingProcedure, std::optional<uint8_t> triggerCondition, 
+                                  std::optional<uint8_t> triggerPosition, std::optional<uint16_t> waitingDelay);
+    void ProtectedStimuli();
+    void UnprotectedStimuli();
     void OnErrorEventHandler(const std::string & error);
-
     void OnClearErrorHandler();
-
     void OnResetHandler();
 };
 

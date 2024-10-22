@@ -220,6 +220,172 @@ void ClosuresDevice::HandleMoveToStimuli(std::optional<uint8_t> tag, std::option
     mOperationalStateInstance.InvokeCommand(handlerContext);    
 }
 
+
+void ClosuresDevice::HandleCalibrateStimuli()
+{
+    ChipLogDetail(Zcl, CL_GREEN "ClosuresDevice: Calibrate Stimuli..." CL_CLEAR);
+    uint16_t endpoint = 1;
+
+    // Create a shared pointer for MockCommandHandler
+    std::shared_ptr<MockCommandHandler> commandHandler = std::make_shared<MockCommandHandler>();
+
+    // Create a ConcreteCommandPath with a unique name
+    chip::app::ConcreteCommandPath localCommandPath(
+        endpoint,
+        chip::app::Clusters::ClosureOperationalState::Id,
+        chip::app::Clusters::ClosureOperationalState::Commands::Calibrate::Id
+    );
+
+    // Create a buffer and TLVWriter to encode the command payload
+    uint8_t buffer[128]; 
+    chip::TLV::TLVWriter writer;
+    writer.Init(buffer, sizeof(buffer));
+
+    // Start a structure using AnonymousTag (better for outer containers)
+    chip::TLV::TLVType containerType;
+    CHIP_ERROR err = writer.StartContainer(chip::TLV::AnonymousTag(), chip::TLV::kTLVType_Structure, containerType);
+    if (err != CHIP_NO_ERROR) 
+    {
+        ChipLogError(Zcl, "Failed to start TLV container: %s", chip::ErrorStr(err));
+        return;
+    }
+
+    // End the structure
+    err = writer.EndContainer(containerType);
+    if (err != CHIP_NO_ERROR) {
+        ChipLogError(Zcl, "Failed to end TLV container: %s", chip::ErrorStr(err));
+        return;
+    }
+
+    // Initialize the reader with the written buffer and the exact length of data written.
+    chip::TLV::TLVReader reader;
+    reader.Init(buffer, writer.GetLengthWritten());
+
+    // Move the reader to the first element
+    err = reader.Next();
+    if (err != CHIP_NO_ERROR) {
+        ChipLogError(Zcl, "Failed to advance TLV reader: %s", chip::ErrorStr(err));
+        return;
+    }
+
+    // Initialize HandlerContext with the appropriate constructor
+    chip::app::CommandHandlerInterface::HandlerContext handlerContext(*commandHandler, localCommandPath, reader);
+    mOperationalStateInstance.InvokeCommand(handlerContext);    
+}
+
+void ClosuresDevice::HandleConfigureFallbackStimuli(std::optional<uint8_t> restingProcedure, std::optional<uint8_t> triggerCondition, 
+                                                    std::optional<uint8_t> triggerPosition, std::optional<uint16_t> waitingDelay)
+{
+    uint16_t endpoint = 1;
+
+    // Create a shared pointer for MockCommandHandler
+    std::shared_ptr<MockCommandHandler> commandHandler = std::make_shared<MockCommandHandler>();
+
+    // Create a ConcreteCommandPath with a unique name
+    chip::app::ConcreteCommandPath localCommandPath(
+        endpoint,
+        chip::app::Clusters::ClosureOperationalState::Id,
+        chip::app::Clusters::ClosureOperationalState::Commands::ConfigureFallback::Id
+    );
+
+    // Create a buffer and TLVWriter to encode the command payload
+    uint8_t buffer[128]; 
+    chip::TLV::TLVWriter writer;
+    writer.Init(buffer, sizeof(buffer));
+
+    // Start a structure using AnonymousTag (better for outer containers)
+    chip::TLV::TLVType containerType;
+    CHIP_ERROR err = writer.StartContainer(chip::TLV::AnonymousTag(), chip::TLV::kTLVType_Structure, containerType);
+    if (err != CHIP_NO_ERROR) 
+    {
+        ChipLogError(Zcl, "Failed to start TLV container: %s", chip::ErrorStr(err));
+        return;
+    }
+
+    if (restingProcedure.has_value())
+    {
+        // Write a field within the structure
+        err = writer.Put(chip::TLV::ContextTag(0), static_cast<ClosureOperationalState::TagEnum>(*restingProcedure));
+        if (err != CHIP_NO_ERROR) 
+        {
+            ChipLogError(Zcl, "Failed to write TLV data: %s", chip::ErrorStr(err));
+            return;
+        }
+    }
+
+    if (triggerCondition.has_value())
+    {
+        // Write a field within the structure
+        err = writer.Put(chip::TLV::ContextTag(1), static_cast<Globals::ThreeLevelAutoEnum>(*triggerCondition));
+        if (err != CHIP_NO_ERROR) 
+        {
+            ChipLogError(Zcl, "Failed to write TLV data: %s", chip::ErrorStr(err));
+            return;
+        }
+    }
+
+    if (triggerPosition.has_value())
+    {
+        // Write a field within the structure
+        err = writer.Put(chip::TLV::ContextTag(2), static_cast<ClosureOperationalState::LatchingEnum>(*triggerPosition));
+        if (err != CHIP_NO_ERROR) 
+        {
+            ChipLogError(Zcl, "Failed to write TLV data: %s", chip::ErrorStr(err));
+            return;
+        }
+    }
+
+    if (waitingDelay.has_value())
+    {
+        // Write a field within the structure
+        err = writer.Put(chip::TLV::ContextTag(3), static_cast<ClosureOperationalState::LatchingEnum>(*waitingDelay));
+        if (err != CHIP_NO_ERROR) 
+        {
+            ChipLogError(Zcl, "Failed to write TLV data: %s", chip::ErrorStr(err));
+            return;
+        }
+    }
+
+    // End the structure
+    err = writer.EndContainer(containerType);
+    if (err != CHIP_NO_ERROR) {
+        ChipLogError(Zcl, "Failed to end TLV container: %s", chip::ErrorStr(err));
+        return;
+    }
+
+    // Finalize the writer
+    err = writer.Finalize();
+    if (err != CHIP_NO_ERROR) {
+        ChipLogError(Zcl, "Failed to finalize TLV writer: %s", chip::ErrorStr(err));
+        return;
+    }
+
+    // Initialize the reader with the written buffer and the exact length of data written.
+    chip::TLV::TLVReader reader;
+    reader.Init(buffer, writer.GetLengthWritten());
+
+    // Move the reader to the first element
+    err = reader.Next();
+    if (err != CHIP_NO_ERROR) {
+        ChipLogError(Zcl, "Failed to advance TLV reader: %s", chip::ErrorStr(err));
+        return;
+    }
+
+    // Initialize HandlerContext with the appropriate constructor
+    chip::app::CommandHandlerInterface::HandlerContext handlerContext(*commandHandler, localCommandPath, reader);
+    mOperationalStateInstance.InvokeCommand(handlerContext);
+}
+
+void ClosuresDevice::HandleProtectedStimuli()
+{
+    
+}
+
+void ClosuresDevice::HandleUnprotectedStimuli()
+{
+    
+}
+
 void ClosuresDevice::HandleErrorEvent(const std::string & error)
 {
     detail::Structs::ErrorStateStruct::Type err;
