@@ -57,50 +57,29 @@ ClosuresAppCommandHandler * ClosuresAppCommandHandler::FromJSON(const char * jso
 void ClosuresAppCommandHandler::HandleCommand(intptr_t context)
 {
     auto * self      = reinterpret_cast<ClosuresAppCommandHandler *>(context);
-    std::string name = self->mJsonValue["Name"].asString();
+    std::string name = self->mJsonValue["Name"].asString(); 
 
-    VerifyOrExit(!self->mJsonValue.empty(), ChipLogError(NotSpecified, "Invalid JSON event command received"));
+    VerifyOrReturn(!self->mJsonValue.empty(), {
+        ChipLogError(NotSpecified, "Invalid JSON event command received");
+        Platform::Delete(self);
+    });
 
     if (name == "MoveTo")
     {
-        self->MoveToStimuli();
+        std::optional<uint8_t> tag = self->mJsonValue.isMember("Tag") ? 
+                                    std::make_optional(static_cast<uint8_t>(self->mJsonValue["Tag"].asUInt())) : std::nullopt;
+
+        std::optional<uint8_t> speed = self->mJsonValue.isMember("Speed") ? 
+                                    std::make_optional(static_cast<uint8_t>(self->mJsonValue["Speed"].asUInt())) : std::nullopt;
+
+        std::optional<uint8_t> latch = self->mJsonValue.isMember("Latch") ? 
+                                    std::make_optional(static_cast<uint8_t>(self->mJsonValue["Latch"].asUInt())) : std::nullopt;
+
+        self->MoveToStimuli(tag, speed, latch);
     }
     if (name == "Stop")
     {
         self->StopStimuli();
-    }
-    if (name == "DownClose")
-    {
-        self->OnDownCloseHandler();
-    }
-    if (name == "CalibrationEnded")
-    {
-        self->OnCalibrationEndedHandler();
-    }
-    else if (name == "MoveTo")
-    {
-        std::string tag = self->mJsonValue["Tag"].asString();
-        self->OnMoveToHandler(tag);
-    }
-    else if (name == "Engaged")
-    {
-        self->OnEngagedHandler();
-    }
-    else if (name == "Disengaged")
-    {
-        self->OnDisengagedHandler();
-    }
-    else if (name == "ProtectionRised")
-    {
-        self->OnProtectionRisedHandler();
-    }
-    else if (name == "ProtectionDropped")
-    {
-        self->OnProtectionDroppedHandler();
-    }
-    else if (name == "MovementComplete")
-    {
-        self->OnMovementCompleteHandler();
     }
     else if (name == "ErrorEvent")
     {
@@ -117,10 +96,9 @@ void ClosuresAppCommandHandler::HandleCommand(intptr_t context)
     }
     else
     {
-        ChipLogError(NotSpecified, "Unhandled command: Should never happens");
+        ChipLogError(NotSpecified, "ClosuresAppDelegate: Unhandled command: Should never happens");
     }
 
-exit:
     Platform::Delete(self);
 }
 
@@ -134,54 +112,16 @@ void ClosuresAppCommandDelegate::SetClosuresDevice(chip::app::Clusters::Closures
     mClosuresDevice = aClosuresDevice;
 }
 
-void ClosuresAppCommandHandler::OnCalibrationEndedHandler()
+void ClosuresAppCommandHandler::MoveToStimuli(std::optional<uint8_t> tag, 
+                                              std::optional<uint8_t> speed, 
+                                              std::optional<uint8_t> latch)
 {
-    mClosuresDevice->HandleCalibrationEndedMessage();
-}
-
-void ClosuresAppCommandHandler::OnMoveToHandler(const std::string & arg)
-{
-    mClosuresDevice->HandleMoveToMessage(arg);
-}
-
-void ClosuresAppCommandHandler::OnEngagedHandler()
-{
-    mClosuresDevice->HandleEngagedMessage();
-}
-
-void ClosuresAppCommandHandler::OnDisengagedHandler()
-{
-    mClosuresDevice->HandleDisengagedMessage();
-}
-
-void ClosuresAppCommandHandler::OnProtectionRisedHandler()
-{
-    mClosuresDevice->HandleProtectionRisedMessage();
-}
-
-void ClosuresAppCommandHandler::OnProtectionDroppedHandler()
-{
-    mClosuresDevice->HandleProtectionDroppedMessage();
-}
-
-void ClosuresAppCommandHandler::MoveToStimuli()
-{
-    mClosuresDevice->HandleMoveToStimuli();
+    mClosuresDevice->HandleMoveToStimuli(tag, latch, speed);
 }
 
 void ClosuresAppCommandHandler::StopStimuli()
 {
     mClosuresDevice->HandleStopStimuli();
-}
-
-void ClosuresAppCommandHandler::OnDownCloseHandler()
-{
-    mClosuresDevice->HandleDownCloseMessage();
-}
-
-void ClosuresAppCommandHandler::OnMovementCompleteHandler()
-{
-    mClosuresDevice->HandleMovementCompleteEvent();
 }
 
 void ClosuresAppCommandHandler::OnErrorEventHandler(const std::string & error)

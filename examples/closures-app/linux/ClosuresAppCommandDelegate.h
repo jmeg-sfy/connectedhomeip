@@ -44,28 +44,9 @@ private:
     Json::Value mJsonValue;
     ClosuresDevice * mClosuresDevice;
 
-    /**
-     * Should be called to notify that the device has finished calibration.
-     */
-    void OnCalibrationEndedHandler();
-
-    void OnMoveToHandler(const std::string & arg);
-
-    void OnEngagedHandler();
-
-    void OnDisengagedHandler();
-
-    void OnProtectionRisedHandler();
-
-    void OnProtectionDroppedHandler();
-
-    void OnMovementCompleteHandler();
-
-    void MoveToStimuli();
+    void MoveToStimuli(std::optional<uint8_t> tag, std::optional<uint8_t> speed, std::optional<uint8_t> latch);
 
     void StopStimuli();
-
-    void OnDownCloseHandler();
 
     void OnErrorEventHandler(const std::string & error);
 

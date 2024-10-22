@@ -82,6 +82,9 @@ public:
      */
     CHIP_ERROR Init();
 
+    // Inherited from CommandHandlerInterface
+    void InvokeCommand(HandlerContext & ctx) override;
+
     // Attribute setters
     /**
      * Set operational phase.
@@ -286,9 +289,6 @@ private:
      */
     template <typename RequestT, typename FuncT>
     void HandleCommand(HandlerContext & handlerContext, FuncT func);
-
-    // Inherited from CommandHandlerInterface
-    void InvokeCommand(HandlerContext & ctx) override;
 
     /**
      * IM-level implementation of read
@@ -732,18 +732,6 @@ public:
         return false;
     }
 
-    void MoveToStimuli();
-	
-	// // Method to transition to Running state
-    // void TransitionToStopped() {
-    //     if (CanTransitionToStopped()) {
-    //         // Change the state to Running
-    //         SetOperationalState(to_underlying(OperationalState::OperationalStateEnum::kStopped));
-    //         //SetState(ClosureOperationalState::OperationalStateEnum::kRunning);
-    //     } else {
-    //         ChipLogDetail(Zcl, "State transition to Running is not allowed.");
-    //     }
-    // }
 	
     CHIP_ERROR UpdateActionState(void);
     /**
@@ -756,11 +744,6 @@ public:
     const char * GetDerivedClusterOperationalStateString(const uint8_t & aState) override;
 	
 	void SetState(ClosureOperationalState::OperationalStateEnum newState);
-
-    /**
-    * Handle Command: Stop.
-    */
-    void HandleStopState() override;
 
         /**
     * Handle Command: Stop.

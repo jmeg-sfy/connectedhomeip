@@ -36,7 +36,9 @@ using namespace chip::app;
 using namespace chip::app::Clusters;
 using namespace chip::app::Clusters::OperationalState;
 using namespace chip::app::Clusters::OperationalState::Attributes;
-
+using Feature = ClosureOperationalState::Feature;
+using TagEnum = chip::app::Clusters::ClosureOperationalState::TagEnum;
+using LatchingEnum = chip::app::Clusters::ClosureOperationalState::LatchingEnum;
 using Status = Protocols::InteractionModel::Status;
 
 
@@ -204,7 +206,7 @@ uint32_t Instance::GetFeatureMap() const
 
 bool Instance::HasFeature(uint32_t feature)
 {
-    const chip::BitMask<Feature> value = GetFeatureMap();
+    const BitMask<Feature> value = GetFeatureMap();
     if (value.Has(static_cast<Feature>(feature)))
     {
         return true;
@@ -364,14 +366,13 @@ void Instance::HandleCommand(HandlerContext & handlerContext, FuncT func)
         // the command in its entirety, warts and all.
         //
         handlerContext.SetCommandHandled();
-
         if (DataModel::Decode(handlerContext.mPayload, requestPayload) != CHIP_NO_ERROR)
         {
+            
             handlerContext.mCommandHandler.AddStatus(handlerContext.mRequestPath,
                                                      Protocols::InteractionModel::Status::InvalidCommand);
             return;
         }
-
         func(handlerContext, requestPayload);
     }
 }
@@ -836,8 +837,7 @@ void ClosureOperationalState::LogConfigureFallbackRequest(const Commands::Config
 
 void ClosureOperationalState::Instance::LogDerivedClusterFeatureMap(const uint32_t & featureMap)
 {
-    using Feature = ClosureOperationalState::Feature;
-    const chip::BitMask<Feature> value = featureMap;
+    const BitMask<Feature> value = featureMap;
 
     ChipLogDetail(NotSpecified, "ClosureOperationalState::FeatureMap=0x%08X (%u)", value.Raw(), value.Raw());
 
@@ -855,7 +855,7 @@ void ClosureOperationalState::Instance::LogDerivedClusterFeatureMap(const uint32
 
 inline void ClosureOperationalState::LogIsFeatureSupported(const uint32_t & featureMap, Feature aFeature)
 {
-    const chip::BitMask<Feature> value = featureMap;
+    const BitMask<Feature> value = featureMap;
     ChipLogDetail(NotSpecified, " %-20s [%s]", GetFeatureMapString(aFeature), IsYN(value.Has(aFeature)));
 }
 
@@ -920,7 +920,7 @@ const char * ClosureOperationalState::Instance::GetDerivedClusterOperationalStat
 
 bool ClosureOperationalState::Instance::HasFeatureDerivedCluster(uint32_t feature)
 {
-    const chip::BitMask<Feature> value = GetFeatureMap();
+    const BitMask<Feature> value = GetFeatureMap();
     return value.Has(static_cast<Feature>(feature));
 }
 
@@ -987,9 +987,7 @@ CHIP_ERROR ClosureOperationalState::Instance::ReadDerivedClusterAttribute(const 
 
 Status ClosureOperationalState::VerifyFieldTag(const chip::Optional<TagEnum> & item, const uint32_t & featureMap)
 {
-    using Feature = ClosureOperationalState::Feature;
-    using TagEnum = chip::app::Clusters::ClosureOperationalState::TagEnum;
-    const chip::BitMask<Feature> featureBitMask = featureMap;
+    const BitMask<Feature> featureBitMask = featureMap;
 
     Status status;
     if ((status = VerifyOptionalEnumRange(item, "Tag")) != Status::Success)
@@ -1034,8 +1032,6 @@ Status ClosureOperationalState::VerifyFieldTag(const chip::Optional<TagEnum> & i
 
 Status ClosureOperationalState::VerifyFieldLatch(const chip::Optional<LatchingEnum> & item)
 {
-    using LatchingEnum = chip::app::Clusters::ClosureOperationalState::LatchingEnum;
-
     Status status;
 
     if ((status = VerifyOptionalEnumRange(item, "Latch")) != Status::Success)
@@ -1216,30 +1212,6 @@ void ClosureOperationalState::Instance::HandleStopState(HandlerContext & ctx, co
     ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::Success);
 }
 
-void ClosureOperationalState::Instance::HandleStopState() 
-{
-    ChipLogDetail(Zcl, "ClosureOperationalState: HandleStopState");
-
-    GenericOperationalError err(to_underlying(OperationalState::ErrorStateEnum::kNoError));
-    uint8_t newState = to_underlying(OperationalState::OperationalStateEnum::kStopped);
-
-    /* NOTE: Compare to the Base::Stop Method -> ClosureOperationalState::Stop Method doesn't answer with a InvokeResponse but with a regular Status */
-    // Handle the case of the device being in an invalid state
-    if (IsStopInvalidInState(GetCurrentOperationalState()))
-    {
-        err.Set(to_underlying(OperationalState::ErrorStateEnum::kCommandInvalidInState));
-        return;
-    }
-
-    SetOperationalState(newState);
-    // Command is Sane for delegation
-    mDelegate->HandleStopStateCallback(err);
-    if (err.errorStateID == to_underlying(OperationalState::ErrorStateEnum::kNoError))
-    {
-        ChipLogDetail(Zcl, "OnStop");
-    }
-}
-
 void ClosureOperationalState::Instance::HandleCalibrateCommand(HandlerContext & ctx, const Commands::Calibrate::DecodableType & req)
 {
     ChipLogDetail(Zcl, "ClosureOperationalState: HandleCalibrateCommand");
@@ -1269,7 +1241,7 @@ void ClosureOperationalState::Instance::HandleCalibrateCommand(HandlerContext & 
     }
     else
     {
-        LogIsFeatureSupported(fakeFeature.Raw(), Feature::kCalibration);
+        //LogIsFeatureSupported(fakeFeature.Raw(), Feature::kCalibration);
     }
     ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::Success);
 }
@@ -1329,51 +1301,6 @@ void ClosureOperationalState::Instance::HandleMoveToCommand(HandlerContext & ctx
         ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand Error NO ANSWER %u", err.errorStateID);
         ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::Success);
     }
-}
-
-
-void ClosureOperationalState::Instance::HandleMoveToCommand(/*const Commands::MoveTo::DecodableType & req*/)
-{
-    ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand");
-
-    GenericOperationalError err(to_underlying(OperationalState::ErrorStateEnum::kNoError));
-    uint8_t newState = to_underlying(OperationalState::OperationalStateEnum::kRunning);
-
-    ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand Fields:");
-    // LogMoveToRequest(req);
-
-    // Status status;
-    // if ((status = VerifyFieldTag(req.tag, 0x0000)) != Status::Success)
-    // {
-    //     return;
-    // }
-
-    // if ((status = VerifyFieldLatch(req.latch)) != Status::Success)
-    // {
-    //     return;
-    // }
-
-    // if ((status = VerifyFieldSpeed(req.speed)) != Status::Success)
-    // {
-    //     return;
-    // }
-
-    // // At least one field SHALL be available
-    // if (!(req.tag.HasValue() || req.latch.HasValue() || req.speed.HasValue()))
-    // {
-    //     return;
-    // }
-
-    // Handle the case of the device being in an invalid state
-    if (IsMoveToInvalidInState(GetCurrentOperationalState()))
-    {
-        err.Set(to_underlying(OperationalState::ErrorStateEnum::kCommandInvalidInState));
-        return;
-    }
-
-    SetOperationalState(newState);
-    // Command is Sane for delegation
-    mDelegate->HandleMoveToCommandCallback(err);
 }
 
 
@@ -1455,16 +1382,4 @@ void ClosureOperationalState::Instance::AddObserver(OperationalState::Observer* 
 void ClosureOperationalState::Instance::RemoveObserver(OperationalState::Observer* observer)
 {
     mObservers.erase(std::remove(mObservers.begin(), mObservers.end(), observer), mObservers.end());
-}
-
-// Method to transition to Running state
-void MoveToStimuli() {
-
-    // if (IsMoveToInvalidInState(GetCurrentOperationalState())) {
-    //     // Change the state to Running
-    //     SetOperationalState(to_underlying(OperationalState::OperationalStateEnum::kRunning));
-    //     //SetState(ClosureOperationalState::OperationalStateEnum::kRunning);
-    // } else {
-    //     ChipLogDetail(Zcl, "State transition to Running is not allowed.");
-    // }
 }

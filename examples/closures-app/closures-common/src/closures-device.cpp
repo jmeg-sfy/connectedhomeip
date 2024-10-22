@@ -17,7 +17,7 @@ static constexpr char strLogN[] = CL_RED "N" CL_CLEAR;
 void ClosuresDevice::Init()
 {
     mOperationalStateInstance.Init();
-    ChipLogDetail(NotSpecified, CL_YELLOW "!!!!! CLOSURE DEVICE INIT!!!!!!!!!" CL_CLEAR);
+    ChipLogDetail(NotSpecified, "CLOSURE DEVICE INIT");
 }
 
 void ClosuresDevice::SetDeviceToStoppedState()
@@ -74,85 +74,7 @@ void ClosuresDevice::HandleOpStateStopCallback(Clusters::OperationalState::Gener
 
 void ClosuresDevice::HandleOpStateMoveToCallback(Clusters::OperationalState::GenericOperationalError & err)
 {
-
-void ClosuresDevice::HandleMoveToMessage(const std::string & arg)
-{
-    ChipLogDetail(NotSpecified, "Closures Device: message MoveTo arg: %s", arg.c_str());
-
 }
-
-void ClosuresDevice::HandleCalibrationEndedMessage()
-{
-    if (mOperationalStateInstance.GetCurrentOperationalState() != to_underlying(ClosureOperationalState::OperationalStateEnum::kCalibrating))
-    {
-        ChipLogError(NotSpecified, "Closures App: The 'CalibrationEnded' command is only accepted when the device is in the 'Calibrating' state.");
-        return;
-    }
-
-    mCalibrating = false;
-    mOperationalStateInstance.SetOperationalState(to_underlying(OperationalState::OperationalStateEnum::kStopped));
-}
-
-void ClosuresDevice::HandleCalibratingMessage()
-{
-    if (mOperationalStateInstance.GetCurrentOperationalState() != to_underlying(OperationalState::OperationalStateEnum::kStopped))
-    {
-        ChipLogError(NotSpecified, "Closures App: The 'Calibrate' command is only accepted when the device is in the 'Stopped' state.");
-        return;
-    }
-
-    mCalibrating = true;
-    mOperationalStateInstance.SetOperationalState(to_underlying(ClosureOperationalState::OperationalStateEnum::kCalibrating));
-}
-
-void ClosuresDevice::HandleEngagedMessage()
-{
-    if (mOperationalStateInstance.GetCurrentOperationalState() != to_underlying(OperationalState::OperationalStateEnum::kStopped))
-    {
-        ChipLogError(NotSpecified, "Closures App: The 'Engaged' command is only accepted when the device is in the 'Stopped' state.");
-        return;
-    }
-
-    mCalibrating = true;
-    mOperationalStateInstance.SetOperationalState(to_underlying(ClosureOperationalState::OperationalStateEnum::kDisengaded));
-}
-
-void ClosuresDevice::HandleDisengagedMessage()
-{
-    if (mOperationalStateInstance.GetCurrentOperationalState() != to_underlying(ClosureOperationalState::OperationalStateEnum::kDisengaded))
-    {
-        ChipLogError(NotSpecified, "Closures App: The 'Disengaged' command is only accepted when the device is in the 'Disengaged' state.");
-        return;
-    }
-
-    mCalibrating = true;
-    mOperationalStateInstance.SetOperationalState(to_underlying(OperationalState::OperationalStateEnum::kStopped));
-}
-
-void ClosuresDevice::HandleProtectionRisedMessage()
-{
-    if (mOperationalStateInstance.GetCurrentOperationalState() != to_underlying(OperationalState::OperationalStateEnum::kStopped))
-    {
-        ChipLogError(NotSpecified, "Closures App: The 'ProtectionRised' command is only accepted when the device is in the 'Stopped' state.");
-        return;
-    }
-
-    mCalibrating = true;
-    mOperationalStateInstance.SetOperationalState(to_underlying(ClosureOperationalState::OperationalStateEnum::kProtected));
-}
-
-void ClosuresDevice::HandleProtectionDroppedMessage()
-{
-    if (mOperationalStateInstance.GetCurrentOperationalState() != to_underlying(ClosureOperationalState::OperationalStateEnum::kProtected))
-    {
-        ChipLogError(NotSpecified, "Closures App: The 'ProtectionDropped' command is only accepted when the device is in the 'Protected' state.");
-        return;
-    }
-
-    mCalibrating = true;
-    mOperationalStateInstance.SetOperationalState(to_underlying(OperationalState::OperationalStateEnum::kStopped));
-}
-
 
 void ClosuresDevice::HandleStopStimuli()
 {
@@ -183,25 +105,10 @@ void ClosuresDevice::HandleStopStimuli()
         return;
     }
 
-    // Write a field within the structure
-    err = writer.Put(chip::TLV::ContextTag(2), static_cast<uint32_t>(42)); // Example data.
-    if (err != CHIP_NO_ERROR) 
-    {
-        ChipLogError(Zcl, "Failed to write TLV data: %s", chip::ErrorStr(err));
-        return;
-    }
-
     // End the structure
     err = writer.EndContainer(containerType);
     if (err != CHIP_NO_ERROR) {
         ChipLogError(Zcl, "Failed to end TLV container: %s", chip::ErrorStr(err));
-        return;
-    }
-
-    // Finalize the writer
-    err = writer.Finalize();
-    if (err != CHIP_NO_ERROR) {
-        ChipLogError(Zcl, "Failed to finalize TLV writer: %s", chip::ErrorStr(err));
         return;
     }
 
@@ -218,15 +125,12 @@ void ClosuresDevice::HandleStopStimuli()
 
     // Initialize HandlerContext with the appropriate constructor
     chip::app::CommandHandlerInterface::HandlerContext handlerContext(*commandHandler, localCommandPath, reader);
-
     mOperationalStateInstance.InvokeCommand(handlerContext);    
-
 }
 
 
-void ClosuresDevice::HandleMoveToStimuli()
+void ClosuresDevice::HandleMoveToStimuli(std::optional<uint8_t> tag, std::optional<uint8_t> speed, std::optional<uint8_t> latch)
 {
-    ChipLogDetail(Zcl, CL_GREEN "ClosuresDevice: MoveTo Stimuli..." CL_CLEAR);
     uint16_t endpoint = 1;
 
     // Create a shared pointer for MockCommandHandler
@@ -253,12 +157,37 @@ void ClosuresDevice::HandleMoveToStimuli()
         return;
     }
 
-    // Write a field within the structure
-    err = writer.Put(chip::TLV::ContextTag(2), static_cast<uint32_t>(42)); // Example data.
-    if (err != CHIP_NO_ERROR) 
+    if (tag.has_value())
     {
-        ChipLogError(Zcl, "Failed to write TLV data: %s", chip::ErrorStr(err));
-        return;
+        // Write a field within the structure
+        err = writer.Put(chip::TLV::ContextTag(0), static_cast<ClosureOperationalState::TagEnum>(*tag));
+        if (err != CHIP_NO_ERROR) 
+        {
+            ChipLogError(Zcl, "Failed to write TLV data: %s", chip::ErrorStr(err));
+            return;
+        }
+    }
+
+    if (speed.has_value())
+    {
+        // Write a field within the structure
+        err = writer.Put(chip::TLV::ContextTag(1), static_cast<Globals::ThreeLevelAutoEnum>(*speed));
+        if (err != CHIP_NO_ERROR) 
+        {
+            ChipLogError(Zcl, "Failed to write TLV data: %s", chip::ErrorStr(err));
+            return;
+        }
+    }
+
+    if (latch.has_value())
+    {
+        // Write a field within the structure
+        err = writer.Put(chip::TLV::ContextTag(2), static_cast<ClosureOperationalState::LatchingEnum>(*latch));
+        if (err != CHIP_NO_ERROR) 
+        {
+            ChipLogError(Zcl, "Failed to write TLV data: %s", chip::ErrorStr(err));
+            return;
+        }
     }
 
     // End the structure
@@ -288,32 +217,7 @@ void ClosuresDevice::HandleMoveToStimuli()
 
     // Initialize HandlerContext with the appropriate constructor
     chip::app::CommandHandlerInterface::HandlerContext handlerContext(*commandHandler, localCommandPath, reader);
-
     mOperationalStateInstance.InvokeCommand(handlerContext);    
-
-}
-
-
-void ClosuresDevice::HandleDownCloseMessage()
-{
-    if (mOperationalStateInstance.GetCurrentOperationalState() != to_underlying(OperationalState::OperationalStateEnum::kStopped))
-    {
-        ChipLogError(NotSpecified,
-                     "Closures App: The 'DownClose' command is only accepted when the device is in the 'Running' state.");
-        return;
-    }
-    mOperationalStateInstance.SetOperationalState(to_underlying(OperationalState::OperationalStateEnum::kRunning));
-}
-
-void ClosuresDevice::HandleMovementCompleteEvent()
-{
-    if (mOperationalStateInstance.GetCurrentOperationalState() != to_underlying(OperationalState::OperationalStateEnum::kRunning))
-    {
-        ChipLogError(NotSpecified,
-                     "Closures App: The 'MovementComplete' command is only accepted when the device is in the 'Running' state.");
-        return;
-    }
-    mOperationalStateInstance.SetOperationalState(to_underlying(OperationalState::OperationalStateEnum::kStopped));
 }
 
 void ClosuresDevice::HandleErrorEvent(const std::string & error)

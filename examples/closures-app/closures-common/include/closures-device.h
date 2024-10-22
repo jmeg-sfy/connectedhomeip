@@ -92,48 +92,14 @@ public:
     void HandleOpStateMoveToCallback(Clusters::OperationalState::GenericOperationalError & err);
 
     /**
-     * Updates the state machine when the device ends calibration
+     * Handles the MoveTo command stimuli from app.
      */
-
-    void HandleCalibrationEndedMessage();
+    void HandleMoveToStimuli(std::optional<uint8_t> tag, std::optional<uint8_t> speed, std::optional<uint8_t> latch);
 
     /**
-     * Handles the MoveTo command.
+     * Handles the Stop command stimuli from app.
      */
-    void HandleMoveToMessage(const std::string & arg);
-
-    /**
-     * Handles the Calibrate command.
-     */
-    void HandleCalibratingMessage();
-
-    /**
-     * Handles the Engaged command.
-     */
-    void HandleEngagedMessage();
-
-    /**
-     * Handles the Disengaged command.
-     */
-    void HandleDisengagedMessage();
-
-    /**
-     * Handles the ProtectionRised command.
-     */
-    void HandleProtectionRisedMessage();
-
-    /**
-     * Handles the ProtectionDropped command.
-     */
-    void HandleProtectionDroppedMessage();
-
-    void HandleMoveToStimuli();
-
     void HandleStopStimuli();
-
-    void HandleDownCloseMessage();
-
-    void HandleMovementCompleteEvent();
 
     /**
      * Sets the device to an error state with the error state ID matching the error name given.
@@ -156,7 +122,6 @@ public:
     void AddStatus(const ConcreteCommandPath & aRequestCommandPath,
                            const Protocols::InteractionModel::ClusterStatusCode & aStatus, const char * context = nullptr) override 
     {
-            ChipLogDetail(Zcl, "ClosuresDevice: ADD STATUS.");
     }
 
     FabricIndex GetAccessingFabricIndex() const override
