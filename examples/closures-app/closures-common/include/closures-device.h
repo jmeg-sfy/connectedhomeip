@@ -3,6 +3,7 @@
 #include "closures-operational-state-delegate.h"
 #include <app/clusters/mode-base-server/mode-base-server.h>
 #include <app/clusters/operational-state-server/operational-state-server.h>
+#include "../../linux/MotionSimulator.h"
 
 #include <string>
 
@@ -16,6 +17,7 @@ private:
 
     ClosureOperationalState::ClosuresOperationalStateDelegate mOperationalStateDelegate;
     ClosureOperationalState::Instance mOperationalStateInstance;
+    MotionSimulator mMotionSimulator;
 
     bool mCalibrating   = false;
     bool mProtected = false;
@@ -24,9 +26,19 @@ private:
     bool mStopped = false;
     bool mRunning = false;
 
+    ClosureOperationalState::Structs::OverallStateStruct::Type mOverallState;
+
+    ClosureOperationalState::PositioningEnum mPositioning;
+    ClosureOperationalState::LatchingEnum mLatching;
+    Globals::ThreeLevelAutoEnum mSpeed;
+
     uint8_t mStateBeforePause = 0;
 
-    const char* GetStateString(ClosureOperationalState::OperationalStateEnum state) const;
+    void SetPositioning(ClosureOperationalState::PositioningEnum aPositioning);
+    void SetLatching(ClosureOperationalState::LatchingEnum aLatching);
+    void SetSpeed(Globals::ThreeLevelAutoEnum aSpeed);
+    const char* GetStateString(ClosureOperationalState::OperationalStateEnum aOpState) const;
+    ClosureOperationalState::PositioningEnum ConvertTagToPositioning(ClosureOperationalState::TagEnum aTag);
 
 public:
     /**
@@ -48,6 +60,9 @@ public:
 
         SetDeviceToStoppedState();
 
+        // Initialize mOverallState with default values
+        mOverallState = mOperationalStateInstance.GetCurrentOverallState();
+
         // set callback functions
         mOperationalStateDelegate.SetPauseCallback(&ClosuresDevice::HandleOpStatePauseCallback, this);
         mOperationalStateDelegate.SetResumeCallback(&ClosuresDevice::HandleOpStateResumeCallback, this);
@@ -62,6 +77,11 @@ public:
      * Init all the clusters used by this device.
      */
     void Init();
+
+    ClosureOperationalState::PositioningEnum GetPositioning();
+    ClosureOperationalState::LatchingEnum GetLatching();
+    Globals::ThreeLevelAutoEnum GetSpeed();
+    ClosureOperationalState::Structs::OverallStateStruct::Type GetOverallState() const;
 
     // Call to observer to be notified of a state change
     void OnStateChanged(ClosureOperationalState::OperationalStateEnum state);
@@ -89,7 +109,9 @@ public:
     /**
      * Handles the ClosureOperationalState MoveTo command.
      */
-    void HandleOpStateMoveToCallback(Clusters::OperationalState::GenericOperationalError & err);
+    void HandleOpStateMoveToCallback(OperationalState::GenericOperationalError & err, const chip::Optional<ClosureOperationalState::TagEnum> tag, 
+                                                            const chip::Optional<Globals::ThreeLevelAutoEnum> speed, 
+                                                            const chip::Optional<ClosureOperationalState::LatchingEnum> latch);
 
     /**
      * Handles the MoveTo command stimuli from app.

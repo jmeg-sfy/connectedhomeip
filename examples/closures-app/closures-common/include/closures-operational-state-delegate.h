@@ -29,7 +29,9 @@ namespace Clusters {
 class ClosuresDevice;
 
 typedef void (ClosuresDevice::*HandleOpStateCommand)(Clusters::OperationalState::GenericOperationalError & err);
-
+typedef void (ClosuresDevice::*HandleClosureOpStateCommand)(OperationalState::GenericOperationalError & err, const chip::Optional<ClosureOperationalState::TagEnum> tag, 
+                                                            const chip::Optional<Globals::ThreeLevelAutoEnum> speed, 
+                                                            const chip::Optional<ClosureOperationalState::LatchingEnum> latch) ;
 namespace ClosureOperationalState {
 
 // This is an application level delegate to handle operational state commands according to the specific business logic.
@@ -57,7 +59,7 @@ private:
     ClosuresDevice * mStopClosuresDeviceInstance;
     HandleOpStateCommand mStopCallback;
     ClosuresDevice * mMoveToClosuresDeviceInstance;
-    HandleOpStateCommand mMoveToCallback;
+    HandleClosureOpStateCommand mMoveToCallback;
 
 public:
     /**
@@ -114,7 +116,9 @@ public:
      * Handle Command Callback in application: MoveTo
      * @param[out] get operational error after callback.
      */
-    void HandleMoveToCommandCallback(Clusters::OperationalState::GenericOperationalError & err) override;
+    void HandleMoveToCommandCallback(OperationalState::GenericOperationalError & err, const chip::Optional<ClosureOperationalState::TagEnum> tag, 
+                                                            const chip::Optional<Globals::ThreeLevelAutoEnum> speed, 
+                                                            const chip::Optional<ClosureOperationalState::LatchingEnum> latch) override;
 
     void SetPauseCallback(HandleOpStateCommand aCallback, ClosuresDevice * aInstance)
     {
@@ -134,7 +138,7 @@ public:
         mStopClosuresDeviceInstance = aInstance;
     };
 
-    void SetMoveToCallback(HandleOpStateCommand aCallback, ClosuresDevice * aInstance)
+    void SetMoveToCallback(HandleClosureOpStateCommand aCallback, ClosuresDevice * aInstance)
     {
         mMoveToCallback          = aCallback;
         mMoveToClosuresDeviceInstance = aInstance;

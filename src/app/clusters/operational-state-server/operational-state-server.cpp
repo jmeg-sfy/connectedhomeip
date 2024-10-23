@@ -221,6 +221,11 @@ DataModel::Nullable<uint8_t> Instance::GetCurrentPhase() const
     return mCurrentPhase;
 }
 
+EndpointId Instance::GetEndpointId() const
+{
+    return mEndpointId;
+}
+
 uint8_t Instance::GetCurrentOperationalState() const
 {
     return mOperationalState;
@@ -279,6 +284,7 @@ void Instance::OnOperationCompletionDetected(uint8_t aCompletionErrorCode,
 
     UpdateCountdownTimeFromClusterLogic();
 }
+
 
 void Instance::ReportOperationalStateListChange()
 {
@@ -742,19 +748,6 @@ void RvcOperationalState::Instance::HandleGoHomeCommand(HandlerContext & ctx, co
 ClosureOperationalState::Instance::~Instance()
 {
     ChipLogDetail(Zcl, "ClosureOperationalStateServer Instance.Destructor()");
-}
-
-CHIP_ERROR ClosureOperationalState::Instance::UpdateActionState(void)
-{
-    if (mDelegate->IsReadyToRunCallback())
-    {
-        SetOperationalState(to_underlying(OperationalState::OperationalStateEnum::kRunning));
-    }
-    else
-    {
-        SetOperationalState(to_underlying(OperationalState::OperationalStateEnum::kPaused));
-    }
-    return CHIP_NO_ERROR;
 }
 
 ClosureOperationalState::Structs::OverallStateStruct::Type ClosureOperationalState::Instance::GetCurrentOverallState() const
@@ -1289,7 +1282,7 @@ void ClosureOperationalState::Instance::HandleMoveToCommand(HandlerContext & ctx
 
     SetOperationalState(newState);
     // Command is Sane for delegation
-    mDelegate->HandleMoveToCommandCallback(err);
+    mDelegate->HandleMoveToCommandCallback(err, req.tag, req.speed, req.latch);
 
     if (err.errorStateID == to_underlying(OperationalState::ErrorStateEnum::kNoError))
     {
@@ -1367,14 +1360,43 @@ void ClosureOperationalState::Instance::HandleConfigureFallbackCommand(HandlerCo
     ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::Success);
 }
 
+
 // Add an observer to the list
 void ClosureOperationalState::Instance::AddObserver(OperationalState::Observer* observer)
 {
     mObservers.push_back(observer);
 }
 
+
 // Remove an observer from the list
 void ClosureOperationalState::Instance::RemoveObserver(OperationalState::Observer* observer)
 {
     mObservers.erase(std::remove(mObservers.begin(), mObservers.end(), observer), mObservers.end());
+}
+
+
+void ClosureOperationalState::Instance::OnClosureOperationCompletionDetected(uint8_t aCompletionErrorCode, OperationalState::OperationalStateEnum aNewState, 
+                                                    const ClosureOperationalState::Structs::OverallStateStruct::Type & aOverallState)
+{
+    ChipLogDetail(Zcl, "OperationalStateServer: OnClosureOperationCompletionDetected");
+    uint8_t newState = to_underlying(aNewState);
+
+    if (newState != GetCurrentOperationalState())
+    {
+        SetOperationalState(newState);
+    }
+
+    SetCurrentOverallState(aOverallState);
+    //TODO check errors?
+}
+
+
+void ClosureOperationalState::Instance::SetCurrentOverallState(const Structs::OverallStateStruct::Type & aOverallState)
+{
+    Structs::OverallStateStruct::Type newOverallState = aOverallState;
+    if (mOverallState != newOverallState)
+    {
+        mOverallState = newOverallState;
+        MatterReportingAttributeChangeCallback(GetEndpointId(), ClosureOperationalState::Id, Attributes::OverallState::Id);
+    }
 }

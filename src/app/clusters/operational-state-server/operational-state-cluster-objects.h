@@ -225,3 +225,32 @@ private:
 } // namespace Clusters
 } // namespace app
 } // namespace chip
+
+namespace chip {
+namespace app {
+namespace Clusters {
+namespace ClosureOperationalState {
+namespace Structs {
+namespace OverallStateStruct {
+
+// Define the equality operator for OverallStateStruct::Type.
+inline bool operator==(const Type & lhs, const Type & rhs)
+{
+    // Compare each optional field. Optional<> types support operator== for presence and value comparison.
+    return (lhs.positioning == rhs.positioning &&
+            lhs.latching == rhs.latching &&
+            lhs.speed == rhs.speed);
+}
+
+// Define the inequality operator using the equality operator.
+inline bool operator!=(const Type & lhs, const Type & rhs)
+{
+    return !(lhs == rhs);
+}
+
+} // namespace OverallStateStruct
+} // namespace Structs
+} // namespace ClosureOperationalState
+} // namespace Clusters
+} // namespace app
+} // namespace chip

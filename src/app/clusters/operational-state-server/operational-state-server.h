@@ -122,6 +122,12 @@ public:
     bool HasFeature(uint32_t feature);
 
     /**
+     * Get the operational endpoint.
+     * @return The current phase.
+     */
+    EndpointId GetEndpointId() const;
+
+    /**
      * Get current phase.
      * @return The current phase.
      */
@@ -162,6 +168,7 @@ public:
     void OnOperationCompletionDetected(uint8_t aCompletionErrorCode,
                                        const Optional<DataModel::Nullable<uint32_t>> & aTotalOperationalTime = NullOptional,
                                        const Optional<DataModel::Nullable<uint32_t>> & aPausedTime           = NullOptional);
+    
 
     // List change reporting
     /**
@@ -325,6 +332,7 @@ private:
      * Otherwise, this method calls the delegate's HandleResumeStateCallback.
      */
     void HandleResumeState(HandlerContext & ctx, const Commands::Resume::DecodableType & req);
+
 };
 
 /**
@@ -614,7 +622,9 @@ public:
      * Handle Command Callback in application: MoveTo
      * @param[out] err operational error after callback.
      */
-    virtual void HandleMoveToCommandCallback(OperationalState::GenericOperationalError & err)
+    virtual void HandleMoveToCommandCallback(OperationalState::GenericOperationalError & err, const chip::Optional<ClosureOperationalState::TagEnum> tag, 
+                                                            const chip::Optional<Globals::ThreeLevelAutoEnum> speed, 
+                                                            const chip::Optional<ClosureOperationalState::LatchingEnum> latch)
     {
         ChipLogDetail(Zcl, "ClosureOperationalState:Delegate HandleMoveToCommandCallback dummy");
         err.Set(to_underlying(OperationalState::ErrorStateEnum::kUnknownEnumValue));
@@ -711,6 +721,15 @@ public:
     void AddObserver(OperationalState::Observer* observer);
     void RemoveObserver(OperationalState::Observer* observer);
 
+    /**
+     * @brief Called when the Node detects a OperationCompletion has been raised.
+     * @param aCompletionErrorCode CompletionErrorCode
+     * @param aNewState OperationalState 
+     * @param aOverallState OverallState
+     */
+    void OnClosureOperationCompletionDetected(uint8_t aCompletionErrorCode, OperationalState::OperationalStateEnum aNewState, 
+                                               const ClosureOperationalState::Structs::OverallStateStruct::Type & aOverallState);
+
     ~Instance() override;
 
     // Method to check if it's possible to change the state to Running
@@ -732,8 +751,6 @@ public:
         return false;
     }
 
-	
-    CHIP_ERROR UpdateActionState(void);
     /**
      * Get the current operational state.
      * @return The current operational state value.
@@ -743,12 +760,17 @@ public:
 
     const char * GetDerivedClusterOperationalStateString(const uint8_t & aState) override;
 	
+    /**
+     * Set OverallState.
+     * @param aOverallState The operational OverallState struct.
+     */
+    void SetCurrentOverallState(const Structs::OverallStateStruct::Type & aOverallState);
+    
+    /**
+     * Set OperationalState.
+     * @param aOverallState The operational OverallState struct.
+     */
 	void SetState(ClosureOperationalState::OperationalStateEnum newState);
-
-        /**
-    * Handle Command: Stop.
-    */
-    void HandleMoveToCommand(/*const Commands::MoveTo::DecodableType & req*/);
 
 protected:
     /**
@@ -817,11 +839,6 @@ private:
      * Handle Command: MoveTo
      */
     void HandleMoveToCommand(HandlerContext & ctx, const Commands::MoveTo::DecodableType & req);
-	
-	/**
-     * Handle Command: Stop
-     */
-    void HandleStopCommand(HandlerContext & ctx, const Commands::MoveTo::DecodableType & req);
 
     /**
      * Handle Command: Calibrate

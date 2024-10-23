@@ -27,6 +27,7 @@ executable("chip-closures-app") {
     "${chip_root}/examples/closures-app/closures-common/src/closures-device.cpp",
     "${chip_root}/examples/closures-app/closures-common/src/closures-operational-state-delegate.cpp",
     "ClosuresAppCommandDelegate.cpp",
+    "MotionSimulator.cpp",
     "include/CHIPProjectAppConfig.h",
     "main.cpp",
   ]

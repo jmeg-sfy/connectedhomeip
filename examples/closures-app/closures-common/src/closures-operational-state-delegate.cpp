@@ -57,7 +57,9 @@ void ClosuresOperationalStateDelegate::HandleStopStateCallback(OperationalState:
     (mStopClosuresDeviceInstance->*mStopCallback)(err);
 }
 
-void ClosuresOperationalStateDelegate::HandleMoveToCommandCallback(OperationalState::GenericOperationalError & err)
+void ClosuresOperationalStateDelegate::HandleMoveToCommandCallback(OperationalState::GenericOperationalError & err, const chip::Optional<ClosureOperationalState::TagEnum> tag, 
+                                                            const chip::Optional<Globals::ThreeLevelAutoEnum> speed, 
+                                                            const chip::Optional<ClosureOperationalState::LatchingEnum> latch)
 {
-    (mMoveToClosuresDeviceInstance->*mMoveToCallback)(err);
+    (mResumeClosuresDeviceInstance->*mMoveToCallback)(err, tag, speed, latch);
 }

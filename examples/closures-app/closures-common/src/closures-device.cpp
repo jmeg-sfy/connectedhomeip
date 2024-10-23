@@ -1,5 +1,4 @@
 #include "closures-device.h"
-
 #include <string>
 
 using namespace chip::app::Clusters;
@@ -18,27 +17,93 @@ void ClosuresDevice::Init()
 {
     mOperationalStateInstance.Init();
     ChipLogDetail(NotSpecified, "CLOSURE DEVICE INIT");
+    // TODO check after boot if setup required
+}
+
+ClosureOperationalState::PositioningEnum ClosuresDevice::ConvertTagToPositioning(ClosureOperationalState::TagEnum aTag)
+{
+    switch (aTag)
+    {
+    case ClosureOperationalState::TagEnum::kCloseInFull:
+        return ClosureOperationalState::PositioningEnum::kFullyClosed;
+    
+    case ClosureOperationalState::TagEnum::kOpenInFull:
+        return ClosureOperationalState::PositioningEnum::kFullyOpened;
+
+    case ClosureOperationalState::TagEnum::kOpenOneQuarter:
+        return ClosureOperationalState::PositioningEnum::kOneQuarterOpened;
+
+    case ClosureOperationalState::TagEnum::kOpenInHalf:
+        return ClosureOperationalState::PositioningEnum::kHalfOpened;
+
+    case ClosureOperationalState::TagEnum::kOpenThreeQuarter:
+        return ClosureOperationalState::PositioningEnum::kThreeQuarterOpened;
+
+    case ClosureOperationalState::TagEnum::kPedestrian:
+        return ClosureOperationalState::PositioningEnum::kOpenedForPedestrian;
+
+    case ClosureOperationalState::TagEnum::kVentilation:
+        return ClosureOperationalState::PositioningEnum::kOpenedForVentilation;
+
+    case ClosureOperationalState::TagEnum::kSignature:
+        return ClosureOperationalState::PositioningEnum::kOpenedAtSignature;
+
+    // Handle unknown or next step cases.
+    case ClosureOperationalState::TagEnum::kUnknownEnumValue:
+    case ClosureOperationalState::TagEnum::kSequenceNextStep:
+    case ClosureOperationalState::TagEnum::kPedestrianNextStep:
+    default:
+        return ClosureOperationalState::PositioningEnum::kUnknownEnumValue;
+    }
+}
+
+ClosureOperationalState::PositioningEnum ClosuresDevice::GetPositioning()
+{
+    return mPositioning;
+}
+
+ClosureOperationalState::LatchingEnum ClosuresDevice::GetLatching()
+{
+    return mLatching;
+}
+
+Globals::ThreeLevelAutoEnum ClosuresDevice::GetSpeed()
+{
+    return mSpeed;
+}
+
+ClosureOperationalState::Structs::OverallStateStruct::Type ClosuresDevice::GetOverallState() const
+{
+    return mOverallState;
 }
 
 void ClosuresDevice::SetDeviceToStoppedState()
 {
-    if (mNotOperational)
-    {
-        mOperationalStateInstance.SetOperationalState(to_underlying(ClosureOperationalState::OperationalStateEnum::kSetupRequired));
-    }
-    else
-    {
-        mOperationalStateInstance.SetOperationalState(to_underlying(OperationalState::OperationalStateEnum::kStopped));
-    }
+    // TODO check if useful
 }
 
 void ClosuresDevice::AddOperationalStateObserver(OperationalState::Observer * observer) {
         mOperationalStateInstance.AddObserver(observer);
 }
 
-const char* ClosuresDevice::GetStateString(ClosureOperationalState::OperationalStateEnum state) const
+void ClosuresDevice::SetPositioning(ClosureOperationalState::PositioningEnum aPositioning) 
 {
-    switch (state)
+    mPositioning = aPositioning;
+}
+
+void ClosuresDevice::SetLatching(ClosureOperationalState::LatchingEnum aLatching) 
+{
+    mLatching = aLatching;
+}
+
+void ClosuresDevice::SetSpeed(Globals::ThreeLevelAutoEnum aSpeed) 
+{
+    mSpeed = aSpeed;
+}
+
+const char * ClosuresDevice::GetStateString(ClosureOperationalState::OperationalStateEnum aOpState) const
+{
+    switch (aOpState)
     {
     case ClosureOperationalState::OperationalStateEnum::kCalibrating:
         return "Running";
@@ -70,10 +135,56 @@ void ClosuresDevice::HandleOpStateResumeCallback(Clusters::OperationalState::Gen
 
 void ClosuresDevice::HandleOpStateStopCallback(Clusters::OperationalState::GenericOperationalError & err)
 {
+    // Cancel the motion simulation if it is running.
+    mMotionSimulator.Cancel();
+
+    // Optionally, notify the server that the operation was stopped.
+    mOperationalStateInstance.OnClosureOperationCompletionDetected(1,OperationalState::OperationalStateEnum::kStopped, GetOverallState());
+    ChipLogDetail(Zcl, "ClosuresDevice: Movement stopped, notified server.");
+
+    // Set the error status for the stop operation.
+    err.Set(to_underlying(Clusters::OperationalState::ErrorStateEnum::kNoError));
 }
 
-void ClosuresDevice::HandleOpStateMoveToCallback(Clusters::OperationalState::GenericOperationalError & err)
+void ClosuresDevice::HandleOpStateMoveToCallback(OperationalState::GenericOperationalError & err, const chip::Optional<ClosureOperationalState::TagEnum> tag, 
+                                                            const chip::Optional<Globals::ThreeLevelAutoEnum> speed, 
+                                                            const chip::Optional<ClosureOperationalState::LatchingEnum> latch)
 {
+    ChipLogDetail(Zcl, CL_GREEN "HandleOpStateMoveToCallback" CL_CLEAR);
+    // Define the duration for the motion (5 seconds)
+    auto moveDuration = System::Clock::Milliseconds32(5000);
+
+    mMotionSimulator.SetMoveDuration(moveDuration)
+                    .Execute(
+                        [this, tag, speed, latch]() {
+                            if (tag.HasValue())
+                            {
+                                ClosureOperationalState::PositioningEnum newPositioning = ConvertTagToPositioning(tag.Value());
+                                mOverallState.positioning.SetValue(newPositioning);
+                                ChipLogDetail(Zcl, "Latching value set to: %d", static_cast<int>(latch.Value()));
+                            }
+                            if (speed.HasValue())
+                            {
+                                mOverallState.speed.SetValue(speed.Value());
+                                ChipLogDetail(Zcl, "Latching value set to: %d", static_cast<int>(latch.Value()));
+                            }
+                            if (latch.HasValue())
+                            {
+                                mOverallState.latching.SetValue(latch.Value());
+                                ChipLogDetail(Zcl, "Latching value set to: %d", static_cast<int>(latch.Value()));
+                            }
+                            // Callback when the motion is completed
+                            mOperationalStateInstance.OnClosureOperationCompletionDetected(0,OperationalState::OperationalStateEnum::kStopped, GetOverallState());
+                            ChipLogDetail(Zcl, "ClosuresDevice: Movement complete, server notified.");
+                        },
+                        [this](const char * progressMessage) {
+                            // Callback for progress updates
+                            ChipLogDetail(Zcl, "ClosuresDevice: %s", progressMessage);
+                            // Optionally, you could forward this to the server for further processing.
+                        });
+
+    // Indicate that no error was detected for starting the movement
+    err.Set(to_underlying(Clusters::OperationalState::ErrorStateEnum::kNoError));
 }
 
 void ClosuresDevice::HandleStopStimuli()
@@ -440,5 +551,5 @@ void ClosuresDevice::HandleClearErrorMessage()
 
 void ClosuresDevice::HandleResetMessage()
 {
-    mOperationalStateInstance.SetOperationalState(to_underlying(OperationalState::OperationalStateEnum::kStopped));
+    // TODO
 }
