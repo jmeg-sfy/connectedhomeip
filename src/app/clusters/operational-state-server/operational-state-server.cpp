@@ -167,6 +167,7 @@ CHIP_ERROR Instance::SetOperationalState(uint8_t aOpState)
     // Error is only allowed to be set by OnOperationalErrorDetected.
     if (aOpState == to_underlying(OperationalStateEnum::kError) || !IsSupportedOperationalState(aOpState))
     {
+        ChipLogDetail(Zcl, CL_RED "OperationalStateServer SetOperationalState(): ERROR" CL_CLEAR);
         return CHIP_ERROR_INVALID_ARGUMENT;
     }
 
@@ -532,11 +533,6 @@ CHIP_ERROR Instance::Read(const ConcreteReadAttributePath & aPath, AttributeValu
     }
     default: {
         ChipLogDetail(Zcl, "OperationalState: Entering handling derived cluster attributes");
-        //         TLV::TLVReader reader;
-        // reader.Init(tlvBuffer);
-
-		// tlvReader = ReadEncodedValue(value);AttributeValueEncoder & aEncoder
-		//    DataModelLogger::LogAttribute(aPath, )
         return ReadDerivedClusterAttribute(aPath, aEncoder);
         break;
     }
@@ -1222,6 +1218,7 @@ void ClosureOperationalState::Instance::HandleCalibrateCommand(HandlerContext & 
     // Handle the case of the device being in an invalid state
     if (IsCalibrateInvalidInState(GetCurrentOperationalState()))
     {
+        ChipLogDetail(Zcl, "ClosureOperationalState: TEST");
         err.Set(to_underlying(OperationalState::ErrorStateEnum::kCommandInvalidInState));
         ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::InvalidInState);
         return;
@@ -1309,7 +1306,6 @@ void ClosureOperationalState::Instance::HandleConfigureFallbackCommand(HandlerCo
     ChipLogDetail(Zcl, "ClosureOperationalState: HandleConfigureFallbackCommand");
 
     GenericOperationalError err(to_underlying(OperationalState::ErrorStateEnum::kNoError));
-    uint8_t newState = to_underlying(ClosureOperationalState::OperationalStateEnum::kPendingFallback);
 
     ChipLogDetail(Zcl, "ClosureOperationalState: HandleConfigureFallbackCommand Fields:");
     LogConfigureFallbackRequest(req);
@@ -1357,7 +1353,6 @@ void ClosureOperationalState::Instance::HandleConfigureFallbackCommand(HandlerCo
     // Feature is Enable use the Delegate Callback to update the front-attributes
     if (HasFeature(to_underlying(Feature::kFallback)))
     {
-        SetOperationalState(newState);
         // Command is Sane for delegation
         mDelegate->HandleConfigureFallbackCommandCallback(err);
         if (err.errorStateID == to_underlying(OperationalState::ErrorStateEnum::kNoError))
