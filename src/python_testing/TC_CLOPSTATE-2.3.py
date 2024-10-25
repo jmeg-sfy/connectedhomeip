@@ -97,12 +97,12 @@ class TC_CLOPSTATE_2_3(MatterBaseTest):
         # STEP 2: TH get the DUT into Running state
         self.step(2)
         if self.is_ci:
-            # CI call to trigger unoccupied.
+            # CI call to trigger a movement and go to running state.
             self.print_step("step number 2", "Send MoveTo command to pipe")
-            self.write_to_app_pipe({"Name": "MoveTo"})
+            self.write_to_app_pipe({"Name": "MoveTo", "Tag": 3, "Speed": 1, "Latch": 0})
         else:
             self.print_step("step number 2", "Send MoveTo command")
-            tag = Clusters.Objects.ClosureOperationalState.Enums.TagEnum.kCloseInFull
+            tag = Clusters.Objects.ClosureOperationalState.Enums.TagEnum.kOpenInHalf
             try:
                 await self.send_single_cmd(cmd=Clusters.Objects.ClosureOperationalState.Commands.MoveTo(tag), endpoint=self.endpoint)
             except InteractionModelError as e:
@@ -111,6 +111,7 @@ class TC_CLOPSTATE_2_3(MatterBaseTest):
         self.step(3)
         # Ensure that the device is in the correct state: Stopped (0x01)
         self.print_step("step number 3", "Ensure that devices is in Running state")
+        # TODO Add expected status enum
         await self.read_operational_state_with_check(0x01)
 
         # STEP 3: TH sends the stop command to the DUT
