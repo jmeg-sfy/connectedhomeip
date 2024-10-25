@@ -796,6 +796,12 @@ void ClosureOperationalState::Instance::InvokeDerivedClusterCommand(chip::app::C
         CommandHandlerInterface::HandleCommand<Commands::ConfigureFallback::DecodableType>(
             handlerContext, [this](HandlerContext & ctx, const auto & req) { HandleConfigureFallbackCommand(ctx, req); });
         break;
+    case ClosureOperationalState::Commands::CancelFallback::Id:
+        ChipLogDetail(Zcl, "ClosureOperationalState: Entering handling CancelFallback command");
+
+        CommandHandlerInterface::HandleCommand<Commands::CancelFallback::DecodableType>(
+            handlerContext, [this](HandlerContext & ctx, const auto & req) { HandleCancelFallbackCommand(ctx, req); });
+        break;
     default:
         ChipLogProgress(Zcl, "ClosureOperationalState: WARNING CommandId=0x%02X Invoke is not handled !", commandId);
         handlerContext.mCommandHandler.AddStatus(handlerContext.mRequestPath, Status::InvalidCommand);
@@ -1297,7 +1303,6 @@ void ClosureOperationalState::Instance::HandleMoveToCommand(HandlerContext & ctx
 void ClosureOperationalState::Instance::HandleConfigureFallbackCommand(HandlerContext & ctx, const Commands::ConfigureFallback::DecodableType & req)
 {
     ChipLogDetail(Zcl, "ClosureOperationalState: HandleConfigureFallbackCommand");
-
     GenericOperationalError err(to_underlying(OperationalState::ErrorStateEnum::kNoError));
 
     ChipLogDetail(Zcl, "ClosureOperationalState: HandleConfigureFallbackCommand Fields:");
@@ -1357,6 +1362,27 @@ void ClosureOperationalState::Instance::HandleConfigureFallbackCommand(HandlerCo
     {
         ChipLogDetail(NotSpecified, "Fallback feature " CL_YELLOW "NOT SUPPORTED " CL_CLEAR " ConfigureFallback ignored");
     }
+    ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::Success);
+}
+
+
+void ClosureOperationalState::Instance::HandleCancelFallbackCommand(HandlerContext & ctx, const Commands::CancelFallback::DecodableType & req)
+{
+    ChipLogDetail(Zcl, "ClosureOperationalState: HandleCancelFallbackCommand");
+    GenericOperationalError err(to_underlying(OperationalState::ErrorStateEnum::kNoError));
+    uint8_t newState = to_underlying(OperationalState::OperationalStateEnum::kStopped);
+
+    // Handle the case of the device being in an invalid state
+    if (!IsConfigureFallbackInvalidInState(GetCurrentOperationalState()))
+    {
+        err.Set(to_underlying(OperationalState::ErrorStateEnum::kCommandInvalidInState));
+        ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::InvalidInState);
+        return;
+    }
+
+    SetOperationalState(newState);
+    mDelegate->HandleCancelFallbackCommandCallback(err);
+
     ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::Success);
 }
 

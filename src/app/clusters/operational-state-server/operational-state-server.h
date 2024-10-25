@@ -641,6 +641,16 @@ public:
     };
 
     /**
+     * Handle Command Callback in application: CancelFallback
+     * @param[out] err operational error after callback.
+     */
+    virtual void HandleCancelFallbackCommandCallback(OperationalState::GenericOperationalError & err)
+    {
+        ChipLogDetail(Zcl, "ClosureOperationalState:Delegate HandleCancelFallbackCommandCallback dummy");
+        err.Set(to_underlying(OperationalState::ErrorStateEnum::kUnknownEnumValue));
+    };
+
+    /**
      * The start command is not supported by the ClosureOperationalState cluster hence this method should never be called.
      * This is a dummy implementation of the handler method so the consumer of this class does not need to define it.
      */
@@ -849,6 +859,11 @@ private:
      * Handle Command: ConfigureFallback
      */
     void HandleConfigureFallbackCommand(HandlerContext & ctx, const Commands::ConfigureFallback::DecodableType & req);
+
+    /**
+     * Handle Command: CancelFallback
+     */
+    void HandleCancelFallbackCommand(HandlerContext & ctx, const Commands::CancelFallback::DecodableType & req);
 
 };
 
