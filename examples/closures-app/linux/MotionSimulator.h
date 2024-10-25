@@ -1,5 +1,4 @@
 #include <functional>
-#include <system/SystemClock.h>
 #include <system/SystemLayer.h>
 
 namespace chip {

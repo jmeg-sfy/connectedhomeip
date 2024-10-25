@@ -26,14 +26,14 @@ bool MotionSimulator::Execute(DoneCallback && doneCallback, ProgressCallback && 
 
 void MotionSimulator::StartTimer(System::Clock::Timeout duration)
 {
-    chip::DeviceLayer::SystemLayer().StartTimer(duration, &MotionSimulator::OnTimerDone, this);
+    DeviceLayer::SystemLayer().StartTimer(duration, &MotionSimulator::OnTimerDone, this);
 }
 
 void MotionSimulator::Cancel()
 {
     if (mIsRunning)
     {
-        chip::DeviceLayer::SystemLayer().CancelTimer(&MotionSimulator::OnTimerDone, this);
+        DeviceLayer::SystemLayer().CancelTimer(&MotionSimulator::OnTimerDone, this);
         mIsRunning = false;
         ChipLogDetail(Zcl, "MotionSimulator: Movement canceled.");
         EmitProgress("Movement canceled.");

@@ -33,11 +33,8 @@ class ClosuresAppCommandHandler
 {
 public:
     static ClosuresAppCommandHandler * FromJSON(const char * json);
-
     static void HandleCommand(intptr_t context);
-
     ClosuresAppCommandHandler(Json::Value && jasonValue) : mJsonValue(std::move(jasonValue)) {}
-
     void SetClosuresDevice(chip::app::Clusters::ClosuresDevice * aClosuresDevice);
 
 private:

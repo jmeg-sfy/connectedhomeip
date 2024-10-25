@@ -28,6 +28,36 @@ using namespace chip;
 using namespace chip::app;
 using namespace chip::app::Clusters;
 
+namespace {
+    enum class CommandType {
+        MoveTo,
+        Stop,
+        Calibrate,
+        ConfigureFallback,
+        Protected,
+        Unprotected,
+        ErrorEvent,
+        ClearError,
+        Reset,
+        Unknown
+    };
+
+    CommandType GetCommandType(const std::string & name)
+    {
+        if (name == "MoveTo") return CommandType::MoveTo;
+        if (name == "Stop") return CommandType::Stop;
+        if (name == "Calibrate") return CommandType::Calibrate;
+        if (name == "ConfigureFallback") return CommandType::ConfigureFallback;
+        if (name == "Protected") return CommandType::Protected;
+        if (name == "UnProtected") return CommandType::Unprotected;
+        if (name == "ErrorEvent") return CommandType::ErrorEvent;
+        if (name == "ClearError") return CommandType::ClearError;
+        if (name == "Reset") return CommandType::Reset;
+        return CommandType::Unknown;
+    }
+}
+
+
 ClosuresAppCommandHandler * ClosuresAppCommandHandler::FromJSON(const char * json)
 {
     Json::Reader reader;
@@ -57,69 +87,62 @@ ClosuresAppCommandHandler * ClosuresAppCommandHandler::FromJSON(const char * jso
 void ClosuresAppCommandHandler::HandleCommand(intptr_t context)
 {
     auto * self      = reinterpret_cast<ClosuresAppCommandHandler *>(context);
-    std::string name = self->mJsonValue["Name"].asString(); 
+    std::string name = self->mJsonValue["Name"].asString();
+    CommandType commandType = GetCommandType(name);
 
     VerifyOrReturn(!self->mJsonValue.empty(), {
         ChipLogError(NotSpecified, "Invalid JSON event command received");
         Platform::Delete(self);
     });
 
-    if (name == "MoveTo")
+    switch (commandType)
     {
-        std::optional<uint8_t> tag = self->mJsonValue.isMember("Tag") ? 
-                                    std::make_optional(static_cast<uint8_t>(self->mJsonValue["Tag"].asUInt())) : std::nullopt;
-        std::optional<uint8_t> speed = self->mJsonValue.isMember("Speed") ? 
-                                    std::make_optional(static_cast<uint8_t>(self->mJsonValue["Speed"].asUInt())) : std::nullopt;
-        std::optional<uint8_t> latch = self->mJsonValue.isMember("Latch") ? 
-                                    std::make_optional(static_cast<uint8_t>(self->mJsonValue["Latch"].asUInt())) : std::nullopt;
+        case CommandType::MoveTo:
+            self->MoveToStimuli(
+                self->mJsonValue.isMember("Tag") ? std::make_optional(static_cast<uint8_t>(self->mJsonValue["Tag"].asUInt())) : std::nullopt,
+                self->mJsonValue.isMember("Speed") ? std::make_optional(static_cast<uint8_t>(self->mJsonValue["Speed"].asUInt())) : std::nullopt,
+                self->mJsonValue.isMember("Latch") ? std::make_optional(static_cast<uint8_t>(self->mJsonValue["Latch"].asUInt())) : std::nullopt);
+            break;
 
-        self->MoveToStimuli(tag, speed, latch);
-    }
-    if (name == "Stop")
-    {
-        self->StopStimuli();
-    }
-    if (name == "Calibrate")
-    {
-        self->CalibrateStimuli();
-    }
-    if (name == "ConfigureFallback")
-    {
-        std::optional<uint8_t> restingProcedure = self->mJsonValue.isMember("RestingProcedure") ? 
-                                    std::make_optional(static_cast<uint8_t>(self->mJsonValue["RestingProcedure"].asUInt())) : std::nullopt;
-        std::optional<uint8_t> triggerCondition = self->mJsonValue.isMember("TriggerCondition") ? 
-                                    std::make_optional(static_cast<uint8_t>(self->mJsonValue["TriggerCondition"].asUInt())) : std::nullopt;
-        std::optional<uint8_t> triggerPosition = self->mJsonValue.isMember("TriggerPosition") ? 
-                                    std::make_optional(static_cast<uint8_t>(self->mJsonValue["TriggerPosition"].asUInt())) : std::nullopt;
-        std::optional<uint16_t> waitingDelay = self->mJsonValue.isMember("WaitingDelay") ? 
-                                    std::make_optional(static_cast<uint8_t>(self->mJsonValue["WaitingDelay"].asUInt())) : std::nullopt;
+        case CommandType::Stop:
+            self->StopStimuli();
+            break;
 
-        self->ConfigureFallbackStimuli(restingProcedure, triggerCondition, triggerPosition, waitingDelay);
-    }
-    if (name == "Protected")
-    {
-        self->ProtectedStimuli();
-    }
-    if (name == "UnProtected")
-    {
-        self->UnprotectedStimuli();
-    }
-    else if (name == "ErrorEvent")
-    {
-        std::string error = self->mJsonValue["Error"].asString();
-        self->OnErrorEventHandler(error);
-    }
-    else if (name == "ClearError")
-    {
-        self->OnClearErrorHandler();
-    }
-    else if (name == "Reset")
-    {
-        self->OnResetHandler();
-    }
-    else
-    {
-        ChipLogError(NotSpecified, "ClosuresAppDelegate: Unhandled command: Should never happens");
+        case CommandType::Calibrate:
+            self->CalibrateStimuli();
+            break;
+
+        case CommandType::ConfigureFallback:
+            self->ConfigureFallbackStimuli(
+                self->mJsonValue.isMember("RestingProcedure") ? std::make_optional(static_cast<uint8_t>(self->mJsonValue["RestingProcedure"].asUInt())) : std::nullopt,
+                self->mJsonValue.isMember("TriggerCondition") ? std::make_optional(static_cast<uint8_t>(self->mJsonValue["TriggerCondition"].asUInt())) : std::nullopt,
+                self->mJsonValue.isMember("TriggerPosition") ? std::make_optional(static_cast<uint8_t>(self->mJsonValue["TriggerPosition"].asUInt())) : std::nullopt,
+                self->mJsonValue.isMember("WaitingDelay") ? std::make_optional(static_cast<uint16_t>(self->mJsonValue["WaitingDelay"].asUInt())) : std::nullopt);
+            break;
+
+        case CommandType::Protected:
+            self->ProtectedStimuli();
+            break;
+
+        case CommandType::Unprotected:
+            self->UnprotectedStimuli();
+            break;
+
+        case CommandType::ErrorEvent:
+            self->OnErrorEventHandler(self->mJsonValue["Error"].asString());
+            break;
+
+        case CommandType::ClearError:
+            self->OnClearErrorHandler();
+            break;
+
+        case CommandType::Reset:
+            self->OnResetHandler();
+            break;
+
+        default:
+            ChipLogError(NotSpecified, "ClosuresAppDelegate: Unhandled command: %s", name.c_str());
+            break;
     }
 
     Platform::Delete(self);
@@ -135,8 +158,7 @@ void ClosuresAppCommandDelegate::SetClosuresDevice(chip::app::Clusters::Closures
     mClosuresDevice = aClosuresDevice;
 }
 
-void ClosuresAppCommandHandler::MoveToStimuli(std::optional<uint8_t> tag, 
-                                              std::optional<uint8_t> speed, 
+void ClosuresAppCommandHandler::MoveToStimuli(std::optional<uint8_t> tag, std::optional<uint8_t> speed,
                                               std::optional<uint8_t> latch)
 {
     mClosuresDevice->HandleMoveToStimuli(tag, latch, speed);
