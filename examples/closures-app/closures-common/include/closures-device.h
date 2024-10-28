@@ -25,6 +25,12 @@ private:
     bool mNotOperational = false;
     bool mStopped = false;
     bool mRunning = false;
+    bool mPaused = false;
+
+    bool mReadyToRun = false;
+    bool mActionNeeded = false;
+    bool mSetupNeeded = false;
+    bool mFallbackNeeded = false;
 
     ClosureOperationalState::Structs::OverallStateStruct::Type mOverallState;
 
@@ -68,6 +74,10 @@ public:
         mOperationalStateDelegate.SetResumeCallback(&ClosuresDevice::HandleOpStateResumeCallback, this);
         mOperationalStateDelegate.SetStopCallback(&ClosuresDevice::HandleOpStateStopCallback, this);
         mOperationalStateDelegate.SetMoveToCallback(&ClosuresDevice::HandleOpStateMoveToCallback, this);
+        mOperationalStateDelegate.SetIsReadyToRunCallback(&ClosuresDevice::IsReadyToRun, this);
+        mOperationalStateDelegate.SetActionNeededCallback(&ClosuresDevice::ActionNeeded, this);
+        mOperationalStateDelegate.SetSetupNeededCallback(&ClosuresDevice::SetupNeeded, this);
+        mOperationalStateDelegate.SetFallbackNeededCallback(&ClosuresDevice::FallbackNeeded, this);
     }
 
     // Add a public method to allow adding observers
@@ -82,6 +92,11 @@ public:
     ClosureOperationalState::LatchingEnum GetLatching();
     Globals::ThreeLevelAutoEnum GetSpeed();
     ClosureOperationalState::Structs::OverallStateStruct::Type GetOverallState() const;
+
+    void IsReadyToRun(bool & ready);
+    void ActionNeeded(bool & ready);
+    void SetupNeeded(bool & ready);
+    void FallbackNeeded(bool & ready);
 
     // Call to observer to be notified of a state change
     void OnStateChanged(ClosureOperationalState::OperationalStateEnum state);

@@ -609,13 +609,39 @@ public:
     };
 
     /**
-     * Handle Command Callback in application: MoveTo
-     * @param[out] err operational error after callback.
+     * Handle Is Ready To Run sub state
+     * @param[out] ready readiness after callback
      */
-    virtual bool IsReadyToRunCallback(void)
+    virtual void IsReadyToRunCallback(bool & ready)
     {
         ChipLogDetail(Zcl, "ClosureOperationalState:Delegate IsReadyToRunCallback dummy");
-        return true;
+    };
+    
+    /**
+     * Handle Action needed sub state
+     * @param[out] ready readiness after callback
+     */
+    virtual void ActionNeededCallback(bool & ready)
+    {
+        ChipLogDetail(Zcl, "ClosureOperationalState:Delegate ActionNeededCallback dummy");
+    };
+
+    /**
+     * Handle Fallback Needed sub state
+     * @param[out] ready readiness after callback
+     */
+    virtual void FallbackNeededCallback(bool & ready)
+    {
+        ChipLogDetail(Zcl, "ClosureOperationalState:Delegate FallbackNeededCallback dummy");
+    };
+
+    /**
+     * Handle Setup Needed sub state
+     * @param[out] ready readiness after callback
+     */
+    virtual void SetupNeededCallback(bool & ready)
+    {
+        ChipLogDetail(Zcl, "ClosureOperationalState:Delegate SetupNeededCallback dummy");
     };
 
     /**

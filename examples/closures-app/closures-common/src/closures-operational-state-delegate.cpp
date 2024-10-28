@@ -63,3 +63,35 @@ void ClosuresOperationalStateDelegate::HandleMoveToCommandCallback(OperationalSt
 {
     (mResumeClosuresDeviceInstance->*mMoveToCallback)(err, tag, speed, latch);
 }
+
+void ClosureOperationalState::ClosuresOperationalStateDelegate::IsReadyToRunCallback(bool & ready)
+{
+    (mResumeClosuresDeviceInstance->*mIsReadyToRunCallback)(ready);
+}
+
+void ClosureOperationalState::ClosuresOperationalStateDelegate::ActionNeededCallback(bool & ready)
+{
+    (mResumeClosuresDeviceInstance->*mActionNeededCallback)(ready);
+}
+
+void ClosureOperationalState::ClosuresOperationalStateDelegate::SetupNeededCallback(bool & ready)
+{
+    (mResumeClosuresDeviceInstance->*mSetupNeededCallback)(ready);
+}
+
+void ClosureOperationalState::ClosuresOperationalStateDelegate::FallbackNeededCallback(bool & ready)
+{
+    (mResumeClosuresDeviceInstance->*mFallbackNeededCallback)(ready);
+}
+
+void ClosuresOperationalStateDelegate::SetDeviceNotReadyCallback(std::function<void()> callback)
+{
+    mDeviceNotReadyCallback = std::move(callback);
+}
+
+void ClosuresOperationalStateDelegate::NotifyDeviceNotReady()
+{
+    if (mDeviceNotReadyCallback) {
+        mDeviceNotReadyCallback();
+    }
+}

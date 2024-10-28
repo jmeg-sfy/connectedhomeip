@@ -233,6 +233,22 @@ namespace ClosureOperationalState {
 namespace Structs {
 namespace OverallStateStruct {
 
+enum class ClosureOperationalStateEnum : uint8_t {
+    kStopped = 0,
+    kRunning = 1,
+    kPaused = 2,
+    kError = 3,
+    kSetupRequired = 4,
+    kDisengaged = 5,
+    kProtected = 6,
+    kCalibrating = 7,
+    kPendingFallback = 8,
+    kIsReadyToRun = 9,    
+    kIsActionNeeded = 10,  
+    kIsSetupRequired = 11, 
+    
+};
+
 // Define the equality operator for OverallStateStruct::Type.
 inline bool operator==(const Type & lhs, const Type & rhs)
 {

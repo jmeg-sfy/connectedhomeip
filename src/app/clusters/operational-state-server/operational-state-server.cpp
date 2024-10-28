@@ -1248,6 +1248,7 @@ void ClosureOperationalState::Instance::HandleMoveToCommand(HandlerContext & ctx
 
     GenericOperationalError err(to_underlying(OperationalState::ErrorStateEnum::kNoError));
     uint8_t newState = to_underlying(OperationalState::OperationalStateEnum::kRunning);
+    bool isReadyToRun = false;
 
     ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand Fields:");
     LogMoveToRequest(req);
@@ -1286,9 +1287,25 @@ void ClosureOperationalState::Instance::HandleMoveToCommand(HandlerContext & ctx
         return;
     }
 
+    mDelegate->IsReadyToRunCallback(isReadyToRun);
+
+    if (!isReadyToRun)
+    {
+        ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand: NOT Ready to Run:");
+        newState = to_underlying(OperationalState::OperationalStateEnum::kPaused);
+    }
+
     SetOperationalState(newState);
-    // Command is Sane for delegation
-    mDelegate->HandleMoveToCommandCallback(err, req.tag, req.speed, req.latch);
+
+    if (!isReadyToRun)
+    {
+        mDelegate->HandlePauseStateCallback(err);
+    }
+    else
+    {
+        mDelegate->HandleMoveToCommandCallback(err, req.tag, req.speed, req.latch);
+    }
+    
 
     if (err.errorStateID == to_underlying(OperationalState::ErrorStateEnum::kNoError))
     {
