@@ -74,10 +74,7 @@ public:
         mOperationalStateDelegate.SetResumeCallback(&ClosuresDevice::HandleOpStateResumeCallback, this);
         mOperationalStateDelegate.SetStopCallback(&ClosuresDevice::HandleOpStateStopCallback, this);
         mOperationalStateDelegate.SetMoveToCallback(&ClosuresDevice::HandleOpStateMoveToCallback, this);
-        mOperationalStateDelegate.SetIsReadyToRunCallback(&ClosuresDevice::IsReadyToRun, this);
-        mOperationalStateDelegate.SetActionNeededCallback(&ClosuresDevice::ActionNeeded, this);
-        mOperationalStateDelegate.SetSetupNeededCallback(&ClosuresDevice::SetupNeeded, this);
-        mOperationalStateDelegate.SetFallbackNeededCallback(&ClosuresDevice::FallbackNeeded, this);
+        mOperationalStateDelegate.SetCheckReadinessCallback(&ClosuresDevice::CheckReadiness, this);
     }
 
     // Add a public method to allow adding observers
@@ -93,10 +90,7 @@ public:
     Globals::ThreeLevelAutoEnum GetSpeed();
     ClosureOperationalState::Structs::OverallStateStruct::Type GetOverallState() const;
 
-    void IsReadyToRun(bool & ready);
-    void ActionNeeded(bool & ready);
-    void SetupNeeded(bool & ready);
-    void FallbackNeeded(bool & ready);
+    void CheckReadiness(ReadinessCheckType aType, bool & aReady);
 
     // Call to observer to be notified of a state change
     void OnStateChanged(ClosureOperationalState::OperationalStateEnum state);
@@ -131,33 +125,38 @@ public:
     /**
      * Handles the MoveTo command stimuli from app.
      */
-    void HandleMoveToStimuli(std::optional<uint8_t> tag, std::optional<uint8_t> speed, std::optional<uint8_t> latch);
+    void ClosuresMoveToStimuli(std::optional<uint8_t> tag, std::optional<uint8_t> speed, std::optional<uint8_t> latch);
 
     /**
      * Handles the Stop command stimuli from app.
      */
-    void HandleStopStimuli();
+    void ClosuresStopStimuli();
 
     /**
      * Handles the Calibrate command stimuli from app.
      */
-    void HandleCalibrateStimuli();
+    void ClosuresCalibrateStimuli();
 
     /**
      * Handles the ConfigureFallback command stimuli from app.
      */
-    void HandleConfigureFallbackStimuli(std::optional<uint8_t> restingProcedure, std::optional<uint8_t> triggerCondition, 
+    void ClosuresConfigureFallbackStimuli(std::optional<uint8_t> restingProcedure, std::optional<uint8_t> triggerCondition, 
                                         std::optional<uint8_t> triggerPosition, std::optional<uint16_t> waitingDelay);
 
     /**
      * Handles the Protected stimuli from app.
      */
-    void HandleProtectedStimuli();
+    void ClosuresProtectedStimuli();
 
     /**
      * Handles the Unprotected stimuli from app.
      */
-    void HandleUnprotectedStimuli();
+    void ClosuresUnprotectedStimuli();
+
+    /**
+     * Handles the Ready to run stimuli from app.
+     */
+    void ClosuresReadyToRunStimuli(bool aReady);
 
     /**
      * Sets the device to an error state with the error state ID matching the error name given.

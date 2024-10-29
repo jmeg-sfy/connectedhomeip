@@ -61,27 +61,12 @@ void ClosuresOperationalStateDelegate::HandleMoveToCommandCallback(OperationalSt
                                                             const chip::Optional<Globals::ThreeLevelAutoEnum> speed, 
                                                             const chip::Optional<ClosureOperationalState::LatchingEnum> latch)
 {
-    (mResumeClosuresDeviceInstance->*mMoveToCallback)(err, tag, speed, latch);
+    (mMoveToClosuresDeviceInstance->*mMoveToCallback)(err, tag, speed, latch);
 }
 
-void ClosureOperationalState::ClosuresOperationalStateDelegate::IsReadyToRunCallback(bool & ready)
+void ClosureOperationalState::ClosuresOperationalStateDelegate::CheckReadinessCallback(ReadinessCheckType aType, bool & aReady)
 {
-    (mResumeClosuresDeviceInstance->*mIsReadyToRunCallback)(ready);
-}
-
-void ClosureOperationalState::ClosuresOperationalStateDelegate::ActionNeededCallback(bool & ready)
-{
-    (mResumeClosuresDeviceInstance->*mActionNeededCallback)(ready);
-}
-
-void ClosureOperationalState::ClosuresOperationalStateDelegate::SetupNeededCallback(bool & ready)
-{
-    (mResumeClosuresDeviceInstance->*mSetupNeededCallback)(ready);
-}
-
-void ClosureOperationalState::ClosuresOperationalStateDelegate::FallbackNeededCallback(bool & ready)
-{
-    (mResumeClosuresDeviceInstance->*mFallbackNeededCallback)(ready);
+    (mCheckReadinessInstance->*mCheckReadinessCallback)(aType, aReady);
 }
 
 void ClosuresOperationalStateDelegate::SetDeviceNotReadyCallback(std::function<void()> callback)

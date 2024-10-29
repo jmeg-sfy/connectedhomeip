@@ -78,40 +78,25 @@ ClosureOperationalState::Structs::OverallStateStruct::Type ClosuresDevice::GetOv
     return mOverallState;
 }
 
-void ClosuresDevice::IsReadyToRun(bool & ready)
-{   
-    if (!mReadyToRun)
-    {
-        ready=false;
+void ClosuresDevice::CheckReadiness(ReadinessCheckType aType, bool & aReady)
+{
+    switch (aType) {
+    case ReadinessCheckType::ReadyToRun:
+        aReady = mReadyToRun;
+        break;
+    case ReadinessCheckType::ActionNeeded:
+        aReady = mActionNeeded;
+        break;
+    case ReadinessCheckType::SetupNeeded:
+        aReady = mSetupNeeded;
+        break;
+    case ReadinessCheckType::FallbackNeeded:
+        aReady = mFallbackNeeded;
+        break;
+    default:
+        aReady = false; // Default to not ready if unknown type
+        break;
     }
-    ready=true;
-}
-
-void ClosuresDevice::ActionNeeded(bool & actionNeeded)
-{   
-    if (!mActionNeeded)
-    {
-        actionNeeded=false;
-    }
-    actionNeeded=true;
-}
-
-void ClosuresDevice::SetupNeeded(bool & setupNeeded)
-{   
-    if (!mSetupNeeded)
-    {
-        setupNeeded=false;
-    }
-    setupNeeded=true;
-}
-
-void ClosuresDevice::FallbackNeeded(bool & fallbackNeeded)
-{   
-    if (!mFallbackNeeded)
-    {
-        fallbackNeeded=false;
-    }
-    fallbackNeeded=true;
 }
 
 void ClosuresDevice::SetDeviceToStoppedState()
@@ -231,7 +216,7 @@ void ClosuresDevice::HandleOpStateMoveToCallback(OperationalState::GenericOperat
     }    
 }
 
-void ClosuresDevice::HandleStopStimuli()
+void ClosuresDevice::ClosuresStopStimuli()
 {
     ChipLogDetail(Zcl, CL_GREEN "ClosuresDevice: Stop Stimuli..." CL_CLEAR);
     uint16_t endpoint = 1;
@@ -284,7 +269,7 @@ void ClosuresDevice::HandleStopStimuli()
 }
 
 
-void ClosuresDevice::HandleMoveToStimuli(std::optional<uint8_t> tag, std::optional<uint8_t> speed, std::optional<uint8_t> latch)
+void ClosuresDevice::ClosuresMoveToStimuli(std::optional<uint8_t> tag, std::optional<uint8_t> speed, std::optional<uint8_t> latch)
 {
     uint16_t endpoint = 1;
 
@@ -376,7 +361,7 @@ void ClosuresDevice::HandleMoveToStimuli(std::optional<uint8_t> tag, std::option
 }
 
 
-void ClosuresDevice::HandleCalibrateStimuli()
+void ClosuresDevice::ClosuresCalibrateStimuli()
 {
     ChipLogDetail(Zcl, CL_GREEN "ClosuresDevice: Calibrate Stimuli..." CL_CLEAR);
     uint16_t endpoint = 1;
@@ -428,7 +413,7 @@ void ClosuresDevice::HandleCalibrateStimuli()
     mOperationalStateInstance.InvokeCommand(handlerContext);    
 }
 
-void ClosuresDevice::HandleConfigureFallbackStimuli(std::optional<uint8_t> restingProcedure, std::optional<uint8_t> triggerCondition, 
+void ClosuresDevice::ClosuresConfigureFallbackStimuli(std::optional<uint8_t> restingProcedure, std::optional<uint8_t> triggerCondition, 
                                                     std::optional<uint8_t> triggerPosition, std::optional<uint16_t> waitingDelay)
 {
     uint16_t endpoint = 1;
@@ -531,15 +516,27 @@ void ClosuresDevice::HandleConfigureFallbackStimuli(std::optional<uint8_t> resti
     mOperationalStateInstance.InvokeCommand(handlerContext);
 }
 
-void ClosuresDevice::HandleProtectedStimuli()
+void ClosuresDevice::ClosuresProtectedStimuli()
 {
     
 }
 
-void ClosuresDevice::HandleUnprotectedStimuli()
+void ClosuresDevice::ClosuresUnprotectedStimuli()
 {
-    
 }
+
+void ClosuresDevice::ClosuresReadyToRunStimuli(bool aReady)
+{
+    if (aReady)
+    {
+        mReadyToRun = true;
+    }
+    else
+    {
+        mReadyToRun = false;
+    }
+}
+
 
 void ClosuresDevice::HandleErrorEvent(const std::string & error)
 {

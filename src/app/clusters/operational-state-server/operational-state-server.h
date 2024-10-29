@@ -548,6 +548,13 @@ public:
 // #############################################################################################
 // ClosureOperationalState
 
+enum class ReadinessCheckType {
+    ReadyToRun,
+    ActionNeeded,
+    SetupNeeded,
+    FallbackNeeded
+};
+
 namespace ClosureOperationalState {
 
 const chip::DurationS kMaxDurationS = 64800;
@@ -609,39 +616,13 @@ public:
     };
 
     /**
-     * Handle Is Ready To Run sub state
-     * @param[out] ready readiness after callback
+     * Check readiness on the application implementing the server
+     * @param[in] aType type of readiness check
+     * @param[out] aReady readiness after callback
      */
-    virtual void IsReadyToRunCallback(bool & ready)
+    virtual void CheckReadinessCallback(ReadinessCheckType aType, bool & aReady)
     {
-        ChipLogDetail(Zcl, "ClosureOperationalState:Delegate IsReadyToRunCallback dummy");
-    };
-    
-    /**
-     * Handle Action needed sub state
-     * @param[out] ready readiness after callback
-     */
-    virtual void ActionNeededCallback(bool & ready)
-    {
-        ChipLogDetail(Zcl, "ClosureOperationalState:Delegate ActionNeededCallback dummy");
-    };
-
-    /**
-     * Handle Fallback Needed sub state
-     * @param[out] ready readiness after callback
-     */
-    virtual void FallbackNeededCallback(bool & ready)
-    {
-        ChipLogDetail(Zcl, "ClosureOperationalState:Delegate FallbackNeededCallback dummy");
-    };
-
-    /**
-     * Handle Setup Needed sub state
-     * @param[out] ready readiness after callback
-     */
-    virtual void SetupNeededCallback(bool & ready)
-    {
-        ChipLogDetail(Zcl, "ClosureOperationalState:Delegate SetupNeededCallback dummy");
+        ChipLogDetail(Zcl, "ClosureOperationalState:Delegate CheckReadinessCallback dummy");
     };
 
     /**

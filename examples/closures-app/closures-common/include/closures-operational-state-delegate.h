@@ -28,7 +28,7 @@ namespace Clusters {
 
 class ClosuresDevice;
 
-typedef void (ClosuresDevice::*HandleOpSubState)(bool & ready);
+typedef void (ClosuresDevice::*HandleOpSubState)(ReadinessCheckType type, bool & ready);
 typedef void (ClosuresDevice::*HandleOpStateCommand)(Clusters::OperationalState::GenericOperationalError & err);
 typedef void (ClosuresDevice::*HandleClosureOpStateCommand)(OperationalState::GenericOperationalError & err, const chip::Optional<ClosureOperationalState::TagEnum> tag, 
                                                             const chip::Optional<Globals::ThreeLevelAutoEnum> speed, 
@@ -61,14 +61,8 @@ private:
     HandleOpStateCommand mStopCallback;
     ClosuresDevice * mMoveToClosuresDeviceInstance;
     HandleClosureOpStateCommand mMoveToCallback;
-    ClosuresDevice * mIsReadyToRunInstance;
-    HandleOpSubState mIsReadyToRunCallback;
-    ClosuresDevice * mActionNeededInstance;
-    HandleOpSubState mActionNeededCallback;
-    ClosuresDevice * mSetupNeededInstance;
-    HandleOpSubState mSetupNeededCallback;
-    ClosuresDevice * mFallbackNeededInstance;
-    HandleOpSubState mFallbackNeededCallback;
+    ClosuresDevice * mCheckReadinessInstance;
+    HandleOpSubState mCheckReadinessCallback;
 
     std::function<void()> mDeviceNotReadyCallback;
 
@@ -131,10 +125,7 @@ public:
                                                             const chip::Optional<Globals::ThreeLevelAutoEnum> speed, 
                                                             const chip::Optional<ClosureOperationalState::LatchingEnum> latch) override;
 
-    void IsReadyToRunCallback(bool & ready) override;
-    void ActionNeededCallback(bool & ready) override;
-    void SetupNeededCallback(bool & ready) override;
-    void FallbackNeededCallback(bool & ready) override;
+    void CheckReadinessCallback(ReadinessCheckType aType, bool & aReady) override;
 
     void SetPauseCallback(HandleOpStateCommand aCallback, ClosuresDevice * aInstance)
     {
@@ -160,28 +151,10 @@ public:
         mMoveToClosuresDeviceInstance = aInstance;
     };
 
-    void SetIsReadyToRunCallback(HandleOpSubState aCallback, ClosuresDevice * aInstance)
+    void SetCheckReadinessCallback(HandleOpSubState aCallback, ClosuresDevice * aInstance)
     {
-        mIsReadyToRunCallback = aCallback;
-        mIsReadyToRunInstance = aInstance;
-    };
-
-    void SetActionNeededCallback(HandleOpSubState aCallback, ClosuresDevice * aInstance)
-    {
-        mActionNeededCallback = aCallback;
-        mActionNeededInstance = aInstance;
-    };
-
-    void SetSetupNeededCallback(HandleOpSubState aCallback, ClosuresDevice * aInstance)
-    {
-        mSetupNeededCallback = aCallback;
-        mSetupNeededInstance = aInstance;
-    };
-
-    void SetFallbackNeededCallback(HandleOpSubState aCallback, ClosuresDevice * aInstance)
-    {
-        mFallbackNeededCallback = aCallback;
-        mFallbackNeededInstance = aInstance;
+        mCheckReadinessCallback = aCallback;
+        mCheckReadinessInstance = aInstance;
     };
 
     void SetDeviceNotReadyCallback(std::function<void()> callback);

@@ -1186,6 +1186,8 @@ void ClosureOperationalState::Instance::HandleStopState(HandlerContext & ctx, co
 
     GenericOperationalError err(to_underlying(OperationalState::ErrorStateEnum::kNoError));
     uint8_t newState = to_underlying(OperationalState::OperationalStateEnum::kStopped);
+    bool fallbackNeeded = false;
+    ReadinessCheckType readinessType = ReadinessCheckType::FallbackNeeded;
 
     /* NOTE: Compare to the Base::Stop Method -> ClosureOperationalState::Stop Method doesn't answer with a InvokeResponse but with a regular Status */
     // Handle the case of the device being in an invalid state
@@ -1196,6 +1198,15 @@ void ClosureOperationalState::Instance::HandleStopState(HandlerContext & ctx, co
         return;
     }
 
+    mDelegate->CheckReadinessCallback(readinessType, fallbackNeeded);
+
+    if (fallbackNeeded)
+    {
+        ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand: Fallback needed:");
+        newState = to_underlying(ClosureOperationalState::OperationalStateEnum::kPendingFallback);
+    }
+
+    // TODO in case of going to pending fallback, the app shall be notified, observer?
     SetOperationalState(newState);
     // Command is Sane for delegation
     mDelegate->HandleStopStateCallback(err);
@@ -1249,6 +1260,7 @@ void ClosureOperationalState::Instance::HandleMoveToCommand(HandlerContext & ctx
     GenericOperationalError err(to_underlying(OperationalState::ErrorStateEnum::kNoError));
     uint8_t newState = to_underlying(OperationalState::OperationalStateEnum::kRunning);
     bool isReadyToRun = false;
+    ReadinessCheckType readinessType = ReadinessCheckType::ReadyToRun;
 
     ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand Fields:");
     LogMoveToRequest(req);
@@ -1287,8 +1299,8 @@ void ClosureOperationalState::Instance::HandleMoveToCommand(HandlerContext & ctx
         return;
     }
 
-    mDelegate->IsReadyToRunCallback(isReadyToRun);
-
+    mDelegate->CheckReadinessCallback(readinessType, isReadyToRun);
+    
     if (!isReadyToRun)
     {
         ChipLogDetail(Zcl, "ClosureOperationalState: HandleMoveToCommand: NOT Ready to Run:");
