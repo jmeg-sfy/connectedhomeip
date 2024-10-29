@@ -37,6 +37,9 @@ namespace {
         Protected,
         Unprotected,
         SetReadyToRun,
+        SetActionNeeded,
+        SetFallbackNeeded,
+        SetSetupRequired,
         ErrorEvent,
         ClearError,
         Reset,
@@ -52,6 +55,9 @@ namespace {
         if (name == "Protected") return CommandType::Protected;
         if (name == "UnProtected") return CommandType::Unprotected;
         if (name == "SetReadyToRun") return CommandType::SetReadyToRun;
+        if (name == "SetActionNeeded") return CommandType::SetActionNeeded;
+        if (name == "SetFallbackNeeded") return CommandType::SetFallbackNeeded;
+        if (name == "SetSetupRequired") return CommandType::SetSetupRequired;
         if (name == "ErrorEvent") return CommandType::ErrorEvent;
         if (name == "ClearError") return CommandType::ClearError;
         if (name == "Reset") return CommandType::Reset;
@@ -137,6 +143,27 @@ void ClosuresAppCommandHandler::HandleCommand(intptr_t context)
             break;
         }
 
+        case CommandType::SetActionNeeded:
+        {
+            bool actionNeeded = self->mJsonValue["ActionNeeded"].asBool();
+            self->ActionNeededStimuli(actionNeeded);
+            break;
+        }
+
+        case CommandType::SetFallbackNeeded:
+        {
+            bool fallbackNeeded = self->mJsonValue["FallbackNeeded"].asBool();
+            self->FallbackNeededStimuli(fallbackNeeded);
+            break;
+        }
+
+        case CommandType::SetSetupRequired:
+        {
+            bool setupRequired = self->mJsonValue["SetupRequired"].asBool();
+            self->SetupRequiredStimuli(setupRequired);
+            break;
+        }
+
         case CommandType::ErrorEvent:
             self->OnErrorEventHandler(self->mJsonValue["Error"].asString());
             break;
@@ -201,6 +228,21 @@ void ClosuresAppCommandHandler::UnprotectedStimuli()
 void ClosuresAppCommandHandler::ReadyToRunStimuli(bool aReady)
 {
     mClosuresDevice->ClosuresReadyToRunStimuli(aReady);
+}
+
+void ClosuresAppCommandHandler::ActionNeededStimuli(bool aActionNeeded)
+{
+    mClosuresDevice->ClosuresActionNeededStimuli(aActionNeeded);
+}
+
+void ClosuresAppCommandHandler::FallbackNeededStimuli(bool aFallbackNeeded)
+{
+    mClosuresDevice->ClosuresFallbackNeededStimuli(aFallbackNeeded);
+}
+
+void ClosuresAppCommandHandler::SetupRequiredStimuli(bool aSetupRequired)
+{
+    mClosuresDevice->ClosuresSetupRequiredStimuli(aSetupRequired);
 }
 
 void ClosuresAppCommandHandler::OnErrorEventHandler(const std::string & error)

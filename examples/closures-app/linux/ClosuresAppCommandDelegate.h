@@ -49,6 +49,9 @@ private:
     void ProtectedStimuli();
     void UnprotectedStimuli();
     void ReadyToRunStimuli(bool aReady);
+    void ActionNeededStimuli(bool aActionNeeded);
+    void FallbackNeededStimuli(bool aFallbackNeeded);
+    void SetupRequiredStimuli(bool aSetupRequired);
     void OnErrorEventHandler(const std::string & error);
     void OnClearErrorHandler();
     void OnResetHandler();

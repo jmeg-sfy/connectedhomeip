@@ -29,7 +29,7 @@ private:
 
     bool mReadyToRun = false;
     bool mActionNeeded = false;
-    bool mSetupNeeded = false;
+    bool mSetupRequired = false;
     bool mFallbackNeeded = false;
 
     ClosureOperationalState::Structs::OverallStateStruct::Type mOverallState;
@@ -157,6 +157,21 @@ public:
      * Handles the Ready to run stimuli from app.
      */
     void ClosuresReadyToRunStimuli(bool aReady);
+
+    /**
+     * Handles the Action needed stimuli from app.
+     */
+    void ClosuresActionNeededStimuli(bool aActionNeeded);
+
+    /**
+     * Handles the Fallback needed stimuli from app.
+     */
+    void ClosuresFallbackNeededStimuli(bool aFallbackNeeded);
+
+    /**
+     * Handles the Setup Required stimuli from app.
+     */
+    void ClosuresSetupRequiredStimuli(bool aSetupRequired);
 
     /**
      * Sets the device to an error state with the error state ID matching the error name given.

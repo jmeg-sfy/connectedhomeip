@@ -88,7 +88,7 @@ void ClosuresDevice::CheckReadiness(ReadinessCheckType aType, bool & aReady)
         aReady = mActionNeeded;
         break;
     case ReadinessCheckType::SetupNeeded:
-        aReady = mSetupNeeded;
+        aReady = mSetupRequired;
         break;
     case ReadinessCheckType::FallbackNeeded:
         aReady = mFallbackNeeded;
@@ -533,6 +533,23 @@ void ClosuresDevice::ClosuresReadyToRunStimuli(bool aReady)
     mReadyToRun = aReady;
 }
 
+void ClosuresDevice::ClosuresActionNeededStimuli(bool aActionNeeded)
+{
+    ChipLogDetail(Zcl, CL_GREEN "ClosuresDevice: Action Needed Stimuli to %d" CL_CLEAR, aActionNeeded);
+    mActionNeeded = aActionNeeded;
+}
+
+void ClosuresDevice::ClosuresFallbackNeededStimuli(bool aFallbackNeeded)
+{
+    ChipLogDetail(Zcl, CL_GREEN "ClosuresDevice: Fallback Needed Stimuli to %d" CL_CLEAR, aFallbackNeeded);
+    mFallbackNeeded = aFallbackNeeded;
+}
+
+void ClosuresDevice::ClosuresSetupRequiredStimuli(bool aSetupRequired)
+{
+    ChipLogDetail(Zcl, CL_GREEN "ClosuresDevice: Setup Required Stimuli to %d" CL_CLEAR, aSetupRequired);
+    mSetupRequired = aSetupRequired;
+}
 
 void ClosuresDevice::HandleErrorEvent(const std::string & error)
 {
