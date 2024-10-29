@@ -416,6 +416,8 @@ void ClosuresDevice::ClosuresCalibrateStimuli()
 void ClosuresDevice::ClosuresConfigureFallbackStimuli(std::optional<uint8_t> restingProcedure, std::optional<uint8_t> triggerCondition, 
                                                     std::optional<uint8_t> triggerPosition, std::optional<uint16_t> waitingDelay)
 {
+    ChipLogDetail(Zcl, CL_GREEN "ClosuresDevice: Configure Fallback Stimuli..." CL_CLEAR);
+
     uint16_t endpoint = 1;
 
     // Create a shared pointer for MockCommandHandler
@@ -527,14 +529,8 @@ void ClosuresDevice::ClosuresUnprotectedStimuli()
 
 void ClosuresDevice::ClosuresReadyToRunStimuli(bool aReady)
 {
-    if (aReady)
-    {
-        mReadyToRun = true;
-    }
-    else
-    {
-        mReadyToRun = false;
-    }
+    ChipLogDetail(Zcl, CL_GREEN "ClosuresDevice: Ready to Run Stimuli to %d" CL_CLEAR, aReady);
+    mReadyToRun = aReady;
 }
 
 

@@ -48,6 +48,7 @@ private:
                                   std::optional<uint8_t> triggerPosition, std::optional<uint16_t> waitingDelay);
     void ProtectedStimuli();
     void UnprotectedStimuli();
+    void ReadyToRunStimuli(bool aReady);
     void OnErrorEventHandler(const std::string & error);
     void OnClearErrorHandler();
     void OnResetHandler();

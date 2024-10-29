@@ -36,6 +36,7 @@ namespace {
         ConfigureFallback,
         Protected,
         Unprotected,
+        SetReadyToRun,
         ErrorEvent,
         ClearError,
         Reset,
@@ -50,6 +51,7 @@ namespace {
         if (name == "ConfigureFallback") return CommandType::ConfigureFallback;
         if (name == "Protected") return CommandType::Protected;
         if (name == "UnProtected") return CommandType::Unprotected;
+        if (name == "SetReadyToRun") return CommandType::SetReadyToRun;
         if (name == "ErrorEvent") return CommandType::ErrorEvent;
         if (name == "ClearError") return CommandType::ClearError;
         if (name == "Reset") return CommandType::Reset;
@@ -128,6 +130,13 @@ void ClosuresAppCommandHandler::HandleCommand(intptr_t context)
             self->UnprotectedStimuli();
             break;
 
+        case CommandType::SetReadyToRun:
+        {
+            bool readyToRun = self->mJsonValue["ReadyToRun"].asBool();
+            self->ReadyToRunStimuli(readyToRun);
+            break;
+        }
+
         case CommandType::ErrorEvent:
             self->OnErrorEventHandler(self->mJsonValue["Error"].asString());
             break;
@@ -161,32 +170,37 @@ void ClosuresAppCommandDelegate::SetClosuresDevice(chip::app::Clusters::Closures
 void ClosuresAppCommandHandler::MoveToStimuli(std::optional<uint8_t> tag, std::optional<uint8_t> speed,
                                               std::optional<uint8_t> latch)
 {
-    mClosuresDevice->HandleMoveToStimuli(tag, latch, speed);
+    mClosuresDevice->ClosuresMoveToStimuli(tag, latch, speed);
 }
 
 void ClosuresAppCommandHandler::StopStimuli()
 {
-    mClosuresDevice->HandleStopStimuli();
+    mClosuresDevice->ClosuresStopStimuli();
 }
 
 void ClosuresAppCommandHandler::CalibrateStimuli()
 {
-    mClosuresDevice->HandleCalibrateStimuli();
+    mClosuresDevice->ClosuresCalibrateStimuli();
 }
 
 void ClosuresAppCommandHandler::ConfigureFallbackStimuli(std::optional<uint8_t> restingProcedure, std::optional<uint8_t> triggerCondition, std::optional<uint8_t> triggerPosition, std::optional<uint16_t> waitingDelay)
 {
-    mClosuresDevice->HandleConfigureFallbackStimuli(restingProcedure, triggerCondition, triggerPosition, waitingDelay);
+    mClosuresDevice->ClosuresConfigureFallbackStimuli(restingProcedure, triggerCondition, triggerPosition, waitingDelay);
 }
 
 void ClosuresAppCommandHandler::ProtectedStimuli()
 {
-    mClosuresDevice->HandleProtectedStimuli();
+    mClosuresDevice->ClosuresProtectedStimuli();
 }
 
 void ClosuresAppCommandHandler::UnprotectedStimuli()
 {
-    mClosuresDevice->HandleUnprotectedStimuli();
+    mClosuresDevice->ClosuresUnprotectedStimuli();
+}
+
+void ClosuresAppCommandHandler::ReadyToRunStimuli(bool aReady)
+{
+    mClosuresDevice->ClosuresReadyToRunStimuli(aReady);
 }
 
 void ClosuresAppCommandHandler::OnErrorEventHandler(const std::string & error)
