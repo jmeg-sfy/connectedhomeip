@@ -158,7 +158,7 @@ void ClosuresDevice::HandleOpStateStopCallback(Clusters::OperationalState::Gener
     mMotionSimulator.Cancel();
 
     // Optionally, notify the server that the operation was stopped.
-    mOperationalStateInstance.OnClosureOperationCompletionDetected(1,OperationalState::OperationalStateEnum::kStopped, GetOverallState());
+    mOperationalStateInstance.OnClosureOperationCompletionDetected(1, static_cast<uint8_t>(OperationalState::OperationalStateEnum::kStopped), GetOverallState());
     ChipLogDetail(NotSpecified, "ClosuresDevice: Movement stopped, notified server.");
 
     // Set the error status for the stop operation.
@@ -196,7 +196,7 @@ void ClosuresDevice::HandleOpStateMoveToCallback(OperationalState::GenericOperat
                 ChipLogDetail(NotSpecified, "ClosureDevice - Latching value set to: %d", static_cast<int>(latch.Value()));
             }
             // Callback when the motion is completed
-            mOperationalStateInstance.OnClosureOperationCompletionDetected(0,OperationalState::OperationalStateEnum::kStopped, GetOverallState());
+            mOperationalStateInstance.OnClosureOperationCompletionDetected(0,static_cast<uint8_t>(OperationalState::OperationalStateEnum::kStopped), GetOverallState());
             ChipLogDetail(NotSpecified, "ClosuresDevice: Movement complete, server notified.");
         },
         [this](const char * progressMessage) 
@@ -225,7 +225,7 @@ void ClosuresDevice::HandleOpStateCalibrateCallback(OperationalState::GenericOpe
             // Completion callback for calibration simulation
             ChipLogDetail(NotSpecified, "ClosuresDevice: Calibration complete.");
             // Callback when the motion is completed
-            mOperationalStateInstance.OnClosureOperationCompletionDetected(0,OperationalState::OperationalStateEnum::kStopped, GetOverallState());
+            mOperationalStateInstance.OnClosureOperationCompletionDetected(0,static_cast<uint8_t>(OperationalState::OperationalStateEnum::kStopped), GetOverallState());
         },
         [this](const char * progressMessage) 
         {
@@ -567,6 +567,7 @@ void ClosuresDevice::ClosuresSetupRequiredStimuli(bool aSetupRequired)
 {
     ChipLogDetail(NotSpecified, CL_GREEN "ClosuresDevice: Setup Required Stimuli to %d" CL_CLEAR, aSetupRequired);
     mSetupRequired = aSetupRequired;
+    mOperationalStateInstance.OnClosureOperationCompletionDetected(0,static_cast<uint8_t>(ClosureOperationalState::OperationalStateEnum::kSetupRequired), GetOverallState());
 }
 
 void ClosuresDevice::HandleErrorEvent(const std::string & error)

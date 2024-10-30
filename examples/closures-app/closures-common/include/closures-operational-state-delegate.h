@@ -120,7 +120,7 @@ public:
     void HandleStopStateCallback(Clusters::OperationalState::GenericOperationalError & err) override;
 
     /**
-     * Handle Command Callback in application: Stop
+     * Handle Command Callback in application: Calibrate
      * @param[out] get operational error after callback.
      */
     void HandleCalibrateCommandCallback(Clusters::OperationalState::GenericOperationalError & err) override;

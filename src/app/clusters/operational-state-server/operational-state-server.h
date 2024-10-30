@@ -744,7 +744,7 @@ public:
      * @param aNewState OperationalState 
      * @param aOverallState OverallState
      */
-    void OnClosureOperationCompletionDetected(uint8_t aCompletionErrorCode, OperationalState::OperationalStateEnum aNewState, 
+    void OnClosureOperationCompletionDetected(uint8_t aCompletionErrorCode, uint8_t aNewState, 
                                                const ClosureOperationalState::Structs::OverallStateStruct::Type & aOverallState);
 
     ~Instance() override;

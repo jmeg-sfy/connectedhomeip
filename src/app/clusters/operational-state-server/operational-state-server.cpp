@@ -1428,11 +1428,11 @@ void ClosureOperationalState::Instance::RemoveObserver(OperationalState::Observe
 }
 
 
-void ClosureOperationalState::Instance::OnClosureOperationCompletionDetected(uint8_t aCompletionErrorCode, OperationalState::OperationalStateEnum aNewState, 
+void ClosureOperationalState::Instance::OnClosureOperationCompletionDetected(uint8_t aCompletionErrorCode, uint8_t aNewState, 
                                                     const ClosureOperationalState::Structs::OverallStateStruct::Type & aOverallState)
 {
     ChipLogDetail(Zcl, "OperationalStateServer: OnClosureOperationCompletionDetected");
-    uint8_t newState = to_underlying(aNewState);
+    uint8_t newState = aNewState;
 
     if (newState != GetCurrentOperationalState())
     {
