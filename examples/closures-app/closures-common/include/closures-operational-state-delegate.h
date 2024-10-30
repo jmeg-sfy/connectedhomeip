@@ -61,6 +61,8 @@ private:
     HandleOpStateCommand mStopCallback;
     ClosuresDevice * mMoveToClosuresDeviceInstance;
     HandleClosureOpStateCommand mMoveToCallback;
+    ClosuresDevice * mCalibrateClosuresDeviceInstance;
+    HandleOpStateCommand mCalibrateCallback;
     ClosuresDevice * mCheckReadinessInstance;
     HandleOpSubState mCheckReadinessCallback;
 
@@ -118,6 +120,12 @@ public:
     void HandleStopStateCallback(Clusters::OperationalState::GenericOperationalError & err) override;
 
     /**
+     * Handle Command Callback in application: Stop
+     * @param[out] get operational error after callback.
+     */
+    void HandleCalibrateCommandCallback(Clusters::OperationalState::GenericOperationalError & err) override;
+
+    /**
      * Handle Command Callback in application: MoveTo
      * @param[out] get operational error after callback.
      */
@@ -149,6 +157,12 @@ public:
     {
         mMoveToCallback          = aCallback;
         mMoveToClosuresDeviceInstance = aInstance;
+    };
+
+    void SetCalibrateCallback(HandleOpStateCommand aCallback, ClosuresDevice * aInstance)
+    {
+        mCalibrateCallback          = aCallback;
+        mCalibrateClosuresDeviceInstance = aInstance;
     };
 
     void SetCheckReadinessCallback(HandleOpSubState aCallback, ClosuresDevice * aInstance)

@@ -99,11 +99,6 @@ void ClosuresDevice::CheckReadiness(ReadinessCheckType aType, bool & aReady)
     }
 }
 
-void ClosuresDevice::SetDeviceToStoppedState()
-{
-    // TODO check if useful
-}
-
 void ClosuresDevice::AddOperationalStateObserver(OperationalState::Observer * observer) {
         mOperationalStateInstance.AddObserver(observer);
 }
@@ -149,7 +144,7 @@ void ClosuresDevice::OnStateChanged(ClosureOperationalState::OperationalStateEnu
 
 void ClosuresDevice::HandleOpStatePauseCallback(Clusters::OperationalState::GenericOperationalError & err)
 {
-    ChipLogDetail(Zcl, CL_GREEN "HandleOpStatePauseCallback" CL_CLEAR);
+    ChipLogDetail(NotSpecified, CL_GREEN "HandleOpStatePauseCallback" CL_CLEAR);
     mPaused = true;
 }
 
@@ -164,7 +159,7 @@ void ClosuresDevice::HandleOpStateStopCallback(Clusters::OperationalState::Gener
 
     // Optionally, notify the server that the operation was stopped.
     mOperationalStateInstance.OnClosureOperationCompletionDetected(1,OperationalState::OperationalStateEnum::kStopped, GetOverallState());
-    ChipLogDetail(Zcl, "ClosuresDevice: Movement stopped, notified server.");
+    ChipLogDetail(NotSpecified, "ClosuresDevice: Movement stopped, notified server.");
 
     // Set the error status for the stop operation.
     err.Set(to_underlying(Clusters::OperationalState::ErrorStateEnum::kNoError));
@@ -174,40 +169,41 @@ void ClosuresDevice::HandleOpStateMoveToCallback(OperationalState::GenericOperat
                                                             const chip::Optional<Globals::ThreeLevelAutoEnum> speed, 
                                                             const chip::Optional<ClosureOperationalState::LatchingEnum> latch)
 {
-    ChipLogDetail(Zcl, CL_GREEN "HandleOpStateMoveToCallback" CL_CLEAR);
+    ChipLogDetail(NotSpecified, CL_GREEN "HandleOpStateMoveToCallback" CL_CLEAR);
     err.Set(to_underlying(Clusters::OperationalState::ErrorStateEnum::kNoError));
     // Define the duration for the motion (5 seconds)
-    auto moveDuration = System::Clock::Milliseconds32(5000);
+    mMotionSimulator.SetMoveDuration(System::Clock::Milliseconds32(5000));
 
     if (mReadyToRun)
     {
-        mMotionSimulator.SetMoveDuration(moveDuration)
-                        .Execute(
-                            [this, tag, speed, latch]() {
-                                if (tag.HasValue())
-                                {
-                                    ClosureOperationalState::PositioningEnum newPositioning = ConvertTagToPositioning(tag.Value());
-                                    mOverallState.positioning.SetValue(newPositioning);
-                                    ChipLogDetail(Zcl, "ClosureDevice - Positioning value set to: %d", static_cast<int>(latch.Value()));
-                                }
-                                if (speed.HasValue())
-                                {
-                                    mOverallState.speed.SetValue(speed.Value());
-                                    ChipLogDetail(Zcl, "ClosureDevice - Speed value set to: %d", static_cast<int>(latch.Value()));
-                                }
-                                if (latch.HasValue())
-                                {
-                                    mOverallState.latching.SetValue(latch.Value());
-                                    ChipLogDetail(Zcl, "ClosureDevice - Latching value set to: %d", static_cast<int>(latch.Value()));
-                                }
-                                // Callback when the motion is completed
-                                mOperationalStateInstance.OnClosureOperationCompletionDetected(0,OperationalState::OperationalStateEnum::kStopped, GetOverallState());
-                                ChipLogDetail(Zcl, "ClosuresDevice: Movement complete, server notified.");
-                            },
-                            [this](const char * progressMessage) {
-                                // Callback for progress updates
-                                ChipLogDetail(Zcl, "ClosuresDevice: %s", progressMessage);
-                            });
+        mMotionSimulator.StartMotion(
+        [this,tag, speed, latch]() 
+        {
+            if (tag.HasValue())
+            {
+                ClosureOperationalState::PositioningEnum newPositioning = ConvertTagToPositioning(tag.Value());
+                mOverallState.positioning.SetValue(newPositioning);
+                ChipLogDetail(NotSpecified, "ClosureDevice - Positioning value set to: %d", static_cast<int>(latch.Value()));
+            }
+            if (speed.HasValue())
+            {
+                mOverallState.speed.SetValue(speed.Value());
+                ChipLogDetail(NotSpecified, "ClosureDevice - Speed value set to: %d", static_cast<int>(latch.Value()));
+            }
+            if (latch.HasValue())
+            {
+                mOverallState.latching.SetValue(latch.Value());
+                ChipLogDetail(NotSpecified, "ClosureDevice - Latching value set to: %d", static_cast<int>(latch.Value()));
+            }
+            // Callback when the motion is completed
+            mOperationalStateInstance.OnClosureOperationCompletionDetected(0,OperationalState::OperationalStateEnum::kStopped, GetOverallState());
+            ChipLogDetail(NotSpecified, "ClosuresDevice: Movement complete, server notified.");
+        },
+        [this](const char * progressMessage) 
+        {
+            // Progress callback for motion simulation
+            ChipLogDetail(NotSpecified, "ClosuresDevice: %s", progressMessage);
+        });
     }
     else 
     {
@@ -216,9 +212,31 @@ void ClosuresDevice::HandleOpStateMoveToCallback(OperationalState::GenericOperat
     }    
 }
 
+void ClosuresDevice::HandleOpStateCalibrateCallback(OperationalState::GenericOperationalError & err)
+{
+    ChipLogDetail(NotSpecified, CL_GREEN "HandleOpStateCalibrateCallback" CL_CLEAR);
+    err.Set(to_underlying(Clusters::OperationalState::ErrorStateEnum::kNoError));
+    // Define the duration for the motion (5 seconds)
+    mMotionSimulator.SetCalibrationDuration(System::Clock::Milliseconds32(3000));
+
+    mMotionSimulator.StartCalibration(
+        [this]() 
+        {
+            // Completion callback for calibration simulation
+            ChipLogDetail(NotSpecified, "ClosuresDevice: Calibration complete.");
+            // Callback when the motion is completed
+            mOperationalStateInstance.OnClosureOperationCompletionDetected(0,OperationalState::OperationalStateEnum::kStopped, GetOverallState());
+        },
+        [this](const char * progressMessage) 
+        {
+            // Progress callback for calibration simulation
+            ChipLogDetail(NotSpecified, "ClosuresDevice: %s", progressMessage);
+        });
+}
+
 void ClosuresDevice::ClosuresStopStimuli()
 {
-    ChipLogDetail(Zcl, CL_GREEN "ClosuresDevice: Stop Stimuli..." CL_CLEAR);
+    ChipLogDetail(NotSpecified, CL_GREEN "ClosuresDevice: Stop Stimuli..." CL_CLEAR);
     uint16_t endpoint = 1;
 
     // Create a shared pointer for MockCommandHandler
@@ -363,7 +381,7 @@ void ClosuresDevice::ClosuresMoveToStimuli(std::optional<uint8_t> tag, std::opti
 
 void ClosuresDevice::ClosuresCalibrateStimuli()
 {
-    ChipLogDetail(Zcl, CL_GREEN "ClosuresDevice: Calibrate Stimuli..." CL_CLEAR);
+    ChipLogDetail(NotSpecified, CL_GREEN "ClosuresDevice: Calibrate Stimuli..." CL_CLEAR);
     uint16_t endpoint = 1;
 
     // Create a shared pointer for MockCommandHandler
@@ -416,7 +434,7 @@ void ClosuresDevice::ClosuresCalibrateStimuli()
 void ClosuresDevice::ClosuresConfigureFallbackStimuli(std::optional<uint8_t> restingProcedure, std::optional<uint8_t> triggerCondition, 
                                                     std::optional<uint8_t> triggerPosition, std::optional<uint16_t> waitingDelay)
 {
-    ChipLogDetail(Zcl, CL_GREEN "ClosuresDevice: Configure Fallback Stimuli..." CL_CLEAR);
+    ChipLogDetail(NotSpecified, CL_GREEN "ClosuresDevice: Configure Fallback Stimuli..." CL_CLEAR);
 
     uint16_t endpoint = 1;
 
@@ -529,25 +547,25 @@ void ClosuresDevice::ClosuresUnprotectedStimuli()
 
 void ClosuresDevice::ClosuresReadyToRunStimuli(bool aReady)
 {
-    ChipLogDetail(Zcl, CL_GREEN "ClosuresDevice: Ready to Run Stimuli to %d" CL_CLEAR, aReady);
+    ChipLogDetail(NotSpecified, CL_GREEN "ClosuresDevice: Ready to Run Stimuli to %d" CL_CLEAR, aReady);
     mReadyToRun = aReady;
 }
 
 void ClosuresDevice::ClosuresActionNeededStimuli(bool aActionNeeded)
 {
-    ChipLogDetail(Zcl, CL_GREEN "ClosuresDevice: Action Needed Stimuli to %d" CL_CLEAR, aActionNeeded);
+    ChipLogDetail(NotSpecified, CL_GREEN "ClosuresDevice: Action Needed Stimuli to %d" CL_CLEAR, aActionNeeded);
     mActionNeeded = aActionNeeded;
 }
 
 void ClosuresDevice::ClosuresFallbackNeededStimuli(bool aFallbackNeeded)
 {
-    ChipLogDetail(Zcl, CL_GREEN "ClosuresDevice: Fallback Needed Stimuli to %d" CL_CLEAR, aFallbackNeeded);
+    ChipLogDetail(NotSpecified, CL_GREEN "ClosuresDevice: Fallback Needed Stimuli to %d" CL_CLEAR, aFallbackNeeded);
     mFallbackNeeded = aFallbackNeeded;
 }
 
 void ClosuresDevice::ClosuresSetupRequiredStimuli(bool aSetupRequired)
 {
-    ChipLogDetail(Zcl, CL_GREEN "ClosuresDevice: Setup Required Stimuli to %d" CL_CLEAR, aSetupRequired);
+    ChipLogDetail(NotSpecified, CL_GREEN "ClosuresDevice: Setup Required Stimuli to %d" CL_CLEAR, aSetupRequired);
     mSetupRequired = aSetupRequired;
 }
 
@@ -599,8 +617,6 @@ void ClosuresDevice::HandleClearErrorMessage()
         ChipLogError(NotSpecified, "Closures App: The 'ClearError' command is only excepted when the device is in the 'Error' state.");
         return;
     }
-
-    SetDeviceToStoppedState();
 }
 
 void ClosuresDevice::HandleResetMessage()

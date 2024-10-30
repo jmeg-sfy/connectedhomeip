@@ -57,6 +57,11 @@ void ClosuresOperationalStateDelegate::HandleStopStateCallback(OperationalState:
     (mStopClosuresDeviceInstance->*mStopCallback)(err);
 }
 
+void ClosuresOperationalStateDelegate::HandleCalibrateCommandCallback(OperationalState::GenericOperationalError & err)
+{
+    (mCalibrateClosuresDeviceInstance->*mCalibrateCallback)(err);
+}
+
 void ClosuresOperationalStateDelegate::HandleMoveToCommandCallback(OperationalState::GenericOperationalError & err, const chip::Optional<ClosureOperationalState::TagEnum> tag, 
                                                             const chip::Optional<Globals::ThreeLevelAutoEnum> speed, 
                                                             const chip::Optional<ClosureOperationalState::LatchingEnum> latch)

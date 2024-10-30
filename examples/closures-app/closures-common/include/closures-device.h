@@ -61,10 +61,9 @@ public:
                 Feature::kSpeed,
                 Feature::kVentilation,
                 Feature::kManuallyOperable,
+                Feature::kCalibration,
                 Feature::kFallback))
     {
-
-        SetDeviceToStoppedState();
 
         // Initialize mOverallState with default values
         mOverallState = mOperationalStateInstance.GetCurrentOverallState();
@@ -74,6 +73,7 @@ public:
         mOperationalStateDelegate.SetResumeCallback(&ClosuresDevice::HandleOpStateResumeCallback, this);
         mOperationalStateDelegate.SetStopCallback(&ClosuresDevice::HandleOpStateStopCallback, this);
         mOperationalStateDelegate.SetMoveToCallback(&ClosuresDevice::HandleOpStateMoveToCallback, this);
+        mOperationalStateDelegate.SetCalibrateCallback(&ClosuresDevice::HandleOpStateCalibrateCallback, this);
         mOperationalStateDelegate.SetCheckReadinessCallback(&ClosuresDevice::CheckReadiness, this);
     }
 
@@ -96,11 +96,6 @@ public:
     void OnStateChanged(ClosureOperationalState::OperationalStateEnum state);
 
     /**
-     * 
-     */
-    void SetDeviceToStoppedState();
-
-    /**
      * Handles the ClosureOperationalState pause command.
      */
     void HandleOpStatePauseCallback(Clusters::OperationalState::GenericOperationalError & err);
@@ -121,6 +116,11 @@ public:
     void HandleOpStateMoveToCallback(OperationalState::GenericOperationalError & err, const chip::Optional<ClosureOperationalState::TagEnum> tag, 
                                                             const chip::Optional<Globals::ThreeLevelAutoEnum> speed, 
                                                             const chip::Optional<ClosureOperationalState::LatchingEnum> latch);
+
+    /**
+     * Handles the ClosureOperationalState Calibrate command.
+     */
+    void HandleOpStateCalibrateCallback(OperationalState::GenericOperationalError & err);
 
     /**
      * Handles the MoveTo command stimuli from app.

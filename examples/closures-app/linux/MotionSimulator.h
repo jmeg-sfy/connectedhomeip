@@ -1,5 +1,6 @@
 #include <functional>
 #include <system/SystemLayer.h>
+#include <memory>
 
 namespace chip {
 namespace app {
@@ -7,32 +8,40 @@ namespace app {
 class MotionSimulator
 {
 public:
-    using DoneCallback = std::function<void()>;
+    using CompleteCallback = std::function<void()>;
     using ProgressCallback = std::function<void(const char * progressMessage)>;
 
-    MotionSimulator() = default;
+    MotionSimulator();
 
-    bool Execute(DoneCallback && doneCallback, ProgressCallback && progressCallback);
+    MotionSimulator & SetMoveDuration(System::Clock::Milliseconds32 duration);
+    MotionSimulator & SetCalibrationDuration(System::Clock::Milliseconds32 duration);
 
-    MotionSimulator & SetMoveDuration(System::Clock::Milliseconds32 duration)
-    {
-        mMoveDuration = duration;
-        return *this;
-    }
-
+    void StartMotion(CompleteCallback onComplete, ProgressCallback onProgress);
+    void StartCalibration(CompleteCallback onComplete, ProgressCallback onProgress);
     void Cancel();
 
 private:
-    void StartTimer(System::Clock::Timeout duration);
-    static void OnTimerDone(System::Layer * layer, void * appState);
-    void Next();
-    void EmitProgress(const char * message);
-
-    DoneCallback mDoneCallback;
-    ProgressCallback mProgressCallback;
     System::Clock::Milliseconds32 mMoveDuration{};
-    bool mIsRunning{ false };
-    uint8_t mProgressStep{ 0 };
+    System::Clock::Milliseconds32 mCalibrationDuration{};
+
+    System::Clock::Timestamp mMoveStartTime;
+    System::Clock::Timestamp mCalibrationStartTime;
+
+    enum class SimulatorState { Stopped, InMotion, Calibrating }; 
+    SimulatorState mState = SimulatorState::Stopped;
+    struct TimerContext {
+        MotionSimulator * simulator;
+        CompleteCallback onComplete;
+        ProgressCallback onProgress;
+    };
+
+    std::unique_ptr<TimerContext> mCurrentContext;
+
+    // Static callback function for timers
+    static void TimerCallback(System::Layer * systemLayer, void * appState);
+    void NextMotion(CompleteCallback onComplete, ProgressCallback onProgress);
+    void NextCalibration(CompleteCallback onComplete, ProgressCallback onProgress);
+    std::string GetProgressMessage(float percentage);
 };
 
 } // namespace app

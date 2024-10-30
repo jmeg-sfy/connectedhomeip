@@ -1228,12 +1228,17 @@ void ClosureOperationalState::Instance::HandleCalibrateCommand(HandlerContext & 
     // Handle the case of the device being in an invalid state
     if (IsCalibrateInvalidInState(GetCurrentOperationalState()))
     {
-        ChipLogDetail(Zcl, "ClosureOperationalState: TEST");
+        ChipLogDetail(Zcl, "ClosureOperationalState: HandleCalibrateCommand: Invalid State");
         err.Set(to_underlying(OperationalState::ErrorStateEnum::kCommandInvalidInState));
         ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::InvalidInState);
         return;
     }
 
+    if (GetCurrentOperationalState()==to_underlying(OperationalStateEnum::kCalibrating))
+    {
+        ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::Success);
+        return;
+    }
 
     // Feature is Enable use the Delegate Callback to update the front-attributes
     if (HasFeature(to_underlying(Feature::kCalibration)))
@@ -1241,15 +1246,8 @@ void ClosureOperationalState::Instance::HandleCalibrateCommand(HandlerContext & 
 		SetOperationalState(newState);
         // Command is Sane for delegation
         mDelegate->HandleCalibrateCommandCallback(err);
-        if (err.errorStateID == to_underlying(OperationalState::ErrorStateEnum::kNoError))
-        {
-            ChipLogDetail(Zcl, "NEED TO IMPLEMENT attribute update");
-        }
     }
-    else
-    {
-        //LogIsFeatureSupported(fakeFeature.Raw(), Feature::kCalibration);
-    }
+
     ctx.mCommandHandler.AddStatus(ctx.mRequestPath, Status::Success);
 }
 
