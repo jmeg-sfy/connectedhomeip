@@ -84,7 +84,7 @@ class TC_CLOPSTATE_2_3(MatterBaseTest):
         self.endpoint = self.matter_test_config.endpoint
         asserts.assert_false(self.endpoint is None, "--endpoint <endpoint> must be included on the command line in.")
         self.is_ci = self.check_pics("PICS_SDK_CI_ONLY")
-        self.is_ci = True
+
         if self.is_ci:
             app_pid = self.matter_test_config.app_pid
             if app_pid == 0:
