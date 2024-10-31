@@ -181,7 +181,7 @@ public:
 
     void HandleClearErrorMessage();
 
-    void HandleResetMessage();
+    void HandleResetStimuli();
 
 };
 

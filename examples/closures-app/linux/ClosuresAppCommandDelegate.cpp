@@ -257,7 +257,7 @@ void ClosuresAppCommandHandler::OnClearErrorHandler()
 
 void ClosuresAppCommandHandler::OnResetHandler()
 {
-    mClosuresDevice->HandleResetMessage();
+    mClosuresDevice->HandleResetStimuli();
 }
 
 void ClosuresAppCommandDelegate::OnEventCommandReceived(const char * json)

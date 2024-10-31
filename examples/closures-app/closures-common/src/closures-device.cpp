@@ -620,7 +620,9 @@ void ClosuresDevice::HandleClearErrorMessage()
     }
 }
 
-void ClosuresDevice::HandleResetMessage()
+void ClosuresDevice::HandleResetStimuli()
 {
-    // TODO
+    ChipLogDetail(NotSpecified, CL_GREEN "ClosuresDevice: Reset Stimuli" CL_CLEAR);
+    mStopped = true;
+    mOperationalStateInstance.OnClosureOperationCompletionDetected(0,static_cast<uint8_t>(OperationalState::OperationalStateEnum::kStopped), GetOverallState());
 }
