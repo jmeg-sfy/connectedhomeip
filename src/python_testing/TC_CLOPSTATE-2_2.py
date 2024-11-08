@@ -56,7 +56,6 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
 
     # Prints the step number, reads the operational state attribute and checks if it matches with expected_state
     async def read_operational_state_with_check(self, expected_state):
-        logging.info("Read Operational state")
         operational_state = await self.read_single_attribute_check_success(
             endpoint=self.endpoint, cluster=Clusters.Objects.ClosureOperationalState, attribute=Clusters.ClosureOperationalState.Attributes.OperationalState)
         logging.info("OperationalState: %s" % operational_state)
@@ -86,36 +85,43 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
             TestStep(2, "TH sends MoveTo command with no field"),
             TestStep("3a", "Put the device in setup required operational state"),
             TestStep("3b", "TH reads from the DUT the OperationalState attribute"),
-            TestStep("3c", "TH sends command with only field Tag=CloseInFull"),
-            TestStep("4a", "TH sends MoveTo command with only field Tag=CloseInFull"),
-            TestStep("4b", "TH sends MoveTo command with only field Tag=OpenInFull"),
-            TestStep("4c", "TH sends MoveTo command with only field Tag=OpenOneQuarter"),
-            TestStep("4d", "TH sends MoveTo command with only field Tag=OpenInHalf"),
-            TestStep("4e", "TH sends MoveTo command with only field Tag=Pedestrian"),
-            TestStep("4f", "TH sends MoveTo command with only field Tag=Ventilation"),
-            TestStep("4g", "TH sends MoveTo command with only field Tag=Signature"),
-            TestStep("4h", "TH sends MoveTo command with only field Tag=SequenceNextStep"),
-            TestStep("4i", "TH sends MoveTo command with only field Tag=PedestrianNextStep"),
-            TestStep("4j", "TH sends MoveTo command with only field Tag=TagInvalid"),
-            TestStep("5a", "TH sends MoveTo command with only the Latch field set to LatchedAndSecured"),
-            TestStep("5b", "TH sends MoveTo command with only the Latch field set to not allowed LatchedButNotSecured"),
-            TestStep("5c", "TH sends MoveTo command with only the Latch field set to NotLatched"),
-            TestStep("5d", "TH sends MoveTo command with only the Latch field set to LatchInvalid"),
-            TestStep("6a", "TH sends MoveTo command with only the Speed field set to Auto"),
-            TestStep("6b", "TH sends MoveTo command with only the Speed field set to Low"),
-            TestStep("6c", "TH sends MoveTo command with only the Speed field set to Medium"),
-            TestStep("6d", "TH sends MoveTo command with only the Speed field set to High"),
-            TestStep("6e", "TH sends MoveTo command with only the Speed field set to SpeedInvalid"),
+            TestStep("3c", "TH sends MoveTo command with only Tag field set to CloseInFull"),
+            TestStep("4a", "TH sends MoveTo command with only Tag field set to CloseInFull"),
+            TestStep("4b", "TH sends MoveTo command with only Tag field set to OpenInFull"),
+            TestStep("4c", "TH sends MoveTo command with only Tag field set to OpenOneQuarter"),
+            TestStep("4d", "TH sends MoveTo command with only Tag field set to OpenInHalf"),
+            TestStep("4e", "TH sends MoveTo command with only Tag field set to OpenThreeQuarter"),
+            TestStep("4f", "TH sends MoveTo command with only Tag field set to OpenOneQuarter"),
+            TestStep("4g", "TH sends MoveTo command with only Tag field set to OpenInHalf"),
+            TestStep("4h", "TH sends MoveTo command with only Tag field set to OpenThreeQuarter"),
+            TestStep("4i", "TH sends MoveTo command with only Tag field set to Pedestrian"),
+            TestStep("4j", "TH sends MoveTo command with only Tag field set to Pedestrian"),
+            TestStep("4k", "TH sends MoveTo command with only Tag field set to Ventilation"),
+            TestStep("4l", "TH sends MoveTo command with only Tag field set to Ventilation"),
+            TestStep("4m", "TH sends MoveTo command with only Tag field set to Signature"),
+            TestStep("4n", "TH sends MoveTo command with only Tag field set to SequenceNextStep"),
+            TestStep("4o", "TH sends MoveTo command with only Tag field set to PedestrianNextStep"),
+            TestStep("4p", "TH sends MoveTo command with only Tag field set to PedestrianNextStep"),
+            TestStep("4q", "TH sends MoveTo command with only Tag field set to UnknownEnumValue"),
+            TestStep("5a", "TH sends MoveTo command with only Latch field set to LatchedAndSecured"),
+            TestStep("5b", "TH sends MoveTo command with only Latch field set to LatchedButNotSecured"),
+            TestStep("5c", "TH sends MoveTo command with only Latch field set to NotLatched"),
+            TestStep("5d", "TH sends MoveTo command with only Latch field set to UnknownEnumValue"),
+            TestStep("6a", "TH sends MoveTo command with only Speed field set to Auto"),
+            TestStep("6b", "TH sends MoveTo command with only Speed field set to Low"),
+            TestStep("6c", "TH sends MoveTo command with only Speed field set to Medium"),
+            TestStep("6d", "TH sends MoveTo command with only Speed field set to High"),
+            TestStep("6e", "TH sends MoveTo command with only Speed field set to UnknownEnumValue"),
             TestStep("7a", "TH sends MoveTo command with fields Tag=OpenInHalf, Latch=LatchedAndSecured"),
             TestStep("7b", "TH sends MoveTo command with fields Tag=OpenInHalf, Speed=Automatic"),
             TestStep("7c", "TH sends MoveTo command with fields Tag=OpenInHalf, Latch=LatchedAndSecured"),
             TestStep("7d", "TH sends MoveTo command with fields Tag=OpenInHalf, Speed=Automatic"),
             TestStep("7e", "TH sends MoveTo command with fields Latch=LatchedAndSecured, Speed=Automatic"),
-            TestStep("7f", "TH sends MoveTo command with fields Tag=OpenInHalf, Latch=LatInvalid"),
-            TestStep("7g", "TH sends MoveTo command with fields Tag=Pedestrian, Speed=SpdInvalid"),
-            TestStep("7h", "TH sends MoveTo command with fields Tag=Ventilation, Latch=LatInvalid"),
-            TestStep("7i", "TH sends MoveTo command with fields Tag=TagInvalid, Speed=Automatic"),
-            TestStep("7j", "TH sends MoveTo command with fields Latch=LatchedAndSecured, Speed=SpdInvalid"),
+            TestStep("7f", "TH sends MoveTo command with fields Tag=OpenInHalf, Latch=UnknownEnumValue"),
+            TestStep("7g", "TH sends MoveTo command with fields Tag=Pedestrian, Speed=UnknownEnumValue"),
+            TestStep("7h", "TH sends MoveTo command with fields Tag=Ventilation, Latch=UnknownEnumValue"),
+            TestStep("7i", "TH sends MoveTo command with fields Tag=UnknownEnumValue, Speed=Automatic"),
+            TestStep("7j", "TH sends MoveTo command with fields Latch=LatchedAndSecured, Speed=UnknownEnumValue"),
             TestStep("7k", "TH sends MoveTo command with fields Tag=CloseInFull, Latch=LatchedAndSecured, Speed=Automatic"),
         ]
         return steps
@@ -138,26 +144,27 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
 
         # STEP 2: TH sends MoveTo command with no field
         self.step(2)
-        if self.is_ci:
-            self.print_step("step number 2", "Send MoveTo command with no field to pipe")
-            self.write_to_app_pipe({"Name": "MoveTo"})
-        else:
-            self.print_step("step number 2", "Send MoveTo command with no field")
-            cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo()
-            expected_response = Status.InvalidCommand
-            await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        self.print_step("step number 2", "Send MoveTo command with no field")
+        cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo()
+        expected_response = Status.InvalidCommand
+        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
-        # STEP 3a: Put the device in setup required operational state
+        # STEP 3a
         self.step("3a")
-        if self.is_ci:
+        # if self.is_ci:
+        if self.pics_guard(self.check_pics("CLOPSTATE.S.M.ST_SETUPREQUIRED")):
             self.print_step("step number 3a", "Put the device in setup required operational state")
             self.write_to_app_pipe({"Name": "SetSetupRequired", "SetupRequired": True})
 
-        # STEP 3b: Put the device in setup required operational state
-        self.step("3b")
-        await self.read_operational_state_with_check(0x43)
+            # STEP 3b
+            self.step("3b")
+            self.print_step("step number 3b", "Read and check the operational state attribute")
+            await self.read_operational_state_with_check(0x43)
+        else:
+            self.skip_step("3b")
+            logging.info("Step test 3b skipped. The Dut need to be put in setup required state")
 
-        # STEP 3c: TH sends command with only field Tag=CloseInFull
+        # STEP 3c
         self.step("3c")
         self.print_step("step number 3c", "Send MoveTo command with tag field equals to CloseInFull")
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
@@ -167,99 +174,167 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
 
         # Reset DUT
         if self.is_ci:
+            logging.info("Reset device to default state")
             self.write_to_app_pipe({"Name": "Reset"})
 
-        # STEP 4a: TH sends MoveTo command with only field Tag=CloseInFull
+        # STEP 4a
         self.step("4a")
         self.print_step("step number 4a",
-                        "TH sends MoveTo command with only field Tag=CloseInFull. Verify DUT responds with status SUCCESS(0x00)")
+                        "TH sends MoveTo command with only Tag field=CloseInFull. Verify DUT responds with status SUCCESS(0x00)")
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kCloseInFull)
         expected_response = Status.Success
         await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
-        # STEP 4b: TH sends MoveTo command with only field Tag=OpenInFull
+        # STEP 4b
         self.step("4b")
         self.print_step("step number 4a",
-                        "TH sends MoveTo command with only field Tag=OpenInFull. Verify DUT responds with status SUCCESS(0x00)")
+                        "TH sends MoveTo command with only Tag field=OpenInFull. Verify DUT responds with status SUCCESS(0x00)")
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kOpenInFull)
         expected_response = Status.Success
         await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
-        # STEP 4c: TH sends MoveTo command with only field Tag=OpenOneQuarter
+        # STEP 4c
         self.step("4c")
         self.print_step("step number 4c",
-                        "TH sends MoveTo command with only field Tag=OpenOneQuarter. Verify DUT responds with status SUCCESS(0x00)")
+                        "TH sends MoveTo command with only Tag field=OpenOneQuarter. Verify DUT responds with status SUCCESS(0x00)")
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kOpenOneQuarter)
         expected_response = Status.Success
         await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
-        # STEP 4d: TH sends MoveTo command with only field Tag=OpenInHalf
+        # STEP 4d
         self.step("4d")
         self.print_step("step number 4d",
-                        "TH sends MoveTo command with only field Tag=OpenInHalf. Verify DUT responds with status SUCCESS(0x00)")
+                        "TH sends MoveTo command with only Tag field=OpenInHalf. Verify DUT responds with status SUCCESS(0x00)")
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kOpenInHalf)
         expected_response = Status.Success
         await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
-        # STEP 4e: TH sends MoveTo command with only field Tag=OpenThreeQuarter
+        # STEP 4e
         self.step("4e")
         self.print_step("step number 4e",
-                        "TH sends MoveTo command with only field Tag=OpenThreeQuarter. Verify DUT responds with status SUCCESS(0x00)")
+                        "TH sends MoveTo command with only Tag field=OpenThreeQuarter. Verify DUT responds with status SUCCESS(0x00)")
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kOpenThreeQuarter)
         expected_response = Status.Success
         await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
-        # STEP 4f: TH sends MoveTo command with only field Tag=Pedestrian
-        self.step("4f")
-        self.print_step("step number 4f",
-                        "TH sends MoveTo command with only field Tag=Pedestrian. Verify DUT responds with status SUCCESS(0x00)")
+        if not self.check_pics("CLOPSTATE.S.F22"):
+            # STEP 4f
+            self.step("4f")
+            self.print_step("step number 4f",
+                            "TH sends MoveTo command with only Tag field=Pedestrian. Verify DUT responds with status NOT_FOUND(0x86)")
+            cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
+                tag=Clusters.ClosureOperationalState.Enums.TagEnum.kOpenOneQuarter)
+            expected_response = Status.NotFound
+            await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+
+        if not self.check_pics("CLOPSTATE.S.F22"):
+            # STEP 4g
+            self.step("4g")
+            self.print_step("step number 4g",
+                            "TH sends MoveTo command with only Tag field=OpenInHalf. Verify DUT responds with status NOT_FOUND(0x86)")
+            cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
+                tag=Clusters.ClosureOperationalState.Enums.TagEnum.kOpenInHalf)
+            expected_response = Status.NotFound
+            await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+
+        if not self.check_pics("CLOPSTATE.S.F22"):
+            # STEP 4h
+            self.step("4h")
+            self.print_step("step number 4h",
+                            "TH sends MoveTo command with only Tag field=OpenThreeQuarter. Verify DUT responds with status NOT_FOUND(0x86)")
+            cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
+                tag=Clusters.ClosureOperationalState.Enums.TagEnum.kOpenThreeQuarter)
+            expected_response = Status.NotFound
+            await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+
+        # STEP 4i
+        self.step("4i")
+        self.print_step("step number 4i",
+                        "TH sends MoveTo command with only Tag field=Pedestrian. Verify DUT responds with status SUCCESS(0x00)")
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kPedestrian)
         expected_response = Status.Success
         await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
-        # STEP 4g: TH sends MoveTo command with only field Tag=Ventilation
-        self.step("4g")
-        self.print_step("step number 4g",
-                        "TH sends MoveTo command with only field Tag=Ventilation. Verify DUT responds with status SUCCESS(0x00)")
+        if not self.check_pics("CLOPSTATE.S.F25"):
+            # STEP 4j
+            self.step("4j")
+            self.print_step("step number 4j",
+                            "TH sends MoveTo command with only Tag field=Pedestrian. Verify DUT responds with status NOT_FOUND(0x86)")
+            cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
+                tag=Clusters.ClosureOperationalState.Enums.TagEnum.kPedestrian)
+            expected_response = Status.NotFound
+            await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+
+        # STEP 4k
+        self.step("4k")
+        self.print_step("step number 4k",
+                        "TH sends MoveTo command with only Tag field=Ventilation. Verify DUT responds with status SUCCESS(0x00)")
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kVentilation)
         expected_response = Status.Success
         await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
-        # STEP 4h: TH sends MoveTo command with only field Tag=Signature
-        self.step("4h")
-        self.print_step("step number 4h",
-                        "TH sends MoveTo command with only field Tag=Signature. Verify DUT responds with status SUCCESS(0x00)")
+        if not self.check_pics("CLOPSTATE.S.F24"):
+            # STEP 4l
+            self.step("4l")
+            self.print_step("step number 4l",
+                            "TH sends MoveTo command with only Tag field=Ventilation. Verify DUT responds with status NOT_FOUND(0x86)")
+            cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
+                tag=Clusters.ClosureOperationalState.Enums.TagEnum.kVentilation)
+            expected_response = Status.NotFound
+            await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+
+        # STEP 4m
+        self.step("4m")
+        self.print_step("step number 4m",
+                        "TH sends MoveTo command with only Tag field=Signature. Verify DUT responds with status SUCCESS(0x00)")
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kSignature)
         expected_response = Status.Success
         await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
-        # STEP 4i: TH sends MoveTo command with only field Tag=SequenceNextStep
-        self.step("4i")
-        self.print_step("step number 4i",
-                        "TH sends MoveTo command with only field Tag=SequenceNextStep. Verify DUT responds with status SUCCESS(0x00)")
+        # STEP 4n
+        self.step("4n")
+        self.print_step("step number 4n",
+                        "TH sends MoveTo command with only Tag field=SequenceNextStep. Verify DUT responds with status SUCCESS(0x00)")
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kSequenceNextStep)
         expected_response = Status.Success
         await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
-        # STEP 4j: TH sends MoveTo command with only field Tag=TagInvalid
-        self.step("4j")
-        self.print_step("step number 4j",
-                        "TH sends MoveTo command with only field Tag=TagInvalid. Verify DUT responds with status SUCCESS(0x00)")
+        # STEP 4o
+        self.step("4o")
+        self.print_step("step number 4o",
+                        "TH sends MoveTo command with only Tag field=PedestrianNextStep. Verify DUT responds with status SUCCESS(0x00)")
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
-            tag=Clusters.ClosureOperationalState.Enums.TagEnum.kUnknownEnumValue)  # TODO
-        expected_response = Status.ConstraintError
+            tag=Clusters.ClosureOperationalState.Enums.TagEnum.kPedestrianNextStep)
+        expected_response = Status.Success
         await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
-        # TODO add not implemented feature tests (not found)
+        if not self.check_pics("CLOPSTATE.S.F25"):
+            # STEP 4p
+            self.step("4p")
+            self.print_step("step number 4p",
+                            "TH sends MoveTo command with only Tag field=PedestrianNextStep. Verify DUT responds with status NOT_FOUND(0x86)")
+            cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
+                tag=Clusters.ClosureOperationalState.Enums.TagEnum.kPedestrianNextStep)
+            expected_response = Status.NotFound
+            await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+
+        # STEP 4q
+        self.step("4q")
+        self.print_step("step number 4q",
+                        "TH sends MoveTo command with only Tag field set to UnknownEnumValue. Verify DUT responds with status SUCCESS(0x00)")
+        cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
+            tag=Clusters.ClosureOperationalState.Enums.TagEnum.kUnknownEnumValue)
+        expected_response = Status.ConstraintError
+        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # CHECK LATCH FIELD
         # STEP 5a
@@ -292,7 +367,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
         # STEP 5d
         self.step("5d")
         self.print_step("step number 5d",
-                        "TH sends MoveTo command with only the Latch field set to kUnknownEnumValue. Verify DUT responds with status CONSTRAINT_ERROR(0x87)")
+                        "TH sends MoveTo command with only the Latch field set to UnknownEnumValue. Verify DUT responds with status CONSTRAINT_ERROR(0x87)")
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             latch=Clusters.ClosureOperationalState.Enums.LatchingEnum.kUnknownEnumValue)
         expected_response = Status.ConstraintError
@@ -398,7 +473,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
         # STEP 7f
         self.step("7f")
         self.print_step("step number 7f",
-                        "TH sends MoveTo command with fields Tag=OpenInHalf, Latch=LatInvalid. Verify DUT responds with status CONSTRAINT_ERROR(0x87)")
+                        "TH sends MoveTo command with fields Tag=OpenInHalf, Latch=UnknownEnumValue. Verify DUT responds with status CONSTRAINT_ERROR(0x87)")
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kOpenInHalf,
             latch=Clusters.ClosureOperationalState.Enums.LatchingEnum.kUnknownEnumValue)
@@ -408,7 +483,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
         # STEP 7g
         self.step("7g")
         self.print_step("step number 7g",
-                        "TH sends MoveTo command with fields Tag=Pedestrian, Speed=SpdInvalid. Verify DUT responds with status CONSTRAINT_ERROR(0x87)")
+                        "TH sends MoveTo command with fields Tag=Pedestrian, Speed=UnknownEnumValue. Verify DUT responds with status CONSTRAINT_ERROR(0x87)")
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kPedestrian,
             speed=Clusters.Globals.Enums.ThreeLevelAutoEnum.kUnknownEnumValue)
@@ -418,7 +493,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
         # STEP 7h
         self.step("7h")
         self.print_step("step number 7h",
-                        "TH sends MoveTo command with fields Tag=Ventilation, Latch=LatInvalid. Verify DUT responds with status CONSTRAINT_ERROR(0x87)")
+                        "TH sends MoveTo command with fields Tag=Ventilation, Latch=UnknownEnumValue. Verify DUT responds with status CONSTRAINT_ERROR(0x87)")
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kVentilation,
             speed=Clusters.ClosureOperationalState.Enums.LatchingEnum.kUnknownEnumValue)
@@ -428,7 +503,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
         # STEP 7i
         self.step("7i")
         self.print_step("step number 7i",
-                        "TH sends MoveTo command with fields Tag=TagInvalid, Speed=Automatic. Verify DUT responds with status CONSTRAINT_ERROR(0x87)")
+                        "TH sends MoveTo command with fields Tag=UnknownEnumValue, Speed=Automatic. Verify DUT responds with status CONSTRAINT_ERROR(0x87)")
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kUnknownEnumValue,
             speed=Clusters.Globals.Enums.ThreeLevelAutoEnum.kAutomatic)
@@ -438,14 +513,14 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
         # STEP 7j
         self.step("7j")
         self.print_step("step number 7j",
-                        "TH sends MoveTo command with fields Latch=LatchedAndSecured, Speed=SpdInvalid. Verify DUT responds with status CONSTRAINT_ERROR(0x87)")
+                        "TH sends MoveTo command with fields Latch=LatchedAndSecured, Speed=UnknownEnumValue. Verify DUT responds with status CONSTRAINT_ERROR(0x87)")
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             latch=Clusters.ClosureOperationalState.Enums.LatchingEnum.kLatchedAndSecured,
             speed=Clusters.Globals.Enums.ThreeLevelAutoEnum.kUnknownEnumValue)
         expected_response = Status.ConstraintError
         await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
-        # STEP 7e
+        # STEP 7k
         self.step("7k")
         self.print_step("step number 7k",
                         "TH sends MoveTo command with fields Tag=CloseInFull, Latch=LatchedAndSecured. Verify DUT responds with status SUCCESS(0x00)")
