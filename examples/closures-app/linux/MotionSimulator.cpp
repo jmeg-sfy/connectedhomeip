@@ -17,6 +17,7 @@ void MotionSimulator::StartMotion(CompleteCallback onComplete, ProgressCallback 
         Cancel();
     }
 
+    ChipLogDetail(NotSpecified, "MotionSimulator Start Motion");
     // Set up for new motion
     mMoveStartTime = System::SystemClock().GetMonotonicTimestamp();
     mState = SimulatorState::InMotion;  // Set state to InMotion
@@ -31,6 +32,7 @@ void MotionSimulator::StartCalibration(CompleteCallback onComplete, ProgressCall
         return;
     }
 
+    ChipLogDetail(NotSpecified, "MotionSimulator Start Calibration");
     mCalibrationStartTime = System::SystemClock().GetMonotonicTimestamp();
     mState = SimulatorState::Calibrating;  // Set state to Calibrating
     NextCalibration(onComplete, onProgress); // Start calibration

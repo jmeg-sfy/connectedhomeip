@@ -60,6 +60,7 @@ public:
                 Feature::kIntermediatePositioning,
                 Feature::kSpeed,
                 Feature::kVentilation,
+                Feature::kPedestrian,
                 Feature::kManuallyOperable,
                 Feature::kCalibration,
                 Feature::kFallback))
