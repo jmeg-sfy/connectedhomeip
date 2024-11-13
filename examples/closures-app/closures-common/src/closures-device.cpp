@@ -156,7 +156,7 @@ void ClosuresDevice::HandleOpStateStopCallback(Clusters::OperationalState::Gener
 {
     // Cancel the motion simulation if it is running.
     mMotionSimulator.Cancel();
-
+    mStopped=true;
     // Optionally, notify the server that the operation was stopped.
     mOperationalStateInstance.OnClosureOperationCompletionDetected(1, static_cast<uint8_t>(OperationalState::OperationalStateEnum::kStopped), GetOverallState());
     ChipLogDetail(NotSpecified, "ClosuresDevice: Movement stopped, notified server.");
@@ -176,6 +176,7 @@ void ClosuresDevice::HandleOpStateMoveToCallback(OperationalState::GenericOperat
 
     if (mReadyToRun)
     {
+        mRunning=true;
         mMotionSimulator.StartMotion(
         [this,tag, speed, latch]() 
         {
@@ -183,19 +184,21 @@ void ClosuresDevice::HandleOpStateMoveToCallback(OperationalState::GenericOperat
             {
                 ClosureOperationalState::PositioningEnum newPositioning = ConvertTagToPositioning(tag.Value());
                 mOverallState.positioning.SetValue(newPositioning);
-                ChipLogDetail(NotSpecified, "ClosureDevice - Positioning value set to: %d", static_cast<int>(latch.Value()));
+                ChipLogDetail(NotSpecified, "ClosureDevice - OverallState Positioning value set to: %d", static_cast<int>(latch.Value()));
             }
             if (speed.HasValue())
             {
                 mOverallState.speed.SetValue(speed.Value());
-                ChipLogDetail(NotSpecified, "ClosureDevice - Speed value set to: %d", static_cast<int>(latch.Value()));
+                ChipLogDetail(NotSpecified, "ClosureDevice - OverallState Speed value set to: %d", static_cast<int>(latch.Value()));
             }
             if (latch.HasValue())
             {
                 mOverallState.latching.SetValue(latch.Value());
-                ChipLogDetail(NotSpecified, "ClosureDevice - Latching value set to: %d", static_cast<int>(latch.Value()));
+                ChipLogDetail(NotSpecified, "ClosureDevice - OverallState Latching value set to: %d", static_cast<int>(latch.Value()));
             }
+            mStopped=false;
             // Callback when the motion is completed
+            // TODO overallstate attribute value shall be updated before the movement?
             mOperationalStateInstance.OnClosureOperationCompletionDetected(0,static_cast<uint8_t>(OperationalState::OperationalStateEnum::kStopped), GetOverallState());
             ChipLogDetail(NotSpecified, "ClosuresDevice: Movement complete, server notified.");
         },
@@ -219,11 +222,13 @@ void ClosuresDevice::HandleOpStateCalibrateCallback(OperationalState::GenericOpe
     // Define the duration for the motion (5 seconds)
     mMotionSimulator.SetCalibrationDuration(System::Clock::Milliseconds32(3000));
 
+    mCalibrating=true;
     mMotionSimulator.StartCalibration(
         [this]() 
         {
             // Completion callback for calibration simulation
             ChipLogDetail(NotSpecified, "ClosuresDevice: Calibration complete.");
+            mStopped=true;
             // Callback when the motion is completed
             mOperationalStateInstance.OnClosureOperationCompletionDetected(0,static_cast<uint8_t>(OperationalState::OperationalStateEnum::kStopped), GetOverallState());
         },
