@@ -46,8 +46,8 @@ limitations under the License.
     <cluster code="0x0CD6"/> <!-- Closure 6th Dimension -->
     <cluster code="0x0CD7"/> <!-- Closure 7th Dimension -->
     <cluster code="0x0CD8"/> <!-- Closure 8th Dimension -->
-    <field mask="0x3F" name="Position"/>
-    <field mask="0xC0" name="Speed"/>
+    <field mask="0xFFFC" name="Position"/>
+    <field mask="0x03" name="Speed"/>
   </bitmap>
 
   <enum name="LatchingEnum" type="enum8">

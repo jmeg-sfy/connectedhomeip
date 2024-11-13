@@ -1,5 +1,6 @@
 #include "closures-device.h"
 #include <string>
+#include <app/clusters/closure-dimension-server/closure-dimension-server.h>
 
 #define CLOSURES_DEVICE_LOW_SPEED       2000
 #define CLOSURES_DEVICE_MEDIUM_SPEED    5000
@@ -16,11 +17,92 @@ using namespace chip::app::Clusters;
 static constexpr char strLogY[] = CL_GREEN "Y" CL_CLEAR;
 static constexpr char strLogN[] = CL_RED "N" CL_CLEAR;
 
+// template <bool FeatureLatchingEnabled, bool FeatureSpeedEnabled, bool FeatureLimitationEnabled>
+//Instance<true, FeatureLatchingEnabled, false, FeatureSpeedEnabled, FeatureLimitationEnabled, false, true, false>
+//ClosureLatchOnlyInstance(EndpointId endpoint, ClusterId clusterId, Percent100ths aResolution, UnitEnum aUnit)
+
+// Template feature Ordering: Latching, Speed, Limitation
+
+using namespace chip::app::Clusters::ClosureDimension;
+static Instance gLatchOnlyInstance   = ClosureLatchOnlyInstance(                      chip::EndpointId(1), Closure1stDimension::Id, 1, UnitEnum::kDegree);
+static Instance gModulationInstance  = ClosureModulationInstance<false, false, false>(chip::EndpointId(1), Closure3rdDimension::Id, 1, UnitEnum::kDegree);
+static Instance gRotationInstance    = ClosureRotationInstance<true, false, false>(   chip::EndpointId(1), Closure4thDimension::Id, 1, UnitEnum::kDegree);
+static Instance gTranslationInstance = ClosureTranslationInstance<false, true, true>( chip::EndpointId(1), Closure2ndDimension::Id, 1, UnitEnum::kDegree);
+
+void MatterClosure1stDimensionPluginServerInitCallback() {
+    ChipLogDetail(NotSpecified, "MatterClosure1stDimensionPluginServerInitCallback begin");
+}
+
+void emberAfCarbonDioxideConcentrationMeasurementClusterInitCallback(chip::EndpointId
+ endpoint)
+{
+    ChipLogDetail(NotSpecified, "emberAfCarbonDioxide begin");
+    gLatchOnlyInstance.Init();
+      gModulationInstance.Init();
+
+      gModulationInstance.SetUnitAndRange(UnitEnum::kDegree, 2, 5405);
+      chip::Optional<chip::Percent100ths> aPositioning;
+      chip::Optional<Globals::ThreeLevelAutoEnum> aSpeed;
+      aPositioning.SetValue(10000);
+      aSpeed.SetValue(Globals::ThreeLevelAutoEnum::kMedium);
+      gModulationInstance.SetTargetPositioning(aPositioning, aSpeed);
+      aPositioning.ClearValue();
+      gModulationInstance.SetTargetPositioning(aPositioning, aSpeed);
+      aSpeed.ClearValue();
+      gModulationInstance.SetTargetPositioning(aPositioning, aSpeed);
+      aPositioning.SetValue(2);
+      gModulationInstance.SetTargetPositioning(aPositioning, aSpeed);
+      gModulationInstance.SetCurrentPositioning(aPositioning, aSpeed);
+      gModulationInstance.SetResolutionAndStepValue(5000, 3);
+
+      chip::Optional<LatchingEnum> aLatching;
+      gLatchOnlyInstance.SetTargetLatching(aLatching);
+      gLatchOnlyInstance.SetCurrentLatching(aLatching);
+    
+
+      aLatching.SetValue(LatchingEnum::kLatchedButNotSecured);
+      gLatchOnlyInstance.SetCurrentLatching(aLatching);
+
+          gRotationInstance.Init();
+              gTranslationInstance.Init();  
+
+    /* */
+    gTranslationInstance.SetTranslationDirection(TranslationDirectionEnum::kCeilingSymmetry);
+    gRotationInstance.SetRotationAxis(RotationAxisEnum::kCenteredHorizontal);
+    gModulationInstance.SetModulationType(ModulationTypeEnum::kSlatsOpenwork);
+    chip::Optional<chip::Percent100ths> aMin;
+    chip::Optional<chip::Percent100ths> aMax;
+    gTranslationInstance.SetLimitRange(aMin, aMax);
+    aMax.SetValue(8000);
+    gTranslationInstance.SetLimitRange(aMin, aMax);
+    aMin.SetValue(2000);
+    gTranslationInstance.SetLimitRange(aMin, aMax);
+    aMax.SetValue(2000);
+    gTranslationInstance.SetLimitRange(aMin, aMax);
+    aMax.ClearValue();
+    gTranslationInstance.SetLimitRange(aMin, aMax);
+    aMin.ClearValue();
+    gTranslationInstance.SetLimitRange(aMin, aMax);
+
+
+    gLatchOnlyInstance.SetLatchingAxis(LatchingAxisEnum::kUnknownEnumValue);
+    //gCarbonDioxideConcentrationMeasurementInstance.SetTargetPositioning(chip::app::DataModel::MakeNullable(0.0f));
+    // gCarbonDioxideConcentrationMeasurementInstance.SetMaxMeasuredValue(chip::app::DataModel::MakeNullable(1000.0f));
+    // gCarbonDioxideConcentrationMeasurementInstance.SetMeasuredValue(chip::app::DataModel::MakeNullable(2.0f));
+    // gCarbonDioxideConcentrationMeasurementInstance.SetPeakMeasuredValue(chip::app::DataModel::MakeNullable(1.0f));
+    // gCarbonDioxideConcentrationMeasurementInstance.SetPeakMeasuredValueWindow(320);
+    // gCarbonDioxideConcentrationMeasurementInstance.SetAverageMeasuredValue(chip::app::DataModel::MakeNullable(1.0f));
+    // gCarbonDioxideConcentrationMeasurementInstance.SetAverageMeasuredValueWindow(320);
+    // gCarbonDioxideConcentrationMeasurementInstance.SetUncertainty(0.0f);
+    // gCarbonDioxideConcentrationMeasurementInstance.SetLevelValue(1);
+    ChipLogDetail(NotSpecified, "emberAfCarbonDioxide ending");
+}
 
 void ClosuresDevice::Init()
 {
     mOperationalStateInstance.Init();
     ChipLogDetail(NotSpecified, "CLOSURE DEVICE INIT");
+    emberAfCarbonDioxideConcentrationMeasurementClusterInitCallback(mOperationalStateInstance.GetEndpointId());
     // TODO check after boot if setup required
     mReadyToRun = true;
 }
