@@ -1,6 +1,10 @@
 #include "closures-device.h"
 #include <string>
 
+#define CLOSURES_DEVICE_LOW_SPEED       2000
+#define CLOSURES_DEVICE_MEDIUM_SPEED    5000
+#define CLOSURES_DEVICE_HIGH_SPEED      10000
+
 using namespace chip::app::Clusters;
 
 /* ANSI Colored escape code */
@@ -171,8 +175,32 @@ void ClosuresDevice::HandleOpStateMoveToCallback(OperationalState::GenericOperat
 {
     ChipLogDetail(NotSpecified, CL_GREEN "HandleOpStateMoveToCallback" CL_CLEAR);
     err.Set(to_underlying(Clusters::OperationalState::ErrorStateEnum::kNoError));
-    // Define the duration for the motion (5 seconds)
-    mMotionSimulator.SetMoveDuration(System::Clock::Milliseconds32(5000));
+
+    // Set the move duration based on the speed parameter
+    System::Clock::Milliseconds32 moveDuration = System::Clock::Milliseconds32(CLOSURES_DEVICE_MEDIUM_SPEED); // Default value (medium speed)
+    if (speed.HasValue())
+    {
+        switch (speed.Value())
+        {
+        case Globals::ThreeLevelAutoEnum::kLow:
+            moveDuration = System::Clock::Milliseconds32(CLOSURES_DEVICE_LOW_SPEED); 
+            break;
+        case Globals::ThreeLevelAutoEnum::kMedium:
+            moveDuration = System::Clock::Milliseconds32(CLOSURES_DEVICE_MEDIUM_SPEED);  
+            break;
+        case Globals::ThreeLevelAutoEnum::kHigh:
+            moveDuration = System::Clock::Milliseconds32(CLOSURES_DEVICE_HIGH_SPEED); 
+            break;
+        case Globals::ThreeLevelAutoEnum::kAutomatic:
+            break;
+        default:
+            ChipLogDetail(NotSpecified, "ClosureDevice - Unrecognized speed value, using default duration.");
+            break;
+        }
+    }
+
+    // Set the determined move duration
+    mMotionSimulator.SetMoveDuration(moveDuration);
 
     if (mReadyToRun)
     {
