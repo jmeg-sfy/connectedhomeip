@@ -129,6 +129,11 @@ void MatterRefrigeratorAndTemperatureControlledCabinetModePluginServerInitCallba
 void MatterOperationalStatePluginServerInitCallback() {}
 void MatterRvcOperationalStatePluginServerInitCallback() {}
 void MatterClosureOperationalStatePluginServerInitCallback() {}
+//void MatterClosure1stDimensionPluginServerInitCallback() {}
+void MatterClosure2ndDimensionPluginServerInitCallback() {}
+void MatterClosure3rdDimensionPluginServerInitCallback() {}
+void MatterClosure4thDimensionPluginServerInitCallback() {}
+void MatterClosure5thDimensionPluginServerInitCallback() {}
 void MatterOvenModePluginServerInitCallback() {}
 void MatterOvenCavityOperationalStatePluginServerInitCallback() {}
 void MatterDishwasherAlarmPluginServerInitCallback() {}
