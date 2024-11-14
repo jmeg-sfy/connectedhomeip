@@ -578,6 +578,7 @@ void ClosuresDevice::ClosuresSetupRequiredStimuli(bool aSetupRequired)
 void ClosuresDevice::HandleErrorEvent(const std::string & error)
 {
     detail::Structs::ErrorStateStruct::Type err;
+    ChipLogDetail(NotSpecified, CL_RED"ClosuresDevice: ERROR stimuli received: %s" CL_CLEAR, error.c_str());
 
     if (error == "UnableToStartOrResume")
     {
@@ -613,15 +614,25 @@ void ClosuresDevice::HandleErrorEvent(const std::string & error)
         return;
     }
 
+    mError=true;
     mOperationalStateInstance.OnOperationalErrorDetected(err);
 }
 
 void ClosuresDevice::HandleClearErrorMessage()
 {
+    detail::Structs::ErrorStateStruct::Type err;
+
     if (mOperationalStateInstance.GetCurrentOperationalState() != to_underlying(OperationalState::OperationalStateEnum::kError))
     {
         ChipLogError(NotSpecified, "Closures App: The 'ClearError' command is only excepted when the device is in the 'Error' state.");
         return;
+    }
+    else
+    {
+        err.errorStateID = 0;
+        mError=false;
+        mOperationalStateInstance.OnOperationalErrorDetected(err);
+        mOperationalStateInstance.OnClosureOperationCompletionDetected(0,static_cast<uint8_t>(OperationalState::OperationalStateEnum::kStopped), GetOverallState());
     }
 }
 

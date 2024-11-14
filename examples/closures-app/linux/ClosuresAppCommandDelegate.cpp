@@ -165,11 +165,11 @@ void ClosuresAppCommandHandler::HandleCommand(intptr_t context)
         }
 
         case CommandType::ErrorEvent:
-            self->OnErrorEventHandler(self->mJsonValue["Error"].asString());
+            self->OnErrorEventStimuli(self->mJsonValue["Error"].asString());
             break;
 
         case CommandType::ClearError:
-            self->OnClearErrorHandler();
+            self->OnClearErrorStimuli();
             break;
 
         case CommandType::Reset:
@@ -245,12 +245,12 @@ void ClosuresAppCommandHandler::SetupRequiredStimuli(bool aSetupRequired)
     mClosuresDevice->ClosuresSetupRequiredStimuli(aSetupRequired);
 }
 
-void ClosuresAppCommandHandler::OnErrorEventHandler(const std::string & error)
+void ClosuresAppCommandHandler::OnErrorEventStimuli(const std::string & error)
 {
     mClosuresDevice->HandleErrorEvent(error);
 }
 
-void ClosuresAppCommandHandler::OnClearErrorHandler()
+void ClosuresAppCommandHandler::OnClearErrorStimuli()
 {
     mClosuresDevice->HandleClearErrorMessage();
 }

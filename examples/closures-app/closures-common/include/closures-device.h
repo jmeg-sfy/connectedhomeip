@@ -26,6 +26,7 @@ private:
     bool mStopped = false;
     bool mRunning = false;
     bool mPaused = false;
+    bool mError = true;
 
     bool mReadyToRun = false;
     bool mActionNeeded = false;

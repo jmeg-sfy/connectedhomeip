@@ -52,8 +52,8 @@ private:
     void ActionNeededStimuli(bool aActionNeeded);
     void FallbackNeededStimuli(bool aFallbackNeeded);
     void SetupRequiredStimuli(bool aSetupRequired);
-    void OnErrorEventHandler(const std::string & error);
-    void OnClearErrorHandler();
+    void OnErrorEventStimuli(const std::string & error);
+    void OnClearErrorStimuli();
     void OnResetHandler();
 };
 
