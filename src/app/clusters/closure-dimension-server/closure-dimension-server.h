@@ -539,14 +539,14 @@ const char * GetFeatureMapString(Feature aFeature)
         return "Latching";
     case Feature::kUnit:
         return "Unit";
-    case Feature::kSpeed:
-        return "Speed";
     case Feature::kLimitation:
         return "Limitation";
-    case Feature::kRotation:
-        return "Rotation";
+    case Feature::kSpeed:
+        return "Speed";
     case Feature::kTranslation:
         return "Translation";
+    case Feature::kRotation:
+        return "Rotation";
     case Feature::kModulation:
         return "Modulation";
     default:
@@ -570,11 +570,10 @@ const char * GetFeatureMapString(Feature aFeature)
         LogIsFeatureSupported(featureMap, Feature::kPositioning);
         LogIsFeatureSupported(featureMap, Feature::kLatching);
         LogIsFeatureSupported(featureMap, Feature::kUnit);
-        LogIsFeatureSupported(featureMap, Feature::kSpeed);
-        LogIsFeatureSupported(featureMap, Feature::kUnit);
         LogIsFeatureSupported(featureMap, Feature::kLimitation);
-        LogIsFeatureSupported(featureMap, Feature::kRotation);
+        LogIsFeatureSupported(featureMap, Feature::kSpeed);
         LogIsFeatureSupported(featureMap, Feature::kTranslation);
+        LogIsFeatureSupported(featureMap, Feature::kRotation);
         LogIsFeatureSupported(featureMap, Feature::kModulation);
     }
 
