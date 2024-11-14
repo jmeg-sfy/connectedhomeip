@@ -28,14 +28,18 @@ namespace app {
 namespace Clusters {
 namespace ClosureDimension {
 
-static constexpr std::array<ClusterId, 5> AliasedClusters = {  Closure1stDimension::Id,
-                                                               Closure2ndDimension::Id,
-                                                               Closure3rdDimension::Id,
-                                                               Closure4thDimension::Id,
-                                                               Closure5thDimension::Id,
-                                                             };
+struct Info {
+    ClusterId cId;
+    const char * name;
+};
 
-
+static constexpr std::array<Info, 5> const AliasedClusters = {{ 
+                                                            { Closure1stDimension::Id, "1st" },
+                                                            { Closure2ndDimension::Id, "2nd" },
+                                                            { Closure3rdDimension::Id, "3rd" },
+                                                            { Closure4thDimension::Id, "4th" },
+                                                            { Closure5thDimension::Id, "5th" },
+                                                       }};
 
 enum class MeasurementMediumEnum : uint8_t
 {
@@ -55,6 +59,7 @@ using TranslationDirectionEnum = Closure1stDimension::TranslationDirectionEnum;
 using RotationAxisEnum = Closure1stDimension::RotationAxisEnum;
 using ModulationTypeEnum = Closure1stDimension::ModulationTypeEnum;
 using LatchingAxisEnum = Closure1stDimension::LatchingAxisEnum;
+using OverFlowEnum = Closure1stDimension::OverFlowEnum;
 
 using Feature = Closure1stDimension::Feature;
 using SignedValuesRangeStruct = Closure1stDimension::Structs::SignedValuesRangeStruct::Type;

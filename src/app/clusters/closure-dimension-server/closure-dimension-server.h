@@ -70,6 +70,10 @@ struct DummyModulationMembers
 {
 };
 
+struct DummyRotationOrLatchingMembers
+{
+};
+
 class PositioningMembers
 {
 protected:
@@ -130,6 +134,12 @@ protected:
     ModulationTypeEnum mModulationType;
 };
 
+class RotationOrLatchingMembers
+{
+protected:
+    OverFlowEnum mOverFlow;
+};
+
 } // namespace Detail
 
 /**
@@ -155,14 +165,16 @@ class Instance
     : public AttributeAccessInterface,
       protected std::conditional_t<FeaturePositioningEnabled, Detail::PositioningMembers, Detail::DummyPositioningMembers>,
       protected std::conditional_t<FeatureLatchingEnabled   , Detail::LatchingMembers   , Detail::DummyLatchingMembers>,
-      protected std::conditional_t<FeatureLatchingEnabled && !FeaturePositioningEnabled,
-          Detail::LatchingOnlyMembers   , Detail::DummyLatchingOnlyMembers>,
       protected std::conditional_t<FeatureUnitEnabled       , Detail::UnitMembers       , Detail::DummyUnitMembers>,
       protected std::conditional_t<FeatureSpeedEnabled      , Detail::SpeedMembers      , Detail::DummySpeedMembers>,
       protected std::conditional_t<FeatureLimitationEnabled , Detail::LimitationMembers , Detail::DummyLimitationMembers>,
       protected std::conditional_t<FeatureRotationEnabled   , Detail::RotationMembers   , Detail::DummyRotationMembers>,
       protected std::conditional_t<FeatureTranslationEnabled, Detail::TranslationMembers, Detail::DummyTranslationMembers>,
-      protected std::conditional_t<FeatureModulationEnabled , Detail::ModulationMembers , Detail::DummyModulationMembers>
+      protected std::conditional_t<FeatureModulationEnabled , Detail::ModulationMembers , Detail::DummyModulationMembers>,
+      protected std::conditional_t<FeatureLatchingEnabled && !FeaturePositioningEnabled,
+          Detail::LatchingOnlyMembers      , Detail::DummyLatchingOnlyMembers>,
+      protected std::conditional_t<FeatureRotationEnabled || FeatureLatchingEnabled,
+          Detail::RotationOrLatchingMembers, Detail::DummyRotationOrLatchingMembers>
 {
 private:
     static const int WINDOW_MAX = 604800;
@@ -207,7 +219,7 @@ private:
         {
         /* Positioning feature Attributes */
         case Attributes::CurrentPositioning::Id:
-            ChipLogDetail(Zcl, "ClDim::Read::CurrentPositioning");
+            ChipLogDetail(Zcl, "%s ClDim::Read::CurrentPositioning", GetClusterName());
             if constexpr (FeaturePositioningEnabled)
             {
                 ReturnErrorOnFailure(aEncoder.Encode(this->mCurrentPositioning));
@@ -216,7 +228,7 @@ private:
             break;
 
         case Attributes::TargetPositioning::Id:
-            ChipLogDetail(Zcl, "ClDim::Read::TargetPositioning");
+            ChipLogDetail(Zcl, "%s ClDim::Read::TargetPositioning", GetClusterName());
             if constexpr (FeaturePositioningEnabled)
             {
                 ReturnErrorOnFailure(aEncoder.Encode(this->mTargetPositioning));
@@ -225,7 +237,7 @@ private:
             break;
 
         case Attributes::Resolution::Id:
-            ChipLogDetail(Zcl, "ClDim::Read::Resolution");
+            ChipLogDetail(Zcl, "%s ClDim::Read::Resolution", GetClusterName());
             if constexpr (FeaturePositioningEnabled)
             {
                 ReturnErrorOnFailure(aEncoder.Encode(this->mResolution));
@@ -234,7 +246,7 @@ private:
             break;
 
         case Attributes::StepValue::Id:
-            ChipLogDetail(Zcl, "ClDim::Read::StepValue");
+            ChipLogDetail(Zcl, "%s ClDim::Read::StepValue", GetClusterName());
             if constexpr (FeaturePositioningEnabled)
             {
                 ReturnErrorOnFailure(aEncoder.Encode(this->mStepValue));
@@ -244,7 +256,7 @@ private:
 
         /* Unit feature Attributes */
         case Attributes::Unit::Id:
-            ChipLogDetail(Zcl, "ClDim::Read::Unit");
+            ChipLogDetail(Zcl, "%s ClDim::Read::Unit", GetClusterName());
             if constexpr (FeatureUnitEnabled)
             {
                 ReturnErrorOnFailure(aEncoder.Encode(this->mUnit));
@@ -253,7 +265,7 @@ private:
             break;
 
         case Attributes::Range::Id:
-            ChipLogDetail(Zcl, "ClDim::Read::Range");
+            ChipLogDetail(Zcl, "%s ClDim::Read::Range", GetClusterName());
             if constexpr (FeatureUnitEnabled)
             {
                 ReturnErrorOnFailure(aEncoder.Encode(this->mRange));
@@ -263,7 +275,7 @@ private:
 
         /* Limitation feature Attributes */
         case Attributes::LimitRange::Id:
-            ChipLogDetail(Zcl, "ClDim::Read::LimitRange");
+            ChipLogDetail(Zcl, "%s ClDim::Read::LimitRange", GetClusterName());
             if constexpr (FeatureLimitationEnabled)
             {
                 ReturnErrorOnFailure(aEncoder.Encode(this->mLimitRange));
@@ -271,34 +283,8 @@ private:
             }
             break;
 
-        /* Latching feature Attributes */
-        case Attributes::CurrentLatching::Id:
-            ChipLogDetail(Zcl, "ClDim::Read::CurrentLatching");
-            if constexpr (FeatureLatchingEnabled)
-            {
-                ReturnErrorOnFailure(aEncoder.Encode(this->mCurrentLatching));
-                isAttributeSupported = true;
-            }
-            break;
-
-        case Attributes::TargetLatching::Id:
-            ChipLogDetail(Zcl, "ClDim::Read::TargetLatching");
-            if constexpr (FeatureLatchingEnabled)
-            {
-                ReturnErrorOnFailure(aEncoder.Encode(this->mTargetLatching));
-                isAttributeSupported = true;
-            }
-            break;
-
-
-
-
-
-
-
-
         case Attributes::TranslationDirection::Id:
-            ChipLogDetail(Zcl, "ClDim::Read::TranslationDirection");
+            ChipLogDetail(Zcl, "%s ClDim::Read::TranslationDirection", GetClusterName());
             if constexpr (FeatureTranslationEnabled)
             {
                 ReturnErrorOnFailure(aEncoder.Encode(this->mTranslationDirection));
@@ -307,7 +293,7 @@ private:
             break;
 
         case Attributes::RotationAxis::Id:
-            ChipLogDetail(Zcl, "ClDim::Read::RotationAxis");
+            ChipLogDetail(Zcl, "%s ClDim::Read::RotationAxis", GetClusterName());
             if constexpr (FeatureRotationEnabled)
             {
                 ReturnErrorOnFailure(aEncoder.Encode(this->mRotationAxis));
@@ -315,8 +301,17 @@ private:
             }
             break;
 
+        case Attributes::OverFlow::Id:
+            ChipLogDetail(Zcl, "%s ClDim::Read::OverFlow", GetClusterName());
+            if constexpr (FeatureRotationEnabled || FeatureLatchingEnabled)
+            {
+                ReturnErrorOnFailure(aEncoder.Encode(this->mOverFlow));
+                isAttributeSupported = true;
+            }
+            break;
+
         case Attributes::ModulationType::Id:
-            ChipLogDetail(Zcl, "ClDim::Read::ModulationType");
+            ChipLogDetail(Zcl, "%s ClDim::Read::ModulationType", GetClusterName());
             if constexpr (FeatureModulationEnabled)
             {
                 ReturnErrorOnFailure(aEncoder.Encode(this->mModulationType));
@@ -325,7 +320,7 @@ private:
             break;
 
         case Attributes::LatchingAxis::Id:
-            ChipLogDetail(Zcl, "ClDim::Read::LatchingAxis");
+            ChipLogDetail(Zcl, "%s ClDim::Read::LatchingAxis", GetClusterName());
             if constexpr (FeatureLatchingEnabled && !FeaturePositioningEnabled)
             {
                 ReturnErrorOnFailure(aEncoder.Encode(this->mLatchingAxis));
@@ -333,9 +328,27 @@ private:
             }
             break;
 
+        /* Latching feature Attributes */
+        case Attributes::CurrentLatching::Id:
+            ChipLogDetail(Zcl, "%s ClDim::Read::CurrentLatching", GetClusterName());
+            if constexpr (FeatureLatchingEnabled)
+            {
+                ReturnErrorOnFailure(aEncoder.Encode(this->mCurrentLatching));
+                isAttributeSupported = true;
+            }
+            break;
+
+        case Attributes::TargetLatching::Id:
+            ChipLogDetail(Zcl, "%s ClDim::Read::TargetLatching", GetClusterName());
+            if constexpr (FeatureLatchingEnabled)
+            {
+                ReturnErrorOnFailure(aEncoder.Encode(this->mTargetLatching));
+                isAttributeSupported = true;
+            }
+            break;
 
         case Attributes::FeatureMap::Id:
-            ChipLogDetail(Zcl, "ClDim::Read::FeatureMap");
+            ChipLogDetail(Zcl, "%s ClDim::Read::FeatureMap", GetClusterName());
             LogFeatureMap(mFeatureMap);
             ReturnErrorOnFailure(aEncoder.Encode(mFeatureMap));
             isAttributeSupported = true;
@@ -351,15 +364,28 @@ private:
      */
     bool IsValidAliasCluster() const
     {
-        for (unsigned int AliasedCluster : AliasedClusters)
+        for (Info AliasedCluster : AliasedClusters)
         {
-            if (mClusterId == AliasedCluster)
+            if (mClusterId == AliasedCluster.cId)
             {
                 return true;
             }
         }
         ChipLogDetail(Zcl, "INVALID CLUSTER");
         return false;
+    };
+
+    const char * GetClusterName() const
+    {
+        for (Info AliasedCluster : AliasedClusters)
+        {
+            if (mClusterId == AliasedCluster.cId)
+            {
+                return AliasedCluster.name;
+            }
+        }
+        ChipLogDetail(Zcl, "INVALID CLUSTER");
+        return nullptr;
     };
 
     /**
@@ -539,7 +565,7 @@ const char * GetFeatureMapString(Feature aFeature)
     {
         const BitMask<Feature> value = featureMap;
 
-        ChipLogDetail(NotSpecified, "ClosureDimension::FeatureMap=0x%08X (%u)", value.Raw(), value.Raw());
+        ChipLogDetail(NotSpecified, "%s ClDim::FeatureMap=0x%08X (%u)", GetClusterName(), value.Raw(), value.Raw());
 
         LogIsFeatureSupported(featureMap, Feature::kPositioning);
         LogIsFeatureSupported(featureMap, Feature::kLatching);
@@ -572,7 +598,6 @@ const char * GetFeatureMapString(Feature aFeature)
         static_assert( FeaturePositioningEnabled || !FeatureLimitationEnabled , "Feature: Limitation  requires Positioning to be true");
         static_assert( FeaturePositioningEnabled || !FeatureRotationEnabled   , "Feature: Rotation    requires Positioning to be true");
         static_assert( FeaturePositioningEnabled || !FeatureTranslationEnabled, "Feature: Translation requires Positioning to be true");
-        static_assert( FeaturePositioningEnabled || !FeatureModulationEnabled , "Feature: Modulation  requires Positioning to be true");
         static_assert( FeaturePositioningEnabled || !FeatureModulationEnabled , "Feature: Modulation  requires Positioning to be true");
         static_assert( FeatureModulationEnabled  || !FeatureRotationEnabled   || !FeatureTranslationEnabled, "Features: RO vs TR, exclusivity unmet");
         static_assert( FeatureTranslationEnabled || !FeatureRotationEnabled   || !FeatureModulationEnabled , "Features: RO vs MD, exclusivity unmet");
@@ -821,6 +846,19 @@ const char * GetFeatureMapString(Feature aFeature)
         return CHIP_NO_ERROR;
     };
 
+    template <bool Enabled = FeatureRotationEnabled || FeatureLatchingEnabled, typename = std::enable_if_t<Enabled, CHIP_ERROR>>
+    CHIP_ERROR SetOverFlow(OverFlowEnum aOverFlow)
+    {
+        ChipLogDetail(NotSpecified, "set OverFlow A");
+        VerifyOrReturnError(EnsureKnownEnumValue(aOverFlow) != OverFlowEnum::kUnknownEnumValue, CHIP_ERROR_INVALID_ARGUMENT);
+        // Check to see if a change has ocurred
+        VerifyOrReturnError(this->mOverFlow != aOverFlow, CHIP_NO_ERROR);
+        this->mOverFlow = aOverFlow;
+        MatterReportingAttributeChangeCallback(mEndpointId, mClusterId, Attributes::OverFlow::Id);
+        ChipLogDetail(NotSpecified, "set OverFlow");
+        return CHIP_NO_ERROR;
+    };
+
     template <bool Enabled = FeatureModulationEnabled, typename = std::enable_if_t<Enabled, CHIP_ERROR>>
     CHIP_ERROR SetModulationType(ModulationTypeEnum aModulationType)
     {
@@ -879,7 +917,7 @@ const char * GetFeatureMapString(Feature aFeature)
         VerifyOrReturnError(this->mLatchingAxis != aLatchingAxis, CHIP_NO_ERROR);
         this->mLatchingAxis = aLatchingAxis;
         MatterReportingAttributeChangeCallback(mEndpointId, mClusterId, Attributes::LatchingAxis::Id);
-        ChipLogDetail(NotSpecified, "set LatchingAxisEnum");
+
         return CHIP_NO_ERROR;
     };
 
