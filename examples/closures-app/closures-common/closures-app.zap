@@ -2997,6 +2997,32 @@
           "define": "CLOSURE_1ST_DIMENSION_CLUSTER",
           "side": "server",
           "enabled": 1,
+          "commands": [
+            {
+              "name": "Steps",
+              "code": 0,
+              "mfgCode": null,
+              "source": "client",
+              "isIncoming": 1,
+              "isEnabled": 1
+            },
+            {
+              "name": "Latch",
+              "code": 1,
+              "mfgCode": null,
+              "source": "client",
+              "isIncoming": 1,
+              "isEnabled": 1
+            },
+            {
+              "name": "UnLatch",
+              "code": 2,
+              "mfgCode": null,
+              "source": "client",
+              "isIncoming": 1,
+              "isEnabled": 1
+            }
+          ],
           "attributes": [
             {
               "name": "CurrentPositioning",
@@ -3079,7 +3105,7 @@
               "reportableChange": 0
             },
             {
-              "name": "Range",
+              "name": "UnitRange",
               "code": 5,
               "mfgCode": null,
               "side": "server",
@@ -3327,6 +3353,32 @@
           "define": "CLOSURE_2ND_DIMENSION_CLUSTER",
           "side": "server",
           "enabled": 1,
+          "commands": [
+            {
+              "name": "Steps",
+              "code": 0,
+              "mfgCode": null,
+              "source": "client",
+              "isIncoming": 1,
+              "isEnabled": 1
+            },
+            {
+              "name": "Latch",
+              "code": 1,
+              "mfgCode": null,
+              "source": "client",
+              "isIncoming": 1,
+              "isEnabled": 1
+            },
+            {
+              "name": "UnLatch",
+              "code": 2,
+              "mfgCode": null,
+              "source": "client",
+              "isIncoming": 1,
+              "isEnabled": 1
+            }
+          ],
           "attributes": [
             {
               "name": "CurrentPositioning",
@@ -3409,7 +3461,7 @@
               "reportableChange": 0
             },
             {
-              "name": "Range",
+              "name": "UnitRange",
               "code": 5,
               "mfgCode": null,
               "side": "server",
@@ -3657,6 +3709,32 @@
           "define": "CLOSURE_3RD_DIMENSION_CLUSTER",
           "side": "server",
           "enabled": 1,
+          "commands": [
+            {
+              "name": "Steps",
+              "code": 0,
+              "mfgCode": null,
+              "source": "client",
+              "isIncoming": 1,
+              "isEnabled": 1
+            },
+            {
+              "name": "Latch",
+              "code": 1,
+              "mfgCode": null,
+              "source": "client",
+              "isIncoming": 1,
+              "isEnabled": 1
+            },
+            {
+              "name": "UnLatch",
+              "code": 2,
+              "mfgCode": null,
+              "source": "client",
+              "isIncoming": 1,
+              "isEnabled": 1
+            }
+          ],
           "attributes": [
             {
               "name": "CurrentPositioning",
@@ -3739,7 +3817,7 @@
               "reportableChange": 0
             },
             {
-              "name": "Range",
+              "name": "UnitRange",
               "code": 5,
               "mfgCode": null,
               "side": "server",
@@ -3987,6 +4065,32 @@
           "define": "CLOSURE_4TH_DIMENSION_CLUSTER",
           "side": "server",
           "enabled": 1,
+          "commands": [
+            {
+              "name": "Steps",
+              "code": 0,
+              "mfgCode": null,
+              "source": "client",
+              "isIncoming": 1,
+              "isEnabled": 1
+            },
+            {
+              "name": "Latch",
+              "code": 1,
+              "mfgCode": null,
+              "source": "client",
+              "isIncoming": 1,
+              "isEnabled": 1
+            },
+            {
+              "name": "UnLatch",
+              "code": 2,
+              "mfgCode": null,
+              "source": "client",
+              "isIncoming": 1,
+              "isEnabled": 1
+            }
+          ],
           "attributes": [
             {
               "name": "CurrentPositioning",
@@ -4069,7 +4173,7 @@
               "reportableChange": 0
             },
             {
-              "name": "Range",
+              "name": "UnitRange",
               "code": 5,
               "mfgCode": null,
               "side": "server",
@@ -4317,6 +4421,32 @@
           "define": "CLOSURE_5TH_DIMENSION_CLUSTER",
           "side": "server",
           "enabled": 1,
+          "commands": [
+            {
+              "name": "Steps",
+              "code": 0,
+              "mfgCode": null,
+              "source": "client",
+              "isIncoming": 1,
+              "isEnabled": 1
+            },
+            {
+              "name": "Latch",
+              "code": 1,
+              "mfgCode": null,
+              "source": "client",
+              "isIncoming": 1,
+              "isEnabled": 1
+            },
+            {
+              "name": "UnLatch",
+              "code": 2,
+              "mfgCode": null,
+              "source": "client",
+              "isIncoming": 1,
+              "isEnabled": 1
+            }
+          ],
           "attributes": [
             {
               "name": "CurrentPositioning",
@@ -4399,7 +4529,7 @@
               "reportableChange": 0
             },
             {
-              "name": "Range",
+              "name": "UnitRange",
               "code": 5,
               "mfgCode": null,
               "side": "server",

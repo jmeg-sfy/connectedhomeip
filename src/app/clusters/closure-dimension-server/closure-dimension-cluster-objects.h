@@ -41,35 +41,24 @@ static constexpr std::array<Info, 5> const AliasedClusters = {{
                                                             { Closure5thDimension::Id, "5th" },
                                                        }};
 
-enum class MeasurementMediumEnum : uint8_t
-{
-    kAir   = 0x00,
-    kWater = 0x01,
-    kSoil  = 0x02,
-    // All received enum values that are not listed above will be mapped
-    // to kUnknownEnumValue. This is a helper enum value that should only
-    // be used by code to process how it handles receiving and unknown
-    // enum value. This specific should never be transmitted.
-    kUnknownEnumValue = 3,
-};
-
-using UnitEnum = Closure1stDimension::UnitEnum; //UnitEnum = Clusters::detail::UnitEnum;
+// Redeclare alias toward the first Cluster dimension for common DataType
+/* Enum, BitMap, Structure */
+using UnitEnum = Closure1stDimension::UnitEnum; //--> Clusters::detail::UnitEnum;
 using LatchingEnum = Closure1stDimension::LatchingEnum;
+using NLatchingEnum = Closure1stDimension::Attributes::CurrentLatching::TypeInfo::Type; // Nullable
 using TranslationDirectionEnum = Closure1stDimension::TranslationDirectionEnum;
 using RotationAxisEnum = Closure1stDimension::RotationAxisEnum;
 using ModulationTypeEnum = Closure1stDimension::ModulationTypeEnum;
 using LatchingAxisEnum = Closure1stDimension::LatchingAxisEnum;
 using OverFlowEnum = Closure1stDimension::OverFlowEnum;
-
-using Feature = Closure1stDimension::Feature;
 using SignedValuesRangeStruct = Closure1stDimension::Structs::SignedValuesRangeStruct::Type;
 using RangePercent100thsStruct = Closure1stDimension::Structs::RangePercent100thsStruct::Type;
-using NRangePercent100thsStruct = Closure1stDimension::Attributes::LimitRange::TypeInfo::Type;
+using NRangePercent100thsStruct = Closure1stDimension::Attributes::LimitRange::TypeInfo::Type; // Nullable
 using PositioningBitmap = chip::app::Clusters::Closure1stDimension::PositioningBitmap;
 using BitMaskPositioningBitmap = chip::BitMask<chip::app::Clusters::Closure1stDimension::PositioningBitmap>;
-using NBitMaskPositioningBitmap = Closure1stDimension::Attributes::CurrentPositioning::TypeInfo::Type;
-using NLatchingEnum = Closure1stDimension::Attributes::CurrentLatching::TypeInfo::Type;
+using NBitMaskPositioningBitmap = Closure1stDimension::Attributes::CurrentPositioning::TypeInfo::Type; // Nullable
 
+using Feature = Closure1stDimension::Feature;
 using TXXT = chip::app::DataModel::Nullable<chip::BitMask<chip::app::Clusters::Closure1stDimension::PositioningBitmap>>; ///using PositioningBitmap = Clusters::detail::PositioningBitmap;
 //chip::app::DataModel::Nullable<chip::BitMask<chip::app::Clusters::Closure4thDimension::PositioningBitmap>>;
 //using SignedValuesRangeStruct = Closure1stDimension::Structs::SignedValuesRangeStruct;
@@ -83,9 +72,8 @@ using TXXT = chip::app::DataModel::Nullable<chip::BitMask<chip::app::Clusters::C
 //     kAverageMeasurement = 0x20,
 // };
 
+/* Attributes::Id */
 namespace Attributes {
-
-using UnitEnum = Closure1stDimension::UnitEnum; //UnitEnum = Clusters::detail::UnitEnum;
 
 namespace CurrentPositioning {
 static constexpr AttributeId Id = Closure1stDimension::Attributes::CurrentPositioning::Id;
@@ -107,9 +95,9 @@ namespace Unit {
 static constexpr AttributeId Id = Closure1stDimension::Attributes::Unit::Id;
 } // namespace Unit
 
-namespace Range {
-static constexpr AttributeId Id = Closure1stDimension::Attributes::Range::Id;
-} // namespace Range
+namespace UnitRange {
+static constexpr AttributeId Id = Closure1stDimension::Attributes::UnitRange::Id;
+} // namespace UnitRange
 
 namespace LimitRange {
 static constexpr AttributeId Id = Closure1stDimension::Attributes::LimitRange::Id;
@@ -143,21 +131,6 @@ namespace LatchingAxis {
 static constexpr AttributeId Id = Closure1stDimension::Attributes::LatchingAxis::Id;
 } // namespace LatchingAxis
 
-
-
-namespace LevelValue {
-static constexpr AttributeId Id = 0x0000000A;
-// struct TypeInfo
-// {
-//     using Type             = LevelValueEnum;
-//     using DecodableType    = LevelValueEnum;
-//     using DecodableArgType = LevelValueEnum;
-
-//     static constexpr AttributeId GetAttributeId() { return Id; }
-//     static constexpr bool MustUseTimedWrite() { return false; }
-// };
-} // namespace LevelValue
-
 namespace GeneratedCommandList {
 static constexpr AttributeId Id = Globals::Attributes::GeneratedCommandList::Id;
 } // namespace GeneratedCommandList
@@ -179,7 +152,28 @@ static constexpr AttributeId Id = Globals::Attributes::ClusterRevision::Id;
 } // namespace ClusterRevision
 
 } // namespace Attributes
-} // namespace ConcentrationMeasurement
+
+/* Commands::Id */
+namespace Commands {
+
+namespace Steps {
+static constexpr CommandId Id = Closure1stDimension::Commands::Steps::Id;
+using DecodableType = Closure1stDimension::Commands::Steps::DecodableType;
+} // namespace Steps
+
+namespace Latch {
+static constexpr CommandId Id = Closure1stDimension::Commands::Latch::Id;
+using DecodableType = Closure1stDimension::Commands::Latch::DecodableType;
+} // namespace Latch
+
+namespace UnLatch {
+static constexpr CommandId Id = Closure1stDimension::Commands::UnLatch::Id;
+using DecodableType = Closure1stDimension::Commands::UnLatch::DecodableType;
+} // namespace UnLatch
+
+} // namespace Commands
+
+} // namespace ClosureDimension
 } // namespace Clusters
 } // namespace app
 } // namespace chip
