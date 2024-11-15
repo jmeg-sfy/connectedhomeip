@@ -46,7 +46,7 @@ limitations under the License.
     <attribute side="server" code="0x0002" define="RESOLUTION"            optional="true" writable="false" type="percent100ths">Resolution</attribute>
     <attribute side="server" code="0x0003" define="STEP_VALUE"            optional="true" writable="false" type="percent100ths">StepValue</attribute>
     <attribute side="server" code="0x0004" define="UNIT"                  optional="true" writable="false" type="UnitEnum">Unit</attribute>
-    <attribute side="server" code="0x0005" define="RANGE"                 optional="true" writable="false" type="SignedValuesRangeStruct">Range</attribute>
+    <attribute side="server" code="0x0005" define="UNIT_RANGE"            optional="true" writable="false" type="SignedValuesRangeStruct">UnitRange</attribute>
     <attribute side="server" code="0x0006" define="LIMIT_RANGE"           optional="true" writable="false" type="RangePercent100thsStruct" isNullable="true">LimitRange</attribute>
     <attribute side="server" code="0x0007" define="TRANSLATION_DIRECTION" optional="true" writable="false" type="TranslationDirectionEnum">TranslationDirection</attribute>
     <attribute side="server" code="0x0008" define="ROTATION_AXIS"         optional="true" writable="false" type="RotationAxisEnum">RotationAxis</attribute>
@@ -56,20 +56,15 @@ limitations under the License.
     <attribute side="server" code="0x000C" define="TARGET_LATCHING"       optional="true" writable="false" type="LatchingEnum" isNullable="true">TargetLatching</attribute>
     <attribute side="server" code="0x000D" define="LATCHING_AXIS"         optional="true" writable="false" type="LatchingAxisEnum">LatchingAxis</attribute>
 
-    <command source="client" code="0x00" name="SetPositioning" optional="false">
-      <arg optional="true" name="Target"         type="PositioningBitmap"/>
-      <arg optional="true" name="Position"       type="percent100ths"/>
-      <arg optional="true" name="Speed"          type="ThreeLevelAutoEnum"/>
-    </command>
-    <command source="client" code="0x01" name="Steps" optional="false">
+    <command source="client" code="0x00" name="Steps" optional="false">
       <arg optional="false" name="Direction"     type="StepDirectionEnum"/>
       <arg optional="false" name="NumberOfSteps" type="int16u"/>
       <arg optional="true"  name="Speed"         type="ThreeLevelAutoEnum"/>
     </command>
-    <command source="client" code="0x02" name="Latch" optional="true">
+    <command source="client" code="0x01" name="Latch" optional="true">
       <description>Latch (secure) a Closure's element.</description>
     </command>
-    <command source="client" code="0x03" name="UnLatch" optional="true">
+    <command source="client" code="0x02" name="UnLatch" optional="true">
       <description>UnLatch (unsecure) a Closure's element.</description>
     </command>
   </cluster>
