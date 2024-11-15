@@ -33,6 +33,12 @@ namespace app {
 namespace Clusters {
 namespace ClosureDimension {
 
+/* ANSI Colored escape code */
+#define CL_CLEAR  "\x1b[0m"
+#define CL_RED    "\u001b[31m"
+#define CL_GREEN  "\u001b[32m"
+#define CL_YELLOW "\u001b[33m"
+
 namespace Detail {
 
 struct DummyPositioningMembers
@@ -142,6 +148,21 @@ protected:
 
 } // namespace Detail
 
+
+template <class U>
+void ChipLogOptionalValue(const chip::Optional<U> & item, const char * message, const char * name) //const Optional<U> & other)
+{
+    if (item.HasValue())
+    {
+        ChipLogDetail(Zcl, "%s %s 0x%02u", message, name, static_cast<uint16_t>(item.Value()));
+    }
+    else
+    {
+        ChipLogDetail(Zcl, "%s %s " CL_YELLOW "NotPresent" CL_CLEAR, message, name);
+    }
+}
+
+
 /**
  * This class provides the base implementation for the server side of the ClosureDimension cluster(s) as well as an API for
  * setting the values of the attributes + delegation for commands
@@ -187,10 +208,17 @@ private:
     uint32_t mFeatureMap = 0;
     // TODO add a delegator for the application command/callback
 
+    void LogStepsRequest(const Commands::Steps::DecodableType & req)
+    {
+        ChipLogDetail(Zcl, "Direction=%u #Steps=%u", to_underlying(req.direction), req.numberOfSteps);
+        ChipLogOptionalValue(req.speed, "    -", "Speed");
+    }
+
     void HandleStepsCommand(HandlerContext & ctx, const Commands::Steps::DecodableType & req)
     {
         ChipLogDetail(Zcl, "%s ClDim: HandleStepsCommand", GetClusterName());
         ChipLogDetail(Zcl, "%s ClDim: dir=%u #Steps=%u cId=0x%04X/0x%04X", GetClusterName(), to_underlying(req.direction), req.numberOfSteps, req.GetClusterId(), mClusterId);
+        LogStepsRequest(req);
 
         // TODO 
         // Delegate forwarding
@@ -566,11 +594,7 @@ public:
     };
 
 
-/* ANSI Colored escape code */
-#define CL_CLEAR  "\x1b[0m"
-#define CL_RED    "\u001b[31m"
-#define CL_GREEN  "\u001b[32m"
-#define CL_YELLOW "\u001b[33m"
+
 
 static constexpr char strLogY[] = CL_GREEN "Y" CL_CLEAR;
 static constexpr char strLogN[] = CL_RED "N" CL_CLEAR;
