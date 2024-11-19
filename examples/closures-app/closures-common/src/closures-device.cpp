@@ -248,7 +248,8 @@ void ClosuresDevice::HandleOpStateCalibrateCallback(OperationalState::GenericOpe
     ChipLogDetail(NotSpecified, CL_GREEN "HandleOpStateCalibrateCallback" CL_CLEAR);
     err.Set(to_underlying(Clusters::OperationalState::ErrorStateEnum::kNoError));
     // Define the duration for the motion (5 seconds)
-    mMotionSimulator.SetCalibrationDuration(System::Clock::Milliseconds32(3000));
+    System::Clock::Milliseconds32 calibrationDuration = System::Clock::Milliseconds32(5000);
+    mMotionSimulator.SetCalibrationDuration(calibrationDuration);
 
     mCalibrating=true;
     mMotionSimulator.StartCalibration(

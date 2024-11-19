@@ -8,8 +8,8 @@ namespace app {
 MotionSimulator::MotionSimulator() : mMoveDuration(0), mCalibrationDuration(0) {}
 
 
-void MotionSimulator::StartMotion(CompleteCallback onComplete, ProgressCallback onProgress) {
-    
+void MotionSimulator::StartMotion(CompleteCallback onComplete, ProgressCallback onProgress) 
+{
     if (mState == SimulatorState::InMotion) 
     {
         // If already in motion, cancel the current operation before starting a new one
@@ -20,12 +20,12 @@ void MotionSimulator::StartMotion(CompleteCallback onComplete, ProgressCallback 
     ChipLogDetail(NotSpecified, "MotionSimulator Start Motion");
     // Set up for new motion
     mMoveStartTime = System::SystemClock().GetMonotonicTimestamp();
-    mState = SimulatorState::InMotion;  // Set state to InMotion
-    NextMotion(onComplete, onProgress); // Start the new motion
+    mState = SimulatorState::InMotion; 
+    NextPhase(onComplete, onProgress, mMoveStartTime, mMoveDuration);
 }
 
-void MotionSimulator::StartCalibration(CompleteCallback onComplete, ProgressCallback onProgress) {
-
+void MotionSimulator::StartCalibration(CompleteCallback onComplete, ProgressCallback onProgress) 
+{
     if (mState == SimulatorState::Calibrating) 
     {
         ChipLogDetail(NotSpecified, "MotionSimulator already calibrating");
@@ -34,12 +34,12 @@ void MotionSimulator::StartCalibration(CompleteCallback onComplete, ProgressCall
 
     ChipLogDetail(NotSpecified, "MotionSimulator Start Calibration");
     mCalibrationStartTime = System::SystemClock().GetMonotonicTimestamp();
-    mState = SimulatorState::Calibrating;  // Set state to Calibrating
-    NextCalibration(onComplete, onProgress); // Start calibration
+    mState = SimulatorState::Calibrating;
+    NextPhase(onComplete, onProgress, mCalibrationStartTime, mCalibrationDuration);
 }
 
-void MotionSimulator::StartFallback(CompleteCallback onComplete, ProgressCallback onProgress) {
-
+void MotionSimulator::StartFallback(CompleteCallback onComplete, ProgressCallback onProgress) 
+{
     if (mState == SimulatorState::PendingFallback) 
     {
         ChipLogDetail(NotSpecified, "MotionSimulator already in pending fallback");
@@ -49,7 +49,7 @@ void MotionSimulator::StartFallback(CompleteCallback onComplete, ProgressCallbac
     ChipLogDetail(NotSpecified, "MotionSimulator Start Fallback");
     mFallbackStartTime = System::SystemClock().GetMonotonicTimestamp();
     mState = SimulatorState::PendingFallback;  
-    NextCalibration(onComplete, onProgress); // Start fallback
+    NextPhase(onComplete, onProgress, mFallbackStartTime, mFallbackDuration);
 }
 
 MotionSimulator & MotionSimulator::SetMoveDuration(System::Clock::Milliseconds32 duration)
@@ -84,13 +84,21 @@ void MotionSimulator::Cancel() {
 void MotionSimulator::TimerCallback(chip::System::Layer * systemLayer, void * appState) {
     auto * context = static_cast<TimerContext *>(appState);
 
-    // Check simulator state to determine which function to call
     if (context && context->simulator) {
-        if (context->simulator->mState == SimulatorState::InMotion) {
-            context->simulator->NextMotion(context->onComplete, context->onProgress);
-        } else if (context->simulator->mState == SimulatorState::Calibrating) {
-            context->simulator->NextCalibration(context->onComplete, context->onProgress);
-        } else {
+        if (context->simulator->mState == SimulatorState::InMotion) 
+        {
+            context->simulator->NextPhase(context->onComplete, context->onProgress, context->simulator->mMoveStartTime, context->simulator->mMoveDuration);
+        } 
+        else if (context->simulator->mState == SimulatorState::Calibrating) 
+        {
+            context->simulator->NextPhase(context->onComplete, context->onProgress, context->simulator->mCalibrationStartTime, context->simulator->mCalibrationDuration);
+        }
+        else if (context->simulator->mState == SimulatorState::PendingFallback) 
+        {
+            context->simulator->NextPhase(context->onComplete, context->onProgress, context->simulator->mFallbackStartTime, context->simulator->mFallbackDuration);
+        }  
+        else 
+        {
             ChipLogError(Zcl, "MotionSimulator: TimerCallback called in Stopped state.");
         }
     }
@@ -102,11 +110,13 @@ std::string MotionSimulator::GetProgressMessage(float percentage) {
     return std::string(buffer);
 }
 
-void MotionSimulator::NextMotion(CompleteCallback onComplete, ProgressCallback onProgress) {
-    auto elapsedTime = System::SystemClock().GetMonotonicTimestamp() - mMoveStartTime;
-    float progressPercentage = (static_cast<float>(elapsedTime.count()) / mMoveDuration.count()) * 100;
+void MotionSimulator::NextPhase(CompleteCallback onComplete, ProgressCallback onProgress, System::Clock::Timestamp startTime, System::Clock::Milliseconds32 duration)
+{
+    auto elapsedTime = System::SystemClock().GetMonotonicTimestamp() - startTime;
+    float progressPercentage = (static_cast<float>(elapsedTime.count()) / duration.count()) * 100;
 
-    if (elapsedTime >= mMoveDuration) {
+    if (elapsedTime >= duration)
+    {
         onProgress(GetProgressMessage(100).c_str());
         onComplete();
         mCurrentContext.reset();
@@ -116,49 +126,6 @@ void MotionSimulator::NextMotion(CompleteCallback onComplete, ProgressCallback o
     onProgress(GetProgressMessage(progressPercentage).c_str());
     mCurrentContext = std::make_unique<TimerContext>(TimerContext{this, onComplete, onProgress});
 
-    // Schedule the next update
-    DeviceLayer::SystemLayer().StartTimer(
-        System::Clock::Milliseconds32(500),
-        TimerCallback,
-        mCurrentContext.get());
-}
-
-void MotionSimulator::NextCalibration(CompleteCallback onComplete, ProgressCallback onProgress) {
-    auto elapsedTime = System::SystemClock().GetMonotonicTimestamp() - mCalibrationStartTime;
-    float progressPercentage = (static_cast<float>(elapsedTime.count()) / mCalibrationDuration.count()) * 100;
-
-    if (elapsedTime >= mCalibrationDuration) {
-        onProgress(GetProgressMessage(100).c_str());
-        onComplete();
-        mCurrentContext.reset();  // Clear the context to signal end
-        return;
-    }
-
-    onProgress(GetProgressMessage(progressPercentage).c_str());
-    mCurrentContext = std::make_unique<TimerContext>(TimerContext{this, onComplete, onProgress});
-
-    // Schedule next update
-    DeviceLayer::SystemLayer().StartTimer(
-        System::Clock::Milliseconds32(500),
-        TimerCallback,
-        mCurrentContext.get());
-}
-
-void MotionSimulator::NextFallback(CompleteCallback onComplete, ProgressCallback onProgress) {
-    auto elapsedTime = System::SystemClock().GetMonotonicTimestamp() - mFallbackStartTime;
-    float progressPercentage = (static_cast<float>(elapsedTime.count()) / mFallbackDuration.count()) * 100;
-
-    if (elapsedTime >= mCalibrationDuration) {
-        onProgress(GetProgressMessage(100).c_str());
-        onComplete();
-        mCurrentContext.reset();  // Clear the context to signal end
-        return;
-    }
-
-    onProgress(GetProgressMessage(progressPercentage).c_str());
-    mCurrentContext = std::make_unique<TimerContext>(TimerContext{this, onComplete, onProgress});
-
-    // Schedule next update
     DeviceLayer::SystemLayer().StartTimer(
         System::Clock::Milliseconds32(500),
         TimerCallback,

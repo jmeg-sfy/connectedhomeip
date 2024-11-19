@@ -43,9 +43,8 @@ private:
 
     // Static callback function for timers
     static void TimerCallback(System::Layer * systemLayer, void * appState);
-    void NextMotion(CompleteCallback onComplete, ProgressCallback onProgress);
-    void NextCalibration(CompleteCallback onComplete, ProgressCallback onProgress);
-    void NextFallback(CompleteCallback onComplete, ProgressCallback onProgress);
+    void NextPhase(CompleteCallback onComplete, ProgressCallback onProgress, System::Clock::Timestamp startTime, System::Clock::Milliseconds32 duration);
+
     std::string GetProgressMessage(float percentage);
 };
 
