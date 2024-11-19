@@ -577,88 +577,10 @@ void ClosuresDevice::ClosuresMoveToStimuli(std::optional<uint8_t> tag, std::opti
     mOperationalStateInstance.InvokeCommand(handlerContext);    
 }
 
-bool emberAfClosure1stDimensionClusterStepsCallback(chip::app::CommandHandler*, chip::app::ConcreteCommandPath const&, Commands::Steps::DecodableType const&)
-{
-    ChipLogDetail(Zcl, "!!!!!!!!!!!!! emberAfClosure Callback neutralize me need to be removed !!!!!!!");
-    return true;
-}
-bool emberAfClosure1stDimensionClusterLatchCallback(chip::app::CommandHandler*, chip::app::ConcreteCommandPath const&, Commands::Latch::DecodableType const&)
-{
-    ChipLogDetail(Zcl, "!!!!!!!!!!!!! emberAfClosure Callback neutralize me need to be removed !!!!!!!");
-    return true;
-}
 
-bool emberAfClosure1stDimensionClusterUnLatchCallback(chip::app::CommandHandler*, chip::app::ConcreteCommandPath const&, Commands::UnLatch::DecodableType const&)
-{
-    ChipLogDetail(Zcl, "!!!!!!!!!!!!! emberAfClosure Callback neutralize me need to be removed !!!!!!!");
-    return true;
-}
 
 using toto = chip::app::Clusters::Closure5thDimension::Commands::UnLatch::DecodableType;
 
-bool emberAfClosure2ndDimensionClusterStepsCallback(chip::app::CommandHandler* a, chip::app::ConcreteCommandPath const& b, Closure2ndDimension::Commands::Steps::DecodableType const& c)
-{
-    ChipLogDetail(Zcl, "!!!!!!!!!!!!! emberAfClosure Callback neutralize me need to be removed !!!!!!!");
-    return true;
-}
-bool emberAfClosure2ndDimensionClusterLatchCallback(chip::app::CommandHandler* a, chip::app::ConcreteCommandPath const& b, Closure2ndDimension::Commands::Latch::DecodableType const& c)
-{
-    ChipLogDetail(Zcl, "!!!!!!!!!!!!! emberAfClosure Callback neutralize me need to be removed !!!!!!!");
-    return true;
-}
-bool emberAfClosure2ndDimensionClusterUnLatchCallback(chip::app::CommandHandler* a, chip::app::ConcreteCommandPath const& b, Closure2ndDimension::Commands::UnLatch::DecodableType const& c)
-{
-    ChipLogDetail(Zcl, "!!!!!!!!!!!!! emberAfClosure Callback neutralize me need to be removed !!!!!!!");
-    return true;
-}
-// 3
-bool emberAfClosure3rdDimensionClusterStepsCallback(chip::app::CommandHandler* a, chip::app::ConcreteCommandPath const& b, Closure3rdDimension::Commands::Steps::DecodableType const& c)
-{
-    ChipLogDetail(Zcl, "!!!!!!!!!!!!! emberAfClosure Callback neutralize me need to be removed !!!!!!!");
-    return true;
-}
-bool emberAfClosure3rdDimensionClusterLatchCallback(chip::app::CommandHandler* a, chip::app::ConcreteCommandPath const& b, Closure3rdDimension::Commands::Latch::DecodableType const& c)
-{
-    ChipLogDetail(Zcl, "!!!!!!!!!!!!! emberAfClosure Callback neutralize me need to be removed !!!!!!!");
-    return true;
-}
-bool emberAfClosure3rdDimensionClusterUnLatchCallback(chip::app::CommandHandler* a, chip::app::ConcreteCommandPath const& b, Closure3rdDimension::Commands::UnLatch::DecodableType const& c)
-{
-    ChipLogDetail(Zcl, "!!!!!!!!!!!!! emberAfClosure Callback neutralize me need to be removed !!!!!!!");
-    return true;
-}
-// 4
-bool emberAfClosure4thDimensionClusterStepsCallback(chip::app::CommandHandler* a, chip::app::ConcreteCommandPath const& b, Closure4thDimension::Commands::Steps::DecodableType const& c)
-{
-    ChipLogDetail(Zcl, "!!!!!!!!!!!!! emberAfClosure Callback neutralize me need to be removed !!!!!!!");
-    return true;
-}
-bool emberAfClosure4thDimensionClusterLatchCallback(chip::app::CommandHandler* a, chip::app::ConcreteCommandPath const& b, Closure4thDimension::Commands::Latch::DecodableType const& c)
-{
-    ChipLogDetail(Zcl, "!!!!!!!!!!!!! emberAfClosure Callback neutralize me need to be removed !!!!!!!");
-    return true;
-}
-bool emberAfClosure4thDimensionClusterUnLatchCallback(chip::app::CommandHandler* a, chip::app::ConcreteCommandPath const& b, Closure4thDimension::Commands::UnLatch::DecodableType const& c)
-{
-    ChipLogDetail(Zcl, "!!!!!!!!!!!!! emberAfClosure Callback neutralize me need to be removed !!!!!!!");
-    return true;
-}
-// 5
-bool emberAfClosure5thDimensionClusterStepsCallback(chip::app::CommandHandler* a, chip::app::ConcreteCommandPath const& b, Closure5thDimension::Commands::Steps::DecodableType const& c)
-{
-    ChipLogDetail(Zcl, "!!!!!!!!!!!!! emberAfClosure Callback neutralize me need to be removed !!!!!!!");
-    return true;
-}
-bool emberAfClosure5thDimensionClusterLatchCallback(chip::app::CommandHandler* a, chip::app::ConcreteCommandPath const& b, Closure5thDimension::Commands::Latch::DecodableType const& c)
-{
-    ChipLogDetail(Zcl, "!!!!!!!!!!!!! emberAfClosure Callback neutralize me need to be removed !!!!!!!");
-    return true;
-}
-bool emberAfClosure5thDimensionClusterUnLatchCallback(chip::app::CommandHandler* a, chip::app::ConcreteCommandPath const& b, Closure5thDimension::Commands::UnLatch::DecodableType const& c)
-{
-    ChipLogDetail(Zcl, "!!!!!!!!!!!!! emberAfClosure Callback neutralize me need to be removed !!!!!!!");
-    return true;
-}
 
 void ClosuresDevice::ClosuresCalibrateStimuli()
 {
