@@ -18,14 +18,14 @@ namespace Clusters {
 class RvcDevice
 {
 private:
-    // RvcRunMode::RvcRunModeDelegate mRunModeDelegate;
-    // ModeBase::Instance mRunModeInstance;
+    RvcRunMode::RvcRunModeDelegate mRunModeDelegate;
+    ModeBase::Instance mRunModeInstance;
 
-    // RvcCleanMode::RvcCleanModeDelegate mCleanModeDelegate;
-    // ModeBase::Instance mCleanModeInstance;
+    RvcCleanMode::RvcCleanModeDelegate mCleanModeDelegate;
+    ModeBase::Instance mCleanModeInstance;
 
-    ClosureOperationalState::ClosureOperationalStateDelegate mOperationalStateDelegate;
-    ClosureOperationalState::Instance mOperationalStateInstance;
+    RvcOperationalState::RvcOperationalStateDelegate mOperationalStateDelegate;
+    RvcOperationalState::Instance mOperationalStateInstance;
 
     ServiceArea::RvcServiceAreaDelegate mServiceAreaDelegate;
     ServiceArea::RvcServiceAreaStorageDelegate mStorageDelegate;
@@ -43,29 +43,24 @@ public:
      * @param aRvcClustersEndpoint The endpoint ID where all the RVC clusters exist.
      */
     explicit RvcDevice(EndpointId aRvcClustersEndpoint) :
-        mOperationalStateDelegate(), mOperationalStateInstance(&mOperationalStateDelegate, aRvcClustersEndpoint),
-        mServiceAreaDelegate()     , mServiceAreaInstance(&mServiceAreaDelegate, aRvcClustersEndpoint,
+        mRunModeDelegate(), mRunModeInstance(&mRunModeDelegate, aRvcClustersEndpoint, RvcRunMode::Id, 0), mCleanModeDelegate(),
+        mCleanModeInstance(&mCleanModeDelegate, aRvcClustersEndpoint, RvcCleanMode::Id, 0), mOperationalStateDelegate(),
+        mOperationalStateInstance(&mOperationalStateDelegate, aRvcClustersEndpoint), mServiceAreaDelegate(),
+        mServiceAreaInstance(&mStorageDelegate, &mServiceAreaDelegate, aRvcClustersEndpoint,
                              BitMask<ServiceArea::Feature>(ServiceArea::Feature::kMaps, ServiceArea::Feature::kProgressReporting))
     {
-        ChipLogDetail(Zcl, "RvcDevice.Constructor()");
         // set the current-mode at start-up
-        //mRunModeInstance.UpdateCurrentMode(RvcRunMode::ModeIdle);
+        mRunModeInstance.UpdateCurrentMode(RvcRunMode::ModeIdle);
 
         // Hypothetically, the device checks if it is physically docked or charging
         SetDeviceToIdleState();
 
         // set callback functions
-        // mRunModeDelegate.SetHandleChangeToMode(&RvcDevice::HandleRvcRunChangeToMode, this);
-        // mCleanModeDelegate.SetHandleChangeToMode(&RvcDevice::HandleRvcCleanChangeToMode, this);
-        /* Base OperationalState */
+        mRunModeDelegate.SetHandleChangeToMode(&RvcDevice::HandleRvcRunChangeToMode, this);
+        mCleanModeDelegate.SetHandleChangeToMode(&RvcDevice::HandleRvcCleanChangeToMode, this);
         mOperationalStateDelegate.SetPauseCallback(&RvcDevice::HandleOpStatePauseCallback, this);
-        mOperationalStateDelegate.SetStopCallback(&RvcDevice::HandleOpStateStopCallback, this);
-     //   mOperationalStateDelegate.SetResumeCallback(&RvcDevice::HandleOpStateResumeCallback, this);
-
-        /* Derived ClosureOperationalState */
-        mOperationalStateDelegate.SetCalibrateCallback(&RvcDevice::HandleOpStateCalibrateCallback, this);
-        mOperationalStateDelegate.SetMoveToCallback(&RvcDevice::HandleOpStateMoveToCallback, this);
-        mOperationalStateDelegate.SetConfigureFallbackCallback(&RvcDevice::HandleOpStateConfigureFallbackCallback, this);
+        mOperationalStateDelegate.SetResumeCallback(&RvcDevice::HandleOpStateResumeCallback, this);
+        mOperationalStateDelegate.SetGoHomeCallback(&RvcDevice::HandleOpStateGoHomeCallback, this);
 
         mServiceAreaDelegate.SetIsSetSelectedAreasAllowedCallback(&RvcDevice::SaIsSetSelectedAreasAllowed, this);
         mServiceAreaDelegate.SetHandleSkipAreaCallback(&RvcDevice::SaHandleSkipArea, this);
@@ -95,34 +90,19 @@ public:
     void HandleRvcCleanChangeToMode(uint8_t newMode, ModeBase::Commands::ChangeToModeResponse::Type & response);
 
     /**
-     * Handles the ClosureOperationalState pause command.
+     * Handles the RvcOperationalState pause command.
      */
     void HandleOpStatePauseCallback(Clusters::OperationalState::GenericOperationalError & err);
 
     /**
-     * Handles the ClosureOperationalState stop command.
+     * Handles the RvcOperationalState resume command.
      */
-    void HandleOpStateStopCallback(Clusters::OperationalState::GenericOperationalError & err);
+    void HandleOpStateResumeCallback(Clusters::OperationalState::GenericOperationalError & err);
 
     /**
-     * Handles the ClosureOperationalState resume command.
+     * Handles the RvcOperationalState GoHome command.
      */
-    // void HandleOpStateResumeCallback(Clusters::OperationalState::GenericOperationalError & err);
-
-    /**
-     * Handles the ClosureOperationalState Calibrate command.
-     */
-    void HandleOpStateCalibrateCallback(Clusters::OperationalState::GenericOperationalError & err);
-
-    /**
-     * Handles the ClosureOperationalState MoveTo command.
-     */
-    void HandleOpStateMoveToCallback(Clusters::OperationalState::GenericOperationalError & err);
-
-    /**
-     * Handles the ClosureOperationalState ConfigureFallback command.
-     */
-    void HandleOpStateConfigureFallbackCallback(Clusters::OperationalState::GenericOperationalError & err);
+    void HandleOpStateGoHomeCallback(Clusters::OperationalState::GenericOperationalError & err);
 
     bool SaIsSetSelectedAreasAllowed(MutableCharSpan & statusText);
 
