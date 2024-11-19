@@ -87,3 +87,26 @@ static_library("occupancy_sensing") {
 
   public_configs = [ "${chip_root}/src:includes" ]
 }
+
+static_library("closures-app") {
+  #defines = [ "CHIP_CONFIG_SKIP_APP_SPECIFIC_GENERATED_HEADER_INCLUDES=1" ]
+  sources = [
+    "imgui-closure-dimension.cpp",
+    "imgui-closure-dimension.h",
+    "imgui-closure-opstate.cpp",
+    "imgui-closure-opstate.h",
+  ]
+
+  deps = [
+    ":windows",
+    "${chip_root}/src/app/common:cluster-objects",
+    "${chip_root}/third_party/imgui",
+  ]
+  # TODO: this is because on-off-server.h is generally only available
+  #       in the app and we do not want to directly bind to lighting-app
+  check_includes = false
+
+  #include_dirs = -Igen/third_party/connectedhomeip/examples/window-app/common/zapgen 
+
+  public_configs = [ "${chip_root}/src:includes" ]
+}
