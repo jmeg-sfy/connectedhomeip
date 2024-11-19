@@ -15,19 +15,23 @@ public:
 
     MotionSimulator & SetMoveDuration(System::Clock::Milliseconds32 duration);
     MotionSimulator & SetCalibrationDuration(System::Clock::Milliseconds32 duration);
+    MotionSimulator & SetFallbackDuration(System::Clock::Milliseconds32 duration);
 
     void StartMotion(CompleteCallback onComplete, ProgressCallback onProgress);
     void StartCalibration(CompleteCallback onComplete, ProgressCallback onProgress);
+    void StartFallback(CompleteCallback onComplete, ProgressCallback onProgress);
     void Cancel();
 
 private:
     System::Clock::Milliseconds32 mMoveDuration{};
     System::Clock::Milliseconds32 mCalibrationDuration{};
+    System::Clock::Milliseconds32 mFallbackDuration{};
 
     System::Clock::Timestamp mMoveStartTime;
     System::Clock::Timestamp mCalibrationStartTime;
+    System::Clock::Timestamp mFallbackStartTime;
 
-    enum class SimulatorState { Stopped, InMotion, Calibrating }; 
+    enum class SimulatorState { Stopped, InMotion, Calibrating, PendingFallback }; 
     SimulatorState mState = SimulatorState::Stopped;
     struct TimerContext {
         MotionSimulator * simulator;
@@ -41,6 +45,7 @@ private:
     static void TimerCallback(System::Layer * systemLayer, void * appState);
     void NextMotion(CompleteCallback onComplete, ProgressCallback onProgress);
     void NextCalibration(CompleteCallback onComplete, ProgressCallback onProgress);
+    void NextFallback(CompleteCallback onComplete, ProgressCallback onProgress);
     std::string GetProgressMessage(float percentage);
 };
 

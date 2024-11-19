@@ -38,6 +38,20 @@ void MotionSimulator::StartCalibration(CompleteCallback onComplete, ProgressCall
     NextCalibration(onComplete, onProgress); // Start calibration
 }
 
+void MotionSimulator::StartFallback(CompleteCallback onComplete, ProgressCallback onProgress) {
+
+    if (mState == SimulatorState::PendingFallback) 
+    {
+        ChipLogDetail(NotSpecified, "MotionSimulator already in pending fallback");
+        return;
+    }
+
+    ChipLogDetail(NotSpecified, "MotionSimulator Start Fallback");
+    mFallbackStartTime = System::SystemClock().GetMonotonicTimestamp();
+    mState = SimulatorState::PendingFallback;  
+    NextCalibration(onComplete, onProgress); // Start fallback
+}
+
 MotionSimulator & MotionSimulator::SetMoveDuration(System::Clock::Milliseconds32 duration)
 {
     mMoveDuration = duration;
@@ -47,6 +61,12 @@ MotionSimulator & MotionSimulator::SetMoveDuration(System::Clock::Milliseconds32
 MotionSimulator & MotionSimulator::SetCalibrationDuration(System::Clock::Milliseconds32 duration)
 {
     mCalibrationDuration = duration;
+    return *this;
+}
+
+MotionSimulator & MotionSimulator::SetFallbackDuration(System::Clock::Milliseconds32 duration)
+{
+    mFallbackDuration = duration;
     return *this;
 }
 
@@ -106,6 +126,27 @@ void MotionSimulator::NextMotion(CompleteCallback onComplete, ProgressCallback o
 void MotionSimulator::NextCalibration(CompleteCallback onComplete, ProgressCallback onProgress) {
     auto elapsedTime = System::SystemClock().GetMonotonicTimestamp() - mCalibrationStartTime;
     float progressPercentage = (static_cast<float>(elapsedTime.count()) / mCalibrationDuration.count()) * 100;
+
+    if (elapsedTime >= mCalibrationDuration) {
+        onProgress(GetProgressMessage(100).c_str());
+        onComplete();
+        mCurrentContext.reset();  // Clear the context to signal end
+        return;
+    }
+
+    onProgress(GetProgressMessage(progressPercentage).c_str());
+    mCurrentContext = std::make_unique<TimerContext>(TimerContext{this, onComplete, onProgress});
+
+    // Schedule next update
+    DeviceLayer::SystemLayer().StartTimer(
+        System::Clock::Milliseconds32(500),
+        TimerCallback,
+        mCurrentContext.get());
+}
+
+void MotionSimulator::NextFallback(CompleteCallback onComplete, ProgressCallback onProgress) {
+    auto elapsedTime = System::SystemClock().GetMonotonicTimestamp() - mFallbackStartTime;
+    float progressPercentage = (static_cast<float>(elapsedTime.count()) / mFallbackDuration.count()) * 100;
 
     if (elapsedTime >= mCalibrationDuration) {
         onProgress(GetProgressMessage(100).c_str());
