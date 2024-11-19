@@ -350,6 +350,8 @@ template("chip_data_model") {
         sources += [
           "${_app_root}/clusters/${cluster}/${cluster}.h",
           "${_app_root}/clusters/${cluster}/closure-dimension-cluster-objects.h",
+          "${_app_root}/clusters/${cluster}/closure-dimension-common.cpp",
+          "${_app_root}/clusters/${cluster}/closure-dimension-common.h",
         ]
       } else if (cluster == "smoke-co-alarm-server") {
         sources += [

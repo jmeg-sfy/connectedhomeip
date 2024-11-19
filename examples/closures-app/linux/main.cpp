@@ -21,6 +21,14 @@
 
 #include <string>
 
+
+/* imgui support */
+#if defined(CHIP_IMGUI_ENABLED) && CHIP_IMGUI_ENABLED
+#include <imgui_ui/ui.h>
+#include <imgui_ui/windows/qrcode.h>
+#include <imgui_ui/windows/closure_dimension.h>
+#endif /* CHIP_IMGUI_ENABLED */
+
 #define CLOSURE_ENDPOINT 1
 
 using namespace chip;
@@ -35,10 +43,15 @@ ClosuresAppCommandDelegate sClosuresAppCommandDelegate;
 
 ClosuresDevice * gClosuresDevice = nullptr;
 
+#if defined(CHIP_IMGUI_ENABLED) && CHIP_IMGUI_ENABLED
+    example::Ui::ImguiUi gUI;
+#endif
+
 void ApplicationInit()
 {
     std::string path = kChipEventFifoPathPrefix + std::to_string(getpid());
 
+    ChipLogDetail(NotSpecified, "ApplicationInit()");
     ChipLogDetail(NotSpecified, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! PIPE PID: %d", getpid());
 
 
@@ -49,11 +62,17 @@ void ApplicationInit()
     }
 
     gClosuresDevice = new ClosuresDevice(CLOSURE_ENDPOINT);
+    // Provide an Instance of ImGui
+#if defined(CHIP_IMGUI_ENABLED) && CHIP_IMGUI_ENABLED
+    gClosuresDevice->AddImGuiInstance(&example::Ui::ImguiUi::AddWindow, &gUI);
+#endif
     gClosuresDevice->Init();
 
     sClosuresAppCommandDelegate.SetClosuresDevice(gClosuresDevice);
     // Register the device as an observer
-    gClosuresDevice->AddOperationalStateObserver(gClosuresDevice);  
+    gClosuresDevice->AddOperationalStateObserver(gClosuresDevice);
+    
+
 
 }
 
@@ -72,6 +91,12 @@ int main(int argc, char * argv[])
         return -1;
     }
 
+#if defined(CHIP_IMGUI_ENABLED) && CHIP_IMGUI_ENABLED
+    gUI.AddWindow(std::make_unique<example::Ui::Windows::QRCode>());
+    ChipLinuxAppMainLoop(&gUI);
+#else
     ChipLinuxAppMainLoop();
+#endif
+
     return 0;
 }

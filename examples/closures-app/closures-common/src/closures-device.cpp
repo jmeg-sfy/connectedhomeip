@@ -2,6 +2,13 @@
 #include <string>
 #include <app/clusters/closure-dimension-server/closure-dimension-server.h>
 
+/* imgui support */
+#if defined(CHIP_IMGUI_ENABLED) && CHIP_IMGUI_ENABLED
+#include <imgui_ui/windows/imgui-closure-dimension.h>
+#include <imgui_ui/windows/imgui-closure-opstate.h>
+#endif /* CHIP_IMGUI_ENABLED */
+
+
 #define CLOSURES_DEVICE_LOW_SPEED       2000
 #define CLOSURES_DEVICE_MEDIUM_SPEED    5000
 #define CLOSURES_DEVICE_HIGH_SPEED      10000
@@ -31,7 +38,34 @@ void MatterClosure1stDimensionPluginServerInitCallback() {
     ChipLogDetail(NotSpecified, "MatterClosure1stDimensionPluginServerInitCallback begin");
 }
 
-void ClosureDimensionsSetup(chip::EndpointId endpoint)
+// ImGui addition
+#if defined(CHIP_IMGUI_ENABLED) && CHIP_IMGUI_ENABLED
+void ClosuresDevice::AddImGuiClosureDimensionInstance(chip::EndpointId aEp, const char * aName, uint32_t aFeature)
+{
+    if (mImguiInstance && mImguiCallback)
+    {
+        (mImguiInstance->*mImguiCallback)(std::make_unique<example::Ui::Windows::ImGuiClosureDimension>(aEp, aName, aFeature));
+    }
+    else
+    {
+        ChipLogError(NotSpecified, "ImGuiClosureDimension cannot add window");
+    }
+}
+
+void ClosuresDevice::AddImGuiClosureOpStateInstance(chip::EndpointId aEp, const char * aName, uint32_t aFeature)
+{
+    if (mImguiInstance && mImguiCallback)
+    {
+        (mImguiInstance->*mImguiCallback)(std::make_unique<example::Ui::Windows::ImGuiClosureOpState>(aEp, aName, aFeature));
+    }
+    else
+    {
+        ChipLogError(NotSpecified, "ImGuiClosureDimension cannot add window");
+    }
+}
+#endif
+
+void ClosuresDevice::ClosureDimensionsSetup(chip::EndpointId endpoint)
 {
     ChipLogDetail(NotSpecified, "Dimensions setup start");
 
@@ -45,6 +79,10 @@ void ClosureDimensionsSetup(chip::EndpointId endpoint)
     aLatching.SetValue(LatchingEnum::kLatchedButNotSecured);
     gLatchOnlyInstance.SetCurrentLatching(aLatching);
 
+#if defined(CHIP_IMGUI_ENABLED) && CHIP_IMGUI_ENABLED
+    AddImGuiClosureDimensionInstance(gLatchOnlyInstance.GetEndpoint(), gLatchOnlyInstance.GetClusterName(), gLatchOnlyInstance.GetFeatureMap());
+#endif
+
     /* Modulation */
     gModulationInstance.Init();
     chip::Optional<chip::Percent100ths> aPositioning;
@@ -57,14 +95,26 @@ void ClosureDimensionsSetup(chip::EndpointId endpoint)
     gModulationInstance.SetCurrentPositioning(aPositioning, aSpeed);
     gModulationInstance.SetModulationType(ModulationTypeEnum::kSlatsOpenwork);
 
+#if defined(CHIP_IMGUI_ENABLED) && CHIP_IMGUI_ENABLED
+    AddImGuiClosureDimensionInstance(gModulationInstance.GetEndpoint(), gModulationInstance.GetClusterName(), gModulationInstance.GetFeatureMap());
+#endif
+
     /* Translation */
     gTranslationInstance.Init();
     gTranslationInstance.SetTranslationDirection(TranslationDirectionEnum::kCeilingSymmetry);
+
+#if defined(CHIP_IMGUI_ENABLED) && CHIP_IMGUI_ENABLED
+    AddImGuiClosureDimensionInstance(gTranslationInstance.GetEndpoint(), gTranslationInstance.GetClusterName(), gTranslationInstance.GetFeatureMap());
+#endif
 
     /* Rotation */
     gRotationInstance.Init();
     gRotationInstance.SetRotationAxis(RotationAxisEnum::kCenteredHorizontal);
     gRotationInstance.SetOverFlow(OverFlowEnum::kLeftInside);
+
+#if defined(CHIP_IMGUI_ENABLED) && CHIP_IMGUI_ENABLED
+    AddImGuiClosureDimensionInstance(gRotationInstance.GetEndpoint(), gRotationInstance.GetClusterName(), gRotationInstance.GetFeatureMap());
+#endif
 
     /* All Features Translation */
     gAllFeatureTrInstance.Init();
@@ -73,6 +123,10 @@ void ClosureDimensionsSetup(chip::EndpointId endpoint)
     aMax.SetValue(8000);
     gAllFeatureTrInstance.SetLimitRange(aMin, aMax);
 
+#if defined(CHIP_IMGUI_ENABLED) && CHIP_IMGUI_ENABLED
+    AddImGuiClosureDimensionInstance(gAllFeatureTrInstance.GetEndpoint(), gAllFeatureTrInstance.GetClusterName(), gAllFeatureTrInstance.GetFeatureMap());
+#endif
+
     ChipLogDetail(NotSpecified, "Dimensions setup done");
 }
 
@@ -80,9 +134,14 @@ void ClosuresDevice::Init()
 {
     mOperationalStateInstance.Init();
     ChipLogDetail(NotSpecified, "CLOSURE DEVICE INIT");
+
     ClosureDimensionsSetup(mOperationalStateInstance.GetEndpointId());
     // TODO check after boot if setup required
     mReadyToRun = true;
+
+#if defined(CHIP_IMGUI_ENABLED) && CHIP_IMGUI_ENABLED
+    AddImGuiClosureOpStateInstance(mOperationalStateInstance.GetEndpointId(), "OpState main", mOperationalStateInstance.GetFeatureMap());
+#endif
 }
 
 ClosureOperationalState::PositioningEnum ClosuresDevice::ConvertTagToPositioning(ClosureOperationalState::TagEnum aTag)
@@ -162,6 +221,14 @@ void ClosuresDevice::CheckReadiness(ReadinessCheckType aType, bool & aReady)
         break;
     }
 }
+
+#if defined(CHIP_IMGUI_ENABLED) && CHIP_IMGUI_ENABLED
+void ClosuresDevice::AddImGuiInstance(AddWindow aCallback, example::Ui::ImguiUi * aGuiInstance)
+{
+    mImguiCallback = aCallback;
+    mImguiInstance = aGuiInstance;
+}
+#endif
 
 void ClosuresDevice::AddOperationalStateObserver(OperationalState::Observer * observer) {
         mOperationalStateInstance.AddObserver(observer);

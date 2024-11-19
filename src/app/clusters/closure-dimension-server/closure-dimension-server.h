@@ -28,6 +28,8 @@
 #include <lib/support/IntrusiveList.h>
 #include <type_traits>
 
+#include <app/clusters/closure-dimension-server/closure-dimension-common.h>
+
 namespace chip {
 namespace app {
 namespace Clusters {
@@ -477,18 +479,7 @@ private:
 
     inline bool IsValidAliasCluster() const { return IsValidAliasCluster(mClusterId); }
 
-    const char * GetClusterName() const
-    {
-        for (Info AliasedCluster : AliasedClusters)
-        {
-            if (mClusterId == AliasedCluster.cId)
-            {
-                return AliasedCluster.name;
-            }
-        }
-        ChipLogDetail(Zcl, "INVALID CLUSTER");
-        return nullptr;
-    };
+
 
     /**
      * This generates a feature bitmap from the enabled features and then returns its raw value.
@@ -606,36 +597,26 @@ const char * StrYN(bool isTrue)
 
 #define IsYN(TEST)  StrYN(TEST)
 
-const char * GetFeatureMapString(Feature aFeature)
-{
-    switch (aFeature)
-    {
-    case Feature::kPositioning:
-        return "Positioning";
-    case Feature::kLatching:
-        return "Latching";
-    case Feature::kUnit:
-        return "Unit";
-    case Feature::kLimitation:
-        return "Limitation";
-    case Feature::kSpeed:
-        return "Speed";
-    case Feature::kTranslation:
-        return "Translation";
-    case Feature::kRotation:
-        return "Rotation";
-    case Feature::kModulation:
-        return "Modulation";
-    default:
-        return "Unknown";
-    }
-}
+    uint32_t GetFeatureMap() { return mFeatureMap; }
+    EndpointId GetEndpoint() { return mEndpointId; }
 
+    const char * GetClusterName() const
+    {
+        for (Info AliasedCluster : AliasedClusters)
+        {
+            if (mClusterId == AliasedCluster.cId)
+            {
+                return AliasedCluster.name;
+            }
+        }
+        ChipLogDetail(Zcl, "INVALID CLUSTER");
+        return nullptr;
+    };
 
     inline void LogIsFeatureSupported(const uint32_t & featureMap, Feature aFeature)
     {
         const BitMask<Feature> value = featureMap;
-        ChipLogDetail(NotSpecified, " %-20s [%s]", GetFeatureMapString(aFeature), IsYN(value.Has(aFeature)));
+        ChipLogDetail(NotSpecified, " %-20s [%s]", GetFeatureName(aFeature), IsYN(value.Has(aFeature)));
     }
 
     void LogFeatureMap(const uint32_t & featureMap)

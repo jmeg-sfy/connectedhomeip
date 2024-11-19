@@ -3,9 +3,17 @@
 #include "closures-operational-state-delegate.h"
 #include <app/clusters/mode-base-server/mode-base-server.h>
 #include <app/clusters/operational-state-server/operational-state-server.h>
+//#include <app/clusters/closure-dimension-server/closure-dimension-server.h>
 #include "../../linux/MotionSimulator.h"
 
 #include <string>
+
+
+#if defined(CHIP_IMGUI_ENABLED) && CHIP_IMGUI_ENABLED
+#include <imgui_ui/ui.h>
+
+typedef void (example::Ui::ImguiUi::*AddWindow)(std::unique_ptr<example::Ui::Window> window);
+#endif
 
 namespace chip {
 namespace app {
@@ -50,6 +58,18 @@ private:
     const char* GetStateString(ClosureOperationalState::OperationalStateEnum aOpState) const;
     ClosureOperationalState::PositioningEnum ConvertTagToPositioning(ClosureOperationalState::TagEnum aTag);
 
+    // Todo rework
+    void ClosureDimensionsSetup(chip::EndpointId endpoint);
+
+    // ImGui addition
+#if defined(CHIP_IMGUI_ENABLED) && CHIP_IMGUI_ENABLED
+    example::Ui::ImguiUi * mImguiInstance;
+    AddWindow mImguiCallback;
+
+    void AddImGuiClosureDimensionInstance(chip::EndpointId aEp, const char * aName, uint32_t aFeature);
+    void AddImGuiClosureOpStateInstance(chip::EndpointId aEp, const char * aName, uint32_t aFeature);
+#endif
+
 public:
     /**
      * This class is responsible for initialising all the Closures clusters and manging the interactions between them as required by
@@ -86,6 +106,11 @@ public:
 
     // Add a public method to allow adding observers
     void AddOperationalStateObserver(OperationalState::Observer * observer);
+
+    // ImGui addition
+#if defined(CHIP_IMGUI_ENABLED) && CHIP_IMGUI_ENABLED
+    void AddImGuiInstance(AddWindow aCallback, example::Ui::ImguiUi * aGuiInstance);
+#endif
 
     /**
      * Init all the clusters used by this device.
