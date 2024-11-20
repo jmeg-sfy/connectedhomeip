@@ -1,7 +1,7 @@
 # closure example app
 
-This example app is meant to demonstrate an implementation of a Matter Robotic
-Vacuum Cleaner device.
+This example app is meant to demonstrate an implementation of a Matter Closure
+Device.
 
 ## State machine
 
@@ -20,54 +20,33 @@ message must have a `"Name"` key that contains the command name. This name is
 shown in the state machine diagram above. Example
 `echo '{"Name": "Charged"}' > /tmp/chip_closure_fifo_42`.
 
-### ServiceArea related messages
+#### `MoveTo` message
 
-#### `AddMap` message
+#### `Stop` message
 
-This message adds a map to the SupportedMaps attribute of the Service Area
-cluster. This message requires the following extra keys.
+#### `ConfigureFallback` message
 
--   `MapId` This is an `int` setting the ID of the new map.
--   `MapName` This is a `string` setting the name of the new map.
+#### `CancelFallback` message
 
-#### `AddArea` message
+#### `Calibrate` message
 
-This message adds a new area to the SupportedAreas attribute of the Service Area
-cluster. This message requires the following extra keys, most of which are
-optional. Consult the `SupportedAreas` attribute spec for more information on
-what are valid areas.
+#### `Calibrate` message
 
--   `AreaId` This is an `int` setting the ID of the area.
--   `MapId` This is an `int` sitting the map ID the area is associated with.
--   `LocationName` This is a `string` setting the location's name.
--   `FloorNumber` This is an `int` setting the floor number of the area.
--   `AreaType` This is an `int` setting the area type tag.
--   `LandmarkTag` This is an `int` setting the landmark tag.
--   `PositianTag` This is an `int` setting the position tag.
+#### `Protected` message
 
-#### `RemoveMap` message
+#### `UnProtected` message
 
-This message removes a map with the given map ID. This message requires the
-`int` key `MapId`.
+#### `SetReadyToRun` message
 
-#### `RemoveArea` message
+#### `SetActionNeeded` message
 
-This message removes an area with the given area ID. This message requires the
-`int` key `AreaId`.
+#### `SetSetupRequired` message
 
-#### `AreaComplete` message
+#### `ErrorEvent` message
 
-This indicates that the area currently being serviced as indicated by the
-service area cluster is now complete.
+#### `ClearError` message
 
-### `ErrorEvent` message
-
-The error event message requires the additional key `"Error"` which specifies
-the error state ID. This can be one of `UnableToStartOrResume`,
-`UnableToCompleteOperation`, `CommandInvalidInState`,
-`FailedToFindChargingDock`, `Stuck`, `DustBinMissing`, `DustBinFull`,
-`WaterTankEmpty`, `WaterTankMissing`, `WaterTankLidOpen`,
-`MopCleaningPadMissing`.
+#### `Reset` message
 
 ## Testing
 
@@ -86,125 +65,12 @@ app,
    `Manual pairing code: [01073112097]`.
 3. Run any one of the tests with the `--commission-only` and `--manual-code`
    flags:
-   `./scripts/tests/run_python_test.py --script src/python_testing/TC_closureCLEANM_1_2.py --script-args "--commissioning-method on-network --manual-code 01073112097 --commission-only"`
+   `./scripts/tests/run_python_test.py --script src/python_testing/TC_CLOPSTATE-2_1.py --script-args "--commissioning-method on-network --manual-code 01073112097 --commission-only"`
 
 Below are the PIXIT definitions required for the different python tests.
 
-### closure Clean Mode cluster
-
 #### TC 1.2
 
-Example command:
-`./scripts/tests/run_python_test.py --script src/python_testing/TC_closureCLEANM_1_2.py --script-args "--storage-path admin_storage.json --PICS examples/closure-app/closure-common/pics/closure-app-pics-values --endpoint=1"`
-
 #### TC 2.1
-
-PIXIT:
-`PIXIT.closureCLEANM.MODE_CHANGE_FAIL:1 PIXIT.closureCLEANM.MODE_CHANGE_OK:2`  
-Example command:
-`./scripts/tests/run_python_test.py --script src/python_testing/TC_closureCLEANM_2_1.py --script-args "--storage-path admin_storage.json --PICS examples/closure-app/closure-common/pics/closure-app-pics-values --endpoint 1 --int-arg PIXIT.closureCLEANM.MODE_CHANGE_FAIL:1 PIXIT.closureCLEANM.MODE_CHANGE_OK:2"`
-
-When asked "Manually put the device in a state from which it will FAIL to
-transition to mode 1", set the `closureRunMode` to 1.
-`chip-tool closurerunmode change-to-mode 1`
-
-When asked "Manually put the device in a state from which it will SUCCESSFULLY
-transition to mode 2", set the `closureRunMode` to 0.
-`chip-tool closurerunmode change-to-mode 0`
 
 #### TC 2.2
-
-Example command:
-`./scripts/tests/run_python_test.py --script src/python_testing/TC_closureCLEANM_2_2.py --script-args "--storage-path admin_storage.json --PICS examples/closure-app/closure-common/pics/closure-app-pics-values --endpoint=1"`
-
-### closure Run Mode cluster
-
-#### TC 1.2
-
-Example command:
-`./scripts/tests/run_python_test.py --script src/python_testing/TC_closureRUNM_1_2.py --script-args "--storage-path admin_storage.json --PICS examples/closure-app/closure-common/pics/closure-app-pics-values --endpoint=1"`
-
-#### TC 2.1
-
-PIXIT:
-`PIXIT.closureRUNM.MODE_CHANGE_FAIL:2 PIXIT.closureRUNM.MODE_CHANGE_OK:0`  
-Example command:
-`./scripts/tests/run_python_test.py --script src/python_testing/TC_closureRUNM_2_1.py --script-args "--storage-path admin_storage.json --PICS examples/closure-app/closure-common/pics/closure-app-pics-values --endpoint 1 --int-arg PIXIT.closureRUNM.MODE_CHANGE_OK:0 PIXIT.closureRUNM.MODE_CHANGE_FAIL:2"`
-
-When asked "Manually put the device in a state from which it will FAIL to
-transition to mode 2", set the `closureRunMode` to 1.
-`chip-tool closurerunmode change-to-mode 1`
-
-When asked "Manually put the device in a state from which it will SUCCESSFULLY
-transition to mode 0", do nothing.
-
-#### TC 2.2
-
-PIXIT: `PIXIT.closureRUNM.MODE_A:1 PIXIT.closureRUNM.MODE_B:2`  
-Example command:
-`./scripts/tests/run_python_test.py --script src/python_testing/TC_closureRUNM_2_2.py --script-args "--storage-path admin_storage.json --PICS examples/closure-app/closure-common/pics/closure-app-pics-values --endpoint 1 --int-arg PIXIT.closureRUNM.MODE_A:1 PIXIT.closureRUNM.MODE_B:2"`
-
-### closure Operational State cluster
-
-#### TC 2.1
-
-Example command:
-`./scripts/tests/run_python_test.py --script src/python_testing/TC_closureOPSTATE_2_1.py --script-args "--storage-path admin_storage.json --PICS examples/closure-app/closure-common/pics/closure-app-pics-values --endpoint 1"`
-
-Use the out-of-band messages, chip-tool messages and the state machine diagram
-to navigate to the required states.
-
-#### TC 2.3
-
-Example command:
-`./scripts/tests/run_python_test.py --script src/python_testing/TC_closureOPSTATE_2_3.py --script-args "--storage-path admin_storage.json --PICS examples/closure-app/closure-common/pics/closure-app-pics-values --endpoint 1"`
-
-Use the out-of-band messages, chip-tool messages and the state machine diagram
-to transition to the required states.
-
-#### TC 2.4
-
-Example command:
-`./scripts/tests/run_python_test.py --script src/python_testing/TC_closureOPSTATE_2_4.py --script-args "--storage-path admin_storage.json --PICS examples/closure-app/closure-common/pics/closure-app-pics-values --endpoint 1"`
-
-Use the out-of-band messages, chip-tool messages and the state machine diagram
-to transition to the required states.
-
-### Running the yaml tests
-
-After commissioning the device, all the yaml tests can be run by running the
-`run_all_yaml_tests.sh` script from the root dir with the node ID that the
-device was commissioned with.
-
-### Service Area Cluster
-
-### TC 1.2
-
-Example command:
-`./scripts/tests/run_python_test.py --script src/python_testing/TC_SEAR_1_2.py --script-args "--storage-path admin_storage.json --PICS examples/closure-app/closure-common/pics/closure-app-pics-values --endpoint 1"`
-
-### TC 1.3
-
-todo once the
-[test plan issue](https://github.com/CHIP-Specifications/chip-test-plans/issues/4454)
-is resolved, add the required PIXIT and set the
-PICS`SEAR.S.M.VALID_STATE_FOR_SELECT_AREAS=1`. PIXIT:
-``Example command:`./scripts/tests/run_python_test.py --script
-src/python_testing/TC_SEAR_1_3.py --script-args "--storage-path
-admin_storage.json --PICS
-examples/closure-app/closure-common/pics/closure-app-pics-values --endpoint 1`
-
-### TC 1.4
-
-Example command:
-`./scripts/tests/run_python_test.py --script src/python_testing/TC_SEAR_1_4.py --script-args "--storage-path admin_storage.json --PICS examples/closure-app/closure-common/pics/closure-app-pics-values --endpoint 1`
-
-#### TC 1.5
-
-Example command:
-`./scripts/tests/run_python_test.py --script src/python_testing/TC_SEAR_1_5.py --script-args "--storage-path admin_storage.json --PICS examples/closure-app/closure-common/pics/closure-app-pics-values --endpoint 1"`
-
-#### TC 1.6
-
-Example command:
-`./scripts/tests/run_python_test.py --script src/python_testing/TC_SEAR_1_6.py --script-args "--storage-path admin_storage.json --PICS examples/closure-app/closure-common/pics/closure-app-pics-values --endpoint 1`
