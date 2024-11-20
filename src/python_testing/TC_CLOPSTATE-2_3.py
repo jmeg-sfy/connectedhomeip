@@ -34,18 +34,7 @@ from chip.interaction_model import InteractionModelError, Status
 from chip.testing.matter_testing import MatterBaseTest, TestStep, async_test_body, default_matter_test_main, type_matches
 from mobly import asserts
 import time
-
-
-# Takes an OperationState or ClosureOperationalState state enum and returns a string representation
-def state_enum_to_text(state_enum):
-    if state_enum == Clusters.OperationalState.Enums.OperationalStateEnum.kStopped:
-        return "Stopped(0x00)"
-    elif state_enum == Clusters.OperationalState.Enums.OperationalStateEnum.kRunning:
-        return "Running(0x01)"
-    elif state_enum == Clusters.OperationalState.Enums.OperationalStateEnum.kPaused:
-        return "Running(0x02)"
-    else:
-        return "UnknownEnumValue"
+from TC_ClosureCommonOperations import ClosureCommonOperations
 
 
 class TC_CLOPSTATE_2_3(MatterBaseTest):
@@ -54,24 +43,7 @@ class TC_CLOPSTATE_2_3(MatterBaseTest):
         super().__init__(*args)
         self.is_ci = False
         self.app_pipe = "/tmp/chip_closure_fifo_"
-
-    # Prints the step number, reads the operational state attribute and checks if it matches with expected_state
-    async def read_operational_state_with_check(self, expected_state):
-        operational_state = await self.read_single_attribute_check_success(
-            endpoint=self.endpoint, cluster=Clusters.Objects.ClosureOperationalState, attribute=Clusters.ClosureOperationalState.Attributes.OperationalState)
-        logging.info("OperationalState: %s" % operational_state)
-        asserts.assert_equal(operational_state, expected_state,
-                             "OperationalState(%s) should be %s" % (operational_state, state_enum_to_text(expected_state)))
-
-    async def send_cmd_expect_response(self, endpoint, cmd, expected_response_status, timedRequestTimeoutMs=None):
-        try:
-            await self.send_single_cmd(endpoint=endpoint,
-                                       cmd=cmd,
-                                       timedRequestTimeoutMs=timedRequestTimeoutMs)
-        except InteractionModelError as e:
-            asserts.assert_equal(e.status,
-                                 expected_response_status,
-                                 f"Command response ({e.status}) mismatched from expected status {expected_response_status} for {cmd} on {endpoint}")
+        self.common_ops = ClosureCommonOperations(self)
 
     def desc_TC_CLOPSTATE_2_3(self) -> str:
         """Returns a description of this test"""
@@ -126,7 +98,7 @@ class TC_CLOPSTATE_2_3(MatterBaseTest):
             # STEP 2b
             self.step("2b")
             self.print_step("step number 2b", "Read and check the operational state attribute")
-            await self.read_operational_state_with_check(0x43)
+            await self.common_ops.read_operational_state_with_check(0x43)
         else:
             self.skip_step("2b")
             logging.info("Step test 2b skipped. The Dut need to be put in setup required state")
@@ -136,10 +108,10 @@ class TC_CLOPSTATE_2_3(MatterBaseTest):
         self.print_step("step number 2c", "TH sends Stop command to the DUT")
         cmd = Clusters.Objects.ClosureOperationalState.Commands.Stop()
         expected_response = Status.InvalidInState
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # Check Stop already in Stopped state
-        # STEP 3a: TH get the DUT into Running state
+        # STEP 3a: TH get the DUT into Stopped state
         self.step("3a")
         if self.pics_guard(self.check_pics("CLOPSTATE.S.M.ST_STOPPED")):
             self.print_step("step number 3a", "Put the device in stop operational state")
@@ -148,7 +120,7 @@ class TC_CLOPSTATE_2_3(MatterBaseTest):
             # STEP 3b
             self.step("3b")
             self.print_step("step number 3b", "Read and check the operational state attribute")
-            await self.read_operational_state_with_check(0x00)
+            await self.common_ops.read_operational_state_with_check(0x00)
         else:
             self.skip_step("3b")
             logging.info("Step test 3b skipped. The Dut need to be put in setup required state")
@@ -158,7 +130,7 @@ class TC_CLOPSTATE_2_3(MatterBaseTest):
         self.print_step("step number 3c", "TH sends Stop command to the DUT")
         cmd = Clusters.Objects.ClosureOperationalState.Commands.Stop()
         expected_response = Status.Success
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # Check Stop from a Paused/Running state (Positioning and/or Latching)
         # Fast PrePositioning to Closed / PreLatching to Secured
@@ -171,17 +143,17 @@ class TC_CLOPSTATE_2_3(MatterBaseTest):
             latch=Clusters.ClosureOperationalState.Enums.LatchingEnum.kLatchedAndSecured,
             speed=Clusters.Globals.Enums.ThreeLevelAutoEnum.kHigh)
         expected_response = Status.Success
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 4b
         self.step("4b")
         self.print_step("step number 4b", "TH waits for PIXIT.CLOPSTATE.FullMotionDelay seconds")
-        time.sleep(6)  # TODO Use pics value
+        time.sleep(11)  # TODO Use pics value
 
         # STEP 4c
         self.step("4c")
         self.print_step("step number 4c", "Read and check the operational state attribute, Verify that the DUT response is Stopped(0x00)")
-        await self.read_operational_state_with_check(0x00)
+        await self.common_ops.read_operational_state_with_check(0x00)
 
         # Slow Positioning toward Open / UnLatch
         # STEP 5a
@@ -193,7 +165,7 @@ class TC_CLOPSTATE_2_3(MatterBaseTest):
             latch=Clusters.ClosureOperationalState.Enums.LatchingEnum.kNotLatched,
             speed=Clusters.Globals.Enums.ThreeLevelAutoEnum.kLow)
         expected_response = Status.Success
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 5b
         self.step("5b")
@@ -204,19 +176,19 @@ class TC_CLOPSTATE_2_3(MatterBaseTest):
         self.step("5c")
         self.print_step(
             "step number 5c", "Read and check the operational state attribute, Verify that the DUT response is Running(0x01)")
-        await self.read_operational_state_with_check(0x01)
+        await self.common_ops.read_operational_state_with_check(0x01)
 
         # STEP 5d
         self.step("5d")
         self.print_step("step number 5d", "TH sends Stop command to the DUT")
         cmd = Clusters.Objects.ClosureOperationalState.Commands.Stop()
         expected_response = Status.Success
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 5e
         self.step("5e")
         self.print_step("step number 5e", "Read and check the operational state attribute, Verify that the DUT response is Stopped(0x00)")
-        await self.read_operational_state_with_check(0x00)
+        await self.common_ops.read_operational_state_with_check(0x00)
 
 
 if __name__ == "__main__":

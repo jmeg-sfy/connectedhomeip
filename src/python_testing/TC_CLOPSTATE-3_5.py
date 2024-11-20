@@ -34,19 +34,7 @@ from chip.interaction_model import InteractionModelError, Status
 from chip.testing.matter_testing import MatterBaseTest, TestStep, async_test_body, default_matter_test_main
 from mobly import asserts
 import time
-
-
-def state_enum_to_text(state_enum):
-    if state_enum == Clusters.OperationalState.Enums.OperationalStateEnum.kStopped:
-        return "Stopped(0x00)"
-    elif state_enum == Clusters.OperationalState.Enums.OperationalStateEnum.kRunning:
-        return "Running(0x01)"
-    elif state_enum == Clusters.OperationalState.Enums.OperationalStateEnum.kPaused:
-        return "Running(0x02)"
-    elif state_enum == Clusters.ClosureOperationalState.Enums.OperationalStateEnum.kCalibrating:
-        return "Calibrating(0x64)"
-    else:
-        return "UnknownEnumValue"
+from TC_ClosureCommonOperations import ClosureCommonOperations
 
 
 class TC_CLOPSTATE_3_5(MatterBaseTest):
@@ -55,35 +43,7 @@ class TC_CLOPSTATE_3_5(MatterBaseTest):
         super().__init__(*args)
         self.is_ci = False
         self.app_pipe = "/tmp/chip_closure_fifo_"
-
-    # Prints the step number, reads the operational state attribute and checks if it matches with expected_state
-    async def read_operational_state_with_check(self, expected_state):
-        operational_state = await self.read_single_attribute_check_success(
-            endpoint=self.endpoint, cluster=Clusters.Objects.ClosureOperationalState, attribute=Clusters.ClosureOperationalState.Attributes.OperationalState)
-        logging.info(f"OperationalState: {operational_state}")
-        asserts.assert_equal(operational_state, expected_state,
-                             "OperationalState(%s) should be %s" % (operational_state, state_enum_to_text(expected_state)))
-
-    async def read_operational_error_with_check(self, expected_error):
-        operational_error = await self.read_single_attribute_check_success(
-            endpoint=self.endpoint, cluster=Clusters.Objects.ClosureOperationalState, attribute=Clusters.ClosureOperationalState.Attributes.OperationalError)
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print(operational_error)
-        logging.info(f"OperationalError: {operational_error}")
-        asserts.assert_equal(operational_error.errorStateID, expected_error,
-                             "OperationalError(%s) should be %s" % (operational_error, expected_error))
-        asserts.assert_true(isinstance(operational_error, Clusters.ClosureOperationalState.Structs.ErrorStateStruct),
-                            f"OperationalError Read is not an instance of {operational_error}")
-
-    async def send_cmd_expect_response(self, endpoint, cmd, expected_response_status, timedRequestTimeoutMs=None):
-        try:
-            await self.send_single_cmd(endpoint=endpoint,
-                                       cmd=cmd,
-                                       timedRequestTimeoutMs=timedRequestTimeoutMs)
-        except InteractionModelError as e:
-            asserts.assert_equal(e.status,
-                                 expected_response_status,
-                                 f"Command response ({e.status}) mismatched from expected status {expected_response_status} for {cmd} on {endpoint}")
+        self.common_ops = ClosureCommonOperations(self)
 
     def desc_TC_CLOPSTATE_3_5(self) -> str:
         """Returns a description of this test"""
@@ -154,7 +114,7 @@ class TC_CLOPSTATE_3_5(MatterBaseTest):
             # STEP 2b
             self.step("2b")
             self.print_step("step number 3b", "Read and check the operational state attribute")
-            await self.read_operational_state_with_check(0x43)
+            await self.common_ops.read_operational_state_with_check(0x43)
         else:
             self.skip_step("2b")
             logging.info("Step test 2b skipped. The Dut need to be put in setup required state")
@@ -165,7 +125,7 @@ class TC_CLOPSTATE_3_5(MatterBaseTest):
             "step number 2c", "TH sends Calibrate command with any field to the DUT, Verify DUT responds with status INVALID_IN_STATE(0xcb)")
         cmd = Clusters.Objects.ClosureOperationalState.Commands.Calibrate()
         expected_response = Status.InvalidInState
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # Start a Calibration
         # STEP 3a
@@ -177,7 +137,7 @@ class TC_CLOPSTATE_3_5(MatterBaseTest):
             # STEP 3b
             self.step("3b")
             self.print_step("step number 3b", "Read and check the operational state attribute")
-            await self.read_operational_state_with_check(Clusters.OperationalState.Enums.OperationalStateEnum.kStopped)
+            await self.common_ops.read_operational_state_with_check(Clusters.OperationalState.Enums.OperationalStateEnum.kStopped)
         else:
             self.skip_step("3b")
             logging.info("Step test 3b skipped. The Dut need to be put in setup required state")
@@ -188,7 +148,7 @@ class TC_CLOPSTATE_3_5(MatterBaseTest):
             "step number 3c", "TH sends Calibrate command with any field to the DUT, Verify DUT responds with status SUCCESS(0x00)")
         cmd = Clusters.Objects.ClosureOperationalState.Commands.Calibrate()
         expected_response = Status.Success
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 3d
         self.step("3d")
@@ -199,7 +159,7 @@ class TC_CLOPSTATE_3_5(MatterBaseTest):
         self.step("3e")
         self.print_step(
             "step number 3e", "TH reads from the DUT the OperationalState attribute, Verify that the DUT response, the value has to be Calibrating(0x40)")
-        await self.read_operational_state_with_check(Clusters.ClosureOperationalState.Enums.OperationalStateEnum.kCalibrating)
+        await self.common_ops.read_operational_state_with_check(Clusters.ClosureOperationalState.Enums.OperationalStateEnum.kCalibrating)
 
         # Check a mandatory Valid State behavior
         # STEP 4a
@@ -208,13 +168,13 @@ class TC_CLOPSTATE_3_5(MatterBaseTest):
             "step number 4a", "TH sends Calibrate command to the DUT, Verify DUT responds with status SUCCESS(0x00)")
         cmd = Clusters.Objects.ClosureOperationalState.Commands.Calibrate()
         expected_response = Status.Success
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 4b
         self.step("4b")
         self.print_step(
             "step number 4b", "TH reads from the DUT the OperationalState attribute, Verify that the DUT response, the value has to be Calibrating(0x40)")
-        await self.read_operational_state_with_check(Clusters.ClosureOperationalState.Enums.OperationalStateEnum.kCalibrating)
+        await self.common_ops.read_operational_state_with_check(Clusters.ClosureOperationalState.Enums.OperationalStateEnum.kCalibrating)
 
         # Calibration Success flow (Performed Manually or Automated Calibration)
         # STEP 5a
@@ -226,14 +186,14 @@ class TC_CLOPSTATE_3_5(MatterBaseTest):
         self.step("5b")
         self.print_step(
             "step number 5b", "TH reads from the DUT the OperationalState attribute, Verify that the DUT response, the value has to be Stopped(0x00)")
-        await self.read_operational_state_with_check(Clusters.ClosureOperationalState.Enums.OperationalStateEnum.kCalibrating)
+        await self.common_ops.read_operational_state_with_check(Clusters.ClosureOperationalState.Enums.OperationalStateEnum.kCalibrating)
 
         # STEP 5c
         self.step("5c")
         self.print_step(
             "step number 5c", "TH reads from the DUT the OperationalError attribute, Verify that the DUT response contains an instance of ErrorStateStruct, ErrorStateId Field Value has to be NoError(0x00)")
         expected_response = Clusters.OperationalState.Enums.ErrorStateEnum.kNoError
-        await self.read_operational_error_with_check(expected_response)
+        await self.common_ops.read_operational_error_with_check(expected_response)
 
         # Restart a Calibration
         # STEP 6a
@@ -245,7 +205,7 @@ class TC_CLOPSTATE_3_5(MatterBaseTest):
             # STEP 6b
             self.step("6b")
             self.print_step("step number 6b", "Read and check the operational state attribute")
-            await self.read_operational_state_with_check(Clusters.OperationalState.Enums.OperationalStateEnum.kStopped)
+            await self.common_ops.read_operational_state_with_check(Clusters.OperationalState.Enums.OperationalStateEnum.kStopped)
         else:
             self.skip_step("6b")
             logging.info("Step test 6b skipped. The Dut need to be put in setup required state")
@@ -256,7 +216,7 @@ class TC_CLOPSTATE_3_5(MatterBaseTest):
             "step number 6c", "TH sends Calibrate command with any field to the DUT, Verify DUT responds with status SUCCESS(0x00)")
         cmd = Clusters.Objects.ClosureOperationalState.Commands.Calibrate()
         expected_response = Status.Success
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 6d
         self.step("6d")
@@ -267,7 +227,7 @@ class TC_CLOPSTATE_3_5(MatterBaseTest):
         self.step("6e")
         self.print_step(
             "step number 6e", "TH reads from the DUT the OperationalState attribute, Verify that the DUT response, the value has to be Calibrating(0x40)")
-        await self.read_operational_state_with_check(Clusters.ClosureOperationalState.Enums.OperationalStateEnum.kCalibrating)
+        await self.common_ops.read_operational_state_with_check(Clusters.ClosureOperationalState.Enums.OperationalStateEnum.kCalibrating)
 
         # Calibration Abortion flow
         # STEP 7a
@@ -276,7 +236,7 @@ class TC_CLOPSTATE_3_5(MatterBaseTest):
             "step number 7a", "TH sends Stop command to the DUT")
         cmd = Clusters.Objects.ClosureOperationalState.Commands.Stop()
         expected_response = Status.Success
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 7b
         self.step("7b")
@@ -287,14 +247,14 @@ class TC_CLOPSTATE_3_5(MatterBaseTest):
         self.step("7c")
         self.print_step(
             "step number 7c", "TH reads from the DUT the OperationalState attribute, Verify that the DUT response, the value has to be Stopped(0x00)")
-        await self.read_operational_state_with_check(Clusters.OperationalState.Enums.OperationalStateEnum.kStopped)
+        await self.common_ops.read_operational_state_with_check(Clusters.OperationalState.Enums.OperationalStateEnum.kStopped)
 
         # STEP 7d
         self.step("7d")
         self.print_step(
             "step number 7d", "TH reads from the DUT the OperationalError attribute, Verify that the DUT response contains an instance of ErrorStateStruct, ErrorStateId Field Value has to be NoError(0x00)")
         expected_response = Clusters.OperationalState.Enums.ErrorStateEnum.kNoError
-        await self.read_operational_error_with_check(expected_response)
+        await self.common_ops.read_operational_error_with_check(expected_response)
 
         # Restart a Calibration
         # STEP 8a
@@ -306,7 +266,7 @@ class TC_CLOPSTATE_3_5(MatterBaseTest):
             # STEP 8b
             self.step("8b")
             self.print_step("step number 8b", "Read and check the operational state attribute")
-            await self.read_operational_state_with_check(Clusters.OperationalState.Enums.OperationalStateEnum.kStopped)
+            await self.common_ops.read_operational_state_with_check(Clusters.OperationalState.Enums.OperationalStateEnum.kStopped)
         else:
             self.skip_step("8b")
             logging.info("Step test 6b skipped. The Dut need to be put in setup required state")
@@ -317,7 +277,7 @@ class TC_CLOPSTATE_3_5(MatterBaseTest):
             "step number 8c", "TH sends Calibrate command with any field to the DUT, Verify DUT responds with status SUCCESS(0x00)")
         cmd = Clusters.Objects.ClosureOperationalState.Commands.Calibrate()
         expected_response = Status.Success
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 8d
         self.step("8d")
@@ -328,7 +288,7 @@ class TC_CLOPSTATE_3_5(MatterBaseTest):
         self.step("8e")
         self.print_step(
             "step number 6e", "TH reads from the DUT the OperationalState attribute, Verify that the DUT response, the value has to be Calibrating(0x40)")
-        await self.read_operational_state_with_check(Clusters.ClosureOperationalState.Enums.OperationalStateEnum.kCalibrating)
+        await self.common_ops.read_operational_state_with_check(Clusters.ClosureOperationalState.Enums.OperationalStateEnum.kCalibrating)
 
         # Calibration Failure flow
         # STEP 9a
@@ -340,20 +300,20 @@ class TC_CLOPSTATE_3_5(MatterBaseTest):
         # STEP 9b
         self.step("9b")
         self.print_step("step number 9b", "TH waits for PIXIT.CLOPSTATE.AbortingCalibrationDela seconds")
-        time.sleep(3)  # TODO Use pics value
+        time.sleep(6)  # TODO Use pics value
 
         # STEP 9c
         self.step("9c")
         self.print_step(
             "step number 9c", "TH reads from the DUT the OperationalState attribute, Verify that the DUT response, the value has to be Error(0x03)")
-        await self.read_operational_state_with_check(Clusters.OperationalState.Enums.OperationalStateEnum.kError)
+        await self.common_ops.read_operational_state_with_check(Clusters.OperationalState.Enums.OperationalStateEnum.kError)
 
         # STEP 9d
         self.step("9d")
         self.print_step(
             "step number 9d", "TH reads from the DUT the OperationalError attribute, Verify that the DUT response contains an instance of ErrorStateStruct, ErrorStateId Field Value has to be NoError(0x00)")
         expected_response = Clusters.OperationalState.Enums.ErrorStateEnum.kNoError
-        await self.read_operational_error_with_check(expected_response)
+        await self.common_ops.read_operational_error_with_check(expected_response)
 
 
 if __name__ == "__main__":

@@ -33,18 +33,7 @@ import chip.clusters as Clusters
 from chip.interaction_model import InteractionModelError, Status
 from chip.testing.matter_testing import MatterBaseTest, TestStep, async_test_body, default_matter_test_main, type_matches
 from mobly import asserts
-
-
-# Takes an OperationState or ClosureOperationalState state enum and returns a string representation
-def state_enum_to_text(state_enum):
-    if state_enum == Clusters.OperationalState.Enums.OperationalStateEnum.kStopped:
-        return "Stopped(0x00)"
-    elif state_enum == Clusters.OperationalState.Enums.OperationalStateEnum.kRunning:
-        return "Running(0x01)"
-    elif state_enum == Clusters.ClosureOperationalState.Enums.OperationalStateEnum.kSetupRequired:
-        return "SetupRequired(0x43)"
-    else:
-        return "UnknownEnumValue"
+from TC_ClosureCommonOperations import ClosureCommonOperations
 
 
 class TC_CLOPSTATE_2_2(MatterBaseTest):
@@ -53,24 +42,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
         super().__init__(*args)
         self.is_ci = False
         self.app_pipe = "/tmp/chip_closure_fifo_"
-
-    # Prints the step number, reads the operational state attribute and checks if it matches with expected_state
-    async def read_operational_state_with_check(self, expected_state):
-        operational_state = await self.read_single_attribute_check_success(
-            endpoint=self.endpoint, cluster=Clusters.Objects.ClosureOperationalState, attribute=Clusters.ClosureOperationalState.Attributes.OperationalState)
-        logging.info("OperationalState: %s" % operational_state)
-        asserts.assert_equal(operational_state, expected_state,
-                             "OperationalState(%s) should be %s" % (operational_state, state_enum_to_text(expected_state)))
-
-    async def send_cmd_expect_response(self, endpoint, cmd, expected_response_status, timedRequestTimeoutMs=None):
-        try:
-            await self.send_single_cmd(endpoint=endpoint,
-                                       cmd=cmd,
-                                       timedRequestTimeoutMs=timedRequestTimeoutMs)
-        except InteractionModelError as e:
-            asserts.assert_equal(e.status,
-                                 expected_response_status,
-                                 f"Command response ({e.status}) mismatched from expected status {expected_response_status} for {cmd} on {endpoint}")
+        self.common_ops = ClosureCommonOperations(self)
 
     def desc_TC_CLOPSTATE_2_2(self) -> str:
         """Returns a description of this test"""
@@ -132,7 +104,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
         self.endpoint = self.matter_test_config.endpoint
         asserts.assert_false(self.endpoint is None, "--endpoint <endpoint> must be included on the command line in.")
         self.is_ci = self.check_pics("PICS_SDK_CI_ONLY")
-        self.is_ci = True
+
         if self.is_ci:
             app_pid = self.matter_test_config.app_pid
             if app_pid == 0:
@@ -147,7 +119,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
         self.print_step("step number 2", "Send MoveTo command with no field")
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo()
         expected_response = Status.InvalidCommand
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 3a
         self.step("3a")
@@ -170,7 +142,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kCloseInFull)
         expected_response = Status.InvalidInState
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # Reset DUT
         if self.is_ci:
@@ -184,7 +156,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kCloseInFull)
         expected_response = Status.Success
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 4b
         self.step("4b")
@@ -193,7 +165,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kOpenInFull)
         expected_response = Status.Success
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 4c
         self.step("4c")
@@ -202,7 +174,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kOpenOneQuarter)
         expected_response = Status.Success
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 4d
         self.step("4d")
@@ -211,7 +183,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kOpenInHalf)
         expected_response = Status.Success
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 4e
         self.step("4e")
@@ -220,7 +192,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kOpenThreeQuarter)
         expected_response = Status.Success
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         if not self.check_pics("CLOPSTATE.S.F22"):
             # STEP 4f
@@ -230,7 +202,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
             cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
                 tag=Clusters.ClosureOperationalState.Enums.TagEnum.kOpenOneQuarter)
             expected_response = Status.NotFound
-            await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+            await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         if not self.check_pics("CLOPSTATE.S.F22"):
             # STEP 4g
@@ -240,7 +212,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
             cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
                 tag=Clusters.ClosureOperationalState.Enums.TagEnum.kOpenInHalf)
             expected_response = Status.NotFound
-            await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+            await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         if not self.check_pics("CLOPSTATE.S.F22"):
             # STEP 4h
@@ -250,7 +222,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
             cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
                 tag=Clusters.ClosureOperationalState.Enums.TagEnum.kOpenThreeQuarter)
             expected_response = Status.NotFound
-            await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+            await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 4i
         self.step("4i")
@@ -259,7 +231,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kPedestrian)
         expected_response = Status.Success
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         if not self.check_pics("CLOPSTATE.S.F25"):
             # STEP 4j
@@ -269,7 +241,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
             cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
                 tag=Clusters.ClosureOperationalState.Enums.TagEnum.kPedestrian)
             expected_response = Status.NotFound
-            await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+            await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 4k
         self.step("4k")
@@ -278,7 +250,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kVentilation)
         expected_response = Status.Success
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         if not self.check_pics("CLOPSTATE.S.F24"):
             # STEP 4l
@@ -288,7 +260,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
             cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
                 tag=Clusters.ClosureOperationalState.Enums.TagEnum.kVentilation)
             expected_response = Status.NotFound
-            await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+            await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 4m
         self.step("4m")
@@ -297,7 +269,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kSignature)
         expected_response = Status.Success
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 4n
         self.step("4n")
@@ -306,7 +278,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kSequenceNextStep)
         expected_response = Status.Success
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 4o
         self.step("4o")
@@ -315,7 +287,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kPedestrianNextStep)
         expected_response = Status.Success
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         if not self.check_pics("CLOPSTATE.S.F25"):
             # STEP 4p
@@ -325,7 +297,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
             cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
                 tag=Clusters.ClosureOperationalState.Enums.TagEnum.kPedestrianNextStep)
             expected_response = Status.NotFound
-            await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+            await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 4q
         self.step("4q")
@@ -334,7 +306,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kUnknownEnumValue)
         expected_response = Status.ConstraintError
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # CHECK LATCH FIELD
         # STEP 5a
@@ -344,7 +316,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             latch=Clusters.ClosureOperationalState.Enums.LatchingEnum.kLatchedAndSecured)
         expected_response = Status.Success
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 5b
         self.step("5b")
@@ -353,7 +325,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             latch=Clusters.ClosureOperationalState.Enums.LatchingEnum.kLatchedButNotSecured)
         expected_response = Status.ConstraintError
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 5c
         self.step("5c")
@@ -362,7 +334,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             latch=Clusters.ClosureOperationalState.Enums.LatchingEnum.kNotLatched)
         expected_response = Status.Success
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 5d
         self.step("5d")
@@ -371,7 +343,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             latch=Clusters.ClosureOperationalState.Enums.LatchingEnum.kUnknownEnumValue)
         expected_response = Status.ConstraintError
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # CHECK SPEED FIELD
         # STEP 6a
@@ -381,7 +353,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             speed=Clusters.Globals.Enums.ThreeLevelAutoEnum.kAutomatic)
         expected_response = Status.Success
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 6b
         self.step("6b")
@@ -390,7 +362,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             speed=Clusters.Globals.Enums.ThreeLevelAutoEnum.kLow)
         expected_response = Status.Success
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 6c
         self.step("6c")
@@ -399,7 +371,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             speed=Clusters.Globals.Enums.ThreeLevelAutoEnum.kMedium)
         expected_response = Status.Success
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 6d
         self.step("6d")
@@ -408,7 +380,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             speed=Clusters.Globals.Enums.ThreeLevelAutoEnum.kHigh)
         expected_response = Status.Success
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 6e
         self.step("6e")
@@ -417,7 +389,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
         cmd = Clusters.Objects.ClosureOperationalState.Commands.MoveTo(
             speed=Clusters.Globals.Enums.ThreeLevelAutoEnum.kUnknownEnumValue)
         expected_response = Status.ConstraintError
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # CHECK MULTIPLE FIELDS
         # STEP 7a
@@ -428,7 +400,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kOpenInHalf,
             latch=Clusters.ClosureOperationalState.Enums.LatchingEnum.kLatchedAndSecured)
         expected_response = Status.Success
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 7b
         self.step("7b")
@@ -438,7 +410,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kOpenInHalf,
             speed=Clusters.Globals.Enums.ThreeLevelAutoEnum.kAutomatic)
         expected_response = Status.Success
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 7c
         self.step("7c")
@@ -448,7 +420,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kOpenInHalf,
             latch=Clusters.ClosureOperationalState.Enums.LatchingEnum.kLatchedAndSecured)
         expected_response = Status.NotFound
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 7d
         self.step("7d")
@@ -458,7 +430,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kOpenInHalf,
             speed=Clusters.Globals.Enums.ThreeLevelAutoEnum.kAutomatic)
         expected_response = Status.NotFound
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 7e
         self.step("7e")
@@ -468,7 +440,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
             latch=Clusters.ClosureOperationalState.Enums.LatchingEnum.kLatchedAndSecured,
             speed=Clusters.Globals.Enums.ThreeLevelAutoEnum.kAutomatic)
         expected_response = Status.Success
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 7f
         self.step("7f")
@@ -478,7 +450,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kOpenInHalf,
             latch=Clusters.ClosureOperationalState.Enums.LatchingEnum.kUnknownEnumValue)
         expected_response = Status.ConstraintError
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 7g
         self.step("7g")
@@ -488,7 +460,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kPedestrian,
             speed=Clusters.Globals.Enums.ThreeLevelAutoEnum.kUnknownEnumValue)
         expected_response = Status.ConstraintError
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 7h
         self.step("7h")
@@ -498,7 +470,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kVentilation,
             speed=Clusters.ClosureOperationalState.Enums.LatchingEnum.kUnknownEnumValue)
         expected_response = Status.ConstraintError
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 7i
         self.step("7i")
@@ -508,7 +480,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kUnknownEnumValue,
             speed=Clusters.Globals.Enums.ThreeLevelAutoEnum.kAutomatic)
         expected_response = Status.ConstraintError
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 7j
         self.step("7j")
@@ -518,7 +490,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
             latch=Clusters.ClosureOperationalState.Enums.LatchingEnum.kLatchedAndSecured,
             speed=Clusters.Globals.Enums.ThreeLevelAutoEnum.kUnknownEnumValue)
         expected_response = Status.ConstraintError
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
         # STEP 7k
         self.step("7k")
@@ -528,7 +500,7 @@ class TC_CLOPSTATE_2_2(MatterBaseTest):
             tag=Clusters.ClosureOperationalState.Enums.TagEnum.kCloseInFull,
             latch=Clusters.ClosureOperationalState.Enums.LatchingEnum.kLatchedAndSecured)
         expected_response = Status.Success
-        await self.send_cmd_expect_response(self.endpoint, cmd, expected_response)
+        await self.common_ops.send_cmd_expect_response(self.endpoint, cmd, expected_response)
 
 
 if __name__ == "__main__":
