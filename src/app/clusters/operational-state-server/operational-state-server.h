@@ -629,9 +629,9 @@ public:
      * Handle Command Callback in application: MoveTo
      * @param[out] err operational error after callback.
      */
-    virtual void HandleMoveToCommandCallback(OperationalState::GenericOperationalError & err, const chip::Optional<ClosureOperationalState::TagEnum> tag, 
-                                                            const chip::Optional<Globals::ThreeLevelAutoEnum> speed, 
-                                                            const chip::Optional<ClosureOperationalState::LatchingEnum> latch)
+    virtual void HandleMoveToCommandCallback(OperationalState::GenericOperationalError & err, const Optional<ClosureOperationalState::TagEnum> tag, 
+                                                            const Optional<Globals::ThreeLevelAutoEnum> speed, 
+                                                            const Optional<ClosureOperationalState::LatchingEnum> latch)
     {
         ChipLogDetail(Zcl, "ClosureOperationalState:Delegate HandleMoveToCommandCallback dummy");
         err.Set(to_underlying(OperationalState::ErrorStateEnum::kUnknownEnumValue));
@@ -641,7 +641,10 @@ public:
      * Handle Command Callback in application: ConfigureFallback
      * @param[out] err operational error after callback.
      */
-    virtual void HandleConfigureFallbackCommandCallback(OperationalState::GenericOperationalError & err)
+    virtual void HandleConfigureFallbackCommandCallback(OperationalState::GenericOperationalError & err, const Optional<ClosureOperationalState::RestingProcedureEnum> restingProcedure, 
+                                                            const Optional<ClosureOperationalState::TriggerConditionEnum> triggerCondition, 
+                                                            const Optional<ClosureOperationalState::TriggerPositionEnum> triggerPosition,
+                                                            const Optional<uint16_t> waitingDelay)
     {
         ChipLogDetail(Zcl, "ClosureOperationalState:Delegate HandleConfigureFallbackCommandCallback dummy");
         err.Set(to_underlying(OperationalState::ErrorStateEnum::kUnknownEnumValue));

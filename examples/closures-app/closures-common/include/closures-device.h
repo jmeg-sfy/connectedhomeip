@@ -34,11 +34,14 @@ private:
     bool mFallbackNeeded = false;
 
     ClosureOperationalState::Structs::OverallStateStruct::Type mOverallState;
-
     ClosureOperationalState::PositioningEnum mPositioning;
     ClosureOperationalState::LatchingEnum mLatching;
     Globals::ThreeLevelAutoEnum mSpeed;
-
+    ClosureOperationalState::RestingProcedureEnum mRestingProcedure;
+    ClosureOperationalState::TriggerConditionEnum mTriggerCondition;
+    ClosureOperationalState::TriggerPositionEnum mTriggerPosition;
+    uint16_t mWaitingDelay;
+    uint16_t mKickoffTimer = 0;
     uint8_t mStateBeforePause = 0;
 
     void SetPositioning(ClosureOperationalState::PositioningEnum aPositioning);
@@ -76,6 +79,8 @@ public:
         mOperationalStateDelegate.SetStopCallback(&ClosuresDevice::HandleOpStateStopCallback, this);
         mOperationalStateDelegate.SetMoveToCallback(&ClosuresDevice::HandleOpStateMoveToCallback, this);
         mOperationalStateDelegate.SetCalibrateCallback(&ClosuresDevice::HandleOpStateCalibrateCallback, this);
+        mOperationalStateDelegate.SetConfigureFallbackCallback(&ClosuresDevice::HandleOpStateConfigureFallbackCallback, this);
+        mOperationalStateDelegate.SetCancelFallbackCallback(&ClosuresDevice::HandleOpStateCancelFallbackCallback, this);
         mOperationalStateDelegate.SetCheckReadinessCallback(&ClosuresDevice::CheckReadiness, this);
     }
 
@@ -115,9 +120,22 @@ public:
     /**
      * Handles the ClosureOperationalState MoveTo command.
      */
-    void HandleOpStateMoveToCallback(OperationalState::GenericOperationalError & err, const chip::Optional<ClosureOperationalState::TagEnum> tag, 
-                                                            const chip::Optional<Globals::ThreeLevelAutoEnum> speed, 
-                                                            const chip::Optional<ClosureOperationalState::LatchingEnum> latch);
+    void HandleOpStateMoveToCallback(OperationalState::GenericOperationalError & err, const Optional<ClosureOperationalState::TagEnum> tag, 
+                                                            const Optional<Globals::ThreeLevelAutoEnum> speed, 
+                                                            const Optional<ClosureOperationalState::LatchingEnum> latch);
+
+    /**
+     * Handles the ClosureOperationalState ConfigureFallback command.
+     */
+    void HandleOpStateConfigureFallbackCallback(OperationalState::GenericOperationalError & err, const Optional<ClosureOperationalState::RestingProcedureEnum> restingProcedure,
+                                                            const Optional<ClosureOperationalState::TriggerConditionEnum> triggerCondition,
+                                                            const Optional<ClosureOperationalState::TriggerPositionEnum> triggerPosition, 
+                                                            const Optional<uint16_t> waitingDelay);
+
+    /**
+     * Handles the ClosureOperationalState Cancel Fallback command.
+     */
+    void HandleOpStateCancelFallbackCallback(OperationalState::GenericOperationalError & err);
 
     /**
      * Handles the ClosureOperationalState Calibrate command.

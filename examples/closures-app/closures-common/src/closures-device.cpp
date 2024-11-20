@@ -169,9 +169,9 @@ void ClosuresDevice::HandleOpStateStopCallback(Clusters::OperationalState::Gener
     err.Set(to_underlying(Clusters::OperationalState::ErrorStateEnum::kNoError));
 }
 
-void ClosuresDevice::HandleOpStateMoveToCallback(OperationalState::GenericOperationalError & err, const chip::Optional<ClosureOperationalState::TagEnum> tag, 
-                                                            const chip::Optional<Globals::ThreeLevelAutoEnum> speed, 
-                                                            const chip::Optional<ClosureOperationalState::LatchingEnum> latch)
+void ClosuresDevice::HandleOpStateMoveToCallback(OperationalState::GenericOperationalError & err, const Optional<ClosureOperationalState::TagEnum> tag, 
+                                                            const Optional<Globals::ThreeLevelAutoEnum> speed, 
+                                                            const Optional<ClosureOperationalState::LatchingEnum> latch)
 {
     ChipLogDetail(NotSpecified, CL_GREEN "HandleOpStateMoveToCallback" CL_CLEAR);
     err.Set(to_underlying(Clusters::OperationalState::ErrorStateEnum::kNoError));
@@ -241,6 +241,44 @@ void ClosuresDevice::HandleOpStateMoveToCallback(OperationalState::GenericOperat
         err.Set(to_underlying(Clusters::OperationalState::ErrorStateEnum::kCommandInvalidInState));
         // TODO check for specific errors
     }    
+}
+
+void ClosuresDevice::HandleOpStateConfigureFallbackCallback(
+    OperationalState::GenericOperationalError & err, const Optional<ClosureOperationalState::RestingProcedureEnum> restingProcedure,
+    const Optional<ClosureOperationalState::TriggerConditionEnum> triggerCondition,
+    const Optional<ClosureOperationalState::TriggerPositionEnum> triggerPosition, const Optional<uint16_t> waitingDelay)
+{
+    if (restingProcedure.HasValue())
+    {
+        mRestingProcedure = static_cast<ClosureOperationalState::RestingProcedureEnum>(restingProcedure.Value());
+        ChipLogDetail(NotSpecified, "RestingProcedure attribute updated to %d", static_cast<uint8_t>(mRestingProcedure));
+    }
+
+    if (triggerCondition.HasValue())
+    {
+        mTriggerCondition = static_cast<ClosureOperationalState::TriggerConditionEnum>(triggerCondition.Value());
+        ChipLogDetail(NotSpecified, "TriggerCondition attribute updated to %d", static_cast<uint8_t>(mTriggerCondition));
+    }
+
+    if (triggerPosition.HasValue())
+    {
+        mTriggerPosition = static_cast<ClosureOperationalState::TriggerPositionEnum>(triggerPosition.Value());
+        ChipLogDetail(NotSpecified, "TriggerPosition attribute updated to %d", static_cast<uint8_t>(mTriggerPosition));
+    }
+
+    if (waitingDelay.HasValue())
+    {
+        mWaitingDelay = waitingDelay.Value();
+        ChipLogDetail(NotSpecified, "WaitingDelay attribute updated to %d", mWaitingDelay);
+    }
+    // TODO simulation
+}
+
+void chip::app::Clusters::ClosuresDevice::HandleOpStateCancelFallbackCallback(OperationalState::GenericOperationalError & err)
+{
+    ChipLogDetail(NotSpecified, "Cancelling current fallback and setting KickoffTimer to Zero.");
+    mKickoffTimer = 0;
+    mOperationalStateInstance.OnClosureOperationCompletionDetected(0,static_cast<uint8_t>(OperationalState::OperationalStateEnum::kStopped), GetOverallState());
 }
 
 void ClosuresDevice::HandleOpStateCalibrateCallback(OperationalState::GenericOperationalError & err)

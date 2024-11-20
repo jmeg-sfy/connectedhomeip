@@ -1376,7 +1376,7 @@ void ClosureOperationalState::Instance::HandleConfigureFallbackCommand(HandlerCo
     if (HasFeature(to_underlying(Feature::kFallback)))
     {
         // Command is Sane for delegation
-        mDelegate->HandleConfigureFallbackCommandCallback(err);
+        mDelegate->HandleConfigureFallbackCommandCallback(err, req.restingProcedure, req.triggerCondition, req.triggerPosition, req.waitingDelay);
         if (err.errorStateID == to_underlying(OperationalState::ErrorStateEnum::kNoError))
         {
             ChipLogDetail(Zcl, "NEED TO IMPLEMENT attribute update");

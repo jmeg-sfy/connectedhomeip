@@ -270,5 +270,5 @@ void ClosuresAppCommandDelegate::OnEventCommandReceived(const char * json)
     }
 
     handler->SetClosuresDevice(mClosuresDevice);
-    chip::DeviceLayer::PlatformMgr().ScheduleWork(ClosuresAppCommandHandler::HandleCommand, reinterpret_cast<intptr_t>(handler));
+    DeviceLayer::PlatformMgr().ScheduleWork(ClosuresAppCommandHandler::HandleCommand, reinterpret_cast<intptr_t>(handler));
 }

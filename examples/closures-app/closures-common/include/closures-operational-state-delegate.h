@@ -30,9 +30,14 @@ class ClosuresDevice;
 
 typedef void (ClosuresDevice::*HandleOpSubState)(ReadinessCheckType type, bool & ready);
 typedef void (ClosuresDevice::*HandleOpStateCommand)(Clusters::OperationalState::GenericOperationalError & err);
-typedef void (ClosuresDevice::*HandleClosureOpStateCommand)(OperationalState::GenericOperationalError & err, const chip::Optional<ClosureOperationalState::TagEnum> tag, 
-                                                            const chip::Optional<Globals::ThreeLevelAutoEnum> speed, 
-                                                            const chip::Optional<ClosureOperationalState::LatchingEnum> latch) ;
+typedef void (ClosuresDevice::*HandleClosureOpStateMoveToCommand)(OperationalState::GenericOperationalError & err, const Optional<ClosureOperationalState::TagEnum> tag, 
+                                                            const Optional<Globals::ThreeLevelAutoEnum> speed, 
+                                                            const Optional<ClosureOperationalState::LatchingEnum> latch);
+
+typedef void (ClosuresDevice::*HandleClosureOpStateConfigureCallbackCommand)(OperationalState::GenericOperationalError & err, const Optional<ClosureOperationalState::RestingProcedureEnum> restingProcedure, 
+                                                            const Optional<ClosureOperationalState::TriggerConditionEnum> triggerCondition, 
+                                                            const Optional<ClosureOperationalState::TriggerPositionEnum> triggerPosition,
+                                                            const Optional<uint16_t> waitingDelay);
 namespace ClosureOperationalState {
 
 // This is an application level delegate to handle operational state commands according to the specific business logic.
@@ -60,11 +65,15 @@ private:
     ClosuresDevice * mStopClosuresDeviceInstance;
     HandleOpStateCommand mStopCallback;
     ClosuresDevice * mMoveToClosuresDeviceInstance;
-    HandleClosureOpStateCommand mMoveToCallback;
+    HandleClosureOpStateMoveToCommand mMoveToCallback;
     ClosuresDevice * mCalibrateClosuresDeviceInstance;
     HandleOpStateCommand mCalibrateCallback;
     ClosuresDevice * mCheckReadinessInstance;
     HandleOpSubState mCheckReadinessCallback;
+    ClosuresDevice * mConfigureFallbackClosuresDeviceInstance;
+    HandleClosureOpStateConfigureCallbackCommand mConfigureFallbackCallback;
+    ClosuresDevice * mCancelFallbackClosuresDeviceInstance;
+    HandleOpStateCommand mCancelFallbackCallback;
 
     std::function<void()> mDeviceNotReadyCallback;
 
@@ -129,9 +138,25 @@ public:
      * Handle Command Callback in application: MoveTo
      * @param[out] get operational error after callback.
      */
-    void HandleMoveToCommandCallback(OperationalState::GenericOperationalError & err, const chip::Optional<ClosureOperationalState::TagEnum> tag, 
-                                                            const chip::Optional<Globals::ThreeLevelAutoEnum> speed, 
-                                                            const chip::Optional<ClosureOperationalState::LatchingEnum> latch) override;
+    void HandleMoveToCommandCallback(OperationalState::GenericOperationalError & err, const Optional<ClosureOperationalState::TagEnum> tag, 
+                                                            const Optional<Globals::ThreeLevelAutoEnum> speed, 
+                                                            const Optional<ClosureOperationalState::LatchingEnum> latch) override;
+    
+    /**
+     * Handle Command Callback in application: Configure Fallback
+     * @param[out] get operational error after callback.
+     */
+    void HandleConfigureFallbackCommandCallback(OperationalState::GenericOperationalError & err, const Optional<ClosureOperationalState::RestingProcedureEnum> restingProcedure, 
+                                                            const Optional<ClosureOperationalState::TriggerConditionEnum> triggerCondition, 
+                                                            const Optional<ClosureOperationalState::TriggerPositionEnum> triggerPosition,
+                                                            const Optional<uint16_t> waitingDelay) override;
+
+    /**
+     * Handle Command Callback in application: Cancel Fallback
+     * @param[out] get operational error after callback.
+     */
+    void HandleCancelFallbackCommandCallback(Clusters::OperationalState::GenericOperationalError & err) override;
+
 
     void CheckReadinessCallback(ReadinessCheckType aType, bool & aReady) override;
 
@@ -153,7 +178,7 @@ public:
         mStopClosuresDeviceInstance = aInstance;
     };
 
-    void SetMoveToCallback(HandleClosureOpStateCommand aCallback, ClosuresDevice * aInstance)
+    void SetMoveToCallback(HandleClosureOpStateMoveToCommand aCallback, ClosuresDevice * aInstance)
     {
         mMoveToCallback          = aCallback;
         mMoveToClosuresDeviceInstance = aInstance;
@@ -163,6 +188,18 @@ public:
     {
         mCalibrateCallback          = aCallback;
         mCalibrateClosuresDeviceInstance = aInstance;
+    };
+
+    void SetConfigureFallbackCallback(HandleClosureOpStateConfigureCallbackCommand aCallback, ClosuresDevice * aInstance)
+    {
+        mConfigureFallbackCallback          = aCallback;
+        mConfigureFallbackClosuresDeviceInstance = aInstance;
+    };
+
+    void SetCancelFallbackCallback(HandleOpStateCommand aCallback, ClosuresDevice * aInstance)
+    {
+        mCancelFallbackCallback          = aCallback;
+        mCancelFallbackClosuresDeviceInstance = aInstance;
     };
 
     void SetCheckReadinessCallback(HandleOpSubState aCallback, ClosuresDevice * aInstance)

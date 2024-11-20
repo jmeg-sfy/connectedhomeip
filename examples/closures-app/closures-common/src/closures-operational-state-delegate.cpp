@@ -69,6 +69,19 @@ void ClosuresOperationalStateDelegate::HandleMoveToCommandCallback(OperationalSt
     (mMoveToClosuresDeviceInstance->*mMoveToCallback)(err, tag, speed, latch);
 }
 
+void ClosuresOperationalStateDelegate::HandleConfigureFallbackCommandCallback(
+    OperationalState::GenericOperationalError & err, const Optional<ClosureOperationalState::RestingProcedureEnum> restingProcedure,
+    const Optional<ClosureOperationalState::TriggerConditionEnum> triggerCondition,
+    const Optional<ClosureOperationalState::TriggerPositionEnum> triggerPosition, const Optional<uint16_t> waitingDelay)
+{
+    (mConfigureFallbackClosuresDeviceInstance->*mConfigureFallbackCallback)(err, restingProcedure, triggerCondition, triggerPosition, waitingDelay);
+}
+
+void ClosuresOperationalStateDelegate::HandleCancelFallbackCommandCallback(Clusters::OperationalState::GenericOperationalError & err)
+{
+    (mCancelFallbackClosuresDeviceInstance->*mCancelFallbackCallback)(err);
+}
+
 void ClosureOperationalState::ClosuresOperationalStateDelegate::CheckReadinessCallback(ReadinessCheckType aType, bool & aReady)
 {
     (mCheckReadinessInstance->*mCheckReadinessCallback)(aType, aReady);
