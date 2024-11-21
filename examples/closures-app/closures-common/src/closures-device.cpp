@@ -249,27 +249,10 @@ void ClosuresDevice::SetSpeed(Globals::ThreeLevelAutoEnum aSpeed)
     mSpeed = aSpeed;
 }
 
-const char * ClosuresDevice::GetStateString(ClosureOperationalState::OperationalStateEnum aOpState) const
-{
-    switch (aOpState)
-    {
-    case ClosureOperationalState::OperationalStateEnum::kCalibrating:
-        return "Running";
-    case ClosureOperationalState::OperationalStateEnum::kDisengaded:
-        return "Stopped";
-    case ClosureOperationalState::OperationalStateEnum::kPendingFallback:
-        return "Protected";
-    case ClosureOperationalState::OperationalStateEnum::kProtected:
-        return "Paused";
-    default:
-        return "Unknown";
-    }
-}
-
 // Called when the state changes, updating the state in closure device
 void ClosuresDevice::OnStateChanged(ClosureOperationalState::OperationalStateEnum state)
 {
-    const char* state_string = GetStateString(state);
+    const char* state_string = mOperationalStateInstance.GetOperationalStateString(to_underlying(state));
     ChipLogDetail(NotSpecified, CL_YELLOW "The new Closure Operational State value: %s" CL_CLEAR, state_string);
 }
 
