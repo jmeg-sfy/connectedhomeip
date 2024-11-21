@@ -537,7 +537,7 @@ public:
     /**
      * Creates a Dimensions cluster instance. The Init() function needs to be called for this instance to be registered and
      * called by the interaction model at the appropriate times.
-     * This constructor should be used when using the kNumericMeasurement feature.
+     * This constructor should be used for all features.
      * @param aEndpointId The endpoint on which this cluster exists. This must match the zap configuration.
      * @param aClusterId The ID of the ModeBase aliased cluster to be instantiated.
      * @param aRotationAxis needed along the Rotation feature.
@@ -974,34 +974,26 @@ const char * StrYN(bool isTrue)
     };
 };
 
-
-/* ====================================================================================================== */
-/* ====================================================================================================== */
-/* ====================================================================================================== */
-/* ====================================================================================================== */
-/* ====================================================================================================== */
 /* ====================================================================================================== */
 
-// template <bool FeaturePositioningEnabled,
-//           bool FeatureLatchingEnabled,
-//           bool FeatureUnitEnabled,
-//           bool FeatureSpeedEnabled,
-//           bool FeatureLimitationEnabled,
-//           bool FeatureRotationEnabled,
-//           bool FeatureTranslationEnabled,
-//           bool FeatureModulationEnabled>
+// template schema PS <bool FeaturePositioningEnabled,
+//                 LT  bool FeatureLatchingEnabled,
+//                 UT  bool FeatureUnitEnabled,
+//                 SP  bool FeatureSpeedEnabled,
+//                 LM  bool FeatureLimitationEnabled,
+//                 RO  bool FeatureRotationEnabled,
+//                 TR  bool FeatureTranslationEnabled,
+//                 MD  bool FeatureModulationEnabled>
 
 /**
- * A factory function to create a new instance of a Concentration Measurement Cluster with only the NumericMeasurement feature
- * enabled.
+ * A factory function to create a new instance of a Closure Dimension Cluster for Rotational description
  *
- * @tparam FeatureUnitEnabled Whether the PeakMeasurement feature is enabled.
- * @tparam FeatureSpeedEnabled Whether the AverageMeasurement feature is enabled.
+ * @tparam FeatureSpeedEnabled Whether the Speed feature is enabled.
+ * @tparam FeatureLimitationEnabled Whether the Limitation feature is enabled.
+ * @tparam FeatureLatchingEnabled Wheter the Latching feature is enabled.
  * @param endpoint Endpoint that the cluster is on.
  * @param clusterId Cluster that the cluster is on.
- * @param aResolution The measurement medium.
- * @param aUnit The measurement unit.
- * @return A new instance of Concentration Measurement Cluster.
+ * @return A new instance of Closure Dimension Cluster.
  */
 
 template <bool FeatureSpeedEnabled, bool FeatureLimitationEnabled, bool FeatureLatchingEnabled>
