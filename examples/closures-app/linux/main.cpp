@@ -26,7 +26,6 @@
 #if defined(CHIP_IMGUI_ENABLED) && CHIP_IMGUI_ENABLED
 #include <imgui_ui/ui.h>
 #include <imgui_ui/windows/qrcode.h>
-#include <imgui_ui/windows/closure_dimension.h>
 #endif /* CHIP_IMGUI_ENABLED */
 
 #define CLOSURE_ENDPOINT 1
